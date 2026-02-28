@@ -1,4 +1,17 @@
-export const connectDb = (dbURL: string) => {};
+import { drizzle } from "drizzle-orm/libsql";
+import { employee } from "./schema/members";
+import { relations } from "./schema/relations";
+
+export const connectDb = (url: string) => {
+  return drizzle({
+    connection: {
+      url,
+      authToken: process.env.TURSO_GROUP_AUTH_TOKEN,
+    },
+    schema: { employee },
+    relations,
+  });
+};
 
 export * from "drizzle-orm";
-export { alias, type PgSelect } from "drizzle-orm/pg-core";
+export * from "./schema/members";

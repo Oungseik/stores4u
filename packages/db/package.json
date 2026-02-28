@@ -20,6 +20,7 @@
     }
   },
   "dependencies": {
+    "@libsql/client": "^0.17.0",
     "@tursodatabase/api": "^1.9.2",
     "@tursodatabase/database": "^0.4.4",
     "dotenv": "^17.3.1",

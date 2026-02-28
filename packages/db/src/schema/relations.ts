@@ -1,4 +1,4 @@
 import { defineRelations } from "drizzle-orm";
-import { shop } from "./shop";
+import { employee } from "./members";
 
-export const relations = defineRelations({ shop }, () => ({}));
+export const relations = defineRelations({ employee }, () => ({ employee: {} }));
