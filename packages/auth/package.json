@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@repo/db",
+  "name": "@repo/auth",
+  "description": "Drizzle scheam for authentication with better auth",
   "type": "module",
   "private": true,
   "scripts": {
@@ -18,9 +19,14 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./auth": {
+      "types": "./src/auth.ts",
+      "default": "./src/auth.ts"
     }
   },
   "dependencies": {
+    "@libsql/client": "^0.17.0",
     "@tursodatabase/api": "^1.9.2",
     "@tursodatabase/database": "^0.4.4",
     "dotenv": "^17.3.1",

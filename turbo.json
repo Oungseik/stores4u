@@ -44,5 +44,10 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"]
     }
   },
-  "globalEnv": ["PUBLIC_ENVIRONMENT", "BETTER_AUTH_SECRET", "DATABASE_URL"]
+  "globalEnv": [
+    "TURSO_ORGANIZATION",
+    "AUTH_DATABASE_URL",
+    "PARENT_DATABASE_URL",
+    "TURSO_GROUP_AUTH_TOKEN"
+  ]
 }
