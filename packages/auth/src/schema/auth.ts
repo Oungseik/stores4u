@@ -82,3 +82,12 @@ export const twoFactor = sqliteTable(
   },
   (t) => [index("two_factor_secret_idx").on(t.secret)],
 );
+
+export const shop = sqliteTable("shop", {
+  id: text("id").primaryKey().$defaultFn(Bun.randomUUIDv7),
+  name: text("name").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+});

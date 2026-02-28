@@ -3,7 +3,7 @@ import { account, session, twoFactor, user, verification } from "./schema/auth";
 import { relations } from "./schema/relations";
 
 export const connectDb = () => {
-  drizzle({
+  return drizzle({
     connection: {
       url: process.env.AUTH_DATABASE_URL!,
       authToken: process.env.TURSO_GROUP_AUTH_TOKEN,

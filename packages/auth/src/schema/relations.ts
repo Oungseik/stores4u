@@ -1,5 +1,5 @@
 import { defineRelations } from "drizzle-orm";
-import { account, session, twoFactor, user } from "./auth";
+import { account, session, shop, twoFactor, user } from "./auth";
 
 export const relations = defineRelations(
   {
@@ -7,12 +7,14 @@ export const relations = defineRelations(
     session,
     account,
     twoFactor,
+    shop,
   },
   (r) => ({
     user: {
       sessions: r.many.session(),
       accounts: r.many.account(),
       twoFactors: r.many.twoFactor(),
+      shops: r.many.shop(),
     },
     session: {
       user: r.one.user({ from: r.session.userId, to: r.user.id }),
@@ -22,6 +24,9 @@ export const relations = defineRelations(
     },
     twoFactor: {
       user: r.one.user({ from: r.twoFactor.userId, to: r.user.id }),
+    },
+    shop: {
+      user: r.one.user({ from: r.shop.userId, to: r.user.id }),
     },
   }),
 );
