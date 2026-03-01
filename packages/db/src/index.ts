@@ -2,12 +2,9 @@ import { drizzle } from "drizzle-orm/libsql";
 import { employee } from "./schema/members";
 import { relations } from "./schema/relations";
 
-export const connectDb = (url: string) => {
+export const connectDb = (url: string, authToken: string) => {
   return drizzle({
-    connection: {
-      url,
-      authToken: process.env.TURSO_GROUP_AUTH_TOKEN,
-    },
+    connection: { url, authToken },
     schema: { employee },
     relations,
   });
