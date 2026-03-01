@@ -2,11 +2,17 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
-import { BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "$env/static/private";
+import {
+  BETTER_AUTH_SECRET,
+  BETTER_AUTH_URL,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+} from "$env/static/private";
 
 import { db } from "$lib/server/auth_db";
 
 export const auth = betterAuth({
+  baseURL: BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: "sqlite",
   }),
