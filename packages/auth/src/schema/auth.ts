@@ -1,5 +1,8 @@
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+export const shopRoles = ["OWNER", "ADMIN", "MEMBER"] as const;
+export type ShopRole = (typeof shopRoles)[number];
+
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -83,11 +86,26 @@ export const twoFactor = sqliteTable(
   (t) => [index("two_factor_secret_idx").on(t.secret)],
 );
 
-export const shop = sqliteTable("shop", {
-  id: text("id").primaryKey().$defaultFn(Bun.randomUUIDv7),
-  name: text("name").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
-});
+export const shop = sqliteTable(
+  "shop",
+  {
+    id: text("id").primaryKey().$defaultFn(Bun.randomUUIDv7),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    tursoDbUrl: text("turso_db_url"),
+    isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (t) => [index("shop_slug_idx").on(t.slug), index("shop_user_id_idx").on(t.userId)],
+);
+
+export type ShopSelect = typeof shop.$inferSelect;
+export type ShopInsert = typeof shop.$inferInsert;

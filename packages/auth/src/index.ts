@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/libsql";
-import { account, session, twoFactor, user, verification } from "./schema/auth";
+import { account, session, shop, twoFactor, user, verification } from "./schema/auth";
 import { relations } from "./schema/relations";
 
 export const connectDb = (url: string, authToken: string) => {
@@ -8,6 +8,7 @@ export const connectDb = (url: string, authToken: string) => {
     schema: {
       account,
       session,
+      shop,
       twoFactor,
       user,
       verification,
