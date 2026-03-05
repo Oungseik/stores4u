@@ -32,8 +32,8 @@
           email: value.email,
           password: value.password,
           callbackURL: params.return_url
-            ? "/auth/signin".concat(`?return_url=${params.return_url}`)
-            : "/auth/signin",
+            ? "/signin".concat(`?return_url=${params.return_url}`)
+            : "/signin",
         },
         {
           onSuccess: () => {
