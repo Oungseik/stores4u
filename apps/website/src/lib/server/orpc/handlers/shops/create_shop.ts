@@ -20,11 +20,21 @@ export const createShopHandler = os
   .handler(async ({ input, context }) => {
     const existingShop = await db.query.shop.findFirst({
       where: { slug: input.slug, userId: context.session.user.id },
-      // where: and(eq(shop.slug, input.slug), eq(shop.userId, context.session.user.id)),
     });
+
     if (existingShop) {
       throw new ORPCError("INPUT_VALIDATION_FAILED", {
         message: `You already have a shop with slug "${input.slug}"`,
+      });
+    }
+
+    // TODO remove this once implement correct plan logic
+    const userHasShop = await db.query.shop.findFirst({
+      where: { userId: context.session.user.id },
+    });
+    if (userHasShop) {
+      throw new ORPCError("INPUT_VALIDATION_FAILED", {
+        message: "You can only own one shop",
       });
     }
 
