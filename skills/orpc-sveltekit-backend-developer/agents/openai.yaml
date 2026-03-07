@@ -1,0 +1,4 @@
+interface:
+  display_name: "oRPC SvelteKit Backend Developer"
+  short_description: "Build oRPC handlers with Drizzle in SvelteKit"
+  default_prompt: "Use $orpc-sveltekit-backend-developer to implement or update an oRPC backend API in this monorepo, including schema checks, middleware composition, and router wiring."
