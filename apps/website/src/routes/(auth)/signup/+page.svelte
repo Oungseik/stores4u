@@ -1,7 +1,6 @@
 <script lang="ts">
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
-  import { buttonVariants } from "@repo/ui/button";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
@@ -13,6 +12,7 @@
 
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import { PUBLIC_SITE_NAME } from "$env/static/public";
   import { authClient } from "$lib/auth_client";
   import SocialOauthBtnsGroup from "$lib/components/groups/SocialOAuthBtnsGroup.svelte";
   import { returnUrlSchema } from "$lib/search_param";
@@ -60,7 +60,7 @@
   <div class="flex w-full max-w-sm flex-col gap-6">
     <a href="/" class="flex items-center gap-2 self-center font-medium">
       <img src="/logo.svg" class="size-5" alt="logo" />
-      <span>Kagom</span>
+      <span>{PUBLIC_SITE_NAME}</span>
     </a>
 
     <Card.Root>

@@ -8,6 +8,7 @@
   import { toast } from "svelte-sonner";
 
   import { page } from "$app/state";
+  import { PUBLIC_SITE_NAME } from "$env/static/public";
   import { authClient } from "$lib/auth_client";
   import SocialOauthBtnsGroup from "$lib/components/groups/SocialOAuthBtnsGroup.svelte";
 
@@ -44,7 +45,7 @@
   <div class="flex w-full max-w-sm flex-col gap-6">
     <a href="/" class="flex items-center gap-2 self-center font-medium">
       <img src="/logo.svg" class="size-5" alt="logo" />
-      <span>Kagom</span>
+      <span>{PUBLIC_SITE_NAME}</span>
     </a>
 
     <Card.Root>
