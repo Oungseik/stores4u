@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
 import { z } from "zod";
+import { TURSO_GROUP, TURSO_PARENT_DB_NAME } from "$env/static/private";
 import { db } from "$lib/server/auth_db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 import { turso } from "$lib/server/turso";
@@ -51,8 +52,26 @@ export const createShopHandler = os
     }
 
     try {
-      await turso.databases.create(createdShop.id, { schema: "parent" });
+      let parentDb: Awaited<ReturnType<typeof turso.databases.get>> | null = null;
+      try {
+        parentDb = await turso.databases.get(TURSO_PARENT_DB_NAME);
+      } catch (_e) {
+        parentDb = null;
+      }
+
+      if (!parentDb) {
+        await turso.databases.create(TURSO_PARENT_DB_NAME, {
+          group: TURSO_GROUP,
+          is_schema: true,
+        });
+      }
+
+      await turso.databases.create(createdShop.id, {
+        schema: TURSO_PARENT_DB_NAME,
+        group: TURSO_GROUP,
+      });
     } catch (e) {
+      console.error(e);
       console.error(`Failed to create database for ${createdShop.id}`);
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
