@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
-import { migrateShopDb } from "@repo/db";
+import { connectShopDb, migrateShopDb, shopSetting } from "@repo/db";
 import { z } from "zod";
 import { MIGRATION_FOLDER, SHOP_DATA_DIR } from "$env/static/private";
 import { db } from "$lib/server/auth_db";
@@ -14,6 +14,15 @@ const input = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
+  title: z.string().min(1).max(200),
+  description: z.string().min(1).max(1000),
+  address: z.string().min(1).max(200),
+  city: z.string().min(1).max(100),
+  phone: z.string().min(1).max(50),
+  region: z.string().max(100).optional(),
+  country: z.string().max(100).optional(),
+  logo: z.string().max(500).optional(),
+  heroImage: z.string().max(500).optional(),
 });
 
 export const createShopHandler = os
@@ -52,11 +61,12 @@ export const createShopHandler = os
       });
     }
 
+    let migrationsFolder: string;
     try {
       const shopsDir = `${SHOP_DATA_DIR}/shops`;
       await mkdir(shopsDir, { recursive: true });
 
-      const migrationsFolder = new URL(MIGRATION_FOLDER, import.meta.url).pathname;
+      migrationsFolder = new URL(MIGRATION_FOLDER, import.meta.url).pathname;
 
       await migrateShopDb(createdShop.slug, SHOP_DATA_DIR, migrationsFolder);
     } catch (e) {
@@ -65,6 +75,28 @@ export const createShopHandler = os
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
+      });
+    }
+
+    try {
+      const shopDb = connectShopDb(createdShop.slug, SHOP_DATA_DIR);
+      await shopDb.insert(shopSetting).values({
+        title: input.title,
+        description: input.description,
+        address: input.address,
+        city: input.city,
+        phone: input.phone,
+        region: input.region,
+        country: input.country,
+        logo: input.logo,
+        heroImage: input.heroImage,
+      });
+    } catch (e) {
+      console.error(e);
+      console.error(`Failed to create shop setting for ${createdShop.slug}`);
+      await db.delete(shop).where(eq(shop.id, createdShop.id));
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Failed to create shop settings. Please try again.",
       });
     }
 
