@@ -137,7 +137,9 @@
                 <div class="space-y-2">
                   <Label for={field.name}>Slug</Label>
                   <div class="flex items-center gap-2">
-                    <span class="text-muted-foreground text-sm">{PUBLIC_SITE_NAME.toLowerCase()}.com/</span>
+                    <span class="text-muted-foreground text-sm"
+                      >{PUBLIC_SITE_NAME.toLowerCase()}.com/</span
+                    >
                     <Input
                       id={field.name}
                       name={field.name}
