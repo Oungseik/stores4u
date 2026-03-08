@@ -28,8 +28,12 @@ export const inventoryBatch = sqliteTable(
     remainingQty: real("remaining_qty").notNull(),
     expiryDate: text("expiry_date"),
     batchNumber: text("batch_number"),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (t) => [
     index("inventory_batch_product_expiry_created_available_idx")
@@ -57,8 +61,12 @@ export const inventoryMovement = sqliteTable(
     referenceType: text("reference_type"),
     referenceId: text("reference_id"),
     reason: text("reason"),
-    occurredAt: text("occurred_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (t) => [
     index("inventory_movement_product_occurred_at_idx").on(t.productId, t.occurredAt),

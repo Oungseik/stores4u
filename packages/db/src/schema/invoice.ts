@@ -22,7 +22,9 @@ export const invoiceOcrResult = sqliteTable(
     extractedData: text("extracted_data"),
     confidenceScore: real("confidence_score"),
     status: text("status", { enum: ocrStatuses }).default("PENDING").notNull(),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (t) => [
     check(
@@ -58,10 +60,14 @@ export const invoice = sqliteTable(
     totalCents: integer("total_cents").default(0).notNull(),
     status: text("status", { enum: invoiceStatuses }).default("PENDING").notNull(),
     validatedBy: text("validated_by"),
-    validatedAt: text("validated_at"),
+    validatedAt: integer("validated_at", { mode: "timestamp" }),
     notes: text("notes"),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (t) => [
     unique("invoice_supplier_invoice_number_unique").on(t.supplierId, t.invoiceNumber),
@@ -91,7 +97,9 @@ export const invoiceItem = sqliteTable(
     lineTotalCents: integer("line_total_cents").notNull(),
     expiryDate: text("expiry_date"),
     batchNumber: text("batch_number"),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (t) => [
     index("invoice_item_invoice_id_idx").on(t.invoiceId),

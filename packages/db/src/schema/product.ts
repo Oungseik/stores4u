@@ -1,6 +1,5 @@
 import { randomUUIDv7 } from "bun";
-import { sql } from "drizzle-orm";
-import { index, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const category = sqliteTable("category", {
   id: text("id")
@@ -8,8 +7,12 @@ export const category = sqliteTable("category", {
     .$defaultFn(() => randomUUIDv7()),
   name: text("name").notNull().unique(),
   description: text("description"),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
 });
 
 export const product = sqliteTable("product", {
@@ -21,8 +24,12 @@ export const product = sqliteTable("product", {
   barcode: text("barcode").unique(),
   description: text("description"),
   uom: text("uom").notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
 });
 
 export const productCategory = sqliteTable(

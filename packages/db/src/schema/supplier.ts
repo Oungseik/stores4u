@@ -1,6 +1,5 @@
 import { randomUUIDv7 } from "bun";
-import { sql } from "drizzle-orm";
-import { index, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { product } from "./product";
 
 export const supplier = sqliteTable("supplier", {
@@ -13,8 +12,12 @@ export const supplier = sqliteTable("supplier", {
   email: text("email"),
   address: text("address"),
   paymentTerms: text("payment_terms"),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
 });
 
 export const productSupplier = sqliteTable(
@@ -29,7 +32,9 @@ export const productSupplier = sqliteTable(
     isPreferred: text("is_preferred", { enum: ["0", "1"] })
       .default("0")
       .notNull(),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (t) => [
     primaryKey({ columns: [t.productId, t.supplierId] }),
