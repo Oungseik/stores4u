@@ -58,10 +58,11 @@ export const importProductsCsvHandler = os
     const barcodeIdx = headers.indexOf("barcode");
     const descriptionIdx = headers.indexOf("description");
     const uomIdx = headers.indexOf("uom");
+    const priceCentsIdx = headers.indexOf("price_cents");
 
-    if (skuIdx === -1 || nameIdx === -1 || uomIdx === -1) {
+    if (skuIdx === -1 || nameIdx === -1 || uomIdx === -1 || priceCentsIdx === -1) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "CSV must have sku, name, and uom columns",
+        message: "CSV must have sku, name, uom, and price_cents columns",
       });
     }
 
@@ -72,6 +73,7 @@ export const importProductsCsvHandler = os
       barcode: string | null;
       description: string | null;
       uom: string;
+      priceCents: number;
     }[] = [];
 
     for (let i = 1; i < lines.length; i++) {
@@ -85,12 +87,13 @@ export const importProductsCsvHandler = os
       const barcode = barcodeIdx !== -1 ? fields[barcodeIdx]?.trim() || null : null;
       const description = descriptionIdx !== -1 ? fields[descriptionIdx]?.trim() || null : null;
       const uom = fields[uomIdx]?.trim();
+      const priceCents = Number.parseInt(fields[priceCentsIdx]?.trim() || "0", 10);
 
       if (!sku || !name || !uom) {
         continue;
       }
 
-      records.push({ sku, name, image, barcode, description, uom });
+      records.push({ sku, name, image, barcode, description, uom, priceCents });
     }
 
     if (records.length === 0) {
@@ -111,6 +114,7 @@ export const importProductsCsvHandler = os
             barcode: sql`excluded.barcode`,
             description: sql`excluded.description`,
             uom: sql`excluded.uom`,
+            priceCents: sql`excluded.price_cents`,
             updatedAt: now,
           },
         })

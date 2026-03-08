@@ -12,6 +12,7 @@ const input = z.object({
   uom: z.string().min(1).max(50),
   barcode: z.string().max(100).optional(),
   description: z.string().max(1000).optional(),
+  priceCents: z.number().int().positive(),
 });
 
 export const createProductHandler = os
@@ -29,6 +30,7 @@ export const createProductHandler = os
         uom: input.uom,
         barcode: input.barcode,
         description: input.description,
+        priceCents: input.priceCents,
       })
       .returning();
 

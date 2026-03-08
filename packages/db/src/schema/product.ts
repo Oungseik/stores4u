@@ -25,6 +25,7 @@ export const product = sqliteTable("product", {
   barcode: text("barcode").unique(),
   description: text("description"),
   uom: text("uom").notNull(),
+  priceCents: integer("price_cents").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),

@@ -133,6 +133,7 @@ function generateProductData(count: number) {
       barcode: `${randInt(1000000000000, 9999999999999)}`,
       description: `High quality product item ${i + 1}`,
       uom: rand(arrays.uoms),
+      priceCents: randInt(100, 100000),
     });
   }
   return data;
