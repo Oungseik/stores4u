@@ -21,6 +21,7 @@ export const product = sqliteTable("product", {
     .$defaultFn(() => randomUUIDv7()),
   sku: text("sku").notNull().unique(),
   name: text("name").notNull(),
+  image: text("image"),
   barcode: text("barcode").unique(),
   description: text("description"),
   uom: text("uom").notNull(),

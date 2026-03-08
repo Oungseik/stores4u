@@ -9,6 +9,7 @@ const input = z.object({
   id: z.string().min(1),
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(255),
+  image: z.string().max(500).nullable(),
   uom: z.string().min(1).max(50),
   barcode: z.string().max(100).nullable(),
   description: z.string().max(1000).nullable(),
@@ -25,6 +26,7 @@ export const updateProductHandler = os
       .set({
         sku: input.sku,
         name: input.name,
+        image: input.image,
         uom: input.uom,
         barcode: input.barcode,
         description: input.description,

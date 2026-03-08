@@ -25,9 +25,11 @@ export const exportProductsCsvHandler = os
       orderBy: { sku: "asc" },
     });
 
-    const headers = ["sku", "name", "barcode", "description", "uom"];
+    const headers = ["sku", "name", "image", "barcode", "description", "uom"];
     const rows = products.map((p) =>
-      [p.sku, p.name, p.barcode ?? "", p.description ?? "", p.uom].map(escapeCsvField).join(","),
+      [p.sku, p.name, p.image ?? "", p.barcode ?? "", p.description ?? "", p.uom]
+        .map(escapeCsvField)
+        .join(","),
     );
 
     const csv = [headers.join(","), ...rows].join("\n");

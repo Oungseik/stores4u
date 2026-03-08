@@ -8,6 +8,7 @@ const input = z.object({
   slug: z.string().min(1).max(100),
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(255),
+  image: z.string().max(500).optional(),
   uom: z.string().min(1).max(50),
   barcode: z.string().max(100).optional(),
   description: z.string().max(1000).optional(),
@@ -24,6 +25,7 @@ export const createProductHandler = os
       .values({
         sku: input.sku,
         name: input.name,
+        image: input.image,
         uom: input.uom,
         barcode: input.barcode,
         description: input.description,

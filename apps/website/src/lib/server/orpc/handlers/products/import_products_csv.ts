@@ -54,6 +54,7 @@ export const importProductsCsvHandler = os
 
     const skuIdx = headers.indexOf("sku");
     const nameIdx = headers.indexOf("name");
+    const imageIdx = headers.indexOf("image");
     const barcodeIdx = headers.indexOf("barcode");
     const descriptionIdx = headers.indexOf("description");
     const uomIdx = headers.indexOf("uom");
@@ -67,6 +68,7 @@ export const importProductsCsvHandler = os
     const records: {
       sku: string;
       name: string;
+      image: string | null;
       barcode: string | null;
       description: string | null;
       uom: string;
@@ -79,6 +81,7 @@ export const importProductsCsvHandler = os
       const fields = parseCsvLine(line);
       const sku = fields[skuIdx]?.trim();
       const name = fields[nameIdx]?.trim();
+      const image = imageIdx !== -1 ? fields[imageIdx]?.trim() || null : null;
       const barcode = barcodeIdx !== -1 ? fields[barcodeIdx]?.trim() || null : null;
       const description = descriptionIdx !== -1 ? fields[descriptionIdx]?.trim() || null : null;
       const uom = fields[uomIdx]?.trim();
@@ -87,7 +90,7 @@ export const importProductsCsvHandler = os
         continue;
       }
 
-      records.push({ sku, name, barcode, description, uom });
+      records.push({ sku, name, image, barcode, description, uom });
     }
 
     if (records.length === 0) {
@@ -104,6 +107,7 @@ export const importProductsCsvHandler = os
           target: product.sku,
           set: {
             name: sql`excluded.name`,
+            image: sql`excluded.image`,
             barcode: sql`excluded.barcode`,
             description: sql`excluded.description`,
             uom: sql`excluded.uom`,
