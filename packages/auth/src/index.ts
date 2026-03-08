@@ -1,10 +1,10 @@
-import { drizzle } from "drizzle-orm/libsql";
+import { drizzle } from "drizzle-orm/tursodatabase/database";
 import { account, session, shop, twoFactor, user, verification } from "./schema/auth";
 import { relations } from "./schema/relations";
 
-export const connectDb = (url: string, authToken: string) => {
+export const connectDb = (path: string) => {
   return drizzle({
-    connection: { url, authToken },
+    connection: { path },
     schema: {
       account,
       session,

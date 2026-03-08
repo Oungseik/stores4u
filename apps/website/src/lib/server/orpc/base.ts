@@ -22,6 +22,8 @@ type Context = {
       image?: string | null | undefined | undefined;
     };
   } | null;
+  shopDb?: unknown;
+  shopId?: string;
 };
 
 export const os = base.$context<Context>().errors({

@@ -1,4 +1,4 @@
 import { connectDb } from "@repo/auth";
-import { AUTH_DATABASE_URL, TURSO_GROUP_AUTH_TOKEN } from "$env/static/private";
+import { AUTH_DATABASE_URL } from "$env/static/private";
 
-export const db = connectDb(AUTH_DATABASE_URL, TURSO_GROUP_AUTH_TOKEN);
+export const db = connectDb(AUTH_DATABASE_URL);

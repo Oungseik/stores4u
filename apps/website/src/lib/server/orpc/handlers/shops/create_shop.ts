@@ -1,10 +1,11 @@
+import { mkdir } from "node:fs/promises";
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
+import { migrateShopDb } from "@repo/db";
 import { z } from "zod";
-import { TURSO_GROUP, TURSO_PARENT_DB_NAME } from "$env/static/private";
+import { MIGRATION_FOLDER, SHOP_DATA_DIR } from "$env/static/private";
 import { db } from "$lib/server/auth_db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
-import { turso } from "$lib/server/turso";
 
 const input = z.object({
   name: z.string().min(1).max(100),
@@ -52,27 +53,15 @@ export const createShopHandler = os
     }
 
     try {
-      let parentDb: Awaited<ReturnType<typeof turso.databases.get>> | null = null;
-      try {
-        parentDb = await turso.databases.get(TURSO_PARENT_DB_NAME);
-      } catch (_e) {
-        parentDb = null;
-      }
+      const shopsDir = `${SHOP_DATA_DIR}/shops`;
+      await mkdir(shopsDir, { recursive: true });
 
-      if (!parentDb) {
-        await turso.databases.create(TURSO_PARENT_DB_NAME, {
-          group: TURSO_GROUP,
-          is_schema: true,
-        });
-      }
+      const migrationsFolder = new URL(MIGRATION_FOLDER, import.meta.url).pathname;
 
-      await turso.databases.create(createdShop.id, {
-        schema: TURSO_PARENT_DB_NAME,
-        group: TURSO_GROUP,
-      });
+      await migrateShopDb(createdShop.slug, SHOP_DATA_DIR, migrationsFolder);
     } catch (e) {
       console.error(e);
-      console.error(`Failed to create database for ${createdShop.id}`);
+      console.error(`Failed to create database for ${createdShop.slug}`);
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
