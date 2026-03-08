@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/tursodatabase/database";
 import { migrate } from "drizzle-orm/tursodatabase/migrator";
 import {
   category,
+  image,
   inventoryBatch,
   inventoryMovement,
   invoice,
@@ -18,6 +19,7 @@ import { relations } from "./schema/relations";
 const schema = {
   shopSetting,
   category,
+  image,
   product,
   productCategory,
   supplier,
