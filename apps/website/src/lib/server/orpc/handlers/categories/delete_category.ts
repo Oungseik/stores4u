@@ -1,0 +1,31 @@
+import { ORPCError } from "@orpc/server";
+import { category, connectShopDb, eq, productCategory } from "@repo/db";
+import { z } from "zod";
+import { SHOP_DATA_DIR } from "$env/static/private";
+import { authMiddleware, os } from "$lib/server/orpc/base";
+
+const input = z.object({
+  slug: z.string().min(1).max(100),
+  id: z.string().min(1),
+});
+
+export const deleteCategoryHandler = os
+  .use(authMiddleware)
+  .input(input)
+  .handler(async ({ input }) => {
+    const shopDb = connectShopDb(input.slug, SHOP_DATA_DIR);
+
+    const existingProducts = await shopDb
+      .select()
+      .from(productCategory)
+      .where(eq(productCategory.categoryId, input.id))
+      .limit(1);
+
+    if (existingProducts.length > 0) {
+      throw new ORPCError("FORBIDDEN", {
+        message: "Cannot delete category with associated products.",
+      });
+    }
+
+    await shopDb.delete(category).where(eq(category.id, input.id));
+  });

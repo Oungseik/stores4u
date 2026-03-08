@@ -1,6 +1,10 @@
 import { createRouterClient } from "@orpc/server";
 
 import { os } from "./base";
+import { createCategoryHandler } from "./handlers/categories/create_category";
+import { deleteCategoryHandler } from "./handlers/categories/delete_category";
+import { listCategoriesHandler } from "./handlers/categories/list_categories";
+import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadImageHandler } from "./handlers/images/upload_image";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
@@ -13,6 +17,12 @@ import { getShopHandler } from "./handlers/shops/get_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
 
 export const router = os.router({
+  categories: {
+    create: createCategoryHandler,
+    delete: deleteCategoryHandler,
+    list: listCategoriesHandler,
+    update: updateCategoryHandler,
+  },
   images: { uploadImage: uploadImageHandler },
   products: {
     create: createProductHandler,
