@@ -1,6 +1,7 @@
 import { defineRelations } from "drizzle-orm";
 import { inventoryBatch, inventoryMovement } from "./inventory";
 import { invoice, invoiceItem, invoiceOcrResult } from "./invoice";
+import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
 import { shopSetting } from "./shop";
 import { productSupplier, supplier } from "./supplier";
@@ -18,6 +19,8 @@ export const relations = defineRelations(
     inventoryBatch,
     inventoryMovement,
     shopSetting,
+    order,
+    orderItem,
   },
   (r) => ({
     category: {
@@ -29,6 +32,7 @@ export const relations = defineRelations(
       invoiceItems: r.many.invoiceItem(),
       inventoryBatches: r.many.inventoryBatch(),
       inventoryMovements: r.many.inventoryMovement(),
+      orderItems: r.many.orderItem(),
     },
     productCategory: {
       product: r.one.product({ from: r.productCategory.productId, to: r.product.id }),
@@ -79,5 +83,12 @@ export const relations = defineRelations(
       }),
     },
     shopSetting: {},
+    order: {
+      items: r.many.orderItem(),
+    },
+    orderItem: {
+      order: r.one.order({ from: r.orderItem.orderId, to: r.order.id }),
+      product: r.one.product({ from: r.orderItem.productId, to: r.product.id }),
+    },
   }),
 );
