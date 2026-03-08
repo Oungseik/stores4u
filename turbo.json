@@ -26,6 +26,9 @@
     "db:generate": {
       "cache": false
     },
+    "db:seed": {
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true
@@ -59,6 +62,7 @@
     "BETTER_AUTH_SECRET",
     "PUBLIC_SITE_NAME",
     "SHOP_DATA_DIR",
-    "MIGRATION_FOLDER"
+    "MIGRATION_FOLDER",
+    "SHOP_SLUG"
   ]
 }

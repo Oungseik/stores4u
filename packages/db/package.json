@@ -11,7 +11,9 @@
     "db:push": "bun --bun run with-env drizzle-kit push",
     "db:studio": "bun --bun run with-env drizzle-kit studio",
     "db:generate": "bunx --bun drizzle-kit generate",
-    "db:migrate": "bun run with-env drizzle-kit migrate"
+    "db:migrate": "bun run with-env drizzle-kit migrate",
+    "db:seed": "bunx dotenv -e ../../.env -- bun run seed.ts",
+    "db:seed:shop": "SHOP_SLUG=binary-stride bunx dotenv -e ../../.env -- bun run seed.ts"
   },
   "exports": {
     ".": {
