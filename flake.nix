@@ -18,6 +18,7 @@
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             biome
+            otel-desktop-viewer
           ];
 
           LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
