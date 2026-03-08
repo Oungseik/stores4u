@@ -4,6 +4,8 @@ import { os } from "./base";
 import { uploadImageHandler } from "./handlers/images/upload_image";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
+import { exportProductsCsvHandler } from "./handlers/products/export_products_csv";
+import { importProductsCsvHandler } from "./handlers/products/import_products_csv";
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { createShopHandler } from "./handlers/shops/create_shop";
@@ -14,9 +16,11 @@ export const router = os.router({
   images: { uploadImage: uploadImageHandler },
   products: {
     create: createProductHandler,
+    delete: deleteProductHandler,
+    exportCsv: exportProductsCsvHandler,
+    importCsv: importProductsCsvHandler,
     list: listProductsHandler,
     update: updateProductHandler,
-    delete: deleteProductHandler,
   },
   shops: {
     createShop: createShopHandler,
