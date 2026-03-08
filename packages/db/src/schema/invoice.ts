@@ -4,6 +4,10 @@ import { check, index, integer, real, sqliteTable, text, unique } from "drizzle-
 import { product } from "./product";
 import { supplier } from "./supplier";
 
+/**
+ * This invoice is only related to the invoices when we refill stock and got the invoices
+ * from the supplier. Not for the order invoice we create when customer buy from the shop.
+ */
 export const invoiceStatuses = ["PENDING", "VALIDATED", "REJECTED", "AUTO_ACCEPTED"] as const;
 export type InvoiceStatus = (typeof invoiceStatuses)[number];
 
