@@ -10,11 +10,13 @@ import {
   product,
   productCategory,
   productSupplier,
+  shopSetting,
   supplier,
 } from "./schema";
 import { relations } from "./schema/relations";
 
 const schema = {
+  shopSetting,
   category,
   product,
   productCategory,
