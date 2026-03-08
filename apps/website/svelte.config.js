@@ -12,6 +12,10 @@ const config = {
       "@lib": "../../packages/ui/src/lib",
       "@lib/*": "../../packages/ui/src/lib/*",
     },
+    experimental: {
+      tracing: { server: true },
+      instrumentation: { server: true },
+    },
   },
   compilerOptions: {},
 };

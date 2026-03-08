@@ -1,11 +1,13 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 import type { Session, User } from "$lib/server/database";
+import type { Logger } from "$lib/server/logger";
 
 declare global {
   namespace App {
     // interface Error {}
     interface Locals {
+      logger: Logger;
       session?: {
         session: {
           id: string;

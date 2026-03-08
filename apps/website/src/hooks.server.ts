@@ -4,6 +4,7 @@ import { svelteKitHandler } from "better-auth/svelte-kit";
 import { building } from "$app/environment";
 import { paraglideMiddleware } from "$lib/paraglide/server";
 import { auth } from "$lib/server/auth";
+import { logger } from "$lib/server/logger";
 import { client } from "$lib/server/orpc/router";
 import { rateLimiter } from "$lib/server/rate-limit";
 
@@ -42,7 +43,22 @@ const authHandle: Handle = async ({ event, resolve }) => {
   const session = await auth.api.getSession({ headers: event.request.headers });
   event.locals.session = session;
 
+  if (session?.user?.id && event.tracing?.root) {
+    event.tracing.root.setAttribute("userId", session.user.id);
+    event.tracing.root.setAttribute("userEmail", session.user.email);
+  }
+
   return resolve(event);
 };
 
-export const handle: Handle = sequence(rateLimitHandle, handleParaglide, authHandle);
+const loggingHandle: Handle = async ({ event, resolve }) => {
+  event.locals.logger = logger.child({
+    requestId: crypto.randomUUID(),
+    path: event.url.pathname,
+    method: event.request.method,
+  });
+
+  return resolve(event);
+};
+
+export const handle: Handle = sequence(loggingHandle, rateLimitHandle, handleParaglide, authHandle);

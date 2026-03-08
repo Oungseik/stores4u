@@ -5,6 +5,7 @@ import { connectShopDb, migrateShopDb, shopSetting } from "@repo/db";
 import { z } from "zod";
 import { MIGRATION_FOLDER, SHOP_DATA_DIR } from "$env/static/private";
 import { db } from "$lib/server/auth_db";
+import { logger } from "$lib/server/logger";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 
 const input = z.object({
@@ -70,8 +71,7 @@ export const createShopHandler = os
 
       await migrateShopDb(createdShop.slug, SHOP_DATA_DIR, migrationsFolder);
     } catch (e) {
-      console.error(e);
-      console.error(`Failed to create database for ${createdShop.slug}`);
+      logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create database for shop");
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
@@ -92,8 +92,7 @@ export const createShopHandler = os
         heroImage: input.heroImage,
       });
     } catch (e) {
-      console.error(e);
-      console.error(`Failed to create shop setting for ${createdShop.slug}`);
+      logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create shop setting");
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop settings. Please try again.",
