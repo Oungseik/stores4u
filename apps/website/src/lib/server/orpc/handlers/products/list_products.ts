@@ -1,7 +1,7 @@
-import { connectShopDb, eq, inventoryBatch, not } from "@repo/db";
+import { eq, inventoryBatch, not } from "@repo/db";
 import { z } from "zod";
-import { SHOP_DATA_DIR } from "$env/static/private";
-import { os } from "$lib/server/orpc/base";
+import { os, shopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -13,8 +13,9 @@ const input = z.object({
 export const listProductsHandler = os
   .route({ method: "GET" })
   .input(input)
-  .handler(async ({ input }) => {
-    const shopDb = connectShopDb(input.slug, SHOP_DATA_DIR);
+  .use(shopMiddleware)
+  .handler(async ({ input, context }) => {
+    const shopDb = getShopDb(context.shop);
 
     const products = await shopDb.query.product.findMany({
       where: { id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor } },
@@ -36,18 +37,18 @@ export const listProductsHandler = os
       return { items: [], pageSize: input.pageSize, nextCursor };
     }
 
-    const items = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      description: product.description,
-      image: product.image,
-      uom: product.uom,
-      priceCents: product.priceCents,
-      categoryIds: product.productCategories.map((c) => c.categoryId),
-      inStock: product.inStock > 0,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
+    const items = products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      description: p.description,
+      image: p.image,
+      uom: p.uom,
+      priceCents: p.priceCents,
+      categoryIds: p.productCategories.map((c) => c.categoryId),
+      inStock: p.inStock > 0,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
     }));
 
     return { items, pageSize: input.pageSize, nextCursor };

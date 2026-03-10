@@ -1,7 +1,6 @@
-import { connectShopDb } from "@repo/db";
 import { z } from "zod";
-import { SHOP_DATA_DIR } from "$env/static/private";
-import { os } from "$lib/server/orpc/base";
+import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -18,8 +17,10 @@ function escapeCsvField(value: string | null | undefined): string {
 export const exportProductsCsvHandler = os
   .route({ method: "GET" })
   .input(input)
-  .handler(async ({ input }) => {
-    const shopDb = connectShopDb(input.slug, SHOP_DATA_DIR);
+  .use(shopMiddleware)
+  .use(authMiddleware)
+  .handler(async ({ context }) => {
+    const shopDb = getShopDb(context.shop);
 
     const products = await shopDb.query.product.findMany({
       orderBy: { sku: "asc" },

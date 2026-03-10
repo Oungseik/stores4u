@@ -31,13 +31,13 @@ export const load = (async ({ parent, params }) => {
       ),
     ]);
   } catch (e) {
+    logger.error({ err: e }, "Failed to prefetch data");
     if (e instanceof ORPCError) {
       if (e.status === 404) {
         error(404, { message: "Shop not found" });
       }
       error(e.status ?? 500, { message: e.message });
     }
-    logger.error({ err: e }, "Failed to prefetch data");
     throw e;
   }
 }) satisfies PageLoad;

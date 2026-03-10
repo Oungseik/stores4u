@@ -49,7 +49,7 @@ const arrays = {
   invoiceNumbers: ["INV-2024-001", "INV-2024-002", "INV-2024-003", "INV-2024-004", "INV-2024-005"],
 };
 
-function rand<T>(arr: T[]): T {
+function rand<T>(arr: readonly T[]): T {
   if (arr.length === 0) throw new Error("Array cannot be empty");
   return arr[Math.floor(Math.random() * arr.length)] as T;
 }
@@ -214,7 +214,7 @@ function generateInvoiceData(suppliers: { id: string }[], ocrResults: { id: stri
 
     const status = rand(arrays.invoiceStatuses);
     const validatedBy = status === "PENDING" ? null : randomUUIDv7();
-    const validatedAt = status === "PENDING" ? null : new Date().toISOString();
+    const validatedAt = status === "PENDING" ? null : new Date();
 
     data.push({
       id: randomUUIDv7(),
@@ -307,7 +307,7 @@ function generateInventoryMovementData(
 
   for (let i = 0; i < products.length * 2; i++) {
     const product = products[i % products.length];
-    const movementType = rand(arrays.movementTypes.toString().split(","));
+    const movementType = rand(arrays.movementTypes);
     let qty: number;
 
     if (movementType === "PURCHASE" || movementType === "RETURN") {
@@ -326,10 +326,10 @@ function generateInventoryMovementData(
       movementType,
       qty,
       unitCostCents: randInt(100, 10000),
-      referenceType: rand(arrays.referenceTypes.toString().split(",")),
+      referenceType: rand(arrays.referenceTypes),
       referenceId: randInt(0, 1) ? randomUUIDv7() : null,
       reason: randInt(0, 1) ? `Movement reason ${i + 1}` : null,
-      occurredAt: new Date().toISOString(),
+      occurredAt: new Date(),
     });
   }
   return data;

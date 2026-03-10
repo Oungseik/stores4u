@@ -1,12 +1,11 @@
-import { mkdir } from "node:fs/promises";
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
-import { connectShopDb, migrateShopDb, shopSetting } from "@repo/db";
+import { setting } from "@repo/db";
 import { z } from "zod";
-import { MIGRATION_FOLDER, SHOP_DATA_DIR } from "$env/static/private";
 import { db } from "$lib/server/auth_db";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os } from "$lib/server/orpc/base";
+import { createShopDatabase, getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   name: z.string().min(1).max(100),
@@ -62,16 +61,13 @@ export const createShopHandler = os
       });
     }
 
-    let migrationsFolder: string;
+    let tursoDbUrl: string | undefined;
     try {
-      const shopsDir = `${SHOP_DATA_DIR}/shops`;
-      await mkdir(shopsDir, { recursive: true });
+      tursoDbUrl = createShopDatabase(createdShop.slug);
 
-      migrationsFolder = new URL(MIGRATION_FOLDER, import.meta.url).pathname;
-
-      await migrateShopDb(createdShop.slug, SHOP_DATA_DIR, migrationsFolder);
+      await db.update(shop).set({ tursoDbUrl }).where(eq(shop.id, createdShop.id));
     } catch (e) {
-      logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create database for shop");
+      logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create shop database");
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
@@ -79,8 +75,10 @@ export const createShopHandler = os
     }
 
     try {
-      const shopDb = connectShopDb(createdShop.slug, SHOP_DATA_DIR);
-      await shopDb.insert(shopSetting).values({
+      const shopDb = getShopDb({
+        slug: createdShop.slug,
+      });
+      await shopDb.insert(setting).values({
         title: input.title,
         description: input.description,
         address: input.address,
@@ -93,11 +91,25 @@ export const createShopHandler = os
       });
     } catch (e) {
       logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create shop setting");
+      if (tursoDbUrl) {
+        try {
+          const { unlinkSync } = await import("fs");
+          unlinkSync(tursoDbUrl);
+        } catch (cleanupError) {
+          logger.error(
+            { err: cleanupError, shopSlug: createdShop.slug },
+            "Failed to delete shop database after shop setup failure",
+          );
+        }
+      }
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop settings. Please try again.",
       });
     }
 
-    return createdShop;
+    return {
+      ...createdShop,
+      tursoDbUrl,
+    };
   });

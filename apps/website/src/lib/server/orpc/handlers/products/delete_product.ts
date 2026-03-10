@@ -1,7 +1,7 @@
-import { connectShopDb, eq, product } from "@repo/db";
+import { eq, product } from "@repo/db";
 import { z } from "zod";
-import { SHOP_DATA_DIR } from "$env/static/private";
-import { authMiddleware, os } from "$lib/server/orpc/base";
+import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -9,10 +9,11 @@ const input = z.object({
 });
 
 export const deleteProductHandler = os
-  .use(authMiddleware)
   .input(input)
-  .handler(async ({ input }) => {
-    const shopDb = connectShopDb(input.slug, SHOP_DATA_DIR);
+  .use(shopMiddleware)
+  .use(authMiddleware)
+  .handler(async ({ input, context }) => {
+    const shopDb = getShopDb(context.shop);
 
     await shopDb.delete(product).where(eq(product.id, input.id));
   });

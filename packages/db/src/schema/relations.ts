@@ -3,7 +3,7 @@ import { inventoryBatch, inventoryMovement } from "./inventory";
 import { invoice, invoiceItem, invoiceOcrResult } from "./invoice";
 import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
-import { shopSetting } from "./shop";
+import { setting } from "./shop";
 import { productSupplier, supplier } from "./supplier";
 
 export const relations = defineRelations(
@@ -18,7 +18,7 @@ export const relations = defineRelations(
     invoiceItem,
     inventoryBatch,
     inventoryMovement,
-    shopSetting,
+    setting,
     order,
     orderItem,
   },
@@ -82,7 +82,7 @@ export const relations = defineRelations(
         to: r.invoiceItem.id,
       }),
     },
-    shopSetting: {},
+    setting: {},
     order: {
       items: r.many.orderItem(),
     },

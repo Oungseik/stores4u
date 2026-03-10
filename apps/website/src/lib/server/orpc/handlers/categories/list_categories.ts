@@ -1,7 +1,7 @@
-import { category, connectShopDb, eq, productCategory } from "@repo/db";
+import { category, eq, productCategory } from "@repo/db";
 import { z } from "zod";
-import { SHOP_DATA_DIR } from "$env/static/private";
-import { os } from "$lib/server/orpc/base";
+import { os, shopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -12,8 +12,9 @@ const input = z.object({
 export const listCategoriesHandler = os
   .route({ method: "GET" })
   .input(input)
-  .handler(async ({ input }) => {
-    const shopDb = connectShopDb(input.slug, SHOP_DATA_DIR);
+  .use(shopMiddleware)
+  .handler(async ({ input, context }) => {
+    const shopDb = getShopDb(context.shop);
 
     const categories = await shopDb.query.category.findMany({
       where: input.cursor ? { id: { gte: input.cursor } } : undefined,
@@ -30,13 +31,13 @@ export const listCategoriesHandler = os
       nextCursor = next?.id;
     }
 
-    const items = categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      description: category.description,
-      productCount: category.productCount,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
+    const items = categories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      productCount: c.productCount,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
     }));
 
     return { items, pageSize: input.pageSize, nextCursor };

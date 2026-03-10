@@ -1,7 +1,7 @@
 import { randomUUIDv7 } from "bun";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const shopSetting = sqliteTable("shop_setting", {
+export const setting = sqliteTable("setting", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => randomUUIDv7()),
@@ -22,8 +22,8 @@ export const shopSetting = sqliteTable("shop_setting", {
     .notNull(),
 });
 
-export type ShopSettingSelect = typeof shopSetting.$inferSelect;
-export type ShopSettingInsert = typeof shopSetting.$inferInsert;
+export type SettingSelect = typeof setting.$inferSelect;
+export type SettingInsert = typeof setting.$inferInsert;
 
 export const image = sqliteTable("image", {
   objectPath: text("object_path").primaryKey(),

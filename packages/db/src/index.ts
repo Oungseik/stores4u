@@ -1,5 +1,4 @@
 import { drizzle } from "drizzle-orm/tursodatabase/database";
-import { migrate } from "drizzle-orm/tursodatabase/migrator";
 import {
   category,
   image,
@@ -11,13 +10,13 @@ import {
   product,
   productCategory,
   productSupplier,
-  shopSetting,
+  setting,
   supplier,
 } from "./schema";
 import { relations } from "./schema/relations";
 
 const schema = {
-  shopSetting,
+  setting,
   category,
   image,
   product,
@@ -31,34 +30,13 @@ const schema = {
   inventoryMovement,
 };
 
-export const connectDb = (path: string) => {
+export const connect = (path: string) => {
   return drizzle({
     connection: { path },
     schema,
     relations,
   });
 };
-
-export const getShopDbPath = (shopId: string, baseDir: string) => {
-  return `${baseDir}/shops/${shopId}.db`;
-};
-
-export const connectShopDb = (shopId: string, baseDir: string) => {
-  const path = getShopDbPath(shopId, baseDir);
-  return drizzle({
-    connection: { path },
-    schema,
-    relations,
-  });
-};
-
-export const migrateShopDb = async (shopId: string, baseDir: string, migrationsFolder: string) => {
-  const db = connectShopDb(shopId, baseDir);
-  await migrate(db, { migrationsFolder });
-  return db;
-};
-
-export { migrate };
 
 export * from "drizzle-orm";
 export * from "./schema";

@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { connectShopDb, image } from "@repo/db";
+import { image } from "@repo/db";
 import sharp from "sharp";
 import z from "zod";
-import { SHOP_DATA_DIR, STORAGE_PUBLIC_URL } from "$env/static/private";
+import { STORAGE_PUBLIC_URL } from "$env/static/private";
 
-import { authMiddleware, os } from "$lib/server/orpc/base";
+import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
 import { uploadImage } from "$lib/server/storage";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -19,9 +20,10 @@ const input = z.object({
 });
 
 export const uploadImageHandler = os
-  .use(authMiddleware)
   .input(input)
-  .handler(async ({ input }) => {
+  .use(shopMiddleware)
+  .use(authMiddleware)
+  .handler(async ({ input, context }) => {
     const buffer = await input.file.arrayBuffer();
     const result = await sharp(buffer).resize(900, 450).toBuffer();
 
@@ -32,7 +34,7 @@ export const uploadImageHandler = os
     const objPath = await uploadImage(result, filename);
     const objectPath = `${STORAGE_PUBLIC_URL}/${objPath}`;
 
-    const shopDb = connectShopDb(input.slug, SHOP_DATA_DIR);
+    const shopDb = getShopDb(context.shop);
     const data = {
       objectPath,
       filename,

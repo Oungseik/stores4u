@@ -1,10 +1,10 @@
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
-import { connectShopDb, shopSetting } from "@repo/db";
+import { setting } from "@repo/db";
 import { z } from "zod";
-import { SHOP_DATA_DIR } from "$env/static/private";
 import { db } from "$lib/server/auth_db";
-import { authMiddleware, os } from "$lib/server/orpc/base";
+import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -21,30 +21,21 @@ const input = z.object({
 });
 
 export const updateShopHandler = os
-  .use(authMiddleware)
   .input(input)
+  .use(shopMiddleware)
+  .use(authMiddleware)
   .handler(async ({ input, context }) => {
-    const existingShop = await db.query.shop.findFirst({
-      where: { slug: input.slug },
-    });
-
-    if (!existingShop) {
-      throw new ORPCError("NOT_FOUND", {
-        message: `Shop with slug "${input.slug}" not found`,
-      });
-    }
-
-    if (existingShop.userId !== context.session.user.id) {
+    if (context.shop.userId !== context.session.user.id) {
       throw new ORPCError("FORBIDDEN", {
         message: "You do not have permission to update this shop",
       });
     }
 
     if (input.name !== undefined) {
-      await db.update(shop).set({ name: input.name }).where(eq(shop.id, existingShop.id));
+      await db.update(shop).set({ name: input.name }).where(eq(shop.id, context.shop.id));
     }
 
-    const shopDb = connectShopDb(existingShop.slug, SHOP_DATA_DIR);
+    const shopDb = getShopDb(context.shop);
 
     const settingValues = {
       title: input.title,
@@ -58,8 +49,8 @@ export const updateShopHandler = os
       heroImage: input.heroImage,
     };
 
-    await shopDb.insert(shopSetting).values(settingValues).onConflictDoUpdate({
-      target: shopSetting.id,
+    await shopDb.insert(setting).values(settingValues).onConflictDoUpdate({
+      target: setting.id,
       set: settingValues,
     });
 

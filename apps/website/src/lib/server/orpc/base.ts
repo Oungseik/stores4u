@@ -1,4 +1,6 @@
 import { os as base, ORPCError } from "@orpc/server";
+import type { ShopSelect } from "@repo/auth";
+import { db } from "$lib/server/auth_db";
 
 type Context = {
   session?: {
@@ -22,7 +24,7 @@ type Context = {
       image?: string | null | undefined | undefined;
     };
   } | null;
-  shopDb?: unknown;
+  shop?: ShopSelect;
   shopId?: string;
 };
 
@@ -42,4 +44,18 @@ export const authMiddleware = os.middleware(async ({ context, next }) => {
   }
 
   return next({ context: { session } });
+});
+
+export const shopMiddleware = os.middleware(async ({ context, next }, input: { slug: string }) => {
+  const shop = await db.query.shop.findFirst({
+    where: { slug: input.slug },
+  });
+
+  if (!shop) {
+    throw new ORPCError("NOT_FOUND", {
+      message: `Shop "${input.slug}" not found`,
+    });
+  }
+
+  return next({ context: { ...context, shop } });
 });
