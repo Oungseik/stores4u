@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "$lib/server/auth_db";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os } from "$lib/server/orpc/base";
-import { createShopDatabase, getShopDb } from "$lib/server/shop_db";
+import { createShopDatabase, deleteShopDatabase, getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   name: z.string().min(1).max(100),
@@ -39,7 +39,6 @@ export const createShopHandler = os
       });
     }
 
-    // TODO remove this once implement correct plan logic
     const userHasShop = await db.query.shop.findFirst({
       where: { userId: context.session.user.id },
     });
@@ -63,7 +62,7 @@ export const createShopHandler = os
 
     let tursoDbUrl: string | undefined;
     try {
-      tursoDbUrl = createShopDatabase(createdShop.slug);
+      tursoDbUrl = await createShopDatabase(createdShop.slug);
 
       await db.update(shop).set({ tursoDbUrl }).where(eq(shop.id, createdShop.id));
     } catch (e) {
@@ -77,6 +76,7 @@ export const createShopHandler = os
     try {
       const shopDb = getShopDb({
         slug: createdShop.slug,
+        tursoDbUrl,
       });
       await shopDb.insert(setting).values({
         title: input.title,
@@ -91,16 +91,13 @@ export const createShopHandler = os
       });
     } catch (e) {
       logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create shop setting");
-      if (tursoDbUrl) {
-        try {
-          const { unlinkSync } = await import("fs");
-          unlinkSync(tursoDbUrl);
-        } catch (cleanupError) {
-          logger.error(
-            { err: cleanupError, shopSlug: createdShop.slug },
-            "Failed to delete shop database after shop setup failure",
-          );
-        }
+      try {
+        await deleteShopDatabase(createdShop.slug);
+      } catch (cleanupError) {
+        logger.error(
+          { err: cleanupError, shopSlug: createdShop.slug },
+          "Failed to delete shop database after shop setup failure",
+        );
       }
       await db.delete(shop).where(eq(shop.id, createdShop.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {

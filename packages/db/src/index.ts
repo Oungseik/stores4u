@@ -1,4 +1,5 @@
-import { drizzle } from "drizzle-orm/tursodatabase/database";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
   image,
@@ -30,12 +31,9 @@ const schema = {
   inventoryMovement,
 };
 
-export const connect = (path: string) => {
-  return drizzle({
-    connection: { path },
-    schema,
-    relations,
-  });
+export const connectRemote = (url: string, authToken: string) => {
+  const client = createClient({ url, authToken });
+  return drizzle({ client, schema, relations });
 };
 
 export * from "drizzle-orm";

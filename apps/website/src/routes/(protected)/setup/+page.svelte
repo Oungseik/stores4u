@@ -115,7 +115,7 @@
         description: values.description,
       });
       if (!result.success) {
-        result.error.issues.forEach((issue: z.ZodIssue) => {
+        result.error.issues.forEach((issue) => {
           const fieldName = issue.path[0] as keyof typeof defaultValues;
           form.setFieldMeta(fieldName, (meta) => ({
             ...meta,
@@ -133,7 +133,7 @@
         country: values.country,
       });
       if (!result.success) {
-        result.error.issues.forEach((issue: z.ZodIssue) => {
+        result.error.issues.forEach((issue) => {
           const fieldName = issue.path[0] as keyof typeof defaultValues;
           form.setFieldMeta(fieldName, (meta) => ({
             ...meta,

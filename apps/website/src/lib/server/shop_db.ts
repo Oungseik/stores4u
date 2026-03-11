@@ -1,22 +1,27 @@
-import { connect } from "@repo/db";
-import { copyFileSync, existsSync, mkdirSync } from "fs";
-import { join } from "path";
-import { SHOP_DATA_DIR } from "$env/static/private";
+import type { ShopSelect } from "@repo/auth";
+import { connectRemote } from "@repo/db";
+import {
+  TURSO_GROUP,
+  TURSO_GROUP_AUTH_TOKEN,
+  TURSO_ORGANIZATION,
+  TURSO_PARENT_DB_NAME,
+} from "$env/static/private";
+import { turso } from "./turso";
 
-export function getShopDb(param: { slug: string }) {
-  const path = `${SHOP_DATA_DIR}/shops/${param.slug}.db`;
-
-  return connect(path);
+export function getShopDb(shop: Pick<ShopSelect, "slug" | "tursoDbUrl">) {
+  const url = shop.tursoDbUrl ?? `libsql://pos-${shop.slug}-${TURSO_ORGANIZATION}.turso.io`;
+  return connectRemote(url, TURSO_GROUP_AUTH_TOKEN);
 }
 
-export function createShopDatabase(slug: string): string {
-  if (!existsSync(SHOP_DATA_DIR)) {
-    mkdirSync(SHOP_DATA_DIR, { recursive: true });
-  }
+export async function createShopDatabase(slug: string): Promise<string> {
+  const db = await turso.databases.create(`pos-${slug}`, {
+    group: TURSO_GROUP,
+    seed: { type: "database", name: TURSO_PARENT_DB_NAME! },
+  });
 
-  const newDbPath = join(SHOP_DATA_DIR, "shops", `${slug}.db`);
-  const parentDbPath = join(SHOP_DATA_DIR, "/parent.db");
-  copyFileSync(parentDbPath, newDbPath);
+  return `libsql://${db.hostname}`;
+}
 
-  return newDbPath;
+export async function deleteShopDatabase(slug: string): Promise<void> {
+  await turso.databases.delete(`pos-${slug}`);
 }
