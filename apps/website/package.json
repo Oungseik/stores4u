@@ -64,6 +64,7 @@
     "@opentelemetry/sdk-node": "^0.213.0",
     "@opentelemetry/semantic-conventions": "^1.40.0",
     "@orpc/client": "^1.13.6",
+    "@orpc/otel": "^1.13.6",
     "@orpc/server": "^1.13.6",
     "@orpc/tanstack-query": "^1.13.6",
     "@repo/auth": "workspace:*",

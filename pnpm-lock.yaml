@@ -53,6 +53,9 @@ importers:
       '@orpc/client':
         specifier: ^1.13.6
         version: 1.13.6(@opentelemetry/api@1.9.0)
+      '@orpc/otel':
+        specifier: ^1.13.6
+        version: 1.13.6(@opentelemetry/api@1.9.0)(@opentelemetry/instrumentation@0.213.0(@opentelemetry/api@1.9.0))
       '@orpc/server':
         specifier: ^1.13.6
         version: 1.13.6(@opentelemetry/api@1.9.0)(ws@8.19.0)
@@ -2605,6 +2608,12 @@ packages:
 
   '@orpc/interop@1.13.6':
     resolution: {integrity: sha512-m28QpydaYIAkP9lRfwX8lRCxbdsqn734F/bSiS0yuakSCv+PP10SXBUkt4w+OkvZxdxRpj0pOJFJP8F5O0nAoA==}
+
+  '@orpc/otel@1.13.6':
+    resolution: {integrity: sha512-IElUA/+95qzbV40RWGgInSJY6NLpJBpcnBijnwjOuiQDDsLhwgq8GFyO9x1xepIpgLyH4opbKEGnWwHOr6PBHA==}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.9.0'
+      '@opentelemetry/instrumentation': '>=0.203.0'
 
   '@orpc/server@1.13.6':
     resolution: {integrity: sha512-58NaUE8sppxxpKDyEYtkR65jOSK9ycwP9TMqkvdHEg33wR17FDHIDws9iNDAo17l4bYGWgPKZtMn6ruRpJjTKQ==}
@@ -9358,6 +9367,12 @@ snapshots:
       - '@opentelemetry/api'
 
   '@orpc/interop@1.13.6': {}
+
+  '@orpc/otel@1.13.6(@opentelemetry/api@1.9.0)(@opentelemetry/instrumentation@0.213.0(@opentelemetry/api@1.9.0))':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.213.0(@opentelemetry/api@1.9.0)
+      '@orpc/shared': 1.13.6(@opentelemetry/api@1.9.0)
 
   '@orpc/server@1.13.6(@opentelemetry/api@1.9.0)(ws@8.19.0)':
     dependencies:

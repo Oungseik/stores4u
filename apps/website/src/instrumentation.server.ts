@@ -5,6 +5,7 @@ import { PinoInstrumentation } from "@opentelemetry/instrumentation-pino";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeSDK, tracing } from "@opentelemetry/sdk-node";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import { ORPCInstrumentation } from "@orpc/otel";
 import { createAddHookMessageChannel } from "import-in-the-middle";
 
 const { registerOptions } = createAddHookMessageChannel();
@@ -40,6 +41,7 @@ const sdk = new NodeSDK({
       },
     }),
     new PinoInstrumentation(),
+    new ORPCInstrumentation(),
   ],
 });
 
