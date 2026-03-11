@@ -14,7 +14,7 @@
 
   const items = $derived([
     { name: "Products", icon: PackageIcon, url: `/admin/${params.slug}` },
-    { name: "Scanner", icon: ScanLineIcon, url: `/admin/${params.slug}/barcode` },
+    { name: "Scanner", icon: ScanLineIcon, url: `/admin/${params.slug}/scanner` },
     { name: "Alerts", icon: BellIcon, url: `/admin/${params.slug}/notifications` },
   ]);
 </script>
@@ -37,10 +37,10 @@
           href={item.url}
           aria-label={item.name}
           class={isActive
-            ? buttonVariants({ variant: "secondary" })
-            : buttonVariants({ variant: "ghost" })}
+            ? buttonVariants({ variant: "secondary", class: "w-full" })
+            : buttonVariants({ variant: "ghost", class: "w-full" })}
         >
-          <item.icon class="size-5" />
+          <item.icon class="size-4" />
         </a>
         <span class="text-xs">{item.name}</span>
       </div>
