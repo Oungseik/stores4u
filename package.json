@@ -2,7 +2,10 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "svelte_kit_starter",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "check": "turbo $@ check",
     "dev": "turbo $@ dev",
@@ -21,10 +24,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",
-    "turbo": "^2.8.14"
+    "turbo": "^2.8.15"
   },
   "packageManager": "pnpm@10.18.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["@tailwindcss/oxide", "esbuild"]
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild"
+    ]
   }
 }
