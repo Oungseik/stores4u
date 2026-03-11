@@ -10,6 +10,7 @@ const input = z.object({
 });
 
 export const getShopHandler = os
+  .route({ method: "GET" })
   .input(input)
   .use(shopMiddleware)
   .handler(async ({ context }) => {

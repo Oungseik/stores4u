@@ -1,4 +1,4 @@
-import { category, eq, productCategory } from "@repo/db";
+import { eq, productCategory } from "@repo/db";
 import { z } from "zod";
 import { os, shopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -20,7 +20,8 @@ export const listCategoriesHandler = os
       where: input.cursor ? { id: { gte: input.cursor } } : undefined,
       limit: input.pageSize + 1,
       extras: {
-        productCount: shopDb.$count(productCategory, eq(productCategory.categoryId, category.id)),
+        productCount: (table) =>
+          shopDb.$count(productCategory, eq(productCategory.categoryId, table.id)),
       },
       orderBy: { id: "asc" },
     });

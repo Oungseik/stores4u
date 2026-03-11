@@ -4,15 +4,11 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MapPinIcon from "@lucide/svelte/icons/map-pin";
   import MenuIcon from "@lucide/svelte/icons/menu";
-  import MinusIcon from "@lucide/svelte/icons/minus";
   import PhoneIcon from "@lucide/svelte/icons/phone";
-  import PlusIcon from "@lucide/svelte/icons/plus";
-  import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import { Badge } from "@repo/ui/badge";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import { Input } from "@repo/ui/input";
   import * as ScrollArea from "@repo/ui/scroll-area";
   import { createQuery } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
@@ -55,34 +51,22 @@
   const products = $derived(productsQuery.data?.items ?? []);
 
   let selectedCategory = $state<string | null>(null);
-  let searchQuery = $state("");
-  let isSearchOpen = $state(false);
-  let isCartOpen = $state(false);
   let isProductModalOpen = $state(false);
   let selectedProduct = $state<(typeof products)[0] | null>(null);
   let displayedProductCount = $state(8);
   let isLoadingMore = $state(false);
 
-  let cartItems = $state<Array<{ product: (typeof products)[0]; quantity: number }>>([]);
-
   let wishlistIds = $state<Set<string>>(new Set());
 
   let filteredProducts = $derived(
     products.filter((product) => {
-      const matchesCategory = !selectedCategory || product.categoryIds.includes(selectedCategory);
-      const matchesSearch =
-        searchQuery === "" ||
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-      return matchesCategory && matchesSearch;
+      return !selectedCategory || product.categoryIds.includes(selectedCategory);
     })
   );
 
   let displayedProducts = $derived(filteredProducts.slice(0, displayedProductCount));
 
   let hasMoreProducts = $derived(displayedProductCount < filteredProducts.length);
-
-  let cartItemCount = $derived(cartItems.reduce((sum, item) => sum + item.quantity, 0));
 
   function formatPrice(cents: number): string {
     return `${(cents / 100).toFixed(2)}`;
@@ -108,30 +92,6 @@
     isLoadingMore = false;
   }
 
-  function addToCart(product: (typeof products)[0]) {
-    const existingItem = cartItems.find((item) => item.product.id === product.id);
-    if (existingItem) {
-      cartItems = cartItems.map((item) =>
-        item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      );
-    } else {
-      cartItems = [...cartItems, { product, quantity: 1 }];
-    }
-    toast.success(`${product.name} added to cart`);
-  }
-
-  function updateCartQuantity(productId: string, delta: number) {
-    cartItems = cartItems
-      .map((item) => {
-        if (item.product.id === productId) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : item;
-        }
-        return item;
-      })
-      .filter((item) => item.quantity > 0);
-  }
-
   function toggleWishlist(productId: string) {
     const newWishlist = new Set(wishlistIds);
     if (newWishlist.has(productId)) {
@@ -154,7 +114,7 @@
   }
 
   $effect(() => {
-    if (selectedCategory || searchQuery) {
+    if (selectedCategory) {
       resetProductDisplay();
     }
   });
@@ -189,50 +149,12 @@
         </div>
 
         <div class="flex items-center gap-1">
-          <button
-            type="button"
-            class="hover:bg-muted rounded-full p-2"
-            onclick={() => (isSearchOpen = !isSearchOpen)}
-          >
-            <SearchIcon class="size-5" />
-          </button>
-
-          <button
-            type="button"
-            class="hover:bg-muted relative rounded-full p-2"
-            onclick={() => (isCartOpen = true)}
-          >
-            <ShoppingCartIcon class="size-5" />
-            {#if cartItemCount > 0}
-              <Badge
-                class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-              >
-                {cartItemCount}
-              </Badge>
-            {/if}
-          </button>
         </div>
       </div>
-
-      {#if isSearchOpen}
-        <div class="border-t px-4 py-3">
-          <div class="relative">
-            <SearchIcon
-              class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-            />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              class="pl-9"
-              bind:value={searchQuery}
-            />
-          </div>
-        </div>
-      {/if}
     </header>
 
     <!-- Hero Section -->
-    <section class="relative h-56 w-full overflow-hidden sm:h-72 md:h-80">
+    <section class="relative h-72 w-full overflow-hidden sm:h-80 md:h-96 lg:h-[500px]">
       <img src={getHeroUrl(shop.heroImage)} alt={shop.name} class="h-full w-full object-cover" />
       <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/70"></div>
 
@@ -240,7 +162,7 @@
         class="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white"
       >
         <div
-          class="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-4 border-white/30 bg-white/10 backdrop-blur-sm sm:mb-4 sm:h-20 sm:w-20"
+          class="mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white/30 bg-white/10 backdrop-blur-sm sm:mb-5 sm:h-24 sm:w-24"
         >
           <img
             src={getLogoUrl(shop.logo)}
@@ -249,33 +171,33 @@
           />
         </div>
 
-        <h1 class="mb-2 text-2xl font-bold sm:text-3xl md:text-4xl">{shop.name}</h1>
+        <h1 class="mb-2 text-3xl font-bold sm:text-4xl md:text-5xl">{shop.name}</h1>
 
         {#if shop.description}
-          <p class="mb-4 max-w-md text-sm text-white/80 sm:text-base md:mb-6">
+          <p class="mb-5 max-w-lg text-sm text-white/80 sm:text-base md:mb-7 md:text-lg">
             {shop.description}
           </p>
         {/if}
 
         <div
-          class="flex flex-wrap items-center justify-center gap-3 text-xs text-white/70 sm:text-sm"
+          class="flex flex-wrap items-center justify-center gap-3 text-sm text-white/70"
         >
           {#if shop.address}
             <span class="flex items-center gap-1">
-              <MapPinIcon class="size-3.5 sm:size-4" />
+              <MapPinIcon class="size-4" />
               {shop.address}
             </span>
           {/if}
           {#if shop.phone}
             <span class="hidden sm:inline">•</span>
             <span class="flex items-center gap-1">
-              <PhoneIcon class="size-3.5 sm:size-4" />
+              <PhoneIcon class="size-4" />
               {shop.phone}
             </span>
           {/if}
         </div>
 
-        <div class="mt-4 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
+        <div class="mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-7 md:mt-8">
           <Badge class="bg-white/20 text-white backdrop-blur-sm">
             {shop.productCount}+ Products
           </Badge>
@@ -344,10 +266,10 @@
       {#if filteredProducts.length === 0}
         <div class="flex flex-col items-center justify-center py-16 text-center">
           <div class="bg-muted mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-            <SearchIcon class="text-muted-foreground size-8" />
+            <ShoppingCartIcon class="text-muted-foreground size-8" />
           </div>
           <p class="text-lg font-medium">No products found</p>
-          <p class="text-muted-foreground mt-1 text-sm">Try adjusting your search or filter</p>
+          <p class="text-muted-foreground mt-1 text-sm">Try adjusting your category filter</p>
         </div>
       {:else}
         <!-- Product Grid - Increased spacing -->
@@ -439,55 +361,6 @@
                       {product.inStock ? "In Stock" : "Out of Stock"}
                     </span>
                   </div>
-
-                  <!-- Add to Cart Button -->
-                  {#if product.inStock}
-                    {#if cartItems.find((item) => item.product.id === product.id)}
-                      <div class="flex items-center gap-1">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          class="h-8 w-8 flex-shrink-0"
-                          onclick={(e: MouseEvent) => {
-                            e.stopPropagation();
-                            updateCartQuantity(product.id, -1);
-                          }}
-                        >
-                          <MinusIcon class="size-3.5" />
-                        </Button>
-                        <div class="flex-1 text-center text-sm font-medium">
-                          {cartItems.find((item) => item.product.id === product.id)?.quantity || 0}
-                        </div>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          class="h-8 w-8 flex-shrink-0"
-                          onclick={(e: MouseEvent) => {
-                            e.stopPropagation();
-                            updateCartQuantity(product.id, 1);
-                          }}
-                        >
-                          <PlusIcon class="size-3.5" />
-                        </Button>
-                      </div>
-                    {:else}
-                      <Button
-                        size="sm"
-                        class="w-full gap-1.5"
-                        onclick={(e: MouseEvent) => {
-                          e.stopPropagation();
-                          addToCart(product);
-                        }}
-                      >
-                        <ShoppingCartIcon class="size-3.5" />
-                        Add to Cart
-                      </Button>
-                    {/if}
-                  {:else}
-                    <Button size="sm" class="w-full" disabled variant="secondary">
-                      Out of Stock
-                    </Button>
-                  {/if}
                 </div>
               </Card.Content>
             </Card.Root>
