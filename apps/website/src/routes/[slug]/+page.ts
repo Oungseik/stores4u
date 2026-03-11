@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/client";
 import { error } from "@sveltejs/kit";
 import { orpc } from "$lib/orpc_client";
-import { logger } from "$lib/server/logger";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ parent, params }) => {
@@ -31,7 +30,6 @@ export const load = (async ({ parent, params }) => {
       ),
     ]);
   } catch (e) {
-    logger.error({ err: e }, "Failed to prefetch data");
     if (e instanceof ORPCError) {
       if (e.status === 404) {
         error(404, { message: "Shop not found" });
