@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { emailOTP, twoFactor } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import {
@@ -7,9 +8,10 @@ import {
   BETTER_AUTH_URL,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  NO_REPLY_EMAIL,
 } from "$env/static/private";
-
 import { db } from "$lib/server/auth_db";
+import { transporter } from "$lib/server/email";
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
@@ -28,6 +30,14 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await transporter.sendMail({
+        from: NO_REPLY_EMAIL,
+        to: user.email,
+        subject: "Verify your email",
+        html: `verify your email with ${url}`,
+      });
+    },
   },
 
   socialProviders: {
@@ -38,7 +48,33 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [sveltekitCookies(getRequestEvent)],
+  plugins: [
+    emailOTP({
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        if (type === "forget-password") {
+          await transporter.sendMail({
+            from: NO_REPLY_EMAIL,
+            to: email,
+            subject: "Reset password",
+            html: `OTP for reset password ${otp}`,
+          });
+        }
+      },
+    }),
+    twoFactor({
+      otpOptions: {
+        sendOTP: async ({ user, otp }) => {
+          await transporter.sendMail({
+            from: NO_REPLY_EMAIL,
+            to: user.email,
+            subject: "Reset password",
+            html: `OTP is ${otp}`,
+          });
+        },
+      },
+    }),
+    sveltekitCookies(getRequestEvent),
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session.session;
