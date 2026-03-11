@@ -46,6 +46,8 @@ export const authMiddleware = os.middleware(async ({ context, next }) => {
   return next({ context: { session } });
 });
 
+Object.defineProperty(authMiddleware, "name", { value: "auth_middleware" });
+
 export const shopMiddleware = os.middleware(async ({ context, next }, input: { slug: string }) => {
   const shop = await db.query.shop.findFirst({
     where: { slug: input.slug },
@@ -59,3 +61,5 @@ export const shopMiddleware = os.middleware(async ({ context, next }, input: { s
 
   return next({ context: { ...context, shop } });
 });
+
+Object.defineProperty(shopMiddleware, "name", { value: "shop_middleware" });
