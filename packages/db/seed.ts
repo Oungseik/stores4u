@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { randomUUIDv7 } from "bun";
-import { drizzle } from "drizzle-orm/tursodatabase/database";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
   inventoryBatch,
@@ -338,22 +339,49 @@ function generateInventoryMovementData(
 async function main() {
   const shopSlug = process.env.SHOP_SLUG;
   const shopDataDir = process.env.SHOP_DATA_DIR;
+  const shopDbUrl = process.env.SHOP_DB_URL ?? process.env.DATABASE_URL;
+  const tursoOrganization = process.env.TURSO_ORGANIZATION;
+  const tursoAuthToken = process.env.TURSO_GROUP_AUTH_TOKEN ?? process.env.TURSO_GROUP;
 
-  if (!shopSlug || !shopDataDir) {
-    console.error("Error: SHOP_SLUG and SHOP_DATA_DIR environment variables are required");
+  if (!shopSlug && !shopDbUrl) {
+    console.error("Error: SHOP_SLUG or SHOP_DB_URL/DATABASE_URL is required");
     console.error("Usage: SHOP_SLUG=my-shop bun run db:seed");
+    console.error("Usage: SHOP_DB_URL=libsql://... TURSO_GROUP_AUTH_TOKEN=... bun run db:seed");
     process.exit(1);
   }
 
-  const dbPath = resolve(shopDataDir, "shops", `${shopSlug}.db`);
+  let db;
 
-  const db = drizzle({
-    connection: { path: dbPath },
-    schema,
-    relations,
-  });
+  if (shopDbUrl) {
+    if (!tursoAuthToken) {
+      console.error("Error: TURSO_GROUP_AUTH_TOKEN or TURSO_GROUP is required for remote seeding");
+      process.exit(1);
+    }
 
-  console.log(`Seeding database: ${dbPath}`);
+    const client = createClient({ url: shopDbUrl, authToken: tursoAuthToken });
+    db = drizzle({ client, schema, relations });
+    console.log(`Seeding remote database: ${shopDbUrl}`);
+  } else if (shopSlug && shopDataDir) {
+    const dbPath = resolve(shopDataDir, "shops", `${shopSlug}.db`);
+    const client = createClient({ url: `file:${dbPath}` });
+    db = drizzle({ client, schema, relations });
+    console.log(`Seeding local database: ${dbPath}`);
+  } else if (shopSlug && tursoOrganization) {
+    if (!tursoAuthToken) {
+      console.error("Error: TURSO_GROUP_AUTH_TOKEN or TURSO_GROUP is required for remote seeding");
+      process.exit(1);
+    }
+
+    const derivedShopDbUrl = `libsql://pos-${shopSlug}-${tursoOrganization}.turso.io`;
+    const client = createClient({ url: derivedShopDbUrl, authToken: tursoAuthToken });
+    db = drizzle({ client, schema, relations });
+    console.log(`Seeding remote database: ${derivedShopDbUrl}`);
+  } else {
+    console.error(
+      "Error: set SHOP_DATA_DIR for local seeding or TURSO_ORGANIZATION plus TURSO_GROUP_AUTH_TOKEN for Turso cloud seeding",
+    );
+    process.exit(1);
+  }
 
   console.log("Clearing existing data...");
   await db.delete(inventoryMovement);
