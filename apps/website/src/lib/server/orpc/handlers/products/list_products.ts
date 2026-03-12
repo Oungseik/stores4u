@@ -1,4 +1,4 @@
-import { eq, inventoryBatch, not } from "@repo/db";
+import { eq, inventoryBatch, sql } from "@repo/db";
 import { z } from "zod";
 import { os, shopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -19,9 +19,10 @@ export const listProductsHandler = os
 
     const products = await shopDb.query.product.findMany({
       where: { id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor } },
-      with: { productCategories: true, inventoryBatches: true },
+      with: { productCategories: { with: { category: true } } },
       extras: {
-        inStock: shopDb.$count(inventoryBatch, not(eq(inventoryBatch.remainingQty, 0))),
+        inStock: (table) =>
+          sql<number>`COALESCE((SELECT SUM(${inventoryBatch.remainingQty}) FROM ${inventoryBatch} WHERE ${inventoryBatch.productId} = ${table.id}), 0)`,
       },
       limit: input.pageSize + 1,
       orderBy: { id: input.order },
@@ -45,8 +46,8 @@ export const listProductsHandler = os
       image: p.image,
       uom: p.uom,
       priceCents: p.priceCents,
-      categoryIds: p.productCategories.map((c) => c.categoryId),
-      inStock: p.inStock > 0,
+      categories: p.productCategories.map((c) => c.category?.name).filter(Boolean),
+      inStock: Number(p.inStock),
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     }));
