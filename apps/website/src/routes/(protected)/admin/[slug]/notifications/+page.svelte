@@ -11,6 +11,7 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
+  import { fade } from "svelte/transition";
 
   type NotificationType = "low_stock" | "out_of_stock" | "info";
 
@@ -226,6 +227,7 @@
                 {#each pinnedNotifications as notification (notification.id)}
                   {@const style = getNotificationStyle(notification.type)}
                   <div
+                    out:fade={{ duration: 250 }}
                     class="hover:bg-muted/50 relative flex w-full cursor-pointer items-center gap-3 border-b px-3 py-3 last:border-b-0"
                     onclick={() => handleNotificationClick(notification)}
                     onkeydown={(e) => e.key === "Enter" && handleNotificationClick(notification)}
@@ -293,6 +295,7 @@
                 {#each todayNotifications as notification (notification.id)}
                   {@const style = getNotificationStyle(notification.type)}
                   <div
+                    out:fade={{ duration: 250 }}
                     class="hover:bg-muted/50 relative flex w-full cursor-pointer items-center gap-3 border-b border-l-2 px-3 py-3 last:border-b-0 {!notification.isRead
                       ? 'bg-primary/5 border-l-primary'
                       : 'border-l-transparent opacity-70'}"
@@ -366,6 +369,7 @@
                 {#each earlierNotifications as notification (notification.id)}
                   {@const style = getNotificationStyle(notification.type)}
                   <div
+                    out:fade={{ duration: 250 }}
                     class="hover:bg-muted/50 relative flex w-full cursor-pointer items-center gap-3 border-b border-l-2 px-3 py-3 last:border-b-0 {!notification.isRead
                       ? 'bg-primary/5 border-l-primary'
                       : 'border-l-transparent opacity-70'}"

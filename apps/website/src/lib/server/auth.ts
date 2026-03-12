@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, twoFactor } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
+import { env } from "$env/dynamic/public";
 import {
   BETTER_AUTH_SECRET,
   BETTER_AUTH_URL,
@@ -14,7 +15,7 @@ import { db } from "$lib/server/auth_db";
 import { transporter } from "$lib/server/email";
 
 export const auth = betterAuth({
-  baseURL: BETTER_AUTH_URL,
+  baseURL: env.PUBLIC_ENVIRONMENT === "development" ? undefined : BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: "sqlite",
   }),
