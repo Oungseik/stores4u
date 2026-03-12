@@ -19,7 +19,7 @@
   ]);
 </script>
 
-<div class="flex flex-col" style="height: calc(100dvh - {dockHeight});">
+<div class="flex min-h-[calc(100dvh-72px)] flex-col">
   {@render children?.()}
 </div>
 

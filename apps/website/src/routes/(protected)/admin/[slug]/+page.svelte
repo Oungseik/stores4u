@@ -1,16 +1,19 @@
 <script lang="ts">
   import CameraOffIcon from "@lucide/svelte/icons/camera-off";
-  import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import KeyboardIcon from "@lucide/svelte/icons/keyboard";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import QrCodeIcon from "@lucide/svelte/icons/qr-code";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
+  import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { Textarea } from "@repo/ui/textarea";
@@ -212,13 +215,13 @@
   });
 </script>
 
-<section class="overflow-y-auto p-4">
+<section class="p-4">
   <div class="mb-3 flex items-center justify-between">
     <h2 class="text-lg font-semibold">Products</h2>
     <Dialog.Root bind:open={isDialogOpen}>
       <Dialog.Trigger class={["data-[state=open]:hidden", buttonVariants({ size: "sm" })]}>
-        <PlusIcon class="mr-1 size-4" />
-        Add Product
+        <PlusIcon class="size-4" />
+        Add
       </Dialog.Trigger>
       <Dialog.Content class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <Dialog.Header>
@@ -556,10 +559,7 @@
       {#each allProducts as product (product.id)}
         <Card.Root class="overflow-hidden p-0">
           <Card.Content class="p-0">
-            <button
-              type="button"
-              class="hover:bg-muted/50 justi flex w-full items-center gap-2.5 px-3 py-2 text-left"
-            >
+            <div class="hover:bg-muted/50 flex w-full items-center gap-2.5 px-3 py-2">
               <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
                 <PackageIcon class="text-muted-foreground size-4" />
               </div>
@@ -575,11 +575,29 @@
                 </div>
               </div>
 
-              <span class="text-muted-foreground text-xs">{product.inStock} left</span>
+              <span class="text-muted-foreground text-xs">{product.stock} left</span>
 
               <p class="text-sm font-semibold">{formatPrice(product.priceCents)}</p>
-              <ChevronRightIcon class="text-muted-foreground size-4 shrink-0" />
-            </button>
+
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger
+                  class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
+                >
+                  <MoreVerticalIcon class="text-muted-foreground size-4" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="end">
+                  <DropdownMenu.Item>
+                    <PencilIcon class="mr-2 size-4" />
+                    Edit
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Item class="text-destructive">
+                    <Trash2Icon class="mr-2 size-4" />
+                    Delete
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            </div>
           </Card.Content>
         </Card.Root>
       {/each}
