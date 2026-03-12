@@ -1,13 +1,13 @@
 ---
-name: svelte-frontent-developer
-description: Design, implement, and refactor Svelte frontend pages and components in this monorepo with @repo/ui, @tanstack/svelte-form, zod validation, and @tanstack/svelte-query data flows. Use when requests mention sign-in/sign-up pages, landing pages, component UI refactors (for example forms like AddProductForm.svelte), shadcn component installation, lucide icons, or mock-data-first frontend work while backend APIs are not ready.
+name: frontend-developer
+description: Design, implement, and refactor frontend pages and components in this monorepo, especially Svelte/SvelteKit UI built with @repo/ui, @tanstack/svelte-form, zod validation, @tanstack/svelte-query, and ORPC-backed data flows. Use when requests mention sign-in/sign-up pages, landing pages, frontend component refactors, shadcn component installation guidance, lucide icons, mock-data-first frontend work while backend APIs are not ready, or TanStack Query patterns such as infinite queries with ORPC.
 ---
 
-# Svelte Frontent Developer
+# Frontend Developer
 
 ## Overview
 
-Build production-ready Svelte UI in this monorepo using the project's existing conventions.
+Build production-ready frontend UI in this monorepo using the project's existing conventions.
 Prioritize consistency with `@repo/ui` imports, TanStack form/query patterns, and absolute lucide icon imports.
 
 ## Workflow
@@ -43,9 +43,10 @@ Continue only after the user confirms installation is complete.
 - Use `createForm` from `@tanstack/svelte-form` for local form state and submit flow.
 - Use `zod` validators on form fields, returning first message from parse errors.
 - Use `createMutation`, `createInfiniteQuery`, and `useQueryClient` from `@tanstack/svelte-query`.
+- Use ORPC option helpers directly inside query factories, including `orpc.<resource>.<procedure>.infiniteOptions(...)` for cursor-based pagination.
 - Use derived values (`$derived`) to map and filter query data for UI state.
 
-See [references/patterns.md](references/patterns.md) for canonical examples pulled from the signup route.
+See [references/patterns.md](references/patterns.md) for canonical examples pulled from the signup route and the admin products infinite-query page.
 
 ## Implementation Guardrails
 

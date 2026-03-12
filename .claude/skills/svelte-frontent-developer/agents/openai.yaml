@@ -1,4 +1,0 @@
-interface:
-  display_name: "Svelte Frontend Developer"
-  short_description: "Build and refactor Svelte frontend features"
-  default_prompt: "Use $svelte-frontent-developer to implement or refactor Svelte pages and forms using @repo/ui patterns."
