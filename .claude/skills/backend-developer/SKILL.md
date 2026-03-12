@@ -1,9 +1,9 @@
 ---
-name: orpc-sveltekit-backend-developer
+name: backend-developer
 description: Implement and update oRPC backend APIs in this POS SvelteKit monorepo using Drizzle ORM, Better Auth, and per-shop SQLite databases. Use when tasks ask to add or modify handlers under apps/website/src/lib/server/orpc/handlers, register procedures in apps/website/src/lib/server/orpc/router.ts, build or compose middleware in apps/website/src/lib/server/orpc/base.ts, inspect schemas and relations in packages/auth/src and packages/db/src, add inventory/product/shop/auth APIs, or implement cursor pagination for TanStack infinite queries.
 ---
 
-# oRPC SvelteKit Backend Developer
+# Backend Developer
 
 ## Overview
 
