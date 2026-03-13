@@ -1,20 +1,14 @@
 import { createTransport } from "nodemailer";
-import {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GOOGLE_REFRESH_TOKEN,
-  GOOGLE_USER,
-} from "$env/static/private";
+import { SES_SMTP_HOST, SES_SMTP_PASS, SES_SMTP_PORT, SES_SMTP_USER } from "$env/static/private";
+
+const port = Number(SES_SMTP_PORT ?? "465");
 
 export const transporter = createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  host: SES_SMTP_HOST,
+  port,
+  secure: port === 465,
   auth: {
-    type: "OAuth2",
-    user: GOOGLE_USER,
-    clientId: GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-    refreshToken: GOOGLE_REFRESH_TOKEN,
+    user: SES_SMTP_USER,
+    pass: SES_SMTP_PASS,
   },
 });
