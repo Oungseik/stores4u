@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
-import { randomUUIDv7 } from "bun";
 import { createClient } from "@libsql/client";
+import { randomUUIDv7 } from "bun";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
@@ -440,6 +441,23 @@ async function main() {
   const inventoryBatchData = generateInventoryBatchData(productData, invoiceItemData);
   await db.insert(inventoryBatch).values(inventoryBatchData);
   console.log(`Inserted ${inventoryBatchData.length} inventory batches`);
+
+  console.log("Calculating stock from inventory batches...");
+  const stockFromBatches = await db
+    .select({
+      productId: inventoryBatch.productId,
+      stock: sql<number>`sum(${inventoryBatch.remainingQty})`,
+    })
+    .from(inventoryBatch)
+    .groupBy(inventoryBatch.productId);
+
+  for (const stockRecord of stockFromBatches) {
+    await db
+      .update(product)
+      .set({ stock: stockRecord.stock ?? 0 })
+      .where(eq(product.id, stockRecord.productId));
+  }
+  console.log(`Updated stock for ${stockFromBatches.length} products`);
 
   console.log("Generating inventory movements...");
   const inventoryMovementData = generateInventoryMovementData(
