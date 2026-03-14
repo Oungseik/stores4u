@@ -1,4 +1,4 @@
 interface:
   display_name: "Frontend Developer"
-  short_description: "Build and refactor frontend features in this repo"
-  default_prompt: "Use $frontend-developer to implement or refactor frontend pages, forms, and query flows using this repo's Svelte and @repo/ui patterns."
+  short_description: "Build frontend features with repo-specific Svelte and shadcn-aware guardrails"
+  default_prompt: "Use $frontend-developer to implement or refactor frontend pages, forms, and query flows using this repo's Svelte, @repo/ui, and shadcn coordination patterns without auto-installing missing components."
