@@ -9,6 +9,7 @@ import { uploadImageHandler } from "./handlers/images/upload_image";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
 import { exportProductsCsvHandler } from "./handlers/products/export_products_csv";
+import { getProductHandler } from "./handlers/products/get_product";
 import { importProductsCsvHandler } from "./handlers/products/import_products_csv";
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
@@ -23,11 +24,14 @@ export const router = os.router({
     list: listCategoriesHandler,
     update: updateCategoryHandler,
   },
-  images: { uploadImage: uploadImageHandler },
+  images: {
+    upload: uploadImageHandler,
+  },
   products: {
     create: createProductHandler,
     delete: deleteProductHandler,
     exportCsv: exportProductsCsvHandler,
+    get: getProductHandler,
     importCsv: importProductsCsvHandler,
     list: listProductsHandler,
     update: updateProductHandler,
@@ -35,7 +39,7 @@ export const router = os.router({
   shops: {
     create: createShopHandler,
     get: getShopHandler,
-    updateShop: updateShopHandler,
+    update: updateShopHandler,
   },
 });
 
