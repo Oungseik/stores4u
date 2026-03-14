@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MinusIcon from "@lucide/svelte/icons/minus";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PlusIcon from "@lucide/svelte/icons/plus";
@@ -9,12 +8,12 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import { Input } from "@repo/ui/input";
   import * as ScrollArea from "@repo/ui/scroll-area";
   import { createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { toast } from "svelte-sonner";
 
+  import ProductResults from "$lib/components/ProductResults.svelte";
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
   import { formatPrice } from "$lib/utils";
@@ -35,7 +34,7 @@
   let cart = $state<CartItem[]>([]);
   let mode = $state<"scan" | "search">("scan");
   let searchQuery = $state("");
-  const debouncedSearch = new Debounced(() => searchQuery, 500);
+  const debouncedSearch = new Debounced(() => searchQuery, 300);
 
   // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
@@ -44,6 +43,13 @@
     orpc.shops.get.queryOptions({
       input: { slug: params.slug },
       enabled: !!params.slug,
+    })
+  );
+
+  const productSearch = createQuery(() =>
+    orpc.products.list.queryOptions({
+      input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
+      enabled: !!params.slug && debouncedSearch.current.length > 0 && mode === "search",
     })
   );
 
@@ -56,13 +62,6 @@
     })
   );
 
-  const productSearch = createQuery(() =>
-    orpc.products.list.queryOptions({
-      input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
-      enabled: !!params.slug && debouncedSearch.current.length > 0,
-    })
-  );
-
   const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
   const totalItems = $derived(cart.reduce((sum, item) => sum + item.quantity, 0));
 
@@ -72,13 +71,12 @@
       cart = cart.map((item) =>
         item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
       );
-      toast.success(`Added another ${existingItem.name}`);
     } else {
       lastScannedBarcode = barcode;
     }
   }
 
-  function addProductToCartFromSearch(product: {
+  function handleProductSelect(product: {
     id: string;
     barcode: string | null;
     name: string;
@@ -88,18 +86,14 @@
     if (product.barcode) {
       addToCart(product.barcode);
     } else {
-      cart = [
-        ...cart,
-        {
-          id: product.id,
-          barcode: product.barcode,
-          name: product.name,
-          priceCents: product.priceCents,
-          quantity: 1,
-          image: product.image,
-        },
-      ];
-      toast.success(`Added ${product.name} to cart`);
+      cart.push({
+        id: product.id,
+        barcode: product.barcode,
+        name: product.name,
+        priceCents: product.priceCents,
+        quantity: 1,
+        image: product.image,
+      });
     }
     searchQuery = "";
   }
@@ -107,18 +101,14 @@
   $effect(() => {
     if (productByBarcode.data) {
       const product = productByBarcode.data;
-      cart = [
-        ...cart,
-        {
-          id: product.id,
-          barcode: product.barcode,
-          name: product.name,
-          priceCents: product.priceCents,
-          quantity: 1,
-          image: product.image,
-        },
-      ];
-      toast.success(`Added ${product.name} to cart`);
+      cart.push({
+        id: product.id,
+        barcode: product.barcode,
+        name: product.name,
+        priceCents: product.priceCents,
+        quantity: 1,
+        image: product.image,
+      });
       lastScannedBarcode = null;
     }
   });
@@ -149,11 +139,7 @@
 
   function removeFromCart(barcode: string | null) {
     if (!barcode) return;
-    const item = cart.find((i) => i.barcode === barcode);
     cart = cart.filter((i) => i.barcode !== barcode);
-    if (item) {
-      toast.success(`Removed ${item.name}`);
-    }
   }
 
   function handleCheckout() {
@@ -199,78 +185,37 @@
     </button>
   </div>
 
-  <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
-    {#if mode === "scan"}
+  {#if mode === "scan"}
+    <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
       <BarcodeScanner
         bind:this={scannerRef}
         containerId="pos-barcode-scanner"
         onScan={addToCart}
         class="relative h-full w-full"
       />
-    {:else}
-      <div class="flex h-full flex-col gap-3 p-4">
-        <div class="relative">
-          <SearchIcon
-            class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-          />
-          <Input
-            bind:value={searchQuery}
-            placeholder="Search products by name, SKU, or barcode..."
-            class="pl-9"
-          />
-        </div>
-
-        <div class="flex-1 overflow-y-auto">
-          {#if searchQuery.length === 0}
-            <div class="flex h-full items-center justify-center text-center">
-              <p class="text-muted-foreground text-sm">Type to search products...</p>
-            </div>
-          {:else if productSearch.isLoading}
-            <div class="flex h-full items-center justify-center">
-              <Loader2Icon class="text-muted-foreground size-5 animate-spin" />
-            </div>
-          {:else if productSearch.data?.items.length === 0}
-            <div class="flex h-full items-center justify-center text-center">
-              <p class="text-muted-foreground text-sm">No products found for "{searchQuery}"</p>
-            </div>
-          {:else if productSearch.data?.items}
-            <div class="space-y-1">
-              {#each productSearch.data.items as product (product.id)}
-                <button
-                  type="button"
-                  class="hover:bg-muted flex w-full items-center gap-3 rounded-md p-2 text-left"
-                  onclick={() => addProductToCartFromSearch(product)}
-                >
-                  <div
-                    class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md"
-                  >
-                    {#if product.image}
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        class="size-full rounded-md object-cover"
-                      />
-                    {:else}
-                      <PackageIcon class="text-muted-foreground size-4" />
-                    {/if}
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium">{product.name}</p>
-                    <p class="text-muted-foreground text-xs">
-                      {product.barcode || product.sku || "No barcode"}
-                    </p>
-                  </div>
-                  <p class="text-sm font-semibold">
-                    {formatPrice(product.priceCents, shop.data?.country)}
-                  </p>
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
+    </div>
+  {:else}
+    <div class="flex h-full flex-col gap-3 p-4">
+      <div class="relative">
+        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        <input
+          type="text"
+          bind:value={searchQuery}
+          placeholder="Search products..."
+          class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-9 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        />
       </div>
-    {/if}
-  </div>
+      {#if searchQuery.length > 0}
+        <ProductResults
+          products={productSearch.data?.items ?? []}
+          isLoading={productSearch.isLoading}
+          country={shop.data?.country ?? undefined}
+          searchQuery={debouncedSearch.current}
+          onSelect={handleProductSelect}
+        />
+      {/if}
+    </div>
+  {/if}
 
   <div class="flex-1 overflow-hidden">
     <ScrollArea.Root class="h-full">
