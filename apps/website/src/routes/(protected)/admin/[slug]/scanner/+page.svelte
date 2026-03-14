@@ -9,11 +9,18 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
+  import { createQuery } from "@tanstack/svelte-query";
   import { Html5Qrcode } from "html5-qrcode";
   import { tick } from "svelte";
   import { toast } from "svelte-sonner";
 
   import { browser } from "$app/environment";
+  import { orpc } from "$lib/orpc_client";
+  import { formatPrice } from "$lib/utils";
+
+  import type { PageProps } from "./$types";
+
+  const { params }: PageProps = $props();
 
   interface CartItem {
     id: string;
@@ -56,12 +63,15 @@
   let html5QrCode: Html5Qrcode | null = null;
   let scannerContainerId = "barcode-scanner";
 
+  const shop = createQuery(() =>
+    orpc.shops.get.queryOptions({
+      input: { slug: params.slug },
+      enabled: !!params.slug,
+    })
+  );
+
   const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
   const totalItems = $derived(cart.reduce((sum, item) => sum + item.quantity, 0));
-
-  function formatPrice(cents: number): string {
-    return `${(cents / 100).toFixed(2)}`;
-  }
 
   function findProductByBarcode(barcode: string) {
     return mockProducts.find((p) => p.barcode === barcode);
@@ -164,7 +174,9 @@
       return;
     }
     // TODO: Implement checkout logic
-    toast.success(`Checkout: ${totalItems} items for ${formatPrice(totalCents)}`);
+    toast.success(
+      `Checkout: ${totalItems} items for ${formatPrice(totalCents, shop.data?.country)}`
+    );
   }
 
   $effect(() => {
@@ -188,7 +200,7 @@
   });
 </script>
 
-<div class="bg-background flex-1 flex flex-col">
+<div class="bg-background flex flex-1 flex-col">
   <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
     <div id={scannerContainerId} class="relative h-full w-full">
       {#if !isScanning && scannerError}
@@ -286,7 +298,7 @@
                   </div>
 
                   <p class="w-16 text-right text-sm font-semibold">
-                    {formatPrice(item.priceCents * item.quantity)}
+                    {formatPrice(item.priceCents * item.quantity, shop.data?.country)}
                   </p>
 
                   <Button
@@ -316,7 +328,7 @@
           </div>
           <div>
             <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <p class="text-lg font-bold">{formatPrice(totalCents)}</p>
+            <p class="text-lg font-bold">{formatPrice(totalCents, shop.data?.country)}</p>
           </div>
         </div>
       </div>

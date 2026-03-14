@@ -9,10 +9,11 @@
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import { createInfiniteQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
 
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
   import { orpc } from "$lib/orpc_client";
+  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -30,9 +31,12 @@
     })
   );
 
-  function formatPrice(cents: number): string {
-    return `${(cents / 100).toFixed(2)}`;
-  }
+  const shop = createQuery(() =>
+    orpc.shops.get.queryOptions({
+      input: { slug: params.slug },
+      enabled: !!params.slug,
+    })
+  );
 
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
 
@@ -106,7 +110,9 @@
 
               <span class="text-muted-foreground text-xs">{product.stock} left</span>
 
-              <p class="text-sm font-semibold">{formatPrice(product.priceCents)}</p>
+              <p class="text-sm font-semibold">
+                {formatPrice(product.priceCents, shop.data?.country)}
+              </p>
 
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger

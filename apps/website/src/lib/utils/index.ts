@@ -1,4 +1,4 @@
-import type { CountryCode } from "@repo/config";
+import { type CountryCode, currency } from "@repo/config";
 import type { DehydratedState } from "@tanstack/svelte-query";
 
 const replacements = {
@@ -46,4 +46,13 @@ export function getCountryName(code: CountryCode, locale = "en") {
   } catch (error) {
     return code;
   }
+}
+
+export function formatPrice(cents: number, country?: CountryCode | null): string {
+  const amount = (cents / 100).toFixed(2);
+  if (!country) return amount;
+  const config = currency[country];
+  if (config?.prefix) return `${config.prefix}${amount}`;
+  if (config?.suffix) return `${amount} ${config.suffix}`;
+  return amount;
 }

@@ -36,6 +36,7 @@ export const getShopHandler = os
       description: settings.description,
       address: settings.address,
       phone: settings.phone,
+      country: settings.country,
       productCount: productCountResult.count,
     };
   });

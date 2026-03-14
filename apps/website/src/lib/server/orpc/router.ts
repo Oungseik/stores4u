@@ -34,7 +34,7 @@ export const router = os.router({
   },
   shops: {
     create: createShopHandler,
-    getShop: getShopHandler,
+    get: getShopHandler,
     updateShop: updateShopHandler,
   },
 });

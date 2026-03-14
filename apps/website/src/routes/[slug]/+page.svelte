@@ -10,6 +10,7 @@
 
   import { page } from "$app/state";
   import { orpc } from "$lib/orpc_client";
+  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -22,7 +23,7 @@
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' width='1200' height='600'/%3E%3C/svg%3E";
 
   const shop = createQuery(() =>
-    orpc.shops.getShop.queryOptions({
+    orpc.shops.get.queryOptions({
       input: { slug: page.params.slug ?? "" },
       enabled: !!page.params.slug,
     })
@@ -41,10 +42,6 @@
   );
 
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
-
-  function formatPrice(cents: number): string {
-    return `${(cents / 100).toFixed(2)}`;
-  }
 
   function getImageUrl(image: string | null | undefined): string {
     return image || PLACEHOLDER_IMAGE;
@@ -161,7 +158,7 @@
                 <div class="mt-auto flex flex-col gap-2 pt-2">
                   <div class="flex items-baseline gap-2">
                     <span class="text-lg font-bold sm:text-xl">
-                      {formatPrice(product.priceCents)}
+                      {formatPrice(product.priceCents, shop.data?.country)}
                     </span>
                   </div>
                 </div>
