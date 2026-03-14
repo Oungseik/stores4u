@@ -1,5 +1,4 @@
 <script lang="ts">
-  import CameraOffIcon from "@lucide/svelte/icons/camera-off";
   import KeyboardIcon from "@lucide/svelte/icons/keyboard";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import QrCodeIcon from "@lucide/svelte/icons/qr-code";
@@ -11,12 +10,9 @@
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
-  import { Html5Qrcode } from "html5-qrcode";
-  import { tick } from "svelte";
   import { toast } from "svelte-sonner";
   import z from "zod";
-  import { browser } from "$app/environment";
-
+  import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
 
   interface Props {
@@ -51,10 +47,7 @@
   );
 
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
-  let isScanning = $state(false);
-  let scannerError = $state<string | null>(null);
-  let html5QrCode: Html5Qrcode | null = null;
-  const scannerContainerId = "product-barcode-scanner";
+  let scannerRef: BarcodeScanner | null = null;
 
   const defaultValues = {
     name: "",
@@ -113,68 +106,27 @@
     barcodeMode = "skip";
     imagePreview = null;
     isUploadingImage = false;
-    stopScanner();
-  }
-
-  async function startScanner() {
-    try {
-      await tick();
-      const element = document.getElementById(scannerContainerId);
-      if (!element) {
-        console.error("Scanner container not found");
-        return;
-      }
-
-      html5QrCode = new Html5Qrcode(scannerContainerId);
-      isScanning = true;
-      scannerError = null;
-
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 150 },
-        },
-        (decodedText) => {
-          form.setFieldValue("barcode", decodedText);
-          stopScanner();
-          barcodeMode = "manual";
-          toast.success("Barcode scanned successfully");
-        },
-        () => {}
-      );
-    } catch (err) {
-      isScanning = false;
-      scannerError = "Camera access denied or not available";
-      console.error("Scanner error:", err);
-    }
-  }
-
-  async function stopScanner() {
-    if (html5QrCode && isScanning) {
-      try {
-        await html5QrCode.stop();
-        html5QrCode = null;
-      } catch (err) {
-        console.error("Error stopping scanner:", err);
-      }
-    }
-    isScanning = false;
+    scannerRef?.stop();
   }
 
   function handleBarcodeModeChange(mode: "skip" | "manual" | "scan") {
     barcodeMode = mode;
     if (mode === "scan") {
-      if (browser) {
-        startScanner();
-      }
+      scannerRef?.start();
     } else {
-      stopScanner();
+      scannerRef?.stop();
     }
   }
 
+  function handleScan(barcode: string) {
+    form.setFieldValue("barcode", barcode);
+    scannerRef?.stop();
+    barcodeMode = "manual";
+    toast.success("Barcode scanned successfully");
+  }
+
   $effect(() => {
-    stopScanner();
+    scannerRef?.stop();
   });
 </script>
 
@@ -419,38 +371,21 @@
 
     {#if barcodeMode === "scan"}
       <div class="space-y-2">
-        <div
-          id={scannerContainerId}
+        <BarcodeScanner
+          bind:this={scannerRef}
+          containerId="product-barcode-scanner"
+          onScan={handleScan}
           class="bg-muted relative h-40 w-full overflow-hidden rounded-lg"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          class="w-full"
+          onclick={() => handleBarcodeModeChange("manual")}
         >
-          {#if !isScanning && scannerError}
-            <div
-              class="flex h-full flex-col items-center justify-center gap-2 p-4 text-center"
-            >
-              <CameraOffIcon class="text-muted-foreground size-6" />
-              <p class="text-muted-foreground text-xs">{scannerError}</p>
-              <Button type="button" variant="outline" size="sm" onclick={startScanner}>
-                Try Again
-              </Button>
-            </div>
-          {:else if !isScanning}
-            <div class="flex h-full flex-col items-center justify-center gap-2">
-              <Loader2Icon class="size-5 animate-spin" />
-              <p class="text-muted-foreground text-xs">Starting camera...</p>
-            </div>
-          {/if}
-        </div>
-        {#if isScanning}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            class="w-full"
-            onclick={() => handleBarcodeModeChange("manual")}
-          >
-            Cancel Scan
-          </Button>
-        {/if}
+          Cancel Scan
+        </Button>
       </div>
     {/if}
   </div>
