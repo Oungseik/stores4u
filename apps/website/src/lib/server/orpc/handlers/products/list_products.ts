@@ -5,7 +5,7 @@ import { getShopDb } from "$lib/server/shop_db";
 const input = z.object({
   slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
-  pageSize: z.number().int().positive().default(20),
+  pageSize: z.number().int().positive().default(12),
   order: z.enum(["asc", "desc"]).default("desc"),
   search: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),

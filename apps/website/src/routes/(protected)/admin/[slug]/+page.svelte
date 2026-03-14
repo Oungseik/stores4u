@@ -22,7 +22,6 @@
     orpc.products.list.infiniteOptions({
       initialPageParam: undefined as string | undefined,
       input: (cursor) => ({
-        pageSize: 20,
         cursor,
         slug: params.slug,
       }),

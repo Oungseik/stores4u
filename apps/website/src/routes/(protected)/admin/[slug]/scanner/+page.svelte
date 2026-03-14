@@ -15,9 +15,6 @@
 
   import { browser } from "$app/environment";
 
-  const dockHeight = "80px";
-  const scannerHeight = "220px";
-
   interface CartItem {
     id: string;
     barcode: string;
@@ -191,8 +188,8 @@
   });
 </script>
 
-<div class="bg-background flex h-full flex-col">
-  <div class="shrink-0 overflow-hidden border-b-4" style="height: {scannerHeight};">
+<div class="bg-background flex-1 flex flex-col">
+  <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
     <div id={scannerContainerId} class="relative h-full w-full">
       {#if !isScanning && scannerError}
         <div
@@ -231,10 +228,7 @@
   <!--   </Button> -->
   <!-- </div> -->
 
-  <div
-    class="flex-1 overflow-hidden"
-    style="height: calc(100% - {scannerHeight} - {dockHeight} - 49px);"
-  >
+  <div class="flex-1 overflow-hidden">
     <ScrollArea.Root class="h-full">
       {#if cart.length === 0}
         <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
@@ -313,10 +307,7 @@
     </ScrollArea.Root>
   </div>
 
-  <div
-    class="bg-card sticky right-0 bottom-0 left-0 border-t shadow-lg"
-    style="height: {dockHeight};"
-  >
+  <div class="bg-card sticky right-0 bottom-0 left-0 h-20 border-t shadow-lg">
     <div class="flex h-full items-center justify-between px-4">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">

@@ -5,7 +5,7 @@
   import PhoneIcon from "@lucide/svelte/icons/phone";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import { Badge } from "@repo/ui/badge";
-  import { Button, buttonVariants } from "@repo/ui/button";
+  import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { createQuery } from "@tanstack/svelte-query";
 
@@ -34,7 +34,7 @@
 
   const productsQuery = createQuery(() =>
     orpc.products.list.queryOptions({
-      input: { slug: page.params.slug ?? "", pageSize: 100 },
+      input: { slug: page.params.slug ?? "" },
       enabled: !!page.params.slug,
     })
   );
@@ -170,7 +170,7 @@
           <p class="text-muted-foreground mt-1 text-sm">Try adjusting your category filter</p>
         </div>
       {:else}
-        <div>
+        <div class="grid gap-4">
           {#each displayedProducts as product (product.id)}
             <Card.Root class="gap-0 overflow-hidden p-0">
               <!-- Image Container -->
