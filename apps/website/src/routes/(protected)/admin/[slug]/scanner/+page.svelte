@@ -14,6 +14,7 @@
   import { createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { toast } from "svelte-sonner";
+
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
   import { formatPrice } from "$lib/utils";
@@ -36,6 +37,7 @@
   let searchQuery = $state("");
   const debouncedSearch = new Debounced(() => searchQuery, 500);
 
+  // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
 
   const shop = createQuery(() =>
@@ -175,10 +177,10 @@
   <div class="flex border-b">
     <button
       type="button"
-      class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode
-        === 'scan'
+      class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+      'scan'
         ? 'border-primary text-primary'
-        : 'border-transparent text-muted-foreground hover:text-foreground'}"
+        : 'text-muted-foreground hover:text-foreground border-transparent'}"
       onclick={() => (mode = "scan")}
     >
       <ScanLineIcon class="size-4" />
@@ -186,10 +188,10 @@
     </button>
     <button
       type="button"
-      class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode
-        === 'search'
+      class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+      'search'
         ? 'border-primary text-primary'
-        : 'border-transparent text-muted-foreground hover:text-foreground'}"
+        : 'text-muted-foreground hover:text-foreground border-transparent'}"
       onclick={() => (mode = "search")}
     >
       <SearchIcon class="size-4" />
@@ -208,7 +210,9 @@
     {:else}
       <div class="flex h-full flex-col gap-3 p-4">
         <div class="relative">
-          <SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <SearchIcon
+            class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+          />
           <Input
             bind:value={searchQuery}
             placeholder="Search products by name, SKU, or barcode..."
@@ -223,7 +227,7 @@
             </div>
           {:else if productSearch.isLoading}
             <div class="flex h-full items-center justify-center">
-              <Loader2Icon class="size-5 animate-spin text-muted-foreground" />
+              <Loader2Icon class="text-muted-foreground size-5 animate-spin" />
             </div>
           {:else if productSearch.data?.items.length === 0}
             <div class="flex h-full items-center justify-center text-center">
@@ -234,7 +238,7 @@
               {#each productSearch.data.items as product (product.id)}
                 <button
                   type="button"
-                  class="flex w-full items-center gap-3 rounded-md p-2 text-left hover:bg-muted"
+                  class="hover:bg-muted flex w-full items-center gap-3 rounded-md p-2 text-left"
                   onclick={() => addProductToCartFromSearch(product)}
                 >
                   <div
@@ -252,7 +256,9 @@
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-medium">{product.name}</p>
-                    <p class="text-muted-foreground text-xs">{product.barcode || product.sku || "No barcode"}</p>
+                    <p class="text-muted-foreground text-xs">
+                      {product.barcode || product.sku || "No barcode"}
+                    </p>
                   </div>
                   <p class="text-sm font-semibold">
                     {formatPrice(product.priceCents, shop.data?.country)}
@@ -298,7 +304,7 @@
 
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-medium">{item.name}</p>
-                    <p class="text-muted-foreground text-xs hidden sm:block">{item.barcode}</p>
+                    <p class="text-muted-foreground hidden text-xs sm:block">{item.barcode}</p>
                   </div>
 
                   <div class="flex items-center gap-0.5 sm:gap-1">
@@ -311,7 +317,9 @@
                     >
                       <MinusIcon class="size-3" />
                     </Button>
-                    <span class="w-6 text-center text-sm font-medium sm:w-8 sm:text-sm">{item.quantity}</span>
+                    <span class="w-6 text-center text-sm font-medium sm:w-8 sm:text-sm"
+                      >{item.quantity}</span
+                    >
                     <Button
                       variant="outline"
                       size="icon"

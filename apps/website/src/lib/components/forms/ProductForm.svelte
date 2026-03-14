@@ -12,6 +12,7 @@
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
   import z from "zod";
+
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
 
@@ -39,7 +40,7 @@
   );
 
   const uploadImageMutation = createMutation(() =>
-    orpc.images.uploadImage.mutationOptions({
+    orpc.images.upload.mutationOptions({
       onError: (error) => {
         toast.error(error.message || "Failed to upload image");
       },
@@ -47,6 +48,7 @@
   );
 
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
+  // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
 
   const defaultValues = {
@@ -169,8 +171,7 @@
     name="sku"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "SKU is required").max(100).safeParse(value).error?.issues.at(0)
-          ?.message,
+        z.string().min(1, "SKU is required").max(100).safeParse(value).error?.issues.at(0)?.message,
     }}
   >
     {#snippet children(field)}
@@ -392,9 +393,7 @@
 
   <div class="flex justify-end gap-2">
     {#if onCancel}
-      <Button type="button" variant="outline" onclick={onCancel}>
-        Cancel
-      </Button>
+      <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
     {/if}
     <Button type="submit" disabled={createProduct.isPending || isUploadingImage}>
       {#if createProduct.isPending}
