@@ -14,9 +14,6 @@ export const load = (async ({ parent, params }) => {
   try {
     await Promise.all([
       queryClient.ensureQueryData(orpc.shops.getShop.queryOptions({ input: { slug } })),
-      queryClient.ensureQueryData(
-        orpc.categories.list.queryOptions({ input: { slug, pageSize: 100 } }),
-      ),
       queryClient.ensureQueryData(orpc.products.list.queryOptions({ input: { slug } })),
     ]);
   } catch (e) {
