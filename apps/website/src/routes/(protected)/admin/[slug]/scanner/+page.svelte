@@ -159,66 +159,70 @@
   });
 </script>
 
-<div class="bg-background flex flex-1 flex-col">
-  <div class="flex border-b">
-    <button
-      type="button"
-      class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
-      'scan'
-        ? 'border-primary text-primary'
-        : 'text-muted-foreground hover:text-foreground border-transparent'}"
-      onclick={() => (mode = "scan")}
-    >
-      <ScanLineIcon class="size-4" />
-      Scan
-    </button>
-    <button
-      type="button"
-      class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
-      'search'
-        ? 'border-primary text-primary'
-        : 'text-muted-foreground hover:text-foreground border-transparent'}"
-      onclick={() => (mode = "search")}
-    >
-      <SearchIcon class="size-4" />
-      Search
-    </button>
-  </div>
-
-  {#if mode === "scan"}
-    <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
-      <BarcodeScanner
-        bind:this={scannerRef}
-        containerId="pos-barcode-scanner"
-        onScan={addToCart}
-        class="relative h-full w-full"
-      />
+<div class="bg-background flex h-[calc(100dvh-72px)] flex-col overflow-hidden">
+  <section class="shrink-0">
+    <div class="flex border-b">
+      <button
+        type="button"
+        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+        'scan'
+          ? 'border-primary text-primary'
+          : 'text-muted-foreground hover:text-foreground border-transparent'}"
+        onclick={() => (mode = "scan")}
+      >
+        <ScanLineIcon class="size-4" />
+        Scan
+      </button>
+      <button
+        type="button"
+        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+        'search'
+          ? 'border-primary text-primary'
+          : 'text-muted-foreground hover:text-foreground border-transparent'}"
+        onclick={() => (mode = "search")}
+      >
+        <SearchIcon class="size-4" />
+        Search
+      </button>
     </div>
-  {:else}
-    <div class="flex h-full flex-col gap-3 p-4">
-      <div class="relative">
-        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <input
-          type="text"
-          bind:value={searchQuery}
-          placeholder="Search products..."
-          class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-9 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+
+    {#if mode === "scan"}
+      <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
+        <BarcodeScanner
+          bind:this={scannerRef}
+          containerId="pos-barcode-scanner"
+          onScan={addToCart}
+          class="relative h-full w-full"
         />
       </div>
-      {#if searchQuery.length > 0}
-        <ProductResults
-          products={productSearch.data?.items ?? []}
-          isLoading={productSearch.isLoading}
-          country={shop.data?.country ?? undefined}
-          searchQuery={debouncedSearch.current}
-          onSelect={handleProductSelect}
-        />
-      {/if}
-    </div>
-  {/if}
+    {:else}
+      <div class="relative flex flex-col gap-3 p-4">
+        <div class="relative">
+          <SearchIcon
+            class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+          />
+          <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search products..."
+            class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-9 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+        {#if searchQuery.length > 0}
+          <ProductResults
+            products={productSearch.data?.items ?? []}
+            isLoading={productSearch.isLoading}
+            country={shop.data?.country ?? undefined}
+            searchQuery={debouncedSearch.current}
+            onSelect={handleProductSelect}
+          />
+        {/if}
+      </div>
+    {/if}
+  </section>
 
-  <div class="flex-1 overflow-hidden">
-    <ScrollArea.Root class="h-full">
+  <section class="min-h-0 flex-1">
+    <ScrollArea.Root class="h-full w-full">
       {#if cart.length === 0}
         <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
           <div class="bg-muted flex size-16 items-center justify-center rounded-full">
@@ -296,9 +300,9 @@
         </div>
       {/if}
     </ScrollArea.Root>
-  </div>
+  </section>
 
-  <div class="bg-card sticky right-0 bottom-0 left-0 h-20 border-t shadow-lg">
+  <section class="bg-card h-20 shrink-0 border-t shadow-lg">
     <div class="flex h-full items-center justify-between px-4">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
@@ -316,5 +320,5 @@
         Checkout
       </Button>
     </div>
-  </div>
+  </section>
 </div>

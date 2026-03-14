@@ -30,7 +30,9 @@
   }
 </script>
 
-<Command.Root class="max-h-80">
+<Command.Root
+  class="bg-popover absolute top-full right-0 left-0 z-50 h-fit overflow-hidden rounded-md border shadow-md"
+>
   <Command.List>
     {#if isLoading}
       <div class="flex h-20 items-center justify-center">
@@ -39,36 +41,38 @@
     {:else if products.length === 0 && searchQuery.length > 0}
       <Command.Empty>No products found for "{searchQuery}"</Command.Empty>
     {:else}
-      <Command.Group>
-        {#each products as product (product.id)}
-          <Command.Item
-            value={product.name}
-            onSelect={() => handleSelect(product)}
-            class="flex cursor-pointer items-center gap-3 px-2 py-2"
-          >
-            <div class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md">
-              {#if product.image}
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  class="size-full rounded-md object-cover"
-                />
-              {:else}
-                <PackageIcon class="text-muted-foreground size-4" />
-              {/if}
-            </div>
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium">{product.name}</p>
-              <p class="text-muted-foreground text-xs">
-                {product.barcode || product.sku || "No barcode"}
+      <ScrollArea>
+        <Command.Group>
+          {#each products as product (product.id)}
+            <Command.Item
+              value={product.name}
+              onSelect={() => handleSelect(product)}
+              class="flex cursor-pointer items-center gap-3 px-2 py-2"
+            >
+              <div class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md">
+                {#if product.image}
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    class="size-full rounded-md object-cover"
+                  />
+                {:else}
+                  <PackageIcon class="text-muted-foreground size-4" />
+                {/if}
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">{product.name}</p>
+                <p class="text-muted-foreground text-xs">
+                  {product.barcode || product.sku || "No barcode"}
+                </p>
+              </div>
+              <p class="text-sm font-semibold">
+                {formatPrice(product.priceCents, country as "MM" | "TH" | "US" | undefined)}
               </p>
-            </div>
-            <p class="text-sm font-semibold">
-              {formatPrice(product.priceCents, country as "MM" | "TH" | "US" | undefined)}
-            </p>
-          </Command.Item>
-        {/each}
-      </Command.Group>
+            </Command.Item>
+          {/each}
+        </Command.Group>
+      </ScrollArea>
     {/if}
   </Command.List>
 </Command.Root>
