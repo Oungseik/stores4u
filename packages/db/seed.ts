@@ -1,4 +1,3 @@
-import { resolve } from "node:path";
 import { createClient } from "@libsql/client";
 import { randomUUIDv7 } from "bun";
 import { eq, sql } from "drizzle-orm";
@@ -339,48 +338,35 @@ function generateInventoryMovementData(
 
 async function main() {
   const shopSlug = process.env.SHOP_SLUG;
-  const shopDataDir = process.env.SHOP_DATA_DIR;
   const shopDbUrl = process.env.SHOP_DB_URL ?? process.env.DATABASE_URL;
   const tursoOrganization = process.env.TURSO_ORGANIZATION;
   const tursoAuthToken = process.env.TURSO_GROUP_AUTH_TOKEN ?? process.env.TURSO_GROUP;
 
   if (!shopSlug && !shopDbUrl) {
     console.error("Error: SHOP_SLUG or SHOP_DB_URL/DATABASE_URL is required");
-    console.error("Usage: SHOP_SLUG=my-shop bun run db:seed");
+    console.error("Usage: SHOP_SLUG=my-shop TURSO_ORGANIZATION=org bun run db:seed");
     console.error("Usage: SHOP_DB_URL=libsql://... TURSO_GROUP_AUTH_TOKEN=... bun run db:seed");
     process.exit(1);
   }
 
-  let db;
+  if (!tursoAuthToken) {
+    console.error("Error: TURSO_GROUP_AUTH_TOKEN or TURSO_GROUP is required for cloud seeding");
+    process.exit(1);
+  }
+
+  let db: ReturnType<typeof drizzle>;
 
   if (shopDbUrl) {
-    if (!tursoAuthToken) {
-      console.error("Error: TURSO_GROUP_AUTH_TOKEN or TURSO_GROUP is required for remote seeding");
-      process.exit(1);
-    }
-
     const client = createClient({ url: shopDbUrl, authToken: tursoAuthToken });
     db = drizzle({ client, schema, relations });
     console.log(`Seeding remote database: ${shopDbUrl}`);
-  } else if (shopSlug && shopDataDir) {
-    const dbPath = resolve(shopDataDir, "shops", `${shopSlug}.db`);
-    const client = createClient({ url: `file:${dbPath}` });
-    db = drizzle({ client, schema, relations });
-    console.log(`Seeding local database: ${dbPath}`);
   } else if (shopSlug && tursoOrganization) {
-    if (!tursoAuthToken) {
-      console.error("Error: TURSO_GROUP_AUTH_TOKEN or TURSO_GROUP is required for remote seeding");
-      process.exit(1);
-    }
-
     const derivedShopDbUrl = `libsql://pos-${shopSlug}-${tursoOrganization}.turso.io`;
     const client = createClient({ url: derivedShopDbUrl, authToken: tursoAuthToken });
     db = drizzle({ client, schema, relations });
     console.log(`Seeding remote database: ${derivedShopDbUrl}`);
   } else {
-    console.error(
-      "Error: set SHOP_DATA_DIR for local seeding or TURSO_ORGANIZATION plus TURSO_GROUP_AUTH_TOKEN for Turso cloud seeding",
-    );
+    console.error("Error: TURSO_ORGANIZATION is required when using SHOP_SLUG");
     process.exit(1);
   }
 
