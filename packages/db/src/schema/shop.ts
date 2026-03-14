@@ -1,3 +1,4 @@
+import { COUNTRIES } from "@repo/config";
 import { randomUUIDv7 } from "bun";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
@@ -12,7 +13,7 @@ export const setting = sqliteTable("setting", {
   address: text("address").notNull(),
   city: text("city").notNull(),
   region: text("region"),
-  country: text("country"),
+  country: text("country", { enum: COUNTRIES }),
   phone: text("phone").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())

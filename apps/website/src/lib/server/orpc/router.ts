@@ -33,7 +33,7 @@ export const router = os.router({
     update: updateProductHandler,
   },
   shops: {
-    createShop: createShopHandler,
+    create: createShopHandler,
     getShop: getShopHandler,
     updateShop: updateShopHandler,
   },

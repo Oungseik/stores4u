@@ -1,3 +1,4 @@
+import type { CountryCode } from "@repo/config";
 import type { DehydratedState } from "@tanstack/svelte-query";
 
 const replacements = {
@@ -30,4 +31,19 @@ export function getImageContentType(file: string) {
       : file.endsWith("png")
         ? "image/png"
         : "image/jpeg";
+}
+
+/**
+ * Get the full country name from a two-letter ISO country code.
+ * @param {string} code - The two-letter ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB').
+ * @param {string} [locale='en'] - The locale in which to display the country name (e.g., 'en' for English, 'fr' for French).
+ * @returns {string | undefined} The country name, or the code if a name cannot be found with fallback set to 'code'.
+ */
+export function getCountryName(code: CountryCode, locale = "en") {
+  try {
+    const regionNames = new Intl.DisplayNames([locale], { type: "region", fallback: "code" });
+    return regionNames.of(code);
+  } catch (error) {
+    return code;
+  }
 }

@@ -5,11 +5,13 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MapPinIcon from "@lucide/svelte/icons/map-pin";
   import StoreIcon from "@lucide/svelte/icons/store";
+  import { COUNTRIES, type CountryCode } from "@repo/config";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { PhoneInput } from "@repo/ui/phone-input";
+  import * as Select from "@repo/ui/select";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
@@ -19,22 +21,11 @@
   import { goto } from "$app/navigation";
   import { PUBLIC_SITE_NAME } from "$env/static/public";
   import { orpc } from "$lib/orpc_client";
+  import { getCountryName } from "$lib/utils";
 
   let currentStep = $state(1);
   const totalSteps = 2;
   let isSubmitting = $state(false);
-
-  const defaultValues = {
-    name: "",
-    slug: "",
-    title: "",
-    description: "",
-    address: "",
-    city: "",
-    phone: "",
-    region: "",
-    country: "",
-  };
 
   const step1Schema = z.object({
     name: z.string().min(1, "Shop name is required").max(100),
@@ -56,7 +47,17 @@
   });
 
   const form = createForm(() => ({
-    defaultValues,
+    defaultValues: {
+      name: "",
+      slug: "",
+      title: "",
+      description: "",
+      address: "",
+      city: "",
+      phone: "",
+      region: "",
+      country: "" as CountryCode | "",
+    },
     onSubmit: async ({ value }) => {
       isSubmitting = true;
       try {
@@ -86,7 +87,7 @@
   const queryClient = useQueryClient();
 
   const createShopMutation = createMutation(() =>
-    orpc.shops.createShop.mutationOptions({
+    orpc.shops.create.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["shops"] });
       },
@@ -114,16 +115,8 @@
         title: values.title,
         description: values.description,
       });
-      if (!result.success) {
-        result.error.issues.forEach((issue) => {
-          const fieldName = issue.path[0] as keyof typeof defaultValues;
-          form.setFieldMeta(fieldName, (meta) => ({
-            ...meta,
-            errors: [issue.message],
-          }));
-        });
-        return false;
-      }
+      form.validateAllFields("change");
+      return result.success;
     } else if (step === 2) {
       const result = step2Schema.safeParse({
         address: values.address,
@@ -132,16 +125,7 @@
         region: values.region,
         country: values.country,
       });
-      if (!result.success) {
-        result.error.issues.forEach((issue) => {
-          const fieldName = issue.path[0] as keyof typeof defaultValues;
-          form.setFieldMeta(fieldName, (meta) => ({
-            ...meta,
-            errors: [issue.message],
-          }));
-        });
-        return false;
-      }
+      return result.success;
     }
 
     return true;
@@ -182,7 +166,7 @@
     </a>
 
     <div class="flex items-center justify-center gap-2">
-      {#each stepConfig as step, i}
+      {#each stepConfig as _, i}
         <div
           class="flex items-center gap-2 {currentStep === i + 1
             ? 'text-primary'
@@ -504,15 +488,26 @@
                   {#snippet children(field)}
                     <div class="space-y-2">
                       <Label for={field.name}>Country</Label>
-                      <Input
-                        id={field.name}
-                        name={field.name}
+                      <Select.Root
                         value={field.state.value}
-                        type="text"
-                        onblur={field.handleBlur}
-                        onchange={(e) => field.handleChange(e.currentTarget.value)}
-                        placeholder="United States"
-                      />
+                        type="single"
+                        onValueChange={(value) => field.setValue(value as CountryCode)}
+                      >
+                        <Select.Trigger class="w-full">
+                          <span data-slot="select-value">
+                            {field.state.value
+                              ? getCountryName(field.state.value)
+                              : "Select a country"}
+                          </span>
+                        </Select.Trigger>
+                        <Select.Content>
+                          {#each COUNTRIES as countryCode}
+                            <Select.Item value={countryCode}>
+                              {getCountryName(countryCode)}
+                            </Select.Item>
+                          {/each}
+                        </Select.Content>
+                      </Select.Root>
                     </div>
                   {/snippet}
                 </form.Field>

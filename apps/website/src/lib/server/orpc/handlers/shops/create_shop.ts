@@ -1,5 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
+import { COUNTRIES } from "@repo/config";
 import { setting } from "@repo/db";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
@@ -20,7 +21,7 @@ const input = z.object({
   city: z.string().min(1).max(100),
   phone: z.string().min(1).max(50),
   region: z.string().max(100).optional(),
-  country: z.string().max(100).optional(),
+  country: z.enum(COUNTRIES).optional(),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
 });
