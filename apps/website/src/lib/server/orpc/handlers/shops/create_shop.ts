@@ -30,6 +30,10 @@ export const createShopHandler = os
   .use(authMiddleware)
   .input(input)
   .handler(async ({ input, context }) => {
+    if (input.slug === "parent") {
+      throw new ORPCError("FORBIDDEN", { message: `Slug "parent" is reserved` });
+    }
+
     const existingShop = await db.query.shop.findFirst({
       where: { slug: input.slug, userId: context.session.user.id },
     });
