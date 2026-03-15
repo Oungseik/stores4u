@@ -6,6 +6,7 @@ import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadImageHandler } from "./handlers/images/upload_image";
+import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
 import { exportProductsCsvHandler } from "./handlers/products/export_products_csv";
@@ -28,6 +29,7 @@ export const router = os.router({
     upload: uploadImageHandler,
   },
   products: {
+    checkout: checkoutHandler,
     create: createProductHandler,
     delete: deleteProductHandler,
     exportCsv: exportProductsCsvHandler,

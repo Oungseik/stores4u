@@ -83,11 +83,11 @@
   const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
   const totalItems = $derived(cart.reduce((sum, item) => sum + item.quantity, 0));
 
-  function addToCart(barcode: string) {
-    const existingItem = cart.find((item) => item.barcode === barcode);
+  function addToCart(id: string, barcode: string | null = null) {
+    const existingItem = cart.find((item) => item.id === id);
     if (existingItem) {
       cart = cart.map((item) =>
-        item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       );
     } else {
       lastScannedBarcode = barcode;
@@ -101,8 +101,11 @@
     priceCents: number;
     image: string | null;
   }) {
-    if (product.barcode) {
-      addToCart(product.barcode);
+    const existingItem = cart.find((item) => item.id === product.id);
+    if (existingItem) {
+      cart = cart.map((item) =>
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      );
     } else {
       cart.push({
         id: product.id,
@@ -119,14 +122,21 @@
   $effect(() => {
     if (productByBarcode.data) {
       const product = productByBarcode.data;
-      cart.push({
-        id: product.id,
-        barcode: product.barcode,
-        name: product.name,
-        priceCents: product.priceCents,
-        quantity: 1,
-        image: product.image,
-      });
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        cart = cart.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        cart.push({
+          id: product.id,
+          barcode: product.barcode,
+          name: product.name,
+          priceCents: product.priceCents,
+          quantity: 1,
+          image: product.image,
+        });
+      }
       lastScannedBarcode = null;
     }
   });
@@ -138,26 +148,23 @@
     }
   });
 
-  function increaseQuantity(barcode: string | null) {
-    if (!barcode) return;
+  function increaseQuantity(id: string) {
     cart = cart.map((item) =>
-      item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
+      item.id === id ? { ...item, quantity: item.quantity + 1 } : item
     );
   }
 
-  function decreaseQuantity(barcode: string | null) {
-    if (!barcode) return;
-    const item = cart.find((i) => i.barcode === barcode);
+  function decreaseQuantity(id: string) {
+    const item = cart.find((i) => i.id === id);
     if (item && item.quantity <= 1) {
-      removeFromCart(barcode);
+      removeFromCart(id);
     } else {
-      cart = cart.map((i) => (i.barcode === barcode ? { ...i, quantity: i.quantity - 1 } : i));
+      cart = cart.map((i) => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i));
     }
   }
 
-  function removeFromCart(barcode: string | null) {
-    if (!barcode) return;
-    cart = cart.filter((i) => i.barcode !== barcode);
+  function removeFromCart(id: string) {
+    cart = cart.filter((i) => i.id !== id);
   }
 
   function handleCheckout() {
@@ -257,7 +264,7 @@
         </div>
       {:else}
         <div class="space-y-1.5 p-4">
-          {#each cart as item (item.barcode)}
+          {#each cart as item (item.id)}
             <Card.Root
               class="group border-border/60 hover:border-border overflow-hidden p-0 transition-all hover:shadow-sm"
             >
@@ -296,7 +303,7 @@
                       variant="ghost"
                       size="icon"
                       class="hover:bg-background size-7 shrink-0"
-                      onclick={() => decreaseQuantity(item.barcode)}
+                      onclick={() => decreaseQuantity(item.id)}
                       aria-label="Decrease quantity"
                     >
                       <MinusIcon class="size-3.5" />
@@ -308,7 +315,7 @@
                       variant="ghost"
                       size="icon"
                       class="hover:bg-background size-7 shrink-0"
-                      onclick={() => increaseQuantity(item.barcode)}
+                      onclick={() => increaseQuantity(item.id)}
                       aria-label="Increase quantity"
                     >
                       <PlusIcon class="size-3.5" />
@@ -321,7 +328,7 @@
                       variant="ghost"
                       size="icon"
                       class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
-                      onclick={() => removeFromCart(item.barcode)}
+                      onclick={() => removeFromCart(item.id)}
                       aria-label="Remove item"
                     >
                       <Trash2Icon class="size-4" />
