@@ -258,69 +258,75 @@
       {:else}
         <div class="space-y-1.5 p-4">
           {#each cart as item (item.barcode)}
-            <Card.Root class="overflow-hidden p-0">
+            <Card.Root
+              class="group border-border/60 hover:border-border overflow-hidden p-0 transition-all hover:shadow-sm"
+            >
               <Card.Content class="p-0">
-                <div class="flex items-center gap-2 px-2 py-2 sm:px-3 sm:py-2.5">
+                <div class="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-3.5">
+                  <!-- Product Image -->
                   <div
-                    class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md sm:size-12"
+                    class="bg-muted/80 flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border sm:size-14"
                   >
                     {#if item.image}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        class="size-full rounded-md object-cover"
-                      />
+                      <img src={item.image} alt={item.name} class="size-full object-cover" />
                     {:else}
-                      <PackageIcon class="text-muted-foreground size-4 sm:size-5" />
+                      <PackageIcon class="text-muted-foreground size-5 sm:size-6" />
                     {/if}
                   </div>
 
+                  <!-- Product Info -->
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium">{item.name}</p>
-                    <p class="text-muted-foreground hidden text-xs sm:block">{item.barcode}</p>
-                  </div>
-
-                  <div class="flex items-center gap-0.5 sm:gap-1">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      class="size-7 shrink-0 sm:size-7"
-                      onclick={() => decreaseQuantity(item.barcode)}
-                      aria-label="Decrease quantity"
-                    >
-                      <MinusIcon class="size-3" />
-                    </Button>
-                    <span class="w-6 text-center text-sm font-medium sm:w-8 sm:text-sm"
-                      >{item.quantity}</span
-                    >
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      class="size-7 shrink-0 sm:size-7"
-                      onclick={() => increaseQuantity(item.barcode)}
-                      aria-label="Increase quantity"
-                    >
-                      <PlusIcon class="size-3" />
-                    </Button>
-                  </div>
-
-                  <p class="w-12 text-right sm:w-16">
+                    <p class="text-foreground truncate text-sm leading-tight font-medium">
+                      {item.name}
+                    </p>
                     <Pricing
                       cents={item.priceCents * item.quantity}
                       country={shop.data?.country ?? null}
-                      priceClass="text-sm font-semibold"
+                      priceClass="text-xs tabular-nums text-muted-foreground"
+                      prefixClass="text-sm text-muted-foreground"
+                      suffixClass="text-sm text-muted-foreground"
                     />
-                  </p>
+                  </div>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="text-muted-foreground hover:text-destructive size-7 shrink-0 sm:size-8"
-                    onclick={() => removeFromCart(item.barcode)}
-                    aria-label="Remove item"
+                  <!-- Quantity Controls -->
+                  <div
+                    class="border-border/50 bg-muted/30 flex items-center gap-1 rounded-lg border p-0.5"
                   >
-                    <Trash2Icon class="size-3.5 sm:size-4" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="hover:bg-background size-7 shrink-0"
+                      onclick={() => decreaseQuantity(item.barcode)}
+                      aria-label="Decrease quantity"
+                    >
+                      <MinusIcon class="size-3.5" />
+                    </Button>
+                    <span class="min-w-[2rem] text-center text-sm font-semibold tabular-nums">
+                      {item.quantity}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="hover:bg-background size-7 shrink-0"
+                      onclick={() => increaseQuantity(item.barcode)}
+                      aria-label="Increase quantity"
+                    >
+                      <PlusIcon class="size-3.5" />
+                    </Button>
+                  </div>
+
+                  <!-- Price & Delete -->
+                  <div class="flex items-center gap-2 sm:gap-3">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
+                      onclick={() => removeFromCart(item.barcode)}
+                      aria-label="Remove item"
+                    >
+                      <Trash2Icon class="size-4" />
+                    </Button>
+                  </div>
                 </div>
               </Card.Content>
             </Card.Root>
