@@ -1,95 +1,102 @@
 <script lang="ts">
-  import CameraOffIcon from "@lucide/svelte/icons/camera-off";
-  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MinusIcon from "@lucide/svelte/icons/minus";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PlusIcon from "@lucide/svelte/icons/plus";
+  import ScanLineIcon from "@lucide/svelte/icons/scan-line";
+  import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
-  import { createQuery } from "@tanstack/svelte-query";
-  import { Html5Qrcode } from "html5-qrcode";
-  import { tick } from "svelte";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
+  import { Debounced } from "runed";
   import { toast } from "svelte-sonner";
 
-  import { browser } from "$app/environment";
+  import Pricing from "$lib/components/Pricing.svelte";
+  import ProductResults from "$lib/components/ProductResults.svelte";
+  import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
   import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
-  const { params }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
+
+  const queryClient = useQueryClient();
+
+  const checkoutMutation = createMutation(() =>
+    orpc.products.checkout.mutationOptions({
+      onSuccess: (result) => {
+        toast.success(
+          `Order ${result.orderNumber}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.country)}`
+        );
+        cart = [];
+        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Checkout failed");
+      },
+    })
+  );
 
   interface CartItem {
     id: string;
-    barcode: string;
+    barcode: string | null;
     name: string;
     priceCents: number;
     quantity: number;
     image: string | null;
   }
 
-  // TODO: Replace with orpc.products.getByBarcode when API is ready
-  const mockProducts: Array<{
-    id: string;
-    barcode: string;
-    name: string;
-    priceCents: number;
-    image: string | null;
-  }> = [
-    { id: "1", barcode: "1234567890123", name: "Coffee Beans 250g", priceCents: 1299, image: null },
-    { id: "2", barcode: "2345678901234", name: "Green Tea Box", priceCents: 849, image: null },
-    { id: "3", barcode: "3456789012345", name: "Chocolate Bar", priceCents: 399, image: null },
-    {
-      id: "4",
-      barcode: "4567890123456",
-      name: "Sandwich Ham & Cheese",
-      priceCents: 699,
-      image: null,
-    },
-    { id: "5", barcode: "5678901234567", name: "Water Bottle 500ml", priceCents: 199, image: null },
-    { id: "6", barcode: "6789012345678", name: "Apple Juice 1L", priceCents: 450, image: null },
-    { id: "7", barcode: "7890123456789", name: "Banana Bunch", priceCents: 299, image: null },
-    { id: "8", barcode: "8901234567890", name: "Bread Loaf", priceCents: 350, image: null },
-  ];
-
   let cart = $state<CartItem[]>([]);
-  let isScanning = $state(false);
-  let hasCameraPermission = $state<boolean | null>(null);
-  let scannerError = $state<string | null>(null);
+  let mode = $state<"scan" | "search">("scan");
+  let searchQuery = $state("");
+  const debouncedSearch = new Debounced(() => searchQuery, 300);
 
-  let html5QrCode: Html5Qrcode | null = null;
-  let scannerContainerId = "barcode-scanner";
+  // svelte-ignore non_reactive_update
+  let scannerRef: BarcodeScanner | null = null;
 
-  const shop = createQuery(() =>
-    orpc.shops.get.queryOptions({
-      input: { slug: params.slug },
-      enabled: !!params.slug,
+  const productSearch = createQuery(() =>
+    orpc.products.list.queryOptions({
+      input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
+      enabled: !!params.slug && debouncedSearch.current.length > 0 && mode === "search",
+    })
+  );
+
+  let lastScannedBarcode = $state<string | null>(null);
+
+  const productByBarcode = createQuery(() =>
+    orpc.products.get.queryOptions({
+      input: { slug: params.slug, barcode: lastScannedBarcode ?? "" },
+      enabled: !!params.slug && !!lastScannedBarcode,
     })
   );
 
   const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
   const totalItems = $derived(cart.reduce((sum, item) => sum + item.quantity, 0));
 
-  function findProductByBarcode(barcode: string) {
-    return mockProducts.find((p) => p.barcode === barcode);
+  function addToCart(id: string, barcode: string | null = null) {
+    const existingItem = cart.find((item) => item.id === id);
+    if (existingItem) {
+      cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+    } else {
+      lastScannedBarcode = barcode;
+    }
   }
 
-  function addToCart(barcode: string) {
-    const product = findProductByBarcode(barcode);
-    if (!product) {
-      toast.error(`Product not found: ${barcode}`);
-      return;
-    }
-
-    const existingItem = cart.find((item) => item.barcode === barcode);
+  function handleProductSelect(product: {
+    id: string;
+    barcode: string | null;
+    name: string;
+    priceCents: number;
+    image: string | null;
+  }) {
+    const existingItem = cart.find((item) => item.id === product.id);
     if (existingItem) {
       cart = cart.map((item) =>
-        item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       );
-      toast.success(`Added another ${product.name}`);
     } else {
       cart = [
         ...cart,
@@ -102,70 +109,57 @@
           image: product.image,
         },
       ];
-      toast.success(`Added ${product.name} to cart`);
     }
+    searchQuery = "";
   }
 
-  function increaseQuantity(barcode: string) {
-    cart = cart.map((item) =>
-      item.barcode === barcode ? { ...item, quantity: item.quantity + 1 } : item
-    );
-  }
-
-  function decreaseQuantity(barcode: string) {
-    const item = cart.find((i) => i.barcode === barcode);
-    if (item && item.quantity <= 1) {
-      removeFromCart(barcode);
-    } else {
-      cart = cart.map((i) => (i.barcode === barcode ? { ...i, quantity: i.quantity - 1 } : i));
-    }
-  }
-
-  function removeFromCart(barcode: string) {
-    const item = cart.find((i) => i.barcode === barcode);
-    cart = cart.filter((i) => i.barcode !== barcode);
-    if (item) {
-      toast.success(`Removed ${item.name}`);
-    }
-  }
-
-  async function startScanner() {
-    try {
-      html5QrCode = new Html5Qrcode(scannerContainerId);
-      isScanning = true;
-      scannerError = null;
-
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 150 },
-        },
-        (decodedText) => {
-          addToCart(decodedText);
-        },
-        () => {}
-      );
-
-      hasCameraPermission = true;
-    } catch (err) {
-      isScanning = false;
-      hasCameraPermission = false;
-      scannerError = "Camera access denied or not available";
-      console.error("Scanner error:", err);
-    }
-  }
-
-  async function stopScanner() {
-    if (html5QrCode && isScanning) {
-      try {
-        await html5QrCode.stop();
-        html5QrCode = null;
-      } catch (err) {
-        console.error("Error stopping scanner:", err);
+  $effect(() => {
+    if (productByBarcode.data) {
+      const product = productByBarcode.data;
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        cart = cart.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        cart = [
+          ...cart,
+          {
+            id: product.id,
+            barcode: product.barcode,
+            name: product.name,
+            priceCents: product.priceCents,
+            quantity: 1,
+            image: product.image,
+          },
+        ];
       }
+      lastScannedBarcode = null;
     }
-    isScanning = false;
+  });
+
+  $effect(() => {
+    if (productByBarcode.isError) {
+      toast.error(`Product not found: ${lastScannedBarcode}`);
+      lastScannedBarcode = null;
+    }
+  });
+
+  function increaseQuantity(id: string) {
+    cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+  }
+
+  function decreaseQuantity(id: string) {
+    const item = cart.find((i) => i.id === id);
+    if (item && item.quantity <= 1) {
+      removeFromCart(id);
+    } else {
+      cart = cart.map((i) => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i));
+    }
+  }
+
+  function removeFromCart(id: string) {
+    cart = cart.filter((i) => i.id !== id);
   }
 
   function handleCheckout() {
@@ -173,143 +167,168 @@
       toast.error("Cart is empty");
       return;
     }
-    // TODO: Implement checkout logic
-    toast.success(
-      `Checkout: ${totalItems} items for ${formatPrice(totalCents, shop.data?.country)}`
-    );
+
+    checkoutMutation.mutate({
+      slug: params.slug,
+      items: cart.map((item) => ({
+        productId: item.id,
+        qty: item.quantity,
+        unitPriceCents: item.priceCents,
+      })),
+    });
   }
 
   $effect(() => {
-    if (!browser) return;
-
-    async function initScanner() {
-      await tick();
-      const element = document.getElementById(scannerContainerId);
-      if (!element) {
-        console.error("Scanner container not found");
-        return;
-      }
-      await startScanner();
+    if (mode === "search" && scannerRef) {
+      scannerRef.stop();
     }
-
-    initScanner();
-
-    return () => {
-      stopScanner();
-    };
   });
 </script>
 
-<div class="bg-background flex flex-1 flex-col">
-  <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
-    <div id={scannerContainerId} class="relative h-full w-full">
-      {#if !isScanning && scannerError}
-        <div
-          class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center"
-        >
-          <CameraOffIcon class="text-muted-foreground size-8" />
-          <p class="text-muted-foreground text-sm">{scannerError}</p>
-          <Button variant="outline" size="sm" onclick={startScanner}>Try Again</Button>
-        </div>
-      {:else if !isScanning}
-        <div class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2">
-          <Loader2Icon class="size-6 animate-spin" />
-          <p class="text-muted-foreground text-sm">Starting camera...</p>
-        </div>
-      {/if}
+<div class="bg-background flex h-[calc(100dvh-72px)] flex-col overflow-hidden">
+  <section class="shrink-0">
+    <div class="flex border-b">
+      <button
+        type="button"
+        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+        'scan'
+          ? 'border-primary text-primary'
+          : 'text-muted-foreground hover:text-foreground border-transparent'}"
+        onclick={() => (mode = "scan")}
+      >
+        <ScanLineIcon class="size-4" />
+        Scan
+      </button>
+      <button
+        type="button"
+        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+        'search'
+          ? 'border-primary text-primary'
+          : 'text-muted-foreground hover:text-foreground border-transparent'}"
+        onclick={() => (mode = "search")}
+      >
+        <SearchIcon class="size-4" />
+        Search
+      </button>
     </div>
-  </div>
 
-  <!-- <div class="flex items-center justify-between border-b px-4 py-2"> -->
-  <!--   <div class="flex items-center gap-2"> -->
-  <!--     <ScanLineIcon class="text-primary size-4" /> -->
-  <!--     <span class="text-sm font-medium">Scan products to add</span> -->
-  <!--   </div> -->
-  <!--   <Button -->
-  <!--     variant="ghost" -->
-  <!--     size="sm" -->
-  <!--     onclick={() => { -->
-  <!--       if (isScanning) { -->
-  <!--         stopScanner(); -->
-  <!--       } else { -->
-  <!--         startScanner(); -->
-  <!--       } -->
-  <!--     }} -->
-  <!--   > -->
-  <!--     {isScanning ? "Stop Scanner" : "Start Scanner"} -->
-  <!--   </Button> -->
-  <!-- </div> -->
+    {#if mode === "scan"}
+      <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
+        <BarcodeScanner
+          bind:this={scannerRef}
+          containerId="pos-barcode-scanner"
+          onScan={addToCart}
+          class="relative h-full w-full"
+        />
+      </div>
+    {:else}
+      <div class="relative flex flex-col gap-3 p-4">
+        <div class="relative">
+          <SearchIcon
+            class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+          />
+          <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search products..."
+            class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-9 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+        {#if searchQuery.length > 0}
+          <ProductResults
+            products={productSearch.data?.items ?? []}
+            isLoading={productSearch.isLoading}
+            country={shop.country}
+            searchQuery={debouncedSearch.current}
+            onSelect={handleProductSelect}
+          />
+        {/if}
+      </div>
+    {/if}
+  </section>
 
-  <div class="flex-1 overflow-hidden">
-    <ScrollArea.Root class="h-full">
+  <section class="min-h-0 flex-1">
+    <ScrollArea.Root class="h-full w-full">
       {#if cart.length === 0}
         <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
           <div class="bg-muted flex size-16 items-center justify-center rounded-full">
             <ShoppingCartIcon class="text-muted-foreground size-8" />
           </div>
           <p class="font-medium">Cart is empty</p>
-          <p class="text-muted-foreground text-sm">Scan barcodes to add products</p>
+          <p class="text-muted-foreground text-sm">Scan or search to add products</p>
         </div>
       {:else}
         <div class="space-y-1.5 p-4">
-          {#each cart as item (item.barcode)}
-            <Card.Root class="overflow-hidden p-0">
+          {#each cart as item (item.id)}
+            <Card.Root
+              class="group border-border/60 hover:border-border overflow-hidden p-0 transition-all hover:shadow-sm"
+            >
               <Card.Content class="p-0">
-                <div class="flex items-center gap-3 px-3 py-2.5">
+                <div class="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-3.5">
+                  <!-- Product Image -->
                   <div
-                    class="bg-muted flex size-12 shrink-0 items-center justify-center rounded-md"
+                    class="bg-muted/80 flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border sm:size-14"
                   >
                     {#if item.image}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        class="size-full rounded-md object-cover"
-                      />
+                      <img src={item.image} alt={item.name} class="size-full object-cover" />
                     {:else}
-                      <PackageIcon class="text-muted-foreground size-5" />
+                      <PackageIcon class="text-muted-foreground size-5 sm:size-6" />
                     {/if}
                   </div>
 
+                  <!-- Product Info -->
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium">{item.name}</p>
-                    <p class="text-muted-foreground text-xs">{item.barcode}</p>
+                    <p class="text-foreground truncate text-sm leading-tight font-medium">
+                      {item.name}
+                    </p>
+                    <Pricing
+                      cents={item.priceCents * item.quantity}
+                      country={shop.country}
+                      priceClass="text-xs tabular-nums text-muted-foreground"
+                      prefixClass="text-sm text-muted-foreground"
+                      suffixClass="text-sm text-muted-foreground"
+                    />
                   </div>
 
-                  <div class="flex items-center gap-1">
+                  <!-- Quantity Controls -->
+                  <div
+                    class="border-border/50 bg-muted/30 flex items-center gap-1 rounded-lg border p-0.5"
+                  >
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
-                      class="size-7"
-                      onclick={() => decreaseQuantity(item.barcode)}
+                      class="hover:bg-background size-7 shrink-0"
+                      onclick={() => decreaseQuantity(item.id)}
                       aria-label="Decrease quantity"
                     >
-                      <MinusIcon class="size-3" />
+                      <MinusIcon class="size-3.5" />
                     </Button>
-                    <span class="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                    <span class="min-w-[2rem] text-center text-sm font-semibold tabular-nums">
+                      {item.quantity}
+                    </span>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
-                      class="size-7"
-                      onclick={() => increaseQuantity(item.barcode)}
+                      class="hover:bg-background size-7 shrink-0"
+                      onclick={() => increaseQuantity(item.id)}
                       aria-label="Increase quantity"
                     >
-                      <PlusIcon class="size-3" />
+                      <PlusIcon class="size-3.5" />
                     </Button>
                   </div>
 
-                  <p class="w-16 text-right text-sm font-semibold">
-                    {formatPrice(item.priceCents * item.quantity, shop.data?.country)}
-                  </p>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="text-muted-foreground hover:text-destructive size-8"
-                    onclick={() => removeFromCart(item.barcode)}
-                    aria-label="Remove item"
-                  >
-                    <Trash2Icon class="size-4" />
-                  </Button>
+                  <!-- Price & Delete -->
+                  <div class="flex items-center gap-2 sm:gap-3">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
+                      onclick={() => removeFromCart(item.id)}
+                      aria-label="Remove item"
+                    >
+                      <Trash2Icon class="size-4" />
+                    </Button>
+                  </div>
                 </div>
               </Card.Content>
             </Card.Root>
@@ -317,9 +336,9 @@
         </div>
       {/if}
     </ScrollArea.Root>
-  </div>
+  </section>
 
-  <div class="bg-card sticky right-0 bottom-0 left-0 h-20 border-t shadow-lg">
+  <section class="bg-card h-20 shrink-0 border-t shadow-lg">
     <div class="flex h-full items-center justify-between px-4">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
@@ -328,14 +347,18 @@
           </div>
           <div>
             <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <p class="text-lg font-bold">{formatPrice(totalCents, shop.data?.country)}</p>
+            <Pricing cents={totalCents} country={shop.country} priceClass="text-lg font-bold" />
           </div>
         </div>
       </div>
 
-      <Button class="gap-2 px-6" onclick={handleCheckout} disabled={cart.length === 0}>
-        Checkout
+      <Button
+        class="gap-2 px-6"
+        onclick={handleCheckout}
+        disabled={cart.length === 0 || checkoutMutation.isPending}
+      >
+        {checkoutMutation.isPending ? "Processing..." : "Checkout"}
       </Button>
     </div>
-  </div>
+  </section>
 </div>

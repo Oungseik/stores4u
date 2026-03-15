@@ -15,25 +15,29 @@ export const category = sqliteTable("category", {
     .notNull(),
 });
 
-export const product = sqliteTable("product", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUIDv7()),
-  sku: text("sku").notNull().unique(),
-  name: text("name").notNull(),
-  image: text("image"),
-  barcode: text("barcode").unique(),
-  description: text("description"),
-  uom: text("uom").notNull(),
-  stock: integer("stock").notNull().default(0),
-  priceCents: integer("price_cents").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date())
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date())
-    .notNull(),
-});
+export const product = sqliteTable(
+  "product",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUIDv7()),
+    sku: text("sku").notNull().unique(),
+    name: text("name").notNull(),
+    image: text("image"),
+    barcode: text("barcode").unique(),
+    description: text("description"),
+    uom: text("uom").notNull(),
+    stock: integer("stock").notNull().default(0),
+    priceCents: integer("price_cents").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (t) => [index("product_sku_idx").on(t.sku), index("product_name_idx").on(t.name)],
+);
 
 export const productCategory = sqliteTable(
   "product_category",

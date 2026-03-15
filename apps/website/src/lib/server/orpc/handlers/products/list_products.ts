@@ -26,7 +26,11 @@ export const listProductsHandler = os
       where: {
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
         OR: input.search
-          ? [{ name: input.search }, { sku: input.search }, { barcode: input.search }]
+          ? [
+              { name: { like: `%${input.search}%` } },
+              { sku: { like: `%${input.search}%` } },
+              { barcode: input.search },
+            ]
           : undefined,
         productCategories: input.categoryIds?.length
           ? { categoryId: { in: input.categoryIds } }
@@ -54,6 +58,7 @@ export const listProductsHandler = os
       id: p.id,
       name: p.name,
       sku: p.sku,
+      barcode: p.barcode,
       description: p.description,
       image: p.image,
       uom: p.uom,

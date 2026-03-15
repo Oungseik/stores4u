@@ -1,4 +1,3 @@
-import type { ShopSelect } from "@repo/auth";
 import { connectRemote } from "@repo/db";
 import {
   TURSO_GROUP,
@@ -8,8 +7,8 @@ import {
 } from "$env/static/private";
 import { turso } from "./turso";
 
-export function getShopDb(shop: Pick<ShopSelect, "slug" | "tursoDbUrl">) {
-  const url = shop.tursoDbUrl ?? `libsql://pos-${shop.slug}-${TURSO_ORGANIZATION}.turso.io`;
+export function getShopDb(shop: { slug: string }) {
+  const url = `libsql://pos-${shop.slug}-${TURSO_ORGANIZATION}.turso.io`;
   return connectRemote(url, TURSO_GROUP_AUTH_TOKEN);
 }
 

@@ -30,6 +30,10 @@ export const createShopHandler = os
   .use(authMiddleware)
   .input(input)
   .handler(async ({ input, context }) => {
+    if (input.slug === "parent") {
+      throw new ORPCError("FORBIDDEN", { message: `Slug "parent" is reserved` });
+    }
+
     const existingShop = await db.query.shop.findFirst({
       where: { slug: input.slug, userId: context.session.user.id },
     });
@@ -49,65 +53,44 @@ export const createShopHandler = os
       });
     }
 
-    const result = await db
-      .insert(shop)
-      .values({ name: input.name, slug: input.slug, userId: context.session.user.id })
-      .returning();
+    const shopInfo = { ...input, id: Bun.randomUUIDv7(), userId: context.session.user.id };
+    const result = await db.insert(shop).values(shopInfo);
 
-    const createdShop = result.at(0);
-    if (!createdShop) {
+    if (!result.rowsAffected) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: `Failed to create shop "${input.name}"`,
       });
     }
 
-    let tursoDbUrl: string | undefined;
     try {
-      tursoDbUrl = await createShopDatabase(createdShop.slug);
-
-      await db.update(shop).set({ tursoDbUrl }).where(eq(shop.id, createdShop.id));
+      const url = await createShopDatabase(input.slug);
+      await db.update(shop).set({ tursoDbUrl: url }).where(eq(shop.id, shopInfo.id));
     } catch (e) {
-      logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create shop database");
-      await db.delete(shop).where(eq(shop.id, createdShop.id));
+      logger.error({ err: e, shopSlug: input.slug }, "Failed to create shop database");
+      await db.delete(shop).where(eq(shop.id, shopInfo.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
       });
     }
 
     try {
-      const shopDb = getShopDb({
-        slug: createdShop.slug,
-        tursoDbUrl,
-      });
-      await shopDb.insert(setting).values({
-        title: input.title,
-        description: input.description,
-        address: input.address,
-        city: input.city,
-        phone: input.phone,
-        region: input.region,
-        country: input.country,
-        logo: input.logo,
-        heroImage: input.heroImage,
-      });
+      const shopDb = getShopDb({ slug: input.slug });
+      await shopDb.insert(setting).values(shopInfo);
     } catch (e) {
-      logger.error({ err: e, shopSlug: createdShop.slug }, "Failed to create shop setting");
-      try {
-        await deleteShopDatabase(createdShop.slug);
-      } catch (cleanupError) {
+      logger.error({ err: e, shopSlug: input.slug }, "Failed to create shop setting");
+      await Promise.all([
+        deleteShopDatabase(input.slug),
+        db.delete(shop).where(eq(shop.id, shopInfo.id)),
+      ]).catch((err) =>
         logger.error(
-          { err: cleanupError, shopSlug: createdShop.slug },
+          { err, shopSlug: input.slug },
           "Failed to delete shop database after shop setup failure",
-        );
-      }
-      await db.delete(shop).where(eq(shop.id, createdShop.id));
+        ),
+      );
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop settings. Please try again.",
       });
     }
 
-    return {
-      ...createdShop,
-      tursoDbUrl,
-    };
+    return shopInfo;
   });

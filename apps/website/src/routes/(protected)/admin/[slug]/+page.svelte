@@ -9,15 +9,15 @@
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery } from "@tanstack/svelte-query";
 
+  import Pricing from "$lib/components/Pricing.svelte";
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
-  const { params }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
   const products = createInfiniteQuery(() =>
     orpc.products.list.infiniteOptions({
@@ -27,13 +27,6 @@
         slug: params.slug,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: !!params.slug,
-    })
-  );
-
-  const shop = createQuery(() =>
-    orpc.shops.get.queryOptions({
-      input: { slug: params.slug },
       enabled: !!params.slug,
     })
   );
@@ -88,7 +81,7 @@
       <p class="text-muted-foreground">No products found</p>
     </div>
   {:else}
-    <div class="space-y-1.5">
+    <div class="space-y-2">
       {#each allProducts as product (product.id)}
         <Card.Root class="overflow-hidden p-0">
           <Card.Content class="p-0">
@@ -108,11 +101,14 @@
                 </div>
               </div>
 
-              <span class="text-muted-foreground text-xs">{product.stock} left</span>
-
-              <p class="text-sm font-semibold">
-                {formatPrice(product.priceCents, shop.data?.country)}
-              </p>
+              <div>
+                <Pricing
+                  cents={product.priceCents}
+                  country={shop.country}
+                  priceClass="text-sm font-semibold"
+                />
+                <p class="text-muted-foreground text-xs">{product.stock} left</p>
+              </div>
 
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger
