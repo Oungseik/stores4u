@@ -282,7 +282,7 @@ function generateInventoryBatchData(products: { id: string }[], invoiceItems: { 
 
   for (let i = 0; i < products.length; i++) {
     const qty = randFloat(10, 500);
-    const remainingQty = randFloat(0, qty);
+    const remainingQty = Math.floor(randFloat(0, qty));
 
     data.push({
       id: randomUUIDv7(),
