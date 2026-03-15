@@ -107,14 +107,14 @@
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       );
     } else {
-      cart.push({
+      cart = [...cart, {
         id: product.id,
         barcode: product.barcode,
         name: product.name,
         priceCents: product.priceCents,
         quantity: 1,
         image: product.image,
-      });
+      }];
     }
     searchQuery = "";
   }
@@ -128,14 +128,14 @@
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
-        cart.push({
+        cart = [...cart, {
           id: product.id,
           barcode: product.barcode,
           name: product.name,
           priceCents: product.priceCents,
           quantity: 1,
           image: product.image,
-        });
+        }];
       }
       lastScannedBarcode = null;
     }
