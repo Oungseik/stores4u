@@ -15,7 +15,6 @@ import { importProductsCsvHandler } from "./handlers/products/import_products_cs
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { createShopHandler } from "./handlers/shops/create_shop";
-import { getShopHandler } from "./handlers/shops/get_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
 
 export const router = os.router({
@@ -40,7 +39,6 @@ export const router = os.router({
   },
   shops: {
     create: createShopHandler,
-    get: getShopHandler,
     update: updateShopHandler,
   },
 });

@@ -21,7 +21,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
   const queryClient = useQueryClient();
 
@@ -29,7 +29,7 @@
     orpc.products.checkout.mutationOptions({
       onSuccess: (result) => {
         toast.success(
-          `Order ${result.orderNumber}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.data?.country)}`
+          `Order ${result.orderNumber}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.country)}`
         );
         cart = [];
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
@@ -57,13 +57,6 @@
   // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
 
-  const shop = createQuery(() =>
-    orpc.shops.get.queryOptions({
-      input: { slug: params.slug },
-      enabled: !!params.slug,
-    })
-  );
-
   const productSearch = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
@@ -86,9 +79,7 @@
   function addToCart(id: string, barcode: string | null = null) {
     const existingItem = cart.find((item) => item.id === id);
     if (existingItem) {
-      cart = cart.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      );
+      cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
     } else {
       lastScannedBarcode = barcode;
     }
@@ -107,14 +98,17 @@
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       );
     } else {
-      cart = [...cart, {
-        id: product.id,
-        barcode: product.barcode,
-        name: product.name,
-        priceCents: product.priceCents,
-        quantity: 1,
-        image: product.image,
-      }];
+      cart = [
+        ...cart,
+        {
+          id: product.id,
+          barcode: product.barcode,
+          name: product.name,
+          priceCents: product.priceCents,
+          quantity: 1,
+          image: product.image,
+        },
+      ];
     }
     searchQuery = "";
   }
@@ -128,14 +122,17 @@
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
-        cart = [...cart, {
-          id: product.id,
-          barcode: product.barcode,
-          name: product.name,
-          priceCents: product.priceCents,
-          quantity: 1,
-          image: product.image,
-        }];
+        cart = [
+          ...cart,
+          {
+            id: product.id,
+            barcode: product.barcode,
+            name: product.name,
+            priceCents: product.priceCents,
+            quantity: 1,
+            image: product.image,
+          },
+        ];
       }
       lastScannedBarcode = null;
     }
@@ -149,9 +146,7 @@
   });
 
   function increaseQuantity(id: string) {
-    cart = cart.map((item) =>
-      item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-    );
+    cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
   }
 
   function decreaseQuantity(id: string) {
@@ -243,7 +238,7 @@
           <ProductResults
             products={productSearch.data?.items ?? []}
             isLoading={productSearch.isLoading}
-            country={shop.data?.country ?? undefined}
+            country={shop.country}
             searchQuery={debouncedSearch.current}
             onSelect={handleProductSelect}
           />
@@ -288,7 +283,7 @@
                     </p>
                     <Pricing
                       cents={item.priceCents * item.quantity}
-                      country={shop.data?.country ?? null}
+                      country={shop.country}
                       priceClass="text-xs tabular-nums text-muted-foreground"
                       prefixClass="text-sm text-muted-foreground"
                       suffixClass="text-sm text-muted-foreground"
@@ -352,11 +347,7 @@
           </div>
           <div>
             <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <Pricing
-              cents={totalCents}
-              country={shop.data?.country ?? null}
-              priceClass="text-lg font-bold"
-            />
+            <Pricing cents={totalCents} country={shop.country} priceClass="text-lg font-bold" />
           </div>
         </div>
       </div>

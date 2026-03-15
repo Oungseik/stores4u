@@ -9,7 +9,7 @@
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery } from "@tanstack/svelte-query";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
@@ -17,7 +17,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
   const products = createInfiniteQuery(() =>
     orpc.products.list.infiniteOptions({
@@ -27,13 +27,6 @@
         slug: params.slug,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: !!params.slug,
-    })
-  );
-
-  const shop = createQuery(() =>
-    orpc.shops.get.queryOptions({
-      input: { slug: params.slug },
       enabled: !!params.slug,
     })
   );
@@ -111,7 +104,7 @@
               <div>
                 <Pricing
                   cents={product.priceCents}
-                  country={shop.data?.country ?? null}
+                  country={shop.country}
                   priceClass="text-sm font-semibold"
                 />
                 <p class="text-muted-foreground text-xs">{product.stock} left</p>

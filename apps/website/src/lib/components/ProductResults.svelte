@@ -18,7 +18,7 @@
   interface Props {
     products: Product[];
     isLoading: boolean;
-    country?: string;
+    country?: string | null;
     searchQuery: string;
     onSelect: (product: Product) => void;
   }
