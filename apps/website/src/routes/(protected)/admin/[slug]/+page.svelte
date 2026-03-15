@@ -10,8 +10,9 @@
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
-  import ProductForm from "$lib/components/forms/ProductForm.svelte";
+
   import Pricing from "$lib/components/Pricing.svelte";
+  import ProductForm from "$lib/components/forms/ProductForm.svelte";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -87,7 +88,7 @@
       <p class="text-muted-foreground">No products found</p>
     </div>
   {:else}
-    <div class="space-y-1.5">
+    <div class="space-y-2">
       {#each allProducts as product (product.id)}
         <Card.Root class="overflow-hidden p-0">
           <Card.Content class="p-0">
@@ -107,13 +108,14 @@
                 </div>
               </div>
 
-              <span class="text-muted-foreground text-xs">{product.stock} left</span>
-
-              <Pricing
-                cents={product.priceCents}
-                country={shop.data?.country ?? null}
-                priceClass="text-sm font-semibold"
-              />
+              <div>
+                <Pricing
+                  cents={product.priceCents}
+                  country={shop.data?.country ?? null}
+                  priceClass="text-sm font-semibold"
+                />
+                <p class="text-muted-foreground text-xs">{product.stock} left</p>
+              </div>
 
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger

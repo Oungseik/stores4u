@@ -428,7 +428,7 @@
                         {#if activeFilterCount() > 0}
                           <Badge
                             variant="secondary"
-                            class="bg-primary-foreground text-primary justify-center p-0 text-xs"
+                            class="bg-primary-foreground text-primary justify-center text-xs"
                           >
                             {filteredProducts().length} results
                           </Badge>
