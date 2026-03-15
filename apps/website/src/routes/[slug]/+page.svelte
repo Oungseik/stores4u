@@ -9,7 +9,7 @@
   import StoreIcon from "@lucide/svelte/icons/store";
   import XIcon from "@lucide/svelte/icons/x";
   import { Badge } from "@repo/ui/badge";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
@@ -328,16 +328,20 @@
                 <h2 class="text-foreground text-lg font-semibold">Products</h2>
                 <!-- Mobile Filter Sheet -->
                 <Sheet.Root bind:open={isFilterSheetOpen}>
-                  <Sheet.Trigger>
-                    <Button variant="outline" size="sm" class="gap-2 lg:hidden">
-                      <FilterIcon class="size-4" />
-                      Filters
-                      {#if activeFilterCount() > 0}
-                        <Badge variant="default" class="ml-1 size-5 justify-center p-0 text-xs">
-                          {activeFilterCount()}
-                        </Badge>
-                      {/if}
-                    </Button>
+                  <Sheet.Trigger
+                    class={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                      class: "gap-2 lg:hidden",
+                    })}
+                  >
+                    <FilterIcon class="size-4" />
+                    Filters
+                    {#if activeFilterCount() > 0}
+                      <Badge variant="default" class="ml-1 size-5 justify-center p-0 text-xs">
+                        {activeFilterCount()}
+                      </Badge>
+                    {/if}
                   </Sheet.Trigger>
                   <Sheet.Content side="right" class="w-full sm:max-w-md [&>div]:px-6">
                     <Sheet.Header>
