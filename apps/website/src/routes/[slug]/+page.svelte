@@ -19,8 +19,8 @@
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
 
   import { page } from "$app/state";
+  import Pricing from "$lib/components/Pricing.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -218,14 +218,15 @@
     <main class="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <div class="mx-auto max-w-7xl">
         <div class="flex flex-col gap-8 lg:flex-row lg:gap-12">
-          
           <!-- Desktop Sidebar Filters -->
           <aside class="hidden w-64 shrink-0 lg:block">
             <div class="sticky top-6 space-y-6">
               <!-- Filter Header -->
               <div class="flex items-center gap-2">
                 <FilterIcon class="text-primary size-4" />
-                <h3 class="text-foreground text-sm font-semibold tracking-wide uppercase">Filters</h3>
+                <h3 class="text-foreground text-sm font-semibold tracking-wide uppercase">
+                  Filters
+                </h3>
                 {#if activeFilterCount() > 0}
                   <Badge variant="default" class="ml-auto text-xs">
                     {activeFilterCount()}
@@ -237,7 +238,10 @@
 
               <!-- Search Filter -->
               <div class="space-y-3">
-                <Label for="desktop-search" class="text-xs font-medium tracking-wide uppercase text-muted-foreground">
+                <Label
+                  for="desktop-search"
+                  class="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+                >
                   Search
                 </Label>
                 <div class="relative">
@@ -258,11 +262,13 @@
 
               <!-- Stock Filter -->
               <div class="space-y-3">
-                <Label class="text-xs font-medium tracking-wide uppercase text-muted-foreground">
+                <Label class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                   Availability
                 </Label>
                 <div class="flex items-center justify-between">
-                  <Label for="desktop-stock" class="text-sm font-medium cursor-pointer">In Stock Only</Label>
+                  <Label for="desktop-stock" class="cursor-pointer text-sm font-medium"
+                    >In Stock Only</Label
+                  >
                   <Switch id="desktop-stock" bind:checked={showInStockOnly} />
                 </div>
               </div>
@@ -271,12 +277,15 @@
 
               <!-- Price Filter -->
               <div class="space-y-3">
-                <Label class="text-xs font-medium tracking-wide uppercase text-muted-foreground">
+                <Label class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                   Price Range
                 </Label>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="relative">
-                    <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm">$</span>
+                    <span
+                      class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm"
+                      >$</span
+                    >
                     <Input
                       type="number"
                       placeholder="Min"
@@ -286,7 +295,10 @@
                     />
                   </div>
                   <div class="relative">
-                    <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm">$</span>
+                    <span
+                      class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm"
+                      >$</span
+                    >
                     <Input
                       type="number"
                       placeholder="Max"
@@ -300,13 +312,8 @@
 
               <!-- Clear Filters -->
               {#if hasActiveFilters()}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onclick={clearFilters}
-                  class="w-full text-xs"
-                >
-                  <XIcon class="size-3 mr-1" />
+                <Button variant="ghost" size="sm" onclick={clearFilters} class="w-full text-xs">
+                  <XIcon class="mr-1 size-3" />
                   Clear all filters
                 </Button>
               {/if}
@@ -314,7 +321,7 @@
           </aside>
 
           <!-- Main Content -->
-          <div class="flex-1 min-w-0">
+          <div class="min-w-0 flex-1">
             <!-- Section Header with Mobile Filter -->
             <div class="mb-6 flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -332,18 +339,18 @@
                       {/if}
                     </Button>
                   </Sheet.Trigger>
-              <Sheet.Content side="right" class="w-full sm:max-w-md [&>div]:px-6">
-                <Sheet.Header>
-                  <Sheet.Title class="flex items-center gap-2">
-                    <FilterIcon class="size-5" />
-                    Filter Products
-                  </Sheet.Title>
-                  <Sheet.Description>
-                    Narrow down products by search, availability, and price
-                  </Sheet.Description>
-                </Sheet.Header>
+                  <Sheet.Content side="right" class="w-full sm:max-w-md [&>div]:px-6">
+                    <Sheet.Header>
+                      <Sheet.Title class="flex items-center gap-2">
+                        <FilterIcon class="size-5" />
+                        Filter Products
+                      </Sheet.Title>
+                      <Sheet.Description>
+                        Narrow down products by search, availability, and price
+                      </Sheet.Description>
+                    </Sheet.Header>
 
-                <div class="flex flex-col gap-6 py-6">
+                    <div class="flex flex-col gap-6 py-6">
                       <!-- Search -->
                       <div class="flex flex-col gap-2">
                         <Label for="mobile-search">Search</Label>
@@ -364,7 +371,8 @@
                       <!-- Stock Filter -->
                       <div class="flex items-center justify-between">
                         <div class="flex flex-col gap-0.5">
-                          <Label for="mobile-stock" class="text-sm font-medium">In Stock Only</Label>
+                          <Label for="mobile-stock" class="text-sm font-medium">In Stock Only</Label
+                          >
                           <span class="text-muted-foreground text-xs">Hide out of stock items</span>
                         </div>
                         <Switch id="mobile-stock" bind:checked={showInStockOnly} />
@@ -375,7 +383,8 @@
                         <Label>Price Range</Label>
                         <div class="flex items-center gap-3">
                           <div class="relative flex-1">
-                            <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
+                            <span
+                              class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
                               >$</span
                             >
                             <Input
@@ -388,7 +397,8 @@
                           </div>
                           <span class="text-muted-foreground">-</span>
                           <div class="relative flex-1">
-                            <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
+                            <span
+                              class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
                               >$</span
                             >
                             <Input
@@ -437,7 +447,11 @@
                 {#if searchQuery.trim()}
                   <Badge variant="secondary" class="gap-1">
                     Search: {searchQuery}
-                    <button type="button" onclick={() => (searchQuery = "")} class="hover:text-primary ml-1">
+                    <button
+                      type="button"
+                      onclick={() => (searchQuery = "")}
+                      class="hover:text-primary ml-1"
+                    >
                       <XIcon class="size-3" />
                     </button>
                   </Badge>
@@ -445,7 +459,11 @@
                 {#if showInStockOnly}
                   <Badge variant="secondary" class="gap-1">
                     In Stock
-                    <button type="button" onclick={() => (showInStockOnly = false)} class="hover:text-primary ml-1">
+                    <button
+                      type="button"
+                      onclick={() => (showInStockOnly = false)}
+                      class="hover:text-primary ml-1"
+                    >
                       <XIcon class="size-3" />
                     </button>
                   </Badge>
@@ -453,12 +471,24 @@
                 {#if minPrice || maxPrice}
                   <Badge variant="secondary" class="gap-1">
                     Price: {minPrice ? `$${minPrice}` : "$0"} - {maxPrice ? `$${maxPrice}` : "∞"}
-                    <button type="button" onclick={() => {minPrice = ""; maxPrice = "";}} class="hover:text-primary ml-1">
+                    <button
+                      type="button"
+                      onclick={() => {
+                        minPrice = "";
+                        maxPrice = "";
+                      }}
+                      class="hover:text-primary ml-1"
+                    >
                       <XIcon class="size-3" />
                     </button>
                   </Badge>
                 {/if}
-                <Button variant="ghost" size="sm" onclick={clearFilters} class="h-auto px-2 py-1 text-xs">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onclick={clearFilters}
+                  class="h-auto px-2 py-1 text-xs"
+                >
                   Clear all
                 </Button>
               </div>
@@ -480,7 +510,9 @@
                       : "This shop hasn't added any products"}
                   </CardDescription>
                   {#if hasActiveFilters()}
-                    <Button variant="outline" onclick={clearFilters} class="mt-4">Clear Filters</Button>
+                    <Button variant="outline" onclick={clearFilters} class="mt-4"
+                      >Clear Filters</Button
+                    >
                   {/if}
                 </CardContent>
               </Card>
@@ -493,7 +525,7 @@
                     style="animation: fadeInUp 0.4s ease-out {index * 0.03}s both;"
                   >
                     <!-- Image Container -->
-                    <div class="bg-muted relative aspect-square overflow-hidden">
+                    <div class="bg-muted relative aspect-3/2 overflow-hidden">
                       <img
                         src={getImageUrl(product.image)}
                         alt={product.name}
@@ -510,14 +542,16 @@
                     </div>
 
                     <!-- Content -->
-                    <CardContent class="p-4">
-                      <h3 class="text-foreground mb-2 line-clamp-2 text-sm leading-snug font-medium">
+                    <CardContent class="p-4 pt-0">
+                      <h3
+                        class="text-foreground mb-2 line-clamp-2 text-sm leading-snug font-medium"
+                      >
                         {product.name}
                       </h3>
 
                       <div class="flex items-center justify-between">
                         <span class="text-foreground text-base font-semibold">
-                          {formatPrice(product.priceCents, shop.data?.country)}
+                          <Pricing cents={product.priceCents} country={shop.data.country} />
                         </span>
 
                         {#if product.stock}

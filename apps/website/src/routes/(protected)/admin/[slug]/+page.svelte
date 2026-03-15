@@ -10,10 +10,9 @@
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
-
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
+  import Pricing from "$lib/components/Pricing.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -110,9 +109,11 @@
 
               <span class="text-muted-foreground text-xs">{product.stock} left</span>
 
-              <p class="text-sm font-semibold">
-                {formatPrice(product.priceCents, shop.data?.country)}
-              </p>
+              <Pricing
+                cents={product.priceCents}
+                country={shop.data?.country ?? null}
+                priceClass="text-sm font-semibold"
+              />
 
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger

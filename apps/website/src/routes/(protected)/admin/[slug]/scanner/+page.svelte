@@ -9,10 +9,11 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
-  import { createQuery } from "@tanstack/svelte-query";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { toast } from "svelte-sonner";
 
+  import Pricing from "$lib/components/Pricing.svelte";
   import ProductResults from "$lib/components/ProductResults.svelte";
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
@@ -21,6 +22,23 @@
   import type { PageProps } from "./$types";
 
   const { params }: PageProps = $props();
+
+  const queryClient = useQueryClient();
+
+  const checkoutMutation = createMutation(() =>
+    orpc.products.checkout.mutationOptions({
+      onSuccess: (result) => {
+        toast.success(
+          `Order ${result.orderNumber}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.data?.country)}`
+        );
+        cart = [];
+        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Checkout failed");
+      },
+    })
+  );
 
   interface CartItem {
     id: string;
@@ -147,9 +165,15 @@
       toast.error("Cart is empty");
       return;
     }
-    toast.success(
-      `Checkout: ${totalItems} items for ${formatPrice(totalCents, shop.data?.country)}`
-    );
+
+    checkoutMutation.mutate({
+      slug: params.slug,
+      items: cart.map((item) => ({
+        productId: item.id,
+        qty: item.quantity,
+        unitPriceCents: item.priceCents,
+      })),
+    });
   }
 
   $effect(() => {
@@ -280,8 +304,12 @@
                     </Button>
                   </div>
 
-                  <p class="w-12 text-right text-sm font-semibold sm:w-16 sm:text-sm">
-                    {formatPrice(item.priceCents * item.quantity, shop.data?.country)}
+                  <p class="w-12 text-right sm:w-16">
+                    <Pricing
+                      cents={item.priceCents * item.quantity}
+                      country={shop.data?.country ?? null}
+                      priceClass="text-sm font-semibold"
+                    />
                   </p>
 
                   <Button
@@ -311,13 +339,21 @@
           </div>
           <div>
             <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <p class="text-lg font-bold">{formatPrice(totalCents, shop.data?.country)}</p>
+            <Pricing
+              cents={totalCents}
+              country={shop.data?.country ?? null}
+              priceClass="text-lg font-bold"
+            />
           </div>
         </div>
       </div>
 
-      <Button class="gap-2 px-6" onclick={handleCheckout} disabled={cart.length === 0}>
-        Checkout
+      <Button
+        class="gap-2 px-6"
+        onclick={handleCheckout}
+        disabled={cart.length === 0 || checkoutMutation.isPending}
+      >
+        {checkoutMutation.isPending ? "Processing..." : "Checkout"}
       </Button>
     </div>
   </section>
