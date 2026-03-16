@@ -1,238 +1,366 @@
 <script lang="ts">
-  import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
-  import ArrowDownIcon from "@lucide/svelte/icons/arrow-down";
-  import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
-  import BellIcon from "@lucide/svelte/icons/bell";
-  import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
-  import BoxIcon from "@lucide/svelte/icons/package";
-  import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
+  import MinusIcon from "@lucide/svelte/icons/minus";
+  import PackageIcon from "@lucide/svelte/icons/package";
+  import PlusIcon from "@lucide/svelte/icons/plus";
+  import ScanLineIcon from "@lucide/svelte/icons/scan-line";
+  import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
-  import { Badge } from "@repo/ui/badge";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import { createQuery } from "@tanstack/svelte-query";
+  import * as ScrollArea from "@repo/ui/scroll-area";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
+  import { Debounced } from "runed";
+  import { toast } from "svelte-sonner";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import ProductResults from "$lib/components/ProductResults.svelte";
+  import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
+  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
   const { params, data: shop }: PageProps = $props();
 
-  // Fetch products for stats
-  const productsQuery = createQuery(() =>
-    orpc.products.list.queryOptions({
-      input: { slug: params.slug, pageSize: 100 },
-      enabled: !!params.slug,
+  const queryClient = useQueryClient();
+
+  const checkoutMutation = createMutation(() =>
+    orpc.products.checkout.mutationOptions({
+      onSuccess: (result) => {
+        toast.success(
+          `Order ${result.orderNumber}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.country)}`
+        );
+        cart = [];
+        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Checkout failed");
+      },
     })
   );
 
-  // Mock stats for now - these would come from actual API
-  const stats = $derived({
-    todaySales: 125000, // cents
-    totalProducts: productsQuery.data?.items.length ?? 0,
-    lowStockItems: productsQuery.data?.items.filter((p) => p.stock > 0 && p.stock <= 10).length ?? 0,
-    outOfStockItems: productsQuery.data?.items.filter((p) => p.stock === 0).length ?? 0,
-  });
-
-  interface KPICard {
-    title: string;
-    value: string | number;
-    description: string;
-    icon: typeof DollarSignIcon;
-    trend?: {
-      value: number;
-      label: string;
-      positive: boolean;
-    };
-    variant?: "default" | "warning" | "danger";
+  interface CartItem {
+    id: string;
+    barcode: string | null;
+    name: string;
+    priceCents: number;
+    quantity: number;
+    image: string | null;
   }
 
-  const kpiCards = $derived((): KPICard[] => [
-    {
-      title: "Today's Sales",
-      value: "Sales Data",
-      description: "Revenue today",
-      icon: DollarSignIcon,
-      trend: { value: 12.5, label: "vs yesterday", positive: true },
-    },
-    {
-      title: "Total Products",
-      value: stats.totalProducts,
-      description: "Active products",
-      icon: BoxIcon,
-      trend: { value: 5, label: "new this week", positive: true },
-    },
-    {
-      title: "Low Stock",
-      value: stats.lowStockItems,
-      description: "Items need restocking",
-      icon: AlertTriangleIcon,
-      variant: stats.lowStockItems > 0 ? "warning" : "default",
-    },
-    {
-      title: "Out of Stock",
-      value: stats.outOfStockItems,
-      description: "Unavailable items",
-      icon: ShoppingCartIcon,
-      variant: stats.outOfStockItems > 0 ? "danger" : "default",
-    },
-  ]);
+  let cart = $state<CartItem[]>([]);
+  let mode = $state<"scan" | "search">("scan");
+  let searchQuery = $state("");
+  const debouncedSearch = new Debounced(() => searchQuery, 300);
 
-  const quickActions = $derived([
-    {
-      title: "POS Scanner",
-      description: "Process sales quickly",
-      icon: BarcodeIcon,
-      href: `/${params.slug}/admin/scanner`,
-      variant: "default" as const,
-    },
-    {
-      title: "View Products",
-      description: "Manage inventory",
-      icon: BoxIcon,
-      href: `/${params.slug}/admin/products`,
-      variant: "outline" as const,
-    },
-    {
-      title: "Notifications",
-      description: "Check alerts",
-      icon: BellIcon,
-      href: `/${params.slug}/admin/notifications`,
-      variant: "outline" as const,
-    },
-  ]);
+  // svelte-ignore non_reactive_update
+  let scannerRef: BarcodeScanner | null = null;
+
+  const productSearch = createQuery(() =>
+    orpc.products.list.queryOptions({
+      input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
+      enabled: !!params.slug && debouncedSearch.current.length > 0 && mode === "search",
+    })
+  );
+
+  let lastScannedBarcode = $state<string | null>(null);
+
+  const productByBarcode = createQuery(() =>
+    orpc.products.get.queryOptions({
+      input: { slug: params.slug, barcode: lastScannedBarcode ?? "" },
+      enabled: !!params.slug && !!lastScannedBarcode,
+    })
+  );
+
+  const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
+  const totalItems = $derived(cart.reduce((sum, item) => sum + item.quantity, 0));
+
+  function addToCart(id: string, barcode: string | null = null) {
+    const existingItem = cart.find((item) => item.id === id);
+    if (existingItem) {
+      cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+    } else {
+      lastScannedBarcode = barcode;
+    }
+  }
+
+  function handleProductSelect(product: {
+    id: string;
+    barcode: string | null;
+    name: string;
+    priceCents: number;
+    image: string | null;
+  }) {
+    const existingItem = cart.find((item) => item.id === product.id);
+    if (existingItem) {
+      cart = cart.map((item) =>
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      );
+    } else {
+      cart = [
+        ...cart,
+        {
+          id: product.id,
+          barcode: product.barcode,
+          name: product.name,
+          priceCents: product.priceCents,
+          quantity: 1,
+          image: product.image,
+        },
+      ];
+    }
+    searchQuery = "";
+  }
+
+  $effect(() => {
+    if (productByBarcode.data) {
+      const product = productByBarcode.data;
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        cart = cart.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        cart = [
+          ...cart,
+          {
+            id: product.id,
+            barcode: product.barcode,
+            name: product.name,
+            priceCents: product.priceCents,
+            quantity: 1,
+            image: product.image,
+          },
+        ];
+      }
+      lastScannedBarcode = null;
+    }
+  });
+
+  $effect(() => {
+    if (productByBarcode.isError) {
+      toast.error(`Product not found: ${lastScannedBarcode}`);
+      lastScannedBarcode = null;
+    }
+  });
+
+  function increaseQuantity(id: string) {
+    cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+  }
+
+  function decreaseQuantity(id: string) {
+    const item = cart.find((i) => i.id === id);
+    if (item && item.quantity <= 1) {
+      removeFromCart(id);
+    } else {
+      cart = cart.map((i) => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i));
+    }
+  }
+
+  function removeFromCart(id: string) {
+    cart = cart.filter((i) => i.id !== id);
+  }
+
+  function handleCheckout() {
+    if (cart.length === 0) {
+      toast.error("Cart is empty");
+      return;
+    }
+
+    checkoutMutation.mutate({
+      slug: params.slug,
+      items: cart.map((item) => ({
+        productId: item.id,
+        qty: item.quantity,
+        unitPriceCents: item.priceCents,
+      })),
+    });
+  }
+
+  $effect(() => {
+    if (mode === "search" && scannerRef) {
+      scannerRef.stop();
+    }
+  });
 </script>
 
-<div class="@container/main flex flex-1 flex-col gap-2">
-  <div class="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-    <!-- Header with Breadcrumb -->
-    <div class="flex flex-col gap-2 px-4 lg:px-6">
-      <div class="flex items-center justify-between">
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Dashboard</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
+<div
+  class="bg-background flex h-[calc(100dvh-var(--header-height)-var(--spacing)*2)] flex-col overflow-hidden rounded-lg border"
+>
+  <section class="shrink-0">
+    <div class="flex border-b">
+      <button
+        type="button"
+        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+        'scan'
+          ? 'border-primary text-primary'
+          : 'text-muted-foreground hover:text-foreground border-transparent'}"
+        onclick={() => (mode = "scan")}
+      >
+        <ScanLineIcon class="size-4" />
+        Scan
+      </button>
+      <button
+        type="button"
+        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+        'search'
+          ? 'border-primary text-primary'
+          : 'text-muted-foreground hover:text-foreground border-transparent'}"
+        onclick={() => (mode = "search")}
+      >
+        <SearchIcon class="size-4" />
+        Search
+      </button>
+    </div>
+
+    {#if mode === "scan"}
+      <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
+        <BarcodeScanner
+          bind:this={scannerRef}
+          containerId="pos-barcode-scanner"
+          onScan={addToCart}
+          class="relative h-full w-full"
+        />
       </div>
-      <p class="text-sm font-medium text-muted-foreground">Overview of your shop performance</p>
-    </div>
-
-    <!-- KPI Cards -->
-    <div
-      class="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4"
-    >
-      {#each kpiCards() as card (card.title)}
-        <Card.Root
-          class="@container/card {card.variant === 'warning'
-            ? 'border-amber-500/20'
-            : card.variant === 'danger'
-              ? 'border-red-500/20'
-              : ''}"
-        >
-          <Card.Header class="pb-2">
-            <div class="flex items-center justify-between">
-              <Card.Description>{card.title}</Card.Description>
-              <div
-                class="flex size-8 items-center justify-center rounded-md {card.variant ===
-                'warning'
-                  ? 'bg-amber-100 text-amber-700'
-                  : card.variant === 'danger'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-muted'}"
-              >
-                <card.icon class="size-4" />
-              </div>
-            </div>
-            <Card.Title
-              class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl"
-            >
-              {#if card.title === "Today's Sales"}
-                <Pricing cents={stats.todaySales} country={shop.country} />
-              {:else}
-                {card.value}
-              {/if}
-            </Card.Title>
-          </Card.Header>
-          <Card.Footer class="flex-col items-start gap-1.5 pt-0 text-sm">
-            {#if card.trend}
-              <div class="flex items-center gap-1.5 font-medium">
-                {#if card.trend.positive}
-                  <ArrowUpIcon class="size-3.5 text-emerald-600" />
-                  <span class="text-emerald-600">+{card.trend.value}%</span>
-                {:else}
-                  <ArrowDownIcon class="size-3.5 text-red-600" />
-                  <span class="text-red-600">-{card.trend.value}%</span>
-                {/if}
-                <span class="text-muted-foreground">{card.trend.label}</span>
-              </div>
-            {:else if card.variant === "warning"}
-              <Badge variant="outline" class="border-amber-500/30 text-amber-700">
-                Attention needed
-              </Badge>
-            {:else if card.variant === "danger"}
-              <Badge variant="outline" class="border-red-500/30 text-red-700">
-                Restock required
-              </Badge>
-            {:else}
-              <span class="text-muted-foreground">{card.description}</span>
-            {/if}
-          </Card.Footer>
-        </Card.Root>
-      {/each}
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="px-4 lg:px-6">
-      <h2 class="mb-4 text-lg font-semibold">Quick Actions</h2>
-      <div class="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
-        {#each quickActions as action (action.title)}
-          <Card.Root class="group transition-all hover:shadow-sm">
-            <Card.Content class="p-4">
-              <div class="flex items-start gap-4">
-                <div
-                  class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-                >
-                  <action.icon class="size-5" />
-                </div>
-                <div class="min-w-0 flex-1">
-                  <h3 class="truncate font-medium">{action.title}</h3>
-                  <p class="text-muted-foreground text-sm">{action.description}</p>
-                </div>
-                <Button
-                  variant={action.variant}
-                  size="sm"
-                  href={action.href}
-                  class="shrink-0"
-                >
-                  Open
-                </Button>
-              </div>
-            </Card.Content>
-          </Card.Root>
-        {/each}
+    {:else}
+      <div class="relative flex flex-col gap-3 p-4">
+        <div class="relative">
+          <SearchIcon
+            class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+          />
+          <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search products..."
+            class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-9 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+        {#if searchQuery.length > 0}
+          <ProductResults
+            products={productSearch.data?.items ?? []}
+            isLoading={productSearch.isLoading}
+            country={shop.country}
+            searchQuery={debouncedSearch.current}
+            onSelect={handleProductSelect}
+          />
+        {/if}
       </div>
-    </div>
+    {/if}
+  </section>
 
-    <!-- Recent Activity Placeholder -->
-    <div class="px-4 lg:px-6">
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Recent Activity</Card.Title>
-          <Card.Description>Latest transactions and updates</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          <div class="text-muted-foreground py-8 text-center text-sm">
-            <p>No recent activity to display</p>
-            <p class="mt-1 text-xs opacity-70">
-              Activity will appear here once you start processing orders
-            </p>
+  <section class="min-h-0 flex-1">
+    <ScrollArea.Root class="h-full w-full">
+      {#if cart.length === 0}
+        <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+          <div class="bg-muted flex size-16 items-center justify-center rounded-full">
+            <ShoppingCartIcon class="text-muted-foreground size-8" />
           </div>
-        </Card.Content>
-      </Card.Root>
+          <p class="font-medium">Cart is empty</p>
+          <p class="text-muted-foreground text-sm">Scan or search to add products</p>
+        </div>
+      {:else}
+        <div class="space-y-1.5 p-4">
+          {#each cart as item (item.id)}
+            <Card.Root
+              class="group border-border/60 hover:border-border overflow-hidden p-0 transition-all hover:shadow-sm"
+            >
+              <Card.Content class="p-0">
+                <div class="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-3.5">
+                  <!-- Product Image -->
+                  <div
+                    class="bg-muted/80 flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border sm:size-14"
+                  >
+                    {#if item.image}
+                      <img src={item.image} alt={item.name} class="size-full object-cover" />
+                    {:else}
+                      <PackageIcon class="text-muted-foreground size-5 sm:size-6" />
+                    {/if}
+                  </div>
+
+                  <!-- Product Info -->
+                  <div class="min-w-0 flex-1">
+                    <p class="text-foreground truncate text-sm leading-tight font-medium">
+                      {item.name}
+                    </p>
+                    <Pricing
+                      cents={item.priceCents * item.quantity}
+                      country={shop.country}
+                      priceClass="text-xs tabular-nums text-muted-foreground"
+                      prefixClass="text-sm text-muted-foreground"
+                      suffixClass="text-sm text-muted-foreground"
+                    />
+                  </div>
+
+                  <!-- Quantity Controls -->
+                  <div
+                    class="border-border/50 bg-muted/30 flex items-center gap-1 rounded-lg border p-0.5"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="hover:bg-background size-7 shrink-0"
+                      onclick={() => decreaseQuantity(item.id)}
+                      aria-label="Decrease quantity"
+                    >
+                      <MinusIcon class="size-3.5" />
+                    </Button>
+                    <span class="min-w-[2rem] text-center text-sm font-semibold tabular-nums">
+                      {item.quantity}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="hover:bg-background size-7 shrink-0"
+                      onclick={() => increaseQuantity(item.id)}
+                      aria-label="Increase quantity"
+                    >
+                      <PlusIcon class="size-3.5" />
+                    </Button>
+                  </div>
+
+                  <!-- Price & Delete -->
+                  <div class="flex items-center gap-2 sm:gap-3">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
+                      onclick={() => removeFromCart(item.id)}
+                      aria-label="Remove item"
+                    >
+                      <Trash2Icon class="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card.Content>
+            </Card.Root>
+          {/each}
+        </div>
+      {/if}
+    </ScrollArea.Root>
+  </section>
+
+  <section class="bg-card h-20 shrink-0 border-t shadow-lg">
+    <div class="flex h-full items-center justify-between px-4">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+            <ShoppingCartIcon class="text-primary size-5" />
+          </div>
+          <div>
+            <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
+            <Pricing cents={totalCents} country={shop.country} priceClass="text-lg font-bold" />
+          </div>
+        </div>
+      </div>
+
+      <Button
+        class="gap-2 px-6"
+        onclick={handleCheckout}
+        disabled={cart.length === 0 || checkoutMutation.isPending}
+      >
+        {checkoutMutation.isPending ? "Processing..." : "Checkout"}
+      </Button>
     </div>
-  </div>
+  </section>
 </div>

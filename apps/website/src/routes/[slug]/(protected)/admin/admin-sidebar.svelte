@@ -1,10 +1,11 @@
 <script lang="ts">
   import BellIcon from "@lucide/svelte/icons/bell";
+  import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
   import DashboardIcon from "@lucide/svelte/icons/layout-dashboard";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
   import BoxIcon from "@lucide/svelte/icons/package";
-  import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
+  import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import StoreIcon from "@lucide/svelte/icons/store";
   import UserIcon from "@lucide/svelte/icons/user";
@@ -38,14 +39,14 @@
 
   const mainNavItems: NavItem[] = $derived([
     {
-      title: "Dashboard",
+      title: "Checkout",
       href: `/${shop.slug}/admin`,
-      icon: DashboardIcon,
+      icon: ScanBarcodeIcon,
     },
     {
-      title: "Scanner",
-      href: `/${shop.slug}/admin/scanner`,
-      icon: BarcodeIcon,
+      title: "Analytics",
+      href: `/${shop.slug}/admin/analytics`,
+      icon: ChartNoAxesCombinedIcon,
     },
     {
       title: "Products",

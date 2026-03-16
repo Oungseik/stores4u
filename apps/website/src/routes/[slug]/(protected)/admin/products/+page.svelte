@@ -36,23 +36,25 @@
 <div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
   <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
-      <Breadcrumb.Root>
-        <Breadcrumb.List>
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Separator />
-          <Breadcrumb.Item>
-            <Breadcrumb.Page>Products</Breadcrumb.Page>
-          </Breadcrumb.Item>
-        </Breadcrumb.List>
-      </Breadcrumb.Root>
-      <Button href={`/${shop.slug}/admin/products/add`} class="gap-2">
+      <div>
+        <Breadcrumb.Root>
+          <Breadcrumb.List>
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Breadcrumb.Page>Products</Breadcrumb.Page>
+            </Breadcrumb.Item>
+          </Breadcrumb.List>
+        </Breadcrumb.Root>
+        <p class="text-muted-foreground text-sm font-medium">Manage your product inventory</p>
+      </div>
+      <a href={`/${shop.slug}/admin/products/add`} class={buttonVariants()}>
         <PlusIcon class="size-4" />
         Add Product
-      </Button>
+      </a>
     </div>
-    <p class="text-sm font-medium text-muted-foreground">Manage your product inventory</p>
   </div>
 
   {#if products.isLoading}

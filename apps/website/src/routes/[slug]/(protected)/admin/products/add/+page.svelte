@@ -14,27 +14,25 @@
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
   <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
-      <Breadcrumb.Root>
-        <Breadcrumb.List>
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Separator />
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href={`/${params.slug}/admin/products`}>Products</Breadcrumb.Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Separator />
-          <Breadcrumb.Item>
-            <Breadcrumb.Page>Add Product</Breadcrumb.Page>
-          </Breadcrumb.Item>
-        </Breadcrumb.List>
-      </Breadcrumb.Root>
-      <Button variant="outline" href={`/${params.slug}/admin/products`} class="gap-2">
-        <ArrowLeftIcon class="size-4" />
-        Back to Products
-      </Button>
+      <div>
+        <Breadcrumb.Root>
+          <Breadcrumb.List>
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={`/${params.slug}/admin/products`}>Products</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Breadcrumb.Page>Add Product</Breadcrumb.Page>
+            </Breadcrumb.Item>
+          </Breadcrumb.List>
+        </Breadcrumb.Root>
+        <!-- <p class="text-muted-foreground text-sm font-medium">Create a new product for your shop</p> -->
+      </div>
     </div>
-    <p class="text-sm font-medium text-muted-foreground">Create a new product for your shop</p>
   </div>
 
   <div class="bg-card rounded-lg border p-6 shadow-sm">

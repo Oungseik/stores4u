@@ -196,17 +196,20 @@
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
   <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
-      <Breadcrumb.Root>
-        <Breadcrumb.List>
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Separator />
-          <Breadcrumb.Item>
-            <Breadcrumb.Page>Notifications</Breadcrumb.Page>
-          </Breadcrumb.Item>
-        </Breadcrumb.List>
-      </Breadcrumb.Root>
+      <div>
+        <Breadcrumb.Root>
+          <Breadcrumb.List>
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Breadcrumb.Page>Notifications</Breadcrumb.Page>
+            </Breadcrumb.Item>
+          </Breadcrumb.List>
+        </Breadcrumb.Root>
+      </div>
+
       <Button
         variant="outline"
         class={["gap-2", unreadCount === 0 && "hidden"]}
@@ -216,14 +219,13 @@
         Mark all read
       </Button>
     </div>
-    <p class="text-sm font-medium text-muted-foreground">
-      You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-    </p>
   </div>
 
   <ScrollArea.Root class="h-[calc(100dvh-var(--header-height)-var(--spacing)*16)]">
     {#if notifications.length === 0}
-      <div class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*20)] flex-col items-center justify-center gap-3 p-6 text-center">
+      <div
+        class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*20)] flex-col items-center justify-center gap-3 p-6 text-center"
+      >
         <div class="bg-muted flex size-14 items-center justify-center rounded-full">
           <BellIcon class="text-muted-foreground size-6" />
         </div>
