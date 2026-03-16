@@ -9,6 +9,8 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
+  import { Separator } from "@repo/ui/separator";
+  import * as Sidebar from "@repo/ui/sidebar";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { toast } from "svelte-sonner";
@@ -189,29 +191,35 @@
   class="bg-background m-[calc(var(--spacing)*2)] flex h-[calc(100dvh-var(--spacing)*4)] flex-col overflow-hidden rounded-lg border lg:m-0"
 >
   <section class="shrink-0">
-    <div class="flex border-b">
-      <button
-        type="button"
-        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
-        'scan'
-          ? 'border-primary text-primary'
-          : 'text-muted-foreground hover:text-foreground border-transparent'}"
-        onclick={() => (mode = "scan")}
-      >
-        <ScanLineIcon class="size-4" />
-        Scan
-      </button>
-      <button
-        type="button"
-        class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
-        'search'
-          ? 'border-primary text-primary'
-          : 'text-muted-foreground hover:text-foreground border-transparent'}"
-        onclick={() => (mode = "search")}
-      >
-        <SearchIcon class="size-4" />
-        Search
-      </button>
+    <div class="flex items-center border-b">
+      <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
+        <Sidebar.Trigger class="-ms-1" />
+        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+      </div>
+      <div class="flex flex-1">
+        <button
+          type="button"
+          class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+          'scan'
+            ? 'border-primary text-primary'
+            : 'text-muted-foreground hover:text-foreground border-transparent'}"
+          onclick={() => (mode = "scan")}
+        >
+          <ScanLineIcon class="size-4" />
+          Scan
+        </button>
+        <button
+          type="button"
+          class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
+          'search'
+            ? 'border-primary text-primary'
+            : 'text-muted-foreground hover:text-foreground border-transparent'}"
+          onclick={() => (mode = "search")}
+        >
+          <SearchIcon class="size-4" />
+          Search
+        </button>
+      </div>
     </div>
 
     {#if mode === "scan"}
