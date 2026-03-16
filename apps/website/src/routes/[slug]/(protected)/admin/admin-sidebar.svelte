@@ -60,22 +60,20 @@
     },
   ]);
 
-  const secondaryNavItems: NavItem[] = [
+  const secondaryNavItems: NavItem[] = $derived([
     {
       title: "Settings",
-      href: "/${shop.slug}/admin/settings",
+      href: `/${shop.slug}/admin/settings`,
       icon: SettingsIcon,
     },
     {
       title: "Help",
-      href: "/${shop.slug}/admin/help",
+      href: `/${shop.slug}/admin/help`,
       icon: HelpIcon,
     },
-  ];
+  ]);
 
-  function isActive(href: string): boolean {
-    return currentPath.startsWith(href);
-  }
+  const isActive = (href: string) => currentPath === href;
 </script>
 
 <Sidebar.Root collapsible="offcanvas" {...restProps}>

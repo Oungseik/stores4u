@@ -14,16 +14,13 @@
 
   // Get shop data from page store (will be loaded by child pages)
   const shop = $derived(data);
-
-  // Current path for active state
-  const currentPath = $derived(page.url.pathname.replace(/^\/[\w-]+/, ""));
 </script>
 
 {#if shop}
   <Sidebar.Provider
     style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
   >
-    <AdminSidebar variant="inset" {shop} {user} {currentPath} />
+    <AdminSidebar variant="inset" {shop} {user} currentPath={page.url.pathname} />
     <Sidebar.Inset>
       <header
         class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear"
