@@ -14,9 +14,10 @@
   import * as ScrollArea from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
   import * as Sidebar from "@repo/ui/sidebar";
-  import { fade } from "svelte/transition";
+  import { flip } from "svelte/animate";
 
   import type { PageProps } from "./$types";
+  import { receive, send } from "./transition";
 
   const { params }: PageProps = $props();
 
@@ -250,7 +251,9 @@
                 {#each pinnedNotifications as notification (notification.id)}
                   {@const style = getNotificationStyle(notification.type)}
                   <div
-                    out:fade={{ duration: 250 }}
+                    in:receive={{ key: notification.id }}
+                    out:send={{ key: notification.id }}
+                    animate:flip={{ duration: 200 }}
                     class="hover:bg-muted/50 relative flex w-full cursor-pointer items-center gap-3 border-b px-3 py-3 last:border-b-0"
                     onclick={() => handleNotificationClick(notification)}
                     onkeydown={(e) => e.key === "Enter" && handleNotificationClick(notification)}
@@ -318,7 +321,9 @@
                 {#each todayNotifications as notification (notification.id)}
                   {@const style = getNotificationStyle(notification.type)}
                   <div
-                    out:fade={{ duration: 250 }}
+                    in:receive={{ key: notification.id }}
+                    out:send={{ key: notification.id }}
+                    animate:flip={{ duration: 200 }}
                     class="hover:bg-muted/50 relative flex w-full cursor-pointer items-center gap-3 border-b border-l-2 px-3 py-3 last:border-b-0 {!notification.isRead
                       ? 'bg-primary/5 border-l-primary'
                       : 'border-l-transparent opacity-70'}"
@@ -392,7 +397,9 @@
                 {#each earlierNotifications as notification (notification.id)}
                   {@const style = getNotificationStyle(notification.type)}
                   <div
-                    out:fade={{ duration: 250 }}
+                    in:receive={{ key: notification.id }}
+                    out:send={{ key: notification.id }}
+                    animate:flip={{ duration: 200 }}
                     class="hover:bg-muted/50 relative flex w-full cursor-pointer items-center gap-3 border-b border-l-2 px-3 py-3 last:border-b-0 {!notification.isRead
                       ? 'bg-primary/5 border-l-primary'
                       : 'border-l-transparent opacity-70'}"
