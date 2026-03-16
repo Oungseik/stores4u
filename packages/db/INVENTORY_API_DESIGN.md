@@ -93,7 +93,7 @@ export const product = sqliteTable("product", {
 3. **Order Creation (Transaction):**
    - Calculate `subtotalCents = sum(item.lineTotalCents)`
    - Calculate `totalCents = subtotalCents - discountCents`
-   - Insert `order` record (ID only, no orderNumber)
+   - Insert `order` record (uses UUID id as order identifier)
    - Insert `orderItem` records for each item
    - For each orderItem, for each batch in deduction plan:
      - Insert `inventoryMovement` with:

@@ -27,8 +27,8 @@ export const product = sqliteTable(
     barcode: text("barcode").unique(),
     description: text("description"),
     uom: text("uom").notNull(),
-    stock: integer("stock").notNull().default(0),
     priceCents: integer("price_cents").notNull(),
+    lowStockThreshold: integer("low_stock_threshold"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),

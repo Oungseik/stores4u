@@ -12,7 +12,6 @@ export const order = sqliteTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => randomUUIDv7()),
-    orderNumber: text("order_number").notNull().unique(),
     customerName: text("customer_name"),
     customerPhone: text("customer_phone"),
     subtotalCents: integer("subtotal_cents").default(0).notNull(),

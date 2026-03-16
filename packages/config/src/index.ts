@@ -7,3 +7,7 @@ export const currency: Record<CountryCode, { prefix?: string; suffix?: string }>
   TH: { prefix: "฿" },
   US: { prefix: "$" },
 };
+
+export const config = {
+  lowStockThreshold: 10,
+};
