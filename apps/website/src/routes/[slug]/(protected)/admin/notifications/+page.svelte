@@ -188,25 +188,27 @@
   }
 </script>
 
-<section class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*2)] flex-col">
-  <div class="shrink-0 border-b px-4 py-3">
-    <div class="flex h-8 items-center justify-between">
-      <h2 class="text-lg font-semibold">Notifications</h2>
-      <Button
-        variant="ghost"
-        size="sm"
-        class={["h-8 gap-1.5 text-xs", unreadCount === 0 && "hidden"]}
-        onclick={markAllAsRead}
-      >
-        <CheckCheckIcon class="size-3.5" />
-        Mark all read
-      </Button>
+<section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <div class="flex flex-col gap-4 @md:flex-row @md:items-center @md:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Notifications</h1>
+      <p class="text-muted-foreground">
+        You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+      </p>
     </div>
+    <Button
+      variant="outline"
+      class={["gap-2", unreadCount === 0 && "hidden"]}
+      onclick={markAllAsRead}
+    >
+      <CheckCheckIcon class="size-4" />
+      Mark all read
+    </Button>
   </div>
 
-  <ScrollArea.Root class="flex-1">
+  <ScrollArea.Root class="h-[calc(100dvh-var(--header-height)-var(--spacing)*16)]">
     {#if notifications.length === 0}
-      <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+      <div class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*20)] flex-col items-center justify-center gap-3 p-6 text-center">
         <div class="bg-muted flex size-14 items-center justify-center rounded-full">
           <BellIcon class="text-muted-foreground size-6" />
         </div>

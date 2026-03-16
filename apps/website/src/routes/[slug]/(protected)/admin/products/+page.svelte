@@ -38,7 +38,7 @@
       <h1 class="text-2xl font-bold tracking-tight">Products</h1>
       <p class="text-muted-foreground">Manage your product inventory</p>
     </div>
-    <Button href="add" class="gap-2">
+    <Button href={`/${shop.slug}/admin/products/add`} class="gap-2">
       <PlusIcon class="size-4" />
       Add Product
     </Button>
