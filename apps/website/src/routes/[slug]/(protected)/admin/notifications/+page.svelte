@@ -12,6 +12,8 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
+  import { Separator } from "@repo/ui/separator";
+  import * as Sidebar from "@repo/ui/sidebar";
   import { fade } from "svelte/transition";
 
   import type { PageProps } from "./$types";
@@ -196,7 +198,9 @@
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
   <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
-      <div>
+      <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
+        <Sidebar.Trigger class="-ms-1" />
+        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
         <Breadcrumb.Root>
           <Breadcrumb.List>
             <Breadcrumb.Item>

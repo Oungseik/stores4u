@@ -186,7 +186,7 @@
 </script>
 
 <div
-  class="bg-background flex h-[calc(100dvh-var(--header-height)-var(--spacing)*2)] flex-col overflow-hidden rounded-lg border"
+  class="bg-background m-[calc(var(--spacing)*2)] flex h-[calc(100dvh-var(--spacing)*4)] flex-col overflow-hidden rounded-lg border lg:m-0"
 >
   <section class="shrink-0">
     <div class="flex border-b">
