@@ -1,17 +1,16 @@
 <script lang="ts">
-	import TrendingUpIcon from "@tabler/icons-svelte/icons/trending-up";
-	import { AreaChart } from "layerchart";
-	import { scaleUtc } from "d3-scale";
-	import { curveNatural } from "d3-shape";
-
-	import * as Drawer from "@lib/components/ui/drawer/index.js";
-	import { Button } from "@lib/components/ui/button/index.js";
+	import { Button, buttonVariants } from "@lib/components/ui/button/index.js";
 	import * as Chart from "@lib/components/ui/chart/index.js";
-	import { IsMobile } from "@lib/hooks/is-mobile.svelte.js";
-	import { Label } from "@lib/components/ui/label/index.js";
+	import * as Drawer from "@lib/components/ui/drawer/index.js";
 	import { Input } from "@lib/components/ui/input/index.js";
+	import { Label } from "@lib/components/ui/label/index.js";
 	import * as Select from "@lib/components/ui/select/index.js";
 	import { Separator } from "@lib/components/ui/separator/index.js";
+	import { IsMobile } from "@lib/hooks/is-mobile.svelte.js";
+	import TrendingUpIcon from "@tabler/icons-svelte/icons/trending-up";
+	import { scaleUtc } from "d3-scale";
+	import { curveNatural } from "d3-shape";
+	import { AreaChart } from "layerchart";
 	import type { Schema } from "./schemas.js";
 
 	const chartData = [
@@ -44,12 +43,8 @@
 </script>
 
 <Drawer.Root direction={isMobile.current ? "bottom" : "right"}>
-	<Drawer.Trigger>
-		{#snippet child({ props })}
-			<Button variant="link" class="text-foreground w-fit px-0 text-start" {...props}>
-				{item.header}
-			</Button>
-		{/snippet}
+	<Drawer.Trigger class={buttonVariants({ variant: "link" }) + " text-foreground w-fit px-0 text-start h-auto"}>
+		{item.header}
 	</Drawer.Trigger>
 	<Drawer.Content>
 		<Drawer.Header class="gap-1">
@@ -186,11 +181,9 @@
 		</div>
 		<Drawer.Footer>
 			<Button>Submit</Button>
-			<Drawer.Close>
-				{#snippet child({ props })}
-					<Button variant="outline" {...props}>Done</Button>
-				{/snippet}
-			</Drawer.Close>
+		<Drawer.Close class={buttonVariants({ variant: "outline" })}>
+			Done
+		</Drawer.Close>
 		</Drawer.Footer>
 	</Drawer.Content>
 </Drawer.Root>

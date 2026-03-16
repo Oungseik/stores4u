@@ -32,12 +32,15 @@
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
 </script>
 
-<section class="p-4">
-  <div class="mb-3 flex items-center justify-between">
-    <h2 class="text-lg font-semibold">Products</h2>
-    <Button size="sm" href="add">
+<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <div class="flex flex-col gap-4 @md:flex-row @md:items-center @md:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Products</h1>
+      <p class="text-muted-foreground">Manage your product inventory</p>
+    </div>
+    <Button href="add" class="gap-2">
       <PlusIcon class="size-4" />
-      Add
+      Add Product
     </Button>
   </div>
 
@@ -127,4 +130,4 @@
       </div>
     {/if}
   {/if}
-</section>
+</div>

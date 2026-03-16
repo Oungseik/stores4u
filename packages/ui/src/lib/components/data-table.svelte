@@ -73,57 +73,57 @@
 </script>
 
 <script lang="ts">
+	import { RestrictToVerticalAxis } from "@dnd-kit/abstract/modifiers";
+	import { move } from "@dnd-kit/helpers";
+	import { DragDropProvider } from "@dnd-kit-svelte/svelte";
+	import { useSortable } from "@dnd-kit-svelte/svelte/sortable";
+	import { Badge } from "@lib/components/ui/badge/index.js";
+	import { Button, buttonVariants } from "@lib/components/ui/button/index.js";
+	import { createSvelteTable } from "@lib/components/ui/data-table/data-table.svelte.js";
 	import {
+		FlexRender,
+		renderComponent,
+		renderSnippet,
+	} from "@lib/components/ui/data-table/index.js";
+	import * as DropdownMenu from "@lib/components/ui/dropdown-menu/index.js";
+	import { Input } from "@lib/components/ui/input/index.js";
+	import { Label } from "@lib/components/ui/label/index.js";
+	import * as Select from "@lib/components/ui/select/index.js";
+	import * as Table from "@lib/components/ui/table/index.js";
+	import * as Tabs from "@lib/components/ui/tabs/index.js";
+	import ChevronDownIcon from "@tabler/icons-svelte/icons/chevron-down";
+	import ChevronLeftIcon from "@tabler/icons-svelte/icons/chevron-left";
+	import ChevronRightIcon from "@tabler/icons-svelte/icons/chevron-right";
+	import ChevronsLeftIcon from "@tabler/icons-svelte/icons/chevrons-left";
+	import ChevronsRightIcon from "@tabler/icons-svelte/icons/chevrons-right";
+	import CircleCheckFilledIcon from "@tabler/icons-svelte/icons/circle-check-filled";
+	import DotsVerticalIcon from "@tabler/icons-svelte/icons/dots-vertical";
+	import GripVerticalIcon from "@tabler/icons-svelte/icons/grip-vertical";
+	import LayoutColumnsIcon from "@tabler/icons-svelte/icons/layout-columns";
+	import LoaderIcon from "@tabler/icons-svelte/icons/loader";
+	import PlusIcon from "@tabler/icons-svelte/icons/plus";
+	import {
+		type ColumnDef,
+		type ColumnFiltersState,
 		getCoreRowModel,
 		getFacetedRowModel,
 		getFacetedUniqueValues,
 		getFilteredRowModel,
 		getPaginationRowModel,
 		getSortedRowModel,
-		type ColumnDef,
-		type ColumnFiltersState,
 		type PaginationState,
 		type Row,
 		type RowSelectionState,
 		type SortingState,
 		type VisibilityState,
 	} from "@tanstack/table-core";
-	import type { Schema } from "./schemas.js";
-	import type { Attachment } from "svelte/attachments";
-	import { RestrictToVerticalAxis } from "@dnd-kit/abstract/modifiers";
-	import { createSvelteTable } from "@lib/components/ui/data-table/data-table.svelte.js";
-	import * as Tabs from "@lib/components/ui/tabs/index.js";
-	import * as Table from "@lib/components/ui/table/index.js";
-	import * as DropdownMenu from "@lib/components/ui/dropdown-menu/index.js";
-	import { Button } from "@lib/components/ui/button/index.js";
-	import * as Select from "@lib/components/ui/select/index.js";
-	import { Label } from "@lib/components/ui/label/index.js";
-	import { Badge } from "@lib/components/ui/badge/index.js";
-	import { Input } from "@lib/components/ui/input/index.js";
-	import {
-		FlexRender,
-		renderComponent,
-		renderSnippet,
-	} from "@lib/components/ui/data-table/index.js";
-	import LayoutColumnsIcon from "@tabler/icons-svelte/icons/layout-columns";
-	import GripVerticalIcon from "@tabler/icons-svelte/icons/grip-vertical";
-	import ChevronDownIcon from "@tabler/icons-svelte/icons/chevron-down";
-	import PlusIcon from "@tabler/icons-svelte/icons/plus";
-	import ChevronsLeftIcon from "@tabler/icons-svelte/icons/chevrons-left";
-	import ChevronLeftIcon from "@tabler/icons-svelte/icons/chevron-left";
-	import ChevronRightIcon from "@tabler/icons-svelte/icons/chevron-right";
-	import ChevronsRightIcon from "@tabler/icons-svelte/icons/chevrons-right";
-	import CircleCheckFilledIcon from "@tabler/icons-svelte/icons/circle-check-filled";
-	import LoaderIcon from "@tabler/icons-svelte/icons/loader";
-	import DotsVerticalIcon from "@tabler/icons-svelte/icons/dots-vertical";
-	import { toast } from "svelte-sonner";
-	import DataTableCheckbox from "./data-table-checkbox.svelte";
-	import DataTableCellViewer from "./data-table-cell-viewer.svelte";
 	import { createRawSnippet } from "svelte";
+	import type { Attachment } from "svelte/attachments";
+	import { toast } from "svelte-sonner";
+	import DataTableCellViewer from "./data-table-cell-viewer.svelte";
+	import DataTableCheckbox from "./data-table-checkbox.svelte";
 	import DataTableReviewer from "./data-table-reviewer.svelte";
-	import { DragDropProvider } from "@dnd-kit-svelte/svelte";
-	import { move } from "@dnd-kit/helpers";
-	import { useSortable } from "@dnd-kit-svelte/svelte/sortable";
+	import type { Schema } from "./schemas.js";
 
 	let { data }: { data: Schema[] } = $props();
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -253,15 +253,11 @@
 		</Tabs.List>
 		<div class="flex items-center gap-2">
 			<DropdownMenu.Root>
-				<DropdownMenu.Trigger>
-					{#snippet child({ props })}
-						<Button variant="outline" size="sm" {...props}>
-							<LayoutColumnsIcon />
-							<span class="hidden lg:inline">Customize Columns</span>
-							<span class="lg:hidden">Columns</span>
-							<ChevronDownIcon />
-						</Button>
-					{/snippet}
+				<DropdownMenu.Trigger class={buttonVariants({ variant: "outline", size: "sm" })}>
+					<LayoutColumnsIcon />
+					<span class="hidden lg:inline">Customize Columns</span>
+					<span class="lg:hidden">Columns</span>
+					<ChevronDownIcon />
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content align="end" class="w-56">
 					{#each table
@@ -472,13 +468,9 @@
 
 {#snippet DataTableActions()}
 	<DropdownMenu.Root>
-		<DropdownMenu.Trigger class="data-[state=open]:bg-muted text-muted-foreground flex size-8">
-			{#snippet child({ props })}
-				<Button variant="ghost" size="icon" {...props}>
-					<DotsVerticalIcon />
-					<span class="sr-only">Open menu</span>
-				</Button>
-			{/snippet}
+		<DropdownMenu.Trigger class={buttonVariants({ variant: "ghost", size: "icon" }) + " data-[state=open]:bg-muted text-muted-foreground"}>
+			<DotsVerticalIcon />
+			<span class="sr-only">Open menu</span>
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content align="end" class="w-32">
 			<DropdownMenu.Item>Edit</DropdownMenu.Item>

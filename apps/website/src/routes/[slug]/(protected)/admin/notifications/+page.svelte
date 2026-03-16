@@ -188,7 +188,7 @@
   }
 </script>
 
-<section class="flex h-full flex-col">
+<section class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*2)] flex-col">
   <div class="shrink-0 border-b px-4 py-3">
     <div class="flex h-8 items-center justify-between">
       <h2 class="text-lg font-semibold">Notifications</h2>
