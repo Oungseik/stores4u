@@ -1,12 +1,12 @@
 <script lang="ts">
-	import * as Popover from '@lib/components/ui/popover';
-	import { Button } from '@lib/components/ui/button';
+	import { buttonVariants } from '@lib/components/ui/button';
 	import * as Command from '@lib/components/ui/command';
+	import Flag from '@lib/components/ui/phone-input/flag.svelte';
+	import * as Popover from '@lib/components/ui/popover';
 	import { ScrollArea } from '@lib/components/ui/scroll-area';
+	import { cn } from '@lib/utils.js';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
-	import { cn } from '@lib/utils.js';
-	import Flag from '@lib/components/ui/phone-input/flag.svelte';
 	import type { Country, CountryCode } from 'svelte-tel-input/types';
 
 	interface Props {
@@ -43,21 +43,17 @@
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger>
-		{#snippet child({ props })}
-			<Button
-				{...props}
-				type="button"
-				variant="outline"
-				class={cn('flex shrink-0 gap-1 rounded-l-lg rounded-r-none px-3')}
-				{disabled}
-			>
-				<Flag country={selectedCountry} />
-				<ChevronsUpDownIcon
-					class={cn('-mr-2 h-4 w-4 opacity-50', disabled ? 'hidden' : 'opacity-100')}
-				/>
-			</Button>
-		{/snippet}
+	<Popover.Trigger
+		class={cn(
+			buttonVariants({ variant: 'outline' }),
+			'flex shrink-0 gap-1 rounded-l-lg rounded-r-none px-3'
+		)}
+		disabled={disabled}
+	>
+		<Flag country={selectedCountry} />
+		<ChevronsUpDownIcon
+			class={cn('-mr-2 h-4 w-4 opacity-50', disabled ? 'hidden' : 'opacity-100')}
+		/>
 	</Popover.Trigger>
 	<Popover.Content
 		class="w-[300px] p-0"

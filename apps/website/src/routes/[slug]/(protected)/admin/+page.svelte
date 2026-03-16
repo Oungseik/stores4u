@@ -185,7 +185,9 @@
   });
 </script>
 
-<div class="bg-background flex h-[calc(100dvh-72px)] flex-col overflow-hidden">
+<div
+  class="bg-background flex h-[calc(100dvh-var(--header-height)-var(--spacing)*2)] flex-col overflow-hidden rounded-lg border"
+>
   <section class="shrink-0">
     <div class="flex border-b">
       <button

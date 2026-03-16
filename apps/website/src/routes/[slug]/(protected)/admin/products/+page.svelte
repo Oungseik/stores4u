@@ -5,6 +5,7 @@
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
+  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
@@ -32,13 +33,28 @@
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
 </script>
 
-<section class="p-4">
-  <div class="mb-3 flex items-center justify-between">
-    <h2 class="text-lg font-semibold">Products</h2>
-    <Button size="sm" href="add">
-      <PlusIcon class="size-4" />
-      Add
-    </Button>
+<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <div>
+        <Breadcrumb.Root>
+          <Breadcrumb.List>
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Breadcrumb.Page>Products</Breadcrumb.Page>
+            </Breadcrumb.Item>
+          </Breadcrumb.List>
+        </Breadcrumb.Root>
+        <p class="text-muted-foreground text-sm font-medium">Manage your product inventory</p>
+      </div>
+      <a href={`/${shop.slug}/admin/products/add`} class={buttonVariants()}>
+        <PlusIcon class="size-4" />
+        Add Product
+      </a>
+    </div>
   </div>
 
   {#if products.isLoading}
@@ -127,4 +143,4 @@
       </div>
     {/if}
   {/if}
-</section>
+</div>

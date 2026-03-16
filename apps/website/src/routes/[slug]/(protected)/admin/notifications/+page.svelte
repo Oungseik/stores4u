@@ -8,10 +8,15 @@
   import TrashIcon from "@lucide/svelte/icons/trash";
   import XCircleIcon from "@lucide/svelte/icons/x-circle";
   import { Badge } from "@repo/ui/badge";
+  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
   import { fade } from "svelte/transition";
+
+  import type { PageProps } from "./$types";
+
+  const { params }: PageProps = $props();
 
   type NotificationType = "low_stock" | "out_of_stock" | "info";
 
@@ -188,25 +193,39 @@
   }
 </script>
 
-<section class="flex h-full flex-col">
-  <div class="shrink-0 border-b px-4 py-3">
-    <div class="flex h-8 items-center justify-between">
-      <h2 class="text-lg font-semibold">Notifications</h2>
+<section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <div>
+        <Breadcrumb.Root>
+          <Breadcrumb.List>
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Breadcrumb.Page>Notifications</Breadcrumb.Page>
+            </Breadcrumb.Item>
+          </Breadcrumb.List>
+        </Breadcrumb.Root>
+      </div>
+
       <Button
-        variant="ghost"
-        size="sm"
-        class={["h-8 gap-1.5 text-xs", unreadCount === 0 && "hidden"]}
+        variant="outline"
+        class={["gap-2", unreadCount === 0 && "hidden"]}
         onclick={markAllAsRead}
       >
-        <CheckCheckIcon class="size-3.5" />
+        <CheckCheckIcon class="size-4" />
         Mark all read
       </Button>
     </div>
   </div>
 
-  <ScrollArea.Root class="flex-1">
+  <ScrollArea.Root class="h-[calc(100dvh-var(--header-height)-var(--spacing)*16)]">
     {#if notifications.length === 0}
-      <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+      <div
+        class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*20)] flex-col items-center justify-center gap-3 p-6 text-center"
+      >
         <div class="bg-muted flex size-14 items-center justify-center rounded-full">
           <BellIcon class="text-muted-foreground size-6" />
         </div>

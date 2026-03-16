@@ -1,49 +1,49 @@
 <script lang="ts">
-  import BellIcon from "@lucide/svelte/icons/bell";
-  import PackageIcon from "@lucide/svelte/icons/package";
-  import ScanLineIcon from "@lucide/svelte/icons/scan-line";
-  import { buttonVariants } from "@repo/ui/button";
+  import { Separator } from "@repo/ui/separator";
+  import * as Sidebar from "@repo/ui/sidebar";
 
   import { page } from "$app/state";
 
-  import { type LayoutProps } from "./$types";
+  import type { LayoutProps } from "./$types";
+  import AdminSidebar from "./admin-sidebar.svelte";
 
-  let { children, params }: LayoutProps = $props();
+  let { children, data }: LayoutProps = $props();
 
-  const dockHeight = "72px";
+  // Get user from parent layout data
+  const user = $derived(data.user);
 
-  const items = $derived([
-    { name: "Products", icon: PackageIcon, url: `/${params.slug}/admin/products` },
-    { name: "Scanner", icon: ScanLineIcon, url: `/${params.slug}/admin/scanner` },
-    { name: "Alerts", icon: BellIcon, url: `/${params.slug}/admin/notifications` },
-  ]);
+  // Get shop data from page store (will be loaded by child pages)
+  const shop = $derived(data);
 </script>
 
-<div class="flex min-h-[calc(100dvh-72px)] flex-col">
-  {@render children?.()}
-</div>
-
-<div
-  class="bg-card sticky right-0 bottom-0 left-0 border-t shadow-lg md:hidden"
-  style="height: {dockHeight};"
->
-  <div class="flex items-center justify-between gap-2 px-4 py-2">
-    {#each items as item (item.url)}
-      {@const isActive =
-        page.url.pathname === item.url ||
-        (item.url !== `/${params.slug}/admin` && page.url.pathname.startsWith(item.url))}
-      <div class="flex flex-1 shrink-0 flex-col items-center">
-        <a
-          href={item.url}
-          aria-label={item.name}
-          class={isActive
-            ? buttonVariants({ variant: "secondary", class: "w-full" })
-            : buttonVariants({ variant: "ghost", class: "w-full" })}
-        >
-          <item.icon class="size-4" />
-        </a>
-        <span class="text-xs">{item.name}</span>
+{#if shop}
+  <Sidebar.Provider
+    style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
+  >
+    <AdminSidebar variant="inset" {shop} {user} currentPath={page.url.pathname} />
+    <Sidebar.Inset>
+      <header
+        class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear"
+      >
+        <div class="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+          <Sidebar.Trigger class="-ms-1" />
+          <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+          <h1 class="text-base font-medium">Checkout</h1>
+        </div>
+      </header>
+      <div class="flex flex-1 flex-col">
+        {@render children?.()}
       </div>
-    {/each}
+    </Sidebar.Inset>
+  </Sidebar.Provider>
+{:else}
+  <!-- Fallback while shop data is loading -->
+  <div class="flex h-screen items-center justify-center">
+    <div class="text-center">
+      <div
+        class="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-2 border-t-transparent"
+      ></div>
+      <p class="text-muted-foreground text-sm">Loading...</p>
+    </div>
   </div>
-</div>
+{/if}
