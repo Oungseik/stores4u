@@ -134,7 +134,7 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
                 {#snippet child({ props })}
-                  <a href={`/${shop.slug}${item.href}`} {...props}>
+                  <a href={item.href} {...props}>
                     <item.icon />
                     <span>{item.title}</span>
                   </a>
