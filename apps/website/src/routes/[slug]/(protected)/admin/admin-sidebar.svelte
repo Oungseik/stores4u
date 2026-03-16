@@ -2,7 +2,7 @@
   import BellIcon from "@lucide/svelte/icons/bell";
   import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
-  import DashboardIcon from "@lucide/svelte/icons/layout-dashboard";
+  import type DashboardIcon from "@lucide/svelte/icons/layout-dashboard";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
@@ -12,6 +12,7 @@
   import * as Avatar from "@repo/ui/avatar";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as Sidebar from "@repo/ui/sidebar";
+  import { useSidebar } from "@repo/ui/sidebar";
   import type { ComponentProps } from "svelte";
 
   interface NavItem {
@@ -36,6 +37,8 @@
   }
 
   let { shop, user, currentPath, ...restProps }: Props = $props();
+
+  const sidebar = useSidebar();
 
   const mainNavItems: NavItem[] = $derived([
     {
@@ -113,7 +116,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
                 {#snippet child({ props })}
-                  <a href={item.href} {...props}>
+                  <a
+                    href={item.href}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
                     <item.icon />
                     <span>{item.title}</span>
                   </a>
@@ -134,7 +141,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
                 {#snippet child({ props })}
-                  <a href={item.href} {...props}>
+                  <a
+                    href={item.href}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
                     <item.icon />
                     <span>{item.title}</span>
                   </a>
