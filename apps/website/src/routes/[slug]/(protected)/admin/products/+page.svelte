@@ -5,6 +5,7 @@
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
+  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
@@ -33,15 +34,25 @@
 </script>
 
 <div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <div class="flex flex-col gap-4 @md:flex-row @md:items-center @md:justify-between">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight">Products</h1>
-      <p class="text-muted-foreground">Manage your product inventory</p>
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <Breadcrumb.Root>
+        <Breadcrumb.List>
+          <Breadcrumb.Item>
+            <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Separator />
+          <Breadcrumb.Item>
+            <Breadcrumb.Page>Products</Breadcrumb.Page>
+          </Breadcrumb.Item>
+        </Breadcrumb.List>
+      </Breadcrumb.Root>
+      <Button href={`/${shop.slug}/admin/products/add`} class="gap-2">
+        <PlusIcon class="size-4" />
+        Add Product
+      </Button>
     </div>
-    <Button href={`/${shop.slug}/admin/products/add`} class="gap-2">
-      <PlusIcon class="size-4" />
-      Add Product
-    </Button>
+    <p class="text-sm font-medium text-muted-foreground">Manage your product inventory</p>
   </div>
 
   {#if products.isLoading}

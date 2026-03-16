@@ -8,6 +8,7 @@
   import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import { Badge } from "@repo/ui/badge";
+  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { createQuery } from "@tanstack/svelte-query";
@@ -106,6 +107,20 @@
 
 <div class="@container/main flex flex-1 flex-col gap-2">
   <div class="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+    <!-- Header with Breadcrumb -->
+    <div class="flex flex-col gap-2 px-4 lg:px-6">
+      <div class="flex items-center justify-between">
+        <Breadcrumb.Root>
+          <Breadcrumb.List>
+            <Breadcrumb.Item>
+              <Breadcrumb.Page>Dashboard</Breadcrumb.Page>
+            </Breadcrumb.Item>
+          </Breadcrumb.List>
+        </Breadcrumb.Root>
+      </div>
+      <p class="text-sm font-medium text-muted-foreground">Overview of your shop performance</p>
+    </div>
+
     <!-- KPI Cards -->
     <div
       class="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4"

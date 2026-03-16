@@ -8,10 +8,15 @@
   import TrashIcon from "@lucide/svelte/icons/trash";
   import XCircleIcon from "@lucide/svelte/icons/x-circle";
   import { Badge } from "@repo/ui/badge";
+  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
   import { fade } from "svelte/transition";
+
+  import type { PageProps } from "./$types";
+
+  const { params }: PageProps = $props();
 
   type NotificationType = "low_stock" | "out_of_stock" | "info";
 
@@ -189,21 +194,31 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <div class="flex flex-col gap-4 @md:flex-row @md:items-center @md:justify-between">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight">Notifications</h1>
-      <p class="text-muted-foreground">
-        You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-      </p>
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <Breadcrumb.Root>
+        <Breadcrumb.List>
+          <Breadcrumb.Item>
+            <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Separator />
+          <Breadcrumb.Item>
+            <Breadcrumb.Page>Notifications</Breadcrumb.Page>
+          </Breadcrumb.Item>
+        </Breadcrumb.List>
+      </Breadcrumb.Root>
+      <Button
+        variant="outline"
+        class={["gap-2", unreadCount === 0 && "hidden"]}
+        onclick={markAllAsRead}
+      >
+        <CheckCheckIcon class="size-4" />
+        Mark all read
+      </Button>
     </div>
-    <Button
-      variant="outline"
-      class={["gap-2", unreadCount === 0 && "hidden"]}
-      onclick={markAllAsRead}
-    >
-      <CheckCheckIcon class="size-4" />
-      Mark all read
-    </Button>
+    <p class="text-sm font-medium text-muted-foreground">
+      You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+    </p>
   </div>
 
   <ScrollArea.Root class="h-[calc(100dvh-var(--header-height)-var(--spacing)*16)]">

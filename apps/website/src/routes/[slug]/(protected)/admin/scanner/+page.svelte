@@ -6,6 +6,7 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
+  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
@@ -184,6 +185,25 @@
     }
   });
 </script>
+
+<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <Breadcrumb.Root>
+        <Breadcrumb.List>
+          <Breadcrumb.Item>
+            <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Separator />
+          <Breadcrumb.Item>
+            <Breadcrumb.Page>Scanner</Breadcrumb.Page>
+          </Breadcrumb.Item>
+        </Breadcrumb.List>
+      </Breadcrumb.Root>
+    </div>
+    <p class="text-sm font-medium text-muted-foreground">Scan barcodes or search products to process sales</p>
+  </div>
+</div>
 
 <div
   class="bg-background flex h-[calc(100dvh-var(--header-height)-var(--spacing)*2)] flex-col overflow-hidden rounded-lg border"
