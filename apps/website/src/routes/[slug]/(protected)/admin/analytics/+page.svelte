@@ -11,6 +11,8 @@
   import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
+  import { Separator } from "@repo/ui/separator";
+  import * as Sidebar from "@repo/ui/sidebar";
   import { createQuery } from "@tanstack/svelte-query";
 
   import Pricing from "$lib/components/Pricing.svelte";
@@ -111,7 +113,9 @@
     <!-- Header with Breadcrumb -->
     <div class="flex flex-col gap-2 px-4 lg:px-6">
       <div class="flex items-center justify-between">
-        <div>
+        <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
+          <Sidebar.Trigger class="-ms-1" />
+          <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
           <Breadcrumb.Root>
             <Breadcrumb.List>
               <Breadcrumb.Item>
@@ -123,7 +127,9 @@
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb.Root>
-          <p class="text-muted-foreground text-sm font-medium">Overview of your shop performance</p>
+          <!-- <p class="text-muted-foreground text-sm font-medium"> -->
+          <!--   Overview of your shop performance -->
+          <!-- </p> -->
         </div>
       </div>
     </div>
