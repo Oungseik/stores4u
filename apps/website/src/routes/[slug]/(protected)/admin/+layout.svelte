@@ -13,7 +13,7 @@
   const dockHeight = "72px";
 
   const items = $derived([
-    { name: "Products", icon: PackageIcon, url: `/${params.slug}/admin` },
+    { name: "Products", icon: PackageIcon, url: `/${params.slug}/admin/products` },
     { name: "Scanner", icon: ScanLineIcon, url: `/${params.slug}/admin/scanner` },
     { name: "Alerts", icon: BellIcon, url: `/${params.slug}/admin/notifications` },
   ]);

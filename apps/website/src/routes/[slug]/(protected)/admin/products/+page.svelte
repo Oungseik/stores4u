@@ -7,12 +7,10 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { createInfiniteQuery } from "@tanstack/svelte-query";
 
   import Pricing from "$lib/components/Pricing.svelte";
-  import ProductForm from "$lib/components/forms/ProductForm.svelte";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -32,37 +30,15 @@
   );
 
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
-
-  let isDialogOpen = $state(false);
-
-  let productFormRef: ProductForm;
 </script>
 
 <section class="p-4">
   <div class="mb-3 flex items-center justify-between">
     <h2 class="text-lg font-semibold">Products</h2>
-    <Dialog.Root bind:open={isDialogOpen}>
-      <Dialog.Trigger class={["data-[state=open]:hidden", buttonVariants({ size: "sm" })]}>
-        <PlusIcon class="size-4" />
-        Add
-      </Dialog.Trigger>
-      <Dialog.Content class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <Dialog.Header>
-          <Dialog.Title>Add New Product</Dialog.Title>
-          <Dialog.Description>Create a new product for your shop.</Dialog.Description>
-        </Dialog.Header>
-        <ProductForm
-          bind:this={productFormRef}
-          slug={params.slug}
-          onSuccess={() => {
-            isDialogOpen = false;
-          }}
-          onCancel={() => {
-            isDialogOpen = false;
-          }}
-        />
-      </Dialog.Content>
-    </Dialog.Root>
+    <Button size="sm" href="add">
+      <PlusIcon class="size-4" />
+      Add
+    </Button>
   </div>
 
   {#if products.isLoading}
