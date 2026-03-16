@@ -13,9 +13,9 @@
   const dockHeight = "72px";
 
   const items = $derived([
-    { name: "Products", icon: PackageIcon, url: `/admin/${params.slug}` },
-    { name: "Scanner", icon: ScanLineIcon, url: `/admin/${params.slug}/scanner` },
-    { name: "Alerts", icon: BellIcon, url: `/admin/${params.slug}/notifications` },
+    { name: "Products", icon: PackageIcon, url: `/${params.slug}/admin` },
+    { name: "Scanner", icon: ScanLineIcon, url: `/${params.slug}/admin/scanner` },
+    { name: "Alerts", icon: BellIcon, url: `/${params.slug}/admin/notifications` },
   ]);
 </script>
 
@@ -31,7 +31,7 @@
     {#each items as item (item.url)}
       {@const isActive =
         page.url.pathname === item.url ||
-        (item.url !== `/admin/${params.slug}` && page.url.pathname.startsWith(item.url))}
+        (item.url !== `/${params.slug}/admin` && page.url.pathname.startsWith(item.url))}
       <div class="flex flex-1 shrink-0 flex-col items-center">
         <a
           href={item.url}
