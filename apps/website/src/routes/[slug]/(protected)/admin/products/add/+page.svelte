@@ -37,7 +37,11 @@
     </div>
   </div>
 
-  <div class="bg-card rounded-lg border p-6 shadow-sm">
+  <div class="max-w-2xl px-4 lg:px-6">
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold tracking-tight">Add New Product</h1>
+      <p class="text-muted-foreground mt-1 text-sm">Create a new product for your shop</p>
+    </div>
     <ProductForm slug={params.slug} onSuccess={() => goto("..")} onCancel={() => goto("..")} />
   </div>
 </section>
