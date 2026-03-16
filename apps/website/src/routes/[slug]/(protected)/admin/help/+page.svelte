@@ -319,9 +319,11 @@
   <!-- Smart Suggestions -->
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-2">
-      <SparklesIcon class="size-5 text-amber-500" />
-      <h2 class="text-lg font-semibold">Suggested for you</h2>
-      <span class="text-muted-foreground text-sm">(AI-powered based on your activity)</span>
+      <SparklesIcon class="size-6 shrink-0 text-amber-500" />
+      <div>
+        <h2 class="text-left text-lg font-semibold">Suggested for you</h2>
+        <span class="text-muted-foreground text-sm">(AI-powered based on your activity)</span>
+      </div>
     </div>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {#each smartSuggestions as suggestion}
@@ -356,35 +358,32 @@
   <Separator />
 
   <!-- Category Cards -->
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-3">
     <h2 class="text-lg font-semibold">Browse by Category</h2>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {#each helpCategories as category}
-        <Card.Root class="group flex flex-col">
-          <Card.Header class="flex-1">
-            <div class="flex items-start justify-between">
-              <div class="{category.color} flex size-12 items-center justify-center rounded-xl">
-                <category.icon class="size-6" />
-              </div>
-              <span
-                class="bg-secondary text-secondary-foreground rounded-full px-2.5 py-0.5 text-xs font-medium"
-              >
-                {category.articleCount} articles
-              </span>
-            </div>
-            <Card.Title class="mt-4">{category.title}</Card.Title>
-            <Card.Description>{category.description}</Card.Description>
-          </Card.Header>
-          <Card.Footer class="pt-0">
-            <Button
-              variant="ghost"
-              class="text-muted-foreground group-hover:text-foreground w-full gap-2"
-              onclick={() => openAiChat(category.title)}
+        <Card.Root
+          class="group hover:border-primary/50 cursor-pointer py-4 transition-colors"
+          onclick={() => openAiChat(category.title)}
+        >
+          <Card.Content class="flex items-center gap-3 p-0 px-4">
+            <div
+              class="{category.color} flex size-10 shrink-0 items-center justify-center rounded-lg"
             >
-              <BotIcon class="size-4" />
-              Ask AI about this
-            </Button>
-          </Card.Footer>
+              <category.icon class="size-5" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <Card.Title class="text-sm font-medium">{category.title}</Card.Title>
+              </div>
+              <Card.Description class="line-clamp-1 text-xs">
+                {category.articleCount} articles · {category.description}
+              </Card.Description>
+            </div>
+            <BotIcon
+              class="text-muted-foreground group-hover:text-primary size-5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+            />
+          </Card.Content>
         </Card.Root>
       {/each}
     </div>
@@ -501,7 +500,7 @@
 
 <!-- AI Chat Sheet -->
 <Sheet.Root bind:open={isChatOpen}>
-  <Sheet.Content side="right" class="flex w-full flex-col px-4 sm:max-w-md">
+  <Sheet.Content side="right" class="flex w-full flex-col px-4 pb-2 sm:max-w-md">
     <Sheet.Header class="border-b pb-4">
       <div class="flex items-center gap-3">
         <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
