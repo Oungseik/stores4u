@@ -18,6 +18,7 @@ const config = {
     },
   },
   compilerOptions: {},
+  vitePlugin: { inspector: true },
 };
 
 export default config;

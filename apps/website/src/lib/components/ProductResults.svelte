@@ -63,7 +63,7 @@
               <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium">{product.name}</p>
                 <p class="text-muted-foreground text-xs">
-                  {product.barcode || product.sku || "No barcode"}
+                  {product.sku || product.barcode || "No sku or barcode"}
                 </p>
               </div>
               <Pricing
