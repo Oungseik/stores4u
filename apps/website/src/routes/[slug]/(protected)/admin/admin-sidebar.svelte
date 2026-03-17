@@ -3,6 +3,7 @@
   import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
   import type DashboardIcon from "@lucide/svelte/icons/layout-dashboard";
+  import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
@@ -42,8 +43,13 @@
 
   const mainNavItems: NavItem[] = $derived([
     {
-      title: "Checkout",
+      title: "Dashboard",
       href: `/${shop.slug}/admin`,
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Checkout",
+      href: `/${shop.slug}/admin/checkout`,
       icon: ScanBarcodeIcon,
     },
     {

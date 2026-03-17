@@ -2,14 +2,11 @@
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import ArrowDownIcon from "@lucide/svelte/icons/arrow-down";
   import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
-  import BellIcon from "@lucide/svelte/icons/bell";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import BoxIcon from "@lucide/svelte/icons/package";
-  import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import { Badge } from "@repo/ui/badge";
   import * as Breadcrumb from "@repo/ui/breadcrumb";
-  import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Separator } from "@repo/ui/separator";
   import * as Sidebar from "@repo/ui/sidebar";
@@ -80,30 +77,6 @@
       description: "Unavailable items",
       icon: ShoppingCartIcon,
       variant: stats.outOfStockItems > 0 ? "danger" : "default",
-    },
-  ]);
-
-  const quickActions = $derived([
-    {
-      title: "POS Scanner",
-      description: "Process sales quickly",
-      icon: BarcodeIcon,
-      href: `/${params.slug}/admin/scanner`,
-      variant: "default" as const,
-    },
-    {
-      title: "View Products",
-      description: "Manage inventory",
-      icon: BoxIcon,
-      href: `/${params.slug}/admin/products`,
-      variant: "outline" as const,
-    },
-    {
-      title: "Notifications",
-      description: "Check alerts",
-      icon: BellIcon,
-      href: `/${params.slug}/admin/notifications`,
-      variant: "outline" as const,
     },
   ]);
 </script>
@@ -192,33 +165,6 @@
           </Card.Footer>
         </Card.Root>
       {/each}
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="px-4 lg:px-6">
-      <h2 class="mb-4 text-lg font-semibold">Quick Actions</h2>
-      <div class="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
-        {#each quickActions as action (action.title)}
-          <Card.Root class="group transition-all hover:shadow-sm">
-            <Card.Content class="p-4">
-              <div class="flex items-start gap-4">
-                <div
-                  class="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg"
-                >
-                  <action.icon class="size-5" />
-                </div>
-                <div class="min-w-0 flex-1">
-                  <h3 class="truncate font-medium">{action.title}</h3>
-                  <p class="text-muted-foreground text-sm">{action.description}</p>
-                </div>
-                <Button variant={action.variant} size="sm" href={action.href} class="shrink-0">
-                  Open
-                </Button>
-              </div>
-            </Card.Content>
-          </Card.Root>
-        {/each}
-      </div>
     </div>
 
     <!-- Recent Activity Placeholder -->
