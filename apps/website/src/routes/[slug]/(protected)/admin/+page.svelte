@@ -31,7 +31,7 @@
     orpc.products.checkout.mutationOptions({
       onSuccess: (result) => {
         toast.success(
-          `Order ${result.orderNumber}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.country)}`
+          `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.country)}`
         );
         cart = [];
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
