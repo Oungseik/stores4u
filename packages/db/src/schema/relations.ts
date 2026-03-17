@@ -1,5 +1,5 @@
 import { defineRelations } from "drizzle-orm";
-import { inventoryBatch, inventoryMovement } from "./inventory";
+import { inventoryMovement } from "./inventory";
 import { invoice, invoiceItem, invoiceOcrResult } from "./invoice";
 import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
@@ -16,7 +16,6 @@ export const relations = defineRelations(
     invoiceOcrResult,
     invoice,
     invoiceItem,
-    inventoryBatch,
     inventoryMovement,
     setting,
     order,
@@ -30,7 +29,6 @@ export const relations = defineRelations(
       productCategories: r.many.productCategory(),
       productSuppliers: r.many.productSupplier(),
       invoiceItems: r.many.invoiceItem(),
-      inventoryBatches: r.many.inventoryBatch(),
       inventoryMovements: r.many.inventoryMovement(),
       orderItems: r.many.orderItem(),
     },
@@ -60,23 +58,10 @@ export const relations = defineRelations(
     invoiceItem: {
       invoice: r.one.invoice({ from: r.invoiceItem.invoiceId, to: r.invoice.id }),
       product: r.one.product({ from: r.invoiceItem.productId, to: r.product.id }),
-      inventoryBatches: r.many.inventoryBatch(),
       inventoryMovements: r.many.inventoryMovement(),
-    },
-    inventoryBatch: {
-      product: r.one.product({ from: r.inventoryBatch.productId, to: r.product.id }),
-      invoiceItem: r.one.invoiceItem({
-        from: r.inventoryBatch.invoiceItemId,
-        to: r.invoiceItem.id,
-      }),
-      movements: r.many.inventoryMovement(),
     },
     inventoryMovement: {
       product: r.one.product({ from: r.inventoryMovement.productId, to: r.product.id }),
-      batch: r.one.inventoryBatch({
-        from: r.inventoryMovement.batchId,
-        to: r.inventoryBatch.id,
-      }),
       invoiceItem: r.one.invoiceItem({
         from: r.inventoryMovement.invoiceItemId,
         to: r.invoiceItem.id,

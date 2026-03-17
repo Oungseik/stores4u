@@ -1,5 +1,5 @@
 import { randomUUIDv7 } from "bun";
-import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const category = sqliteTable("category", {
   id: text("id")
@@ -28,7 +28,9 @@ export const product = sqliteTable(
     description: text("description"),
     uom: text("uom").notNull(),
     priceCents: integer("price_cents").notNull(),
-    lowStockThreshold: integer("low_stock_threshold"),
+    stock: real("stock").default(0).notNull(),
+    lowStockThreshold: real("low_stock_threshold").default(10),
+
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),

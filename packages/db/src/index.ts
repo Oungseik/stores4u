@@ -3,7 +3,6 @@ import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
   image,
-  inventoryBatch,
   inventoryMovement,
   invoice,
   invoiceItem,
@@ -27,7 +26,6 @@ const schema = {
   invoiceOcrResult,
   invoice,
   invoiceItem,
-  inventoryBatch,
   inventoryMovement,
 };
 

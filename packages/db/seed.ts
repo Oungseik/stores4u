@@ -1,10 +1,8 @@
 import { createClient } from "@libsql/client";
 import { randomUUIDv7 } from "bun";
-import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
-  inventoryBatch,
   inventoryMovement,
   invoice,
   invoiceItem,
@@ -25,7 +23,6 @@ const schema = {
   invoiceOcrResult,
   invoice,
   invoiceItem,
-  inventoryBatch,
   inventoryMovement,
 };
 
@@ -46,7 +43,6 @@ const arrays = {
   ocrStatuses: ["PENDING", "PROCESSED", "FAILED", "LINKED"] as const,
   movementTypes: ["PURCHASE", "SALE", "RETURN", "WASTAGE", "ADJUSTMENT", "CORRECTION"] as const,
   referenceTypes: ["INVOICE", "ORDER", null] as const,
-  batchNumbers: ["BATCH-001", "BATCH-002", "BATCH-003"],
   invoiceNumbers: ["INV-2024-001", "INV-2024-002", "INV-2024-003", "INV-2024-004", "INV-2024-005"],
 };
 
@@ -135,6 +131,7 @@ function generateProductData(count: number) {
       description: `High quality product item ${i + 1}`,
       uom: rand(arrays.uoms),
       priceCents: randInt(100, 100000),
+      stock: randFloat(0, 500),
     });
   }
   return data;
@@ -266,10 +263,6 @@ function generateInvoiceItemData(invoices: { id: string }[], products: { id: str
         discountCents,
         freightCents,
         lineTotalCents,
-        expiryDate: randInt(0, 1)
-          ? `2025-${String(randInt(1, 12)).padStart(2, "0")}-${String(randInt(1, 28)).padStart(2, "0")}`
-          : null,
-        batchNumber: rand(arrays.batchNumbers),
       });
       itemIndex++;
     }
@@ -277,33 +270,7 @@ function generateInvoiceItemData(invoices: { id: string }[], products: { id: str
   return data;
 }
 
-function generateInventoryBatchData(products: { id: string }[], invoiceItems: { id: string }[]) {
-  const data = [];
-
-  for (let i = 0; i < products.length; i++) {
-    const qty = randFloat(10, 500);
-    const remainingQty = Math.floor(randFloat(0, qty));
-
-    data.push({
-      id: randomUUIDv7(),
-      productId: products[i].id,
-      invoiceItemId: i < invoiceItems.length ? invoiceItems[i].id : null,
-      qty,
-      remainingQty,
-      expiryDate: randInt(0, 1)
-        ? `2025-${String(randInt(1, 12)).padStart(2, "0")}-${String(randInt(1, 28)).padStart(2, "0")}`
-        : null,
-      batchNumber: rand(arrays.batchNumbers),
-    });
-  }
-  return data;
-}
-
-function generateInventoryMovementData(
-  products: { id: string }[],
-  batches: { id: string }[],
-  invoiceItems: { id: string }[],
-) {
+function generateInventoryMovementData(products: { id: string }[], invoiceItems: { id: string }[]) {
   const data = [];
 
   for (let i = 0; i < products.length * 2; i++) {
@@ -322,7 +289,6 @@ function generateInventoryMovementData(
     data.push({
       id: randomUUIDv7(),
       productId: product.id,
-      batchId: i < batches.length ? batches[i % batches.length].id : null,
       invoiceItemId: i < invoiceItems.length ? invoiceItems[i % invoiceItems.length].id : null,
       movementType,
       qty,
@@ -372,7 +338,6 @@ async function main() {
 
   console.log("Clearing existing data...");
   await db.delete(inventoryMovement);
-  await db.delete(inventoryBatch);
   await db.delete(invoiceItem);
   await db.delete(invoice);
   await db.delete(invoiceOcrResult);
@@ -423,34 +388,8 @@ async function main() {
   await db.insert(invoiceItem).values(invoiceItemData);
   console.log(`Inserted ${invoiceItemData.length} invoice items`);
 
-  console.log("Generating inventory batches...");
-  const inventoryBatchData = generateInventoryBatchData(productData, invoiceItemData);
-  await db.insert(inventoryBatch).values(inventoryBatchData);
-  console.log(`Inserted ${inventoryBatchData.length} inventory batches`);
-
-  console.log("Calculating stock from inventory batches...");
-  const stockFromBatches = await db
-    .select({
-      productId: inventoryBatch.productId,
-      stock: sql<number>`sum(${inventoryBatch.remainingQty})`,
-    })
-    .from(inventoryBatch)
-    .groupBy(inventoryBatch.productId);
-
-  for (const stockRecord of stockFromBatches) {
-    await db
-      .update(product)
-      .set({ stock: stockRecord.stock ?? 0 })
-      .where(eq(product.id, stockRecord.productId));
-  }
-  console.log(`Updated stock for ${stockFromBatches.length} products`);
-
   console.log("Generating inventory movements...");
-  const inventoryMovementData = generateInventoryMovementData(
-    productData,
-    inventoryBatchData,
-    invoiceItemData,
-  );
+  const inventoryMovementData = generateInventoryMovementData(productData, invoiceItemData);
   await db.insert(inventoryMovement).values(inventoryMovementData);
   console.log(`Inserted ${inventoryMovementData.length} inventory movements`);
 
