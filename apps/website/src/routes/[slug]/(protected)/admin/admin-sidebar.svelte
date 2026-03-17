@@ -79,13 +79,13 @@
   const isActive = (href: string) => currentPath === href;
 </script>
 
-<Sidebar.Root collapsible="offcanvas" {...restProps}>
+<Sidebar.Root collapsible="icon" {...restProps}>
   <Sidebar.Header>
     <Sidebar.Menu>
       <Sidebar.MenuItem>
         <Sidebar.MenuButton size="lg" class="group-data-[collapsible=icon]:!p-1.5">
           {#snippet child({ props })}
-            <a href="/" {...props}>
+            <a href={`/${shop.slug}`} {...props}>
               <div
                 class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
               >
