@@ -39,7 +39,7 @@ export const createShopHandler = os
     });
 
     if (existingShop) {
-      throw new ORPCError("INPUT_VALIDATION_FAILED", {
+      throw new ORPCError("BAD_REQUEST", {
         message: `You already have a shop with slug "${input.slug}"`,
       });
     }
@@ -48,7 +48,7 @@ export const createShopHandler = os
       where: { userId: context.session.user.id },
     });
     if (userHasShop) {
-      throw new ORPCError("INPUT_VALIDATION_FAILED", {
+      throw new ORPCError("BAD_REQUEST", {
         message: "You can only own one shop",
       });
     }

@@ -123,7 +123,7 @@ export const checkoutHandler = os
             return `"${p.name}" (available: ${stockQtyByProduct.get(id)}, requested: ${requested})`;
           });
 
-        throw new ORPCError("INPUT_VALIDATION_FAILED", {
+        throw new ORPCError("BAD_REQUEST", {
           message: `Insufficient stock for: ${insufficient.join(", ")}`,
         });
       }
