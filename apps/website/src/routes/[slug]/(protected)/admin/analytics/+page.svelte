@@ -4,6 +4,7 @@
   import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import BoxIcon from "@lucide/svelte/icons/package";
+  import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import { Badge } from "@repo/ui/badge";
   import * as Breadcrumb from "@repo/ui/breadcrumb";
@@ -86,7 +87,7 @@
     <!-- Header with Breadcrumb -->
     <div class="flex flex-col gap-2 px-4 lg:px-6">
       <div class="flex h-9 items-center justify-between">
-        <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
+        <div class="flex items-center gap-1 lg:gap-2">
           <Sidebar.Trigger class="-ms-1" />
           <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
           <Breadcrumb.Root>

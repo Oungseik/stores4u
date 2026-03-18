@@ -26,7 +26,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
+  const { data: shop }: PageProps = $props();
 
   // Mock orders data
   const mockOrders = [
@@ -40,6 +40,7 @@
       items: [
         { name: "Artisan Coffee Blend", sku: "COF-001", quantity: 2, price: 2499 },
         { name: "Ceramic Mug Set", sku: "MUG-002", quantity: 1, price: 10501 },
+        { name: "USB Cable", sku: "USB-003", quantity: 1, price: 10501 },
       ],
       shipping: { method: "Standard", cost: 799, tracking: "TRK123456789" },
       notes: "Leave at front door",
@@ -249,7 +250,7 @@
   <!-- Header with Breadcrumb -->
   <div class="flex flex-col gap-4">
     <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
+      <div class="flex items-center gap-1 lg:gap-2">
         <Sidebar.Trigger class="-ms-1" />
         <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
         <Breadcrumb.Root>
@@ -272,7 +273,7 @@
   </div>
 
   <!-- Page Title & Description -->
-  <div class="px-4 lg:px-6">
+  <div>
     <div class="flex flex-col gap-1">
       <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
       <p class="text-muted-foreground text-sm">Manage and track all your shop orders</p>
@@ -280,7 +281,7 @@
   </div>
 
   <!-- Stats Cards -->
-  <div class="grid gap-4 px-4 sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <Card.Root class="relative overflow-hidden">
       <div
         class="from-primary/20 to-primary/5 absolute top-0 right-0 h-full w-1 bg-gradient-to-b"
@@ -349,7 +350,7 @@
   </div>
 
   <!-- Filters and Search -->
-  <div class="flex flex-col gap-4 px-4 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
     <div class="flex flex-1 items-center gap-2">
       <div class="relative max-w-md flex-1">
         <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -390,7 +391,7 @@
   </div>
 
   <!-- Status Filter Pills -->
-  <div class="flex flex-wrap gap-2 px-4 lg:px-6">
+  <div class="flex flex-wrap gap-2">
     {#each statusFilters as filter}
       <button
         type="button"
@@ -416,7 +417,7 @@
   </div>
 
   <!-- Orders List -->
-  <div class="flex flex-col gap-3 px-4 lg:px-6">
+  <div class="flex flex-col gap-3">
     {#if filteredOrders().length === 0}
       <div class="flex flex-col items-center justify-center py-16 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
@@ -432,7 +433,7 @@
     {:else}
       <div class="flex flex-col gap-3">
         {#each filteredOrders() as order (order.id)}
-          <Card.Root class="group overflow-hidden transition-all duration-200 hover:shadow-md">
+          <Card.Root class="group overflow-hidden py-0 transition-all duration-200 hover:shadow-md">
             <div class="flex flex-col">
               <!-- Main Order Row -->
               <div class="flex items-center gap-4 p-4">
@@ -528,9 +529,7 @@
                   <div class="grid gap-6 md:grid-cols-2">
                     <!-- Items -->
                     <div>
-                      <h4
-                        class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase"
-                      >
+                      <h4 class="text-muted-foreground mb-2 text-xs tracking-wide uppercase">
                         Items
                       </h4>
                       <div class="space-y-2">
@@ -558,9 +557,7 @@
                     <!-- Shipping & Notes -->
                     <div class="space-y-4">
                       <div>
-                        <h4
-                          class="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase"
-                        >
+                        <h4 class="text-muted-foreground mb-2 text-xs tracking-wide uppercase">
                           Shipping
                         </h4>
                         <div class="bg-background rounded-md p-3 text-sm">
@@ -583,14 +580,10 @@
 
                       {#if order.notes}
                         <div>
-                          <h4
-                            class="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase"
-                          >
+                          <h4 class="text-muted-foreground text-xs tracking-wide uppercase">
                             Customer Notes
                           </h4>
-                          <p class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-                            {order.notes}
-                          </p>
+                          <p class="text-sm">{order.notes}</p>
                         </div>
                       {/if}
                     </div>
