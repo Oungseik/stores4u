@@ -20,7 +20,7 @@
   import * as Avatar from "@repo/ui/avatar";
   import { Badge } from "@repo/ui/badge";
   import * as Breadcrumb from "@repo/ui/breadcrumb";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
@@ -318,10 +318,6 @@
     }
   }
 
-  function handleQuickAction(action: string) {
-    newMessage = action;
-  }
-
   function handleSendMessage() {
     if (newMessage.trim()) {
       // In real implementation, this would send the message
@@ -559,10 +555,10 @@
         <div class="flex w-full items-end gap-2">
           <Tooltip.Provider>
             <Tooltip.Root>
-              <Tooltip.Trigger>
-                <Button variant="ghost" size="icon" class="shrink-0">
-                  <PaperclipIcon class="size-5" />
-                </Button>
+              <Tooltip.Trigger
+                class={buttonVariants({ variant: "ghost", size: "icon", class: "shrink-0" })}
+              >
+                <PaperclipIcon class="size-5" />
               </Tooltip.Trigger>
               <Tooltip.Content>
                 <p>Attach file</p>
