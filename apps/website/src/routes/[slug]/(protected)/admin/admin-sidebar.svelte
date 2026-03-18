@@ -7,7 +7,9 @@
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
+  import LinkIcon from "@lucide/svelte/icons/link";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
+  import MegaphoneIcon from "@lucide/svelte/icons/megaphone";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
@@ -70,6 +72,16 @@
       title: "Orders",
       href: `/${shop.slug}/admin/orders`,
       icon: ClipboardListIcon,
+    },
+    {
+      title: "Marketing",
+      href: `/${shop.slug}/admin/marketing`,
+      icon: MegaphoneIcon,
+    },
+    {
+      title: "Integrations",
+      href: `/${shop.slug}/admin/integrations`,
+      icon: LinkIcon,
     },
     {
       title: "Notifications",

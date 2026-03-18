@@ -11,3 +11,5 @@ export const currency: Record<CountryCode, { prefix?: string; suffix?: string }>
 export const config = {
   lowStockThreshold: 10,
 };
+
+export * from "./platform";
