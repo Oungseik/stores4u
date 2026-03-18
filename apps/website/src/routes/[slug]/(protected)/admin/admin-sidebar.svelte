@@ -1,6 +1,7 @@
 <script lang="ts">
   import BellIcon from "@lucide/svelte/icons/bell";
   import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
+  import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
   import type DashboardIcon from "@lucide/svelte/icons/layout-dashboard";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
@@ -61,6 +62,11 @@
       title: "Products",
       href: `/${shop.slug}/admin/products`,
       icon: BoxIcon,
+    },
+    {
+      title: "Orders",
+      href: `/${shop.slug}/admin/orders`,
+      icon: ClipboardListIcon,
     },
     {
       title: "Notifications",
