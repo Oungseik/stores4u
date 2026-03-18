@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { IconProps } from "@lucide/svelte";
   import BellIcon from "@lucide/svelte/icons/bell";
+  import BotIcon from "@lucide/svelte/icons/bot";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
@@ -74,14 +75,14 @@
       icon: ClipboardListIcon,
     },
     {
-      title: "Marketing",
-      href: `/${shop.slug}/admin/marketing`,
-      icon: MegaphoneIcon,
-    },
-    {
       title: "Integrations",
       href: `/${shop.slug}/admin/integrations`,
       icon: LinkIcon,
+    },
+    {
+      title: "AI Agents",
+      href: `/${shop.slug}/admin/agents`,
+      icon: BotIcon,
     },
     {
       title: "Notifications",
