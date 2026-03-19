@@ -446,31 +446,6 @@
               </div>
             </div>
 
-            <!--
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Shipping Details
-          </h4>
-          <div class="space-y-2 rounded-md border p-3 text-sm">
-            <div class="flex justify-between">
-              <span class="text-muted-foreground">Shipping Method</span>
-              <span class="font-medium">{selectedOrder.shipping.method}</span>
-            </div>
-            {#if selectedOrder.shipping.tracking}
-              <div class="flex justify-between">
-                <span class="text-muted-foreground">Tracking Number</span>
-                <span class="font-mono text-xs">{selectedOrder.shipping.tracking}</span>
-              </div>
-            {:else}
-              <div class="flex justify-between">
-                <span class="text-muted-foreground">Tracking Number</span>
-                <span class="text-muted-foreground italic">Not available yet</span>
-              </div>
-            {/if}
-          </div>
-        </div>
-        -->
-
             {#if order.notes}
               <div>
                 <h4
@@ -489,12 +464,6 @@
 
       <Dialog.Footer class="flex-shrink-0 gap-2">
         <Button variant="outline" onclick={() => (isDetailsOpen = false)}>Close</Button>
-        <!--
-        <Button class="gap-2">
-          <TruckIcon class="size-4" />
-          Update Status
-        </Button>
-        -->
       </Dialog.Footer>
     {/if}
   </Dialog.Content>
