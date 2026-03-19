@@ -16,6 +16,7 @@
   import { Input } from "@repo/ui/input";
   import * as Popover from "@repo/ui/popover";
   import { RangeCalendar } from "@repo/ui/range-calendar";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
@@ -352,14 +353,14 @@
 </div>
 
 <Dialog.Root bind:open={isDetailsOpen}>
-  <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
+  <Dialog.Content class="flex max-h-[90vh] max-w-2xl flex-col">
     {#if orderDetails.isLoading}
       <div class="flex items-center justify-center py-16">
         <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
     {:else if orderDetails.data}
       {@const order = orderDetails.data}
-      <Dialog.Header>
+      <Dialog.Header class="flex-shrink-0">
         <div class="flex items-center gap-3">
           <Dialog.Title class="text-xl">Order #{formatOrderId(order.id)}</Dialog.Title>
         </div>
@@ -368,82 +369,84 @@
         </Dialog.Description>
       </Dialog.Header>
 
-      <div class="grid gap-6 py-4">
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Customer
-          </h4>
-          <div class="flex items-center gap-3 rounded-md border p-3">
-            <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-              <span class="text-primary text-sm font-semibold">
-                {order.customerName?.charAt(0).toUpperCase() ?? "I"}
-              </span>
-            </div>
+      <div class="h-[66vh] overflow-hidden">
+        <ScrollArea class="h-full">
+          <div class="grid gap-6 py-4">
             <div>
-              <p class="font-medium">{order.customerName ?? "In-store Purchase"}</p>
-              <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Order Items
-          </h4>
-          <div class="rounded-md border">
-            {#each order.items as item, i}
-              <div
-                class="flex items-center justify-between p-3 {i !== order.items.length - 1
-                  ? 'border-b'
-                  : ''}"
-              >
-                <div class="flex items-center gap-3">
-                  <div class="bg-muted flex size-10 items-center justify-center rounded">
-                    <PackageIcon class="text-muted-foreground size-5" />
-                  </div>
-                  <div>
-                    <p>{item.product?.name}</p>
-                    <p class="text-muted-foreground text-sm">{item.product?.sku ?? "—"}</p>
-                  </div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Customer
+              </h4>
+              <div class="flex items-center gap-3 rounded-md border p-3">
+                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                  <span class="text-primary text-sm font-semibold">
+                    {order.customerName?.charAt(0).toUpperCase() ?? "I"}
+                  </span>
                 </div>
-                <div class="text-right">
-                  <p class="text-muted-foreground text-sm">x {item.qty}</p>
-                  <Pricing cents={item.lineTotalCents} country={shop.country} />
+                <div>
+                  <p class="font-medium">{order.customerName ?? "In-store Purchase"}</p>
+                  <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
                 </div>
               </div>
-            {/each}
-          </div>
-        </div>
+            </div>
 
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Order Summary
-          </h4>
-          <div class="space-y-2 rounded-md border p-3">
-            <div class="flex justify-between">
-              <span class="text-muted-foreground">Subtotal</span>
-              <Pricing cents={order.subtotalCents} country={shop.country} />
+            <div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Order Items
+              </h4>
+              <div class="rounded-md border">
+                {#each order.items as item, i}
+                  <div
+                    class="flex items-center justify-between p-3 {i !== order.items.length - 1
+                      ? 'border-b'
+                      : ''}"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="bg-muted flex size-10 items-center justify-center rounded">
+                        <PackageIcon class="text-muted-foreground size-5" />
+                      </div>
+                      <div>
+                        <p>{item.product?.name}</p>
+                        <p class="text-muted-foreground text-sm">{item.product?.sku ?? "—"}</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-muted-foreground text-sm">x {item.qty}</p>
+                      <Pricing cents={item.lineTotalCents} country={shop.country} />
+                    </div>
+                  </div>
+                {/each}
+              </div>
             </div>
-            <div class="flex justify-between">
-              <span class="text-muted-foreground">Discount</span>
-              <Pricing cents={order.discountCents} country={shop.country} />
-            </div>
-            <div class="flex justify-between">
-              <span class="text-muted-foreground">Shipping (Local pickup)</span>
-              <Pricing cents={0} country={shop.country} />
-            </div>
-            <div class="flex justify-between border-t pt-2 font-semibold">
-              <span>Total</span>
-              <Pricing cents={order.totalCents} country={shop.country} />
-            </div>
-            <div class="flex justify-between text-xs">
-              <span class="text-muted-foreground">Payment Status</span>
-              <span class="{getPaymentStatusStyles('paid')} capitalize">paid</span>
-            </div>
-          </div>
-        </div>
 
-        <!--
+            <div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Order Summary
+              </h4>
+              <div class="space-y-2 rounded-md border p-3">
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Subtotal</span>
+                  <Pricing cents={order.subtotalCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Discount</span>
+                  <Pricing cents={order.discountCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Shipping (Local pickup)</span>
+                  <Pricing cents={0} country={shop.country} />
+                </div>
+                <div class="flex justify-between border-t pt-2 font-semibold">
+                  <span>Total</span>
+                  <Pricing cents={order.totalCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between text-xs">
+                  <span class="text-muted-foreground">Payment Status</span>
+                  <span class="{getPaymentStatusStyles('paid')} capitalize">paid</span>
+                </div>
+              </div>
+            </div>
+
+            <!--
         <div>
           <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
             Shipping Details
@@ -468,19 +471,23 @@
         </div>
         -->
 
-        {#if order.notes}
-          <div>
-            <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-              Customer Notes
-            </h4>
-            <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-              {order.notes}
-            </div>
+            {#if order.notes}
+              <div>
+                <h4
+                  class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase"
+                >
+                  Customer Notes
+                </h4>
+                <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+                  {order.notes}
+                </div>
+              </div>
+            {/if}
           </div>
-        {/if}
+        </ScrollArea>
       </div>
 
-      <Dialog.Footer class="gap-2">
+      <Dialog.Footer class="flex-shrink-0 gap-2">
         <Button variant="outline" onclick={() => (isDetailsOpen = false)}>Close</Button>
         <!--
         <Button class="gap-2">

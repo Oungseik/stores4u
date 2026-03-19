@@ -10,7 +10,6 @@
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LinkIcon from "@lucide/svelte/icons/link";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
-  import MegaphoneIcon from "@lucide/svelte/icons/megaphone";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
@@ -19,6 +18,7 @@
   import UserIcon from "@lucide/svelte/icons/user";
   import * as Avatar from "@repo/ui/avatar";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
   import type { Component, ComponentProps } from "svelte";
@@ -134,140 +134,142 @@
     </Sidebar.Menu>
   </Sidebar.Header>
 
-  <Sidebar.Content>
-    <!-- Main Navigation -->
-    <Sidebar.Group>
-      <Sidebar.GroupLabel>Main</Sidebar.GroupLabel>
-      <Sidebar.GroupContent>
-        <Sidebar.Menu>
-          {#each mainNavItems as item (item.title)}
+  <Sidebar.Content class="overflow-hidden">
+    <ScrollArea class="h-full">
+      <!-- Main Navigation -->
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>Main</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            {#each mainNavItems as item (item.title)}
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
+                  {#snippet child({ props })}
+                    <a
+                      href={item.href}
+                      {...props}
+                      onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  {/snippet}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            {/each}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+
+      <!-- Purchases Group -->
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>Purchases</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <!-- Overview -->
             <Sidebar.MenuItem>
-              <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
+              <Sidebar.MenuButton
+                tooltipContent="Overview"
+                isActive={isActive(`/${shop.slug}/admin/purchases`)}
+              >
                 {#snippet child({ props })}
                   <a
-                    href={item.href}
+                    href={`/${shop.slug}/admin/purchases`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
-                    <item.icon />
-                    <span>{item.title}</span>
+                    <LayoutDashboard class="size-4" />
+                    <span>Overview</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
-          {/each}
-        </Sidebar.Menu>
-      </Sidebar.GroupContent>
-    </Sidebar.Group>
 
-    <!-- Purchases Group -->
-    <Sidebar.Group>
-      <Sidebar.GroupLabel>Purchases</Sidebar.GroupLabel>
-      <Sidebar.GroupContent>
-        <Sidebar.Menu>
-          <!-- Overview -->
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton
-              tooltipContent="Overview"
-              isActive={isActive(`/${shop.slug}/admin/purchases`)}
-            >
-              {#snippet child({ props })}
-                <a
-                  href={`/${shop.slug}/admin/purchases`}
-                  {...props}
-                  onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                >
-                  <LayoutDashboard class="size-4" />
-                  <span>Overview</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-
-          <!-- Upload Invoice -->
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton
-              tooltipContent="Upload Invoice"
-              isActive={isActive(`/${shop.slug}/admin/purchases/upload`)}
-            >
-              {#snippet child({ props })}
-                <a
-                  href={`/${shop.slug}/admin/purchases/upload`}
-                  {...props}
-                  onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                >
-                  <UploadIcon class="size-4" />
-                  <span>Upload Invoice</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-
-          <!-- Invoices -->
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton
-              tooltipContent="Invoices"
-              isActive={isActive(`/${shop.slug}/admin/purchases/invoices`)}
-            >
-              {#snippet child({ props })}
-                <a
-                  href={`/${shop.slug}/admin/purchases/invoices`}
-                  {...props}
-                  onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                >
-                  <FileTextIcon class="size-4" />
-                  <span>Invoices</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-
-          <!-- Suppliers -->
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton
-              tooltipContent="Suppliers"
-              isActive={isActive(`/${shop.slug}/admin/purchases/suppliers`)}
-            >
-              {#snippet child({ props })}
-                <a
-                  href={`/${shop.slug}/admin/purchases/suppliers`}
-                  {...props}
-                  onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                >
-                  <Building2Icon class="size-4" />
-                  <span>Suppliers</span>
-                </a>
-              {/snippet}
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.GroupContent>
-    </Sidebar.Group>
-
-    <!-- Secondary Navigation -->
-    <Sidebar.Group class="mt-auto">
-      <Sidebar.GroupLabel>Support</Sidebar.GroupLabel>
-      <Sidebar.GroupContent>
-        <Sidebar.Menu>
-          {#each secondaryNavItems as item (item.title)}
+            <!-- Upload Invoice -->
             <Sidebar.MenuItem>
-              <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
+              <Sidebar.MenuButton
+                tooltipContent="Upload Invoice"
+                isActive={isActive(`/${shop.slug}/admin/purchases/upload`)}
+              >
                 {#snippet child({ props })}
                   <a
-                    href={item.href}
+                    href={`/${shop.slug}/admin/purchases/upload`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
-                    <item.icon />
-                    <span>{item.title}</span>
+                    <UploadIcon class="size-4" />
+                    <span>Upload Invoice</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
-          {/each}
-        </Sidebar.Menu>
-      </Sidebar.GroupContent>
-    </Sidebar.Group>
+
+            <!-- Invoices -->
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                tooltipContent="Invoices"
+                isActive={isActive(`/${shop.slug}/admin/purchases/invoices`)}
+              >
+                {#snippet child({ props })}
+                  <a
+                    href={`/${shop.slug}/admin/purchases/invoices`}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
+                    <FileTextIcon class="size-4" />
+                    <span>Invoices</span>
+                  </a>
+                {/snippet}
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+
+            <!-- Suppliers -->
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                tooltipContent="Suppliers"
+                isActive={isActive(`/${shop.slug}/admin/purchases/suppliers`)}
+              >
+                {#snippet child({ props })}
+                  <a
+                    href={`/${shop.slug}/admin/purchases/suppliers`}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
+                    <Building2Icon class="size-4" />
+                    <span>Suppliers</span>
+                  </a>
+                {/snippet}
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+
+      <!-- Secondary Navigation -->
+      <Sidebar.Group class="mt-auto">
+        <Sidebar.GroupLabel>Support</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            {#each secondaryNavItems as item (item.title)}
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
+                  {#snippet child({ props })}
+                    <a
+                      href={item.href}
+                      {...props}
+                      onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  {/snippet}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            {/each}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    </ScrollArea>
   </Sidebar.Content>
 
   <Sidebar.Footer>
