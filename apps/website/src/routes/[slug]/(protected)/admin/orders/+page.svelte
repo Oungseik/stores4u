@@ -20,6 +20,7 @@
   import { slide } from "svelte/transition";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
@@ -266,71 +267,44 @@
 
   <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="from-primary/20 to-primary/5 absolute top-0 right-0 h-full w-1 bg-gradient-to-b"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Total Orders</Card.Title>
-        <div class="bg-primary/10 rounded-md p-2">
-          <ShoppingBagIcon class="text-primary size-4" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().total}</div>
-        <p class="text-muted-foreground text-xs">All time orders</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-amber-500/20 to-amber-500/5"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Pending</Card.Title>
-        <div class="rounded-md bg-amber-500/10 p-2">
-          <ReceiptIcon class="size-4 text-amber-600" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().pending}</div>
-        <p class="text-muted-foreground text-xs">Awaiting action</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-blue-500/20 to-blue-500/5"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Processing</Card.Title>
-        <div class="rounded-md bg-blue-500/10 p-2">
-          <PackageIcon class="size-4 text-blue-600" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().processing}</div>
-        <p class="text-muted-foreground text-xs">In progress</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-emerald-500/20 to-emerald-500/5"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Revenue</Card.Title>
-        <div class="rounded-md bg-emerald-500/10 p-2">
-          <CreditCardIcon class="size-4 text-emerald-600" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">
-          <Pricing cents={stats().revenue} country={shop.country} priceClass="text-2xl font-bold" />
-        </div>
-        <p class="text-muted-foreground text-xs">Total revenue</p>
-      </Card.Content>
-    </Card.Root>
+    <StatsCard
+      title="Total Orders"
+      value={stats().total}
+      description="All time orders"
+      icon={ShoppingBagIcon}
+      iconBgClass="bg-primary/10"
+      iconTextClass="text-primary"
+      borderClass="from-primary/20 to-primary/5"
+    />
+    <StatsCard
+      title="Pending"
+      value={stats().pending}
+      description="Awaiting action"
+      icon={ReceiptIcon}
+      iconBgClass="bg-amber-500/10"
+      iconTextClass="text-amber-600"
+      borderClass="from-amber-500/20 to-amber-500/5"
+    />
+    <StatsCard
+      title="Processing"
+      value={stats().processing}
+      description="In progress"
+      icon={PackageIcon}
+      iconBgClass="bg-blue-500/10"
+      iconTextClass="text-blue-600"
+      borderClass="from-blue-500/20 to-blue-500/5"
+    />
+    <StatsCard
+      title="Revenue"
+      value=""
+      description="Total revenue"
+      icon={CreditCardIcon}
+      iconBgClass="bg-emerald-500/10"
+      iconTextClass="text-emerald-600"
+      borderClass="from-emerald-500/20 to-emerald-500/5"
+      price={stats().revenue}
+      country={shop.country}
+    />
   </div>
 
   <!-- Filters and Search -->

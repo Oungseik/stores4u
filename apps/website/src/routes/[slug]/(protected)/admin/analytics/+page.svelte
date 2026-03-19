@@ -10,6 +10,7 @@
   import { createQuery } from "@tanstack/svelte-query";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
 
@@ -96,60 +97,20 @@
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       {#each kpiCards() as card (card.title)}
-        <Card.Root
-          class="@container/card {card.variant === 'warning'
-            ? 'border-amber-500/20'
-            : card.variant === 'danger'
-              ? 'border-red-500/20'
-              : ''}"
-        >
-          <Card.Header class="pb-2">
-            <div class="flex items-center justify-between">
-              <Card.Description>{card.title}</Card.Description>
-              <div
-                class="flex size-8 items-center justify-center rounded-md {card.variant ===
-                'warning'
-                  ? 'bg-amber-100 text-amber-700'
-                  : card.variant === 'danger'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-muted'}"
-              >
-                <card.icon class="size-4" />
-              </div>
-            </div>
-            <Card.Title class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              {#if card.title === "Today's Sales"}
-                <Pricing cents={stats.todaySales} country={shop.country} />
-              {:else}
-                {card.value}
-              {/if}
-            </Card.Title>
-          </Card.Header>
-          <Card.Footer class="flex-col items-start gap-1.5 pt-0 text-sm">
-            {#if card.trend}
-              <div class="flex items-center gap-1.5 font-medium">
-                {#if card.trend.positive}
-                  <ArrowUpIcon class="size-3.5 text-emerald-600" />
-                  <span class="text-emerald-600">+{card.trend.value}%</span>
-                {:else}
-                  <ArrowDownIcon class="size-3.5 text-red-600" />
-                  <span class="text-red-600">-{card.trend.value}%</span>
-                {/if}
-                <span class="text-muted-foreground">{card.trend.label}</span>
-              </div>
-            {:else if card.variant === "warning"}
-              <Badge variant="outline" class="border-amber-500/30 text-amber-700">
-                Attention needed
-              </Badge>
-            {:else if card.variant === "danger"}
-              <Badge variant="outline" class="border-red-500/30 text-red-700">
-                Restock required
-              </Badge>
-            {:else}
-              <span class="text-muted-foreground">{card.description}</span>
-            {/if}
-          </Card.Footer>
-        </Card.Root>
+        <StatsCard
+          title={card.title}
+          value={card.value}
+          description={card.description}
+          icon={card.icon}
+          price={card.title === "Today's Sales" ? stats.todaySales : undefined}
+          country={shop.country}
+          priceClass="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl"
+          borderClass={card.variant === "warning"
+            ? "from-amber-500/20 to-amber-500/5"
+            : card.variant === "danger"
+              ? "from-red-500/20 to-red-500/5"
+              : "from-primary/20 to-primary/5"}
+        ></StatsCard>
       {/each}
     </div>
 

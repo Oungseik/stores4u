@@ -21,6 +21,7 @@
   import { Textarea } from "@repo/ui/textarea";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
@@ -216,7 +217,14 @@
       { label: "Purchases", href: `/${shop.slug}/admin/purchases` },
       { label: "Suppliers" },
     ]}
-  />
+  >
+    {#snippet actions()}
+      <Button onclick={() => (isAddOpen = true)}>
+        <PlusIcon class="size-4" />
+        Add Supplier
+      </Button>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <!-- Page Title -->
   <div>
@@ -225,60 +233,49 @@
         <h1 class="text-2xl font-semibold tracking-tight">Suppliers</h1>
         <p class="text-muted-foreground text-sm">Manage supplier information and relationships</p>
       </div>
-      <Button onclick={() => (isAddOpen = true)}>
-        <PlusIcon class="size-4" />
-        Add Supplier
-      </Button>
     </div>
   </div>
 
   <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Total Suppliers</Card.Title>
-        <Building2Icon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().total}</div>
-        <p class="text-muted-foreground text-xs">Active suppliers</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Total Purchases</Card.Title>
-        <DollarSignIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">
-          <Pricing cents={stats().totalPurchases} country={shop.country} />
-        </div>
-        <p class="text-muted-foreground text-xs">All time</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Total Invoices</Card.Title>
-        <ReceiptIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().totalInvoices}</div>
-        <p class="text-muted-foreground text-xs">From all suppliers</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Avg Invoices</Card.Title>
-        <FileTextIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().avgInvoices}</div>
-        <p class="text-muted-foreground text-xs">Per supplier</p>
-      </Card.Content>
-    </Card.Root>
+    <StatsCard
+      title="Total Suppliers"
+      value={stats().total}
+      description="Active suppliers"
+      icon={Building2Icon}
+      iconBgClass="bg-primary/10"
+      iconTextClass="text-primary"
+      borderClass="from-primary/20 to-primary/5"
+    />
+    <StatsCard
+      title="Total Purchases"
+      value=""
+      description="All time"
+      icon={DollarSignIcon}
+      iconBgClass="bg-emerald-500/10"
+      iconTextClass="text-emerald-600"
+      borderClass="from-emerald-500/20 to-emerald-500/5"
+      price={stats().totalPurchases}
+      country={shop.country}
+    />
+    <StatsCard
+      title="Total Invoices"
+      value={stats().totalInvoices}
+      description="From all suppliers"
+      icon={ReceiptIcon}
+      iconBgClass="bg-blue-500/10"
+      iconTextClass="text-blue-600"
+      borderClass="from-blue-500/20 to-blue-500/5"
+    />
+    <StatsCard
+      title="Avg Invoices"
+      value={stats().avgInvoices}
+      description="Per supplier"
+      icon={FileTextIcon}
+      iconBgClass="bg-amber-500/10"
+      iconTextClass="text-amber-600"
+      borderClass="from-amber-500/20 to-amber-500/5"
+    />
   </div>
 
   <!-- Search -->

@@ -21,6 +21,7 @@
   import { slide } from "svelte/transition";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
@@ -240,51 +241,44 @@
 
   <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Total Invoices</Card.Title>
-        <ReceiptIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().total}</div>
-        <p class="text-muted-foreground text-xs">All time</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Pending Review</Card.Title>
-        <ClockIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().pending}</div>
-        <p class="text-muted-foreground text-xs">Awaiting action</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Validated</Card.Title>
-        <ReceiptIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats().validated}</div>
-        <p class="text-muted-foreground text-xs">Approved invoices</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Total Value</Card.Title>
-        <ReceiptIcon class="text-muted-foreground size-4" />
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">
-          <Pricing cents={stats().totalValue} country={shop.country} />
-        </div>
-        <p class="text-muted-foreground text-xs">All invoices</p>
-      </Card.Content>
-    </Card.Root>
+    <StatsCard
+      title="Total Invoices"
+      value={stats().total}
+      description="All time"
+      icon={ReceiptIcon}
+      iconBgClass="bg-primary/10"
+      iconTextClass="text-primary"
+      borderClass="from-primary/20 to-primary/5"
+    />
+    <StatsCard
+      title="Pending Review"
+      value={stats().pending}
+      description="Awaiting action"
+      icon={ClockIcon}
+      iconBgClass="bg-amber-500/10"
+      iconTextClass="text-amber-600"
+      borderClass="from-amber-500/20 to-amber-500/5"
+    />
+    <StatsCard
+      title="Validated"
+      value={stats().validated}
+      description="Approved invoices"
+      icon={ReceiptIcon}
+      iconBgClass="bg-emerald-500/10"
+      iconTextClass="text-emerald-600"
+      borderClass="from-emerald-500/20 to-emerald-500/5"
+    />
+    <StatsCard
+      title="Total Value"
+      value=""
+      description="All invoices"
+      icon={ReceiptIcon}
+      iconBgClass="bg-blue-500/10"
+      iconTextClass="text-blue-600"
+      borderClass="from-blue-500/20 to-blue-500/5"
+      price={stats().totalValue}
+      country={shop.country}
+    />
   </div>
 
   <!-- Filters -->

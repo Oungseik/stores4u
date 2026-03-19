@@ -14,6 +14,7 @@
   import * as Card from "@repo/ui/card";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
@@ -130,73 +131,46 @@
 
   <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="from-primary/20 to-primary/5 absolute top-0 right-0 h-full w-1 bg-gradient-to-b"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
-        <div class="bg-primary/10 rounded-md p-2">
-          <PackageIcon class="text-primary size-4" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">
-          <Pricing cents={stats.totalInventoryValue} country={shop.country} />
-        </div>
-        <p class="text-muted-foreground text-xs">Total stock value</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-amber-500/20 to-amber-500/5"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Pending Invoices</Card.Title>
-        <div class="rounded-md bg-amber-500/10 p-2">
-          <ClockIcon class="size-4 text-amber-600" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats.pendingInvoices}</div>
-        <p class="text-muted-foreground text-xs">Awaiting review</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-red-500/20 to-red-500/5"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Low Stock</Card.Title>
-        <div class="rounded-md bg-red-500/10 p-2">
-          <AlertTriangleIcon class="size-4 text-red-600" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">{stats.lowStockCount}</div>
-        <p class="text-muted-foreground text-xs">Items below threshold</p>
-      </Card.Content>
-    </Card.Root>
-
-    <Card.Root class="relative overflow-hidden">
-      <div
-        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-emerald-500/20 to-emerald-500/5"
-      ></div>
-      <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Card.Title class="text-sm font-medium">Monthly Purchases</Card.Title>
-        <div class="rounded-md bg-emerald-500/10 p-2">
-          <TrendingUpIcon class="size-4 text-emerald-600" />
-        </div>
-      </Card.Header>
-      <Card.Content>
-        <div class="text-2xl font-bold">
-          <Pricing cents={stats.monthlyPurchaseVolume} country={shop.country} />
-        </div>
-        <p class="text-muted-foreground text-xs">This month</p>
-      </Card.Content>
-    </Card.Root>
+    <StatsCard
+      title="Inventory Value"
+      value=""
+      description="Total stock value"
+      icon={PackageIcon}
+      iconBgClass="bg-primary/10"
+      iconTextClass="text-primary"
+      borderClass="from-primary/20 to-primary/5"
+      price={stats.totalInventoryValue}
+      country={shop.country}
+    />
+    <StatsCard
+      title="Pending Invoices"
+      value={stats.pendingInvoices}
+      description="Awaiting review"
+      icon={ClockIcon}
+      iconBgClass="bg-amber-500/10"
+      iconTextClass="text-amber-600"
+      borderClass="from-amber-500/20 to-amber-500/5"
+    />
+    <StatsCard
+      title="Low Stock"
+      value={stats.lowStockCount}
+      description="Items below threshold"
+      icon={AlertTriangleIcon}
+      iconBgClass="bg-red-500/10"
+      iconTextClass="text-red-600"
+      borderClass="from-red-500/20 to-red-500/5"
+    />
+    <StatsCard
+      title="Monthly Purchases"
+      value=""
+      description="This month"
+      icon={TrendingUpIcon}
+      iconBgClass="bg-emerald-500/10"
+      iconTextClass="text-emerald-600"
+      borderClass="from-emerald-500/20 to-emerald-500/5"
+      price={stats.monthlyPurchaseVolume}
+      country={shop.country}
+    />
   </div>
 
   <!-- Two Column Layout -->
