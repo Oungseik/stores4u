@@ -6,6 +6,8 @@ import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadImageHandler } from "./handlers/images/upload_image";
+import { getOrderHandler } from "./handlers/orders/get_order";
+import { listOrdersHandler } from "./handlers/orders/list_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
@@ -36,6 +38,10 @@ export const router = os.router({
     importCsv: importProductsCsvHandler,
     list: listProductsHandler,
     update: updateProductHandler,
+  },
+  orders: {
+    get: getOrderHandler,
+    list: listOrdersHandler,
   },
   shops: {
     create: createShopHandler,
