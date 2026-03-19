@@ -12,3 +12,9 @@ export const productsFilterSchema = createSearchParamsSchema({
     default: [],
   },
 });
+
+export const ordersFilterSchema = createSearchParamsSchema({
+  search: { type: "string", default: "" },
+  dateFrom: { type: "string", default: "" },
+  dateTo: { type: "string", default: "" },
+});

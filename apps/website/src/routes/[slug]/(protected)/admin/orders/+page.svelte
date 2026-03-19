@@ -1,171 +1,99 @@
 <script lang="ts">
+  import { CalendarDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  import ChevronUpIcon from "@lucide/svelte/icons/chevron-up";
   import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import DownloadIcon from "@lucide/svelte/icons/download";
-  import FilterIcon from "@lucide/svelte/icons/filter";
-  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
-  import TruckIcon from "@lucide/svelte/icons/truck";
+  import XIcon from "@lucide/svelte/icons/x";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
-  import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
-  import { cubicOut } from "svelte/easing";
-  import { slide } from "svelte/transition";
+  import * as Popover from "@repo/ui/popover";
+  import { RangeCalendar } from "@repo/ui/range-calendar";
+  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import { Debounced } from "runed";
+  import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { orpc } from "$lib/orpc_client";
+  import { ordersFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
-  const { data: shop }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
-  // Mock orders data
-  const mockOrders = [
-    {
-      id: "ORD-2025-0001",
-      customer: { name: "Sarah Mitchell", email: "sarah.m@example.com", avatar: null },
-      date: "2025-01-15T09:30:00Z",
-      status: "completed",
-      paymentStatus: "paid",
-      total: 15499,
-      items: [
-        { name: "Artisan Coffee Blend", sku: "COF-001", quantity: 2, price: 2499 },
-        { name: "Ceramic Mug Set", sku: "MUG-002", quantity: 1, price: 10501 },
-        { name: "USB Cable", sku: "USB-003", quantity: 1, price: 10501 },
-      ],
-      shipping: { method: "Standard", cost: 799, tracking: "TRK123456789" },
-      notes: "Leave at front door",
-    },
-    {
-      id: "ORD-2025-0002",
-      customer: { name: "James Rodriguez", email: "j.rodriguez@example.com", avatar: null },
-      date: "2025-01-15T14:22:00Z",
-      status: "processing",
-      paymentStatus: "paid",
-      total: 8999,
-      items: [{ name: "Organic Tea Collection", sku: "TEA-003", quantity: 1, price: 8999 }],
-      shipping: { method: "Express", cost: 1299, tracking: null },
-      notes: "",
-    },
-    {
-      id: "ORD-2025-0003",
-      customer: { name: "Emma Thompson", email: "emma.t@example.com", avatar: null },
-      date: "2025-01-14T16:45:00Z",
-      status: "shipped",
-      paymentStatus: "paid",
-      total: 23497,
-      items: [
-        { name: "French Press", sku: "BREW-001", quantity: 1, price: 12999 },
-        { name: "Coffee Filters (100pk)", sku: "FLT-001", quantity: 2, price: 899 },
-      ],
-      shipping: { method: "Standard", cost: 799, tracking: "TRK987654321" },
-      notes: "Gift wrap requested",
-    },
-    {
-      id: "ORD-2025-0004",
-      customer: { name: "Michael Chen", email: "m.chen@example.com", avatar: null },
-      date: "2025-01-14T11:20:00Z",
-      status: "pending",
-      paymentStatus: "pending",
-      total: 5498,
-      items: [{ name: "Pour Over Kettle", sku: "KTL-001", quantity: 1, price: 5498 }],
-      shipping: { method: "Standard", cost: 799, tracking: null },
-      notes: "",
-    },
-    {
-      id: "ORD-2025-0005",
-      customer: { name: "Lisa Anderson", email: "lisa.a@example.com", avatar: null },
-      date: "2025-01-13T08:15:00Z",
-      status: "cancelled",
-      paymentStatus: "refunded",
-      total: 3299,
-      items: [{ name: "Espresso Cups (Set of 4)", sku: "CUP-002", quantity: 1, price: 3299 }],
-      shipping: { method: "Standard", cost: 799, tracking: null },
-      notes: "Customer requested cancellation",
-    },
-    {
-      id: "ORD-2025-0006",
-      customer: { name: "David Williams", email: "d.williams@example.com", avatar: null },
-      date: "2025-01-13T19:30:00Z",
-      status: "completed",
-      paymentStatus: "paid",
-      total: 18997,
-      items: [{ name: "Coffee Grinder", sku: "GRD-001", quantity: 1, price: 18997 }],
-      shipping: { method: "Express", cost: 1299, tracking: "TRK456789123" },
-      notes: "",
-    },
-    {
-      id: "ORD-2025-0007",
-      customer: { name: "Jennifer Lee", email: "j.lee@example.com", avatar: null },
-      date: "2025-01-12T13:45:00Z",
-      status: "processing",
-      paymentStatus: "paid",
-      total: 12499,
-      items: [{ name: "Cold Brew Maker", sku: "BRW-002", quantity: 1, price: 12499 }],
-      shipping: { method: "Standard", cost: 799, tracking: null },
-      notes: "",
-    },
-    {
-      id: "ORD-2025-0008",
-      customer: { name: "Robert Taylor", email: "r.taylor@example.com", avatar: null },
-      date: "2025-01-12T10:00:00Z",
-      status: "shipped",
-      paymentStatus: "paid",
-      total: 4596,
-      items: [
-        { name: "Coffee Scoop", sku: "SCC-001", quantity: 2, price: 1499 },
-        { name: "Storage Canister", sku: "CNR-001", quantity: 1, price: 2998 },
-      ],
-      shipping: { method: "Standard", cost: 799, tracking: "TRK789123456" },
-      notes: "",
-    },
-  ];
+  type ApiOrder = {
+    id: string;
+    customerName: string | null;
+    customerPhone: string | null;
+    subtotalCents: number;
+    discountCents: number;
+    totalCents: number;
+    itemsCount: number;
+    notes: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 
-  // State
-  let searchQuery = $state("");
-  let selectedStatus = $state<string | null>(null);
-  let expandedOrder = $state<string | null>(null);
-  let selectedOrder = $state<(typeof mockOrders)[0] | null>(null);
+  const searchParams = useSearchParams(ordersFilterSchema);
+  const debouncedSearch = new Debounced(() => searchParams.search, 1000);
+  const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
+  const debouncedDateTo = new Debounced(() => searchParams.dateTo, 300);
+
+  const orders = createInfiniteQuery(() =>
+    orpc.orders.list.infiniteOptions({
+      initialPageParam: undefined as string | undefined,
+      input: (cursor) => ({
+        cursor,
+        slug: params.slug,
+        search: debouncedSearch.current || undefined,
+        dateFrom: debouncedDateFrom.current || undefined,
+        dateTo: debouncedDateTo.current || undefined,
+      }),
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!params.slug,
+    })
+  );
+
+  const allOrders = $derived(orders.data?.pages.flatMap((page) => page.items) ?? []);
+
+  let selectedOrderId = $state<string | null>(null);
   let isDetailsOpen = $state(false);
 
-  // Filter orders
-  const filteredOrders = $derived(() => {
-    return mockOrders.filter((order) => {
-      const matchesSearch =
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
+  const orderDetails = createQuery(() =>
+    orpc.orders.get.queryOptions({
+      input: { slug: params.slug, orderId: selectedOrderId! },
+      enabled: !!selectedOrderId,
+    })
+  );
 
-      const matchesStatus = selectedStatus ? order.status === selectedStatus : true;
-
-      return matchesSearch && matchesStatus;
-    });
-  });
-
-  // Stats
   const stats = $derived(() => {
-    const total = mockOrders.length;
-    const pending = mockOrders.filter((o) => o.status === "pending").length;
-    const processing = mockOrders.filter((o) => o.status === "processing").length;
-    const completed = mockOrders.filter((o) => o.status === "completed").length;
-    const revenue = mockOrders
-      .filter((o) => o.paymentStatus === "paid")
-      .reduce((sum, o) => sum + o.total, 0);
+    const total = allOrders.length;
+    const revenue = allOrders.reduce((sum, o) => sum + o.totalCents, 0);
 
-    return { total, pending, processing, completed, revenue };
+    return { total, revenue };
   });
 
-  // Format date
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
+  const hasFilters = $derived(
+    searchParams.search.length > 0 ||
+      searchParams.dateFrom.length > 0 ||
+      searchParams.dateTo.length > 0
+  );
+
+  function resetFilters() {
+    searchParams.update({ search: "", dateFrom: "", dateTo: "" });
+    dateRange = { start: null, end: null };
+  }
+
+  function formatDate(date: Date) {
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
       day: "numeric",
@@ -173,24 +101,6 @@
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
-  }
-
-  // Status styles
-  function getStatusStyles(status: string) {
-    switch (status) {
-      case "completed":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "processing":
-        return "bg-blue-50 text-blue-700 border-blue-200";
-      case "shipped":
-        return "bg-violet-50 text-violet-700 border-violet-200";
-      case "pending":
-        return "bg-amber-50 text-amber-700 border-amber-200";
-      case "cancelled":
-        return "bg-red-50 text-red-700 border-red-200";
-      default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
-    }
   }
 
   function getPaymentStatusStyles(status: string) {
@@ -206,43 +116,51 @@
     }
   }
 
-  function toggleOrderDetails(orderId: string) {
-    expandedOrder = expandedOrder === orderId ? null : orderId;
+  function formatOrderId(id: string) {
+    return id.slice(-8).toUpperCase();
   }
 
-  function openOrderDetails(order: (typeof mockOrders)[0]) {
-    selectedOrder = order;
+  function openOrderDetails(order: ApiOrder) {
+    selectedOrderId = order.id;
     isDetailsOpen = true;
   }
 
-  const statusFilters = [
-    { value: null, label: "All Orders", count: mockOrders.length },
-    {
-      value: "pending",
-      label: "Pending",
-      count: mockOrders.filter((o) => o.status === "pending").length,
-    },
-    {
-      value: "processing",
-      label: "Processing",
-      count: mockOrders.filter((o) => o.status === "processing").length,
-    },
-    {
-      value: "shipped",
-      label: "Shipped",
-      count: mockOrders.filter((o) => o.status === "shipped").length,
-    },
-    {
-      value: "completed",
-      label: "Completed",
-      count: mockOrders.filter((o) => o.status === "completed").length,
-    },
-    {
-      value: "cancelled",
-      label: "Cancelled",
-      count: mockOrders.filter((o) => o.status === "cancelled").length,
-    },
-  ];
+  function formatDateRange(): string {
+    if (searchParams.dateFrom && searchParams.dateTo) {
+      const from = new Date(searchParams.dateFrom);
+      const to = new Date(searchParams.dateTo);
+      const fmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
+      return `${fmt.format(from)} - ${fmt.format(to)}`;
+    }
+    return "All Dates";
+  }
+
+  function parseDateValue(dateStr: string): DateValue | null {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  }
+
+  let dateRange = $state<{ start: DateValue | null; end: DateValue | null }>({
+    start: parseDateValue(searchParams.dateFrom),
+    end: parseDateValue(searchParams.dateTo),
+  });
+
+  function handleDateRangeChange(
+    value: { start: DateValue | undefined; end: DateValue | undefined } | undefined
+  ) {
+    if (value?.start && value?.end) {
+      dateRange = { start: value.start as DateValue, end: value.end as DateValue };
+      searchParams.update({
+        dateFrom: (value.start as CalendarDate).toString(),
+        dateTo: (value.end as CalendarDate).toString(),
+      });
+    } else if (value?.start && !value?.end) {
+      dateRange = { start: value.start as DateValue, end: null };
+    } else {
+      dateRange = { start: null, end: null };
+    }
+  }
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
@@ -257,7 +175,6 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <!-- Page Title & Description -->
   <div>
     <div class="flex flex-col gap-1">
       <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
@@ -265,7 +182,6 @@
     </div>
   </div>
 
-  <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <StatsCard
       title="Total Orders"
@@ -277,18 +193,18 @@
       borderClass="from-primary/20 to-primary/5"
     />
     <StatsCard
-      title="Pending"
-      value={stats().pending}
-      description="Awaiting action"
+      title="Today"
+      value={0}
+      description="Orders today"
       icon={ReceiptIcon}
       iconBgClass="bg-amber-500/10"
       iconTextClass="text-amber-600"
       borderClass="from-amber-500/20 to-amber-500/5"
     />
     <StatsCard
-      title="Processing"
-      value={stats().processing}
-      description="In progress"
+      title="This Week"
+      value={0}
+      description="Orders this week"
       icon={PackageIcon}
       iconBgClass="bg-blue-500/10"
       iconTextClass="text-blue-600"
@@ -307,277 +223,152 @@
     />
   </div>
 
-  <!-- Filters and Search -->
-  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-    <div class="flex flex-1 items-center gap-2">
-      <div class="relative max-w-md flex-1">
+  <div class="flex flex-col items-center justify-start gap-2 lg:flex-row">
+    <div class="flex w-full items-center gap-2 lg:max-w-md">
+      <div class="relative w-full">
         <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input placeholder="Search orders, customers..." class="pl-9" bind:value={searchQuery} />
+        <Input
+          placeholder="Search orders, customers..."
+          class="pl-9"
+          value={searchParams.search}
+          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+        />
       </div>
     </div>
 
     <div class="flex items-center gap-2">
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger class={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}>
-          <FilterIcon class="size-4" />
-          {selectedStatus
-            ? statusFilters.find((s) => s.value === selectedStatus)?.label
-            : "Filter Status"}
+      <Popover.Root>
+        <Popover.Trigger class={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}>
+          <CalendarIcon class="size-4" />
+          {formatDateRange()}
           <ChevronDownIcon class="size-3 opacity-50" />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" class="w-48">
-          <DropdownMenu.Label>Filter by Status</DropdownMenu.Label>
-          <DropdownMenu.Separator />
-          {#each statusFilters as filter}
-            <DropdownMenu.Item
-              onclick={() => (selectedStatus = filter.value)}
-              class="justify-between"
-            >
-              {filter.label}
-              <span class="text-muted-foreground text-xs">{filter.count}</span>
-            </DropdownMenu.Item>
-          {/each}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+        </Popover.Trigger>
+        <Popover.Content class="w-auto p-0" align="start">
+          {#key dateRange}
+            <RangeCalendar
+              value={dateRange.start && dateRange.end
+                ? { start: dateRange.start, end: dateRange.end }
+                : dateRange.start
+                  ? { start: dateRange.start, end: null as unknown as CalendarDate }
+                  : undefined}
+              onValueChange={handleDateRangeChange}
+              numberOfMonths={2}
+            />
+          {/key}
+        </Popover.Content>
+      </Popover.Root>
 
-      {#if selectedStatus}
-        <Button variant="ghost" size="sm" onclick={() => (selectedStatus = null)}>
-          Clear filter
+      {#if hasFilters}
+        <Button variant="ghost" size="sm" onclick={resetFilters}>
+          <XIcon class="size-4" />
+          Reset
         </Button>
       {/if}
     </div>
   </div>
 
-  <!-- Status Filter Pills -->
-  <div class="flex flex-wrap gap-2">
-    {#each statusFilters as filter}
-      <button
-        type="button"
-        class={[
-          "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200",
-          selectedStatus === filter.value
-            ? "bg-primary text-primary-foreground shadow-sm"
-            : "bg-muted text-muted-foreground hover:bg-muted/80",
-        ]}
-        onclick={() => (selectedStatus = filter.value)}
-      >
-        {filter.label}
-        <span
-          class={[
-            "rounded-full px-1.5 py-0.5 text-[10px]",
-            selectedStatus === filter.value ? "bg-primary-foreground/20" : "bg-background",
-          ]}
-        >
-          {filter.count}
-        </span>
-      </button>
-    {/each}
-  </div>
-
-  <!-- Orders List -->
   <div class="flex flex-col gap-3">
-    {#if filteredOrders().length === 0}
+    {#if orders.isLoading}
+      <div class="flex items-center justify-center py-12">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
+      </div>
+    {:else if orders.isError}
+      <div class="flex items-center justify-center py-12">
+        <p class="text-red-500">Failed to load orders</p>
+      </div>
+    {:else if allOrders.length === 0}
       <div class="flex flex-col items-center justify-center py-16 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
           <ShoppingBagIcon class="text-muted-foreground size-8" />
         </div>
         <h3 class="text-lg font-semibold">No orders found</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {searchQuery || selectedStatus
-            ? "Try adjusting your search or filters"
+          {hasFilters
+            ? "Try adjusting your search or date filters"
             : "Orders will appear here when customers make purchases"}
         </p>
       </div>
     {:else}
       <div class="flex flex-col gap-3">
-        {#each filteredOrders() as order (order.id)}
-          <Card.Root class="group overflow-hidden py-0 transition-all duration-200 hover:shadow-md">
-            <div class="flex flex-col">
-              <!-- Main Order Row -->
-              <div class="flex items-center gap-4 p-4">
-                <!-- Order ID & Date -->
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <button
-                      type="button"
-                      class="hover:text-primary text-sm font-semibold hover:underline"
-                      onclick={() => openOrderDetails(order)}
-                    >
-                      {order.id}
-                    </button>
-                    <span
-                      class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase {getStatusStyles(
-                        order.status
-                      )}"
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                  <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-                    <CalendarIcon class="size-3" />
-                    {formatDate(order.date)}
-                  </div>
+        {#each allOrders as order (order.id)}
+          <Card.Root
+            class="group hover:border-primary/30 cursor-pointer overflow-hidden py-0 transition-all duration-200 hover:shadow-md"
+            onclick={() => openOrderDetails(order)}
+          >
+            <div class="flex items-center gap-4 p-4">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold">
+                    {formatOrderId(order.id)}
+                  </span>
                 </div>
-
-                <!-- Customer -->
-                <div class="hidden min-w-0 flex-1 md:block">
-                  <p class="truncate text-sm font-medium">{order.customer.name}</p>
-                  <p class="text-muted-foreground truncate text-xs">{order.customer.email}</p>
-                </div>
-
-                <!-- Items Count -->
-                <div class="hidden text-center md:block">
-                  <p class="text-sm font-medium">{order.items.length}</p>
-                  <p class="text-muted-foreground text-xs">items</p>
-                </div>
-
-                <!-- Total -->
-                <div class="text-right">
-                  <p class="text-sm font-semibold">
-                    <Pricing cents={order.total} country={shop.country} />
-                  </p>
-                  <p class="text-xs {getPaymentStatusStyles(order.paymentStatus)}">
-                    {order.paymentStatus}
-                  </p>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex items-center gap-1">
-                  <button
-                    type="button"
-                    class="text-muted-foreground hover:bg-muted rounded-md p-2 transition-colors"
-                    onclick={() => toggleOrderDetails(order.id)}
-                    aria-label={expandedOrder === order.id ? "Collapse details" : "Expand details"}
-                  >
-                    {#if expandedOrder === order.id}
-                      <ChevronUpIcon class="size-4" />
-                    {:else}
-                      <ChevronDownIcon class="size-4" />
-                    {/if}
-                  </button>
-
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger
-                      class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
-                    >
-                      <MoreVerticalIcon class="size-4" />
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align="end">
-                      <DropdownMenu.Item onclick={() => openOrderDetails(order)}>
-                        <ReceiptIcon class="mr-2 size-4" />
-                        View Details
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Item>
-                        <TruckIcon class="mr-2 size-4" />
-                        Update Status
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Separator />
-                      <DropdownMenu.Item class="text-red-600">Cancel Order</DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
+                <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+                  <CalendarIcon class="size-3" />
+                  {formatDate(order.createdAt)}
                 </div>
               </div>
 
-              <!-- Expanded Details -->
-              {#if expandedOrder === order.id}
-                <div
-                  class="bg-muted/30 border-t px-4 py-4"
-                  transition:slide={{ duration: 200, easing: cubicOut }}
-                >
-                  <div class="grid gap-6 md:grid-cols-2">
-                    <!-- Items -->
-                    <div>
-                      <h4 class="text-muted-foreground mb-2 text-xs tracking-wide uppercase">
-                        Items
-                      </h4>
-                      <div class="space-y-2">
-                        {#each order.items as item}
-                          <div
-                            class="bg-background flex items-center justify-between rounded-md p-2 text-sm"
-                          >
-                            <div class="flex items-center gap-3">
-                              <div class="bg-muted flex size-8 items-center justify-center rounded">
-                                <PackageIcon class="text-muted-foreground size-4" />
-                              </div>
-                              <div>
-                                <p class="font-medium">{item.name}</p>
-                                <p class="text-muted-foreground text-xs">
-                                  {item.sku} × {item.quantity}
-                                </p>
-                              </div>
-                            </div>
-                            <Pricing cents={item.price * item.quantity} country={shop.country} />
-                          </div>
-                        {/each}
-                      </div>
-                    </div>
+              <div class="hidden min-w-0 flex-1 md:block">
+                <p class="truncate text-sm font-medium">
+                  {order.customerName ?? "In-store Purchase"}
+                </p>
+                <p class="text-muted-foreground truncate text-xs">{order.customerPhone ?? "—"}</p>
+              </div>
 
-                    <!-- Shipping & Notes -->
-                    <div class="space-y-4">
-                      <div>
-                        <h4 class="text-muted-foreground mb-2 text-xs tracking-wide uppercase">
-                          Shipping
-                        </h4>
-                        <div class="bg-background rounded-md p-3 text-sm">
-                          <div class="flex items-center justify-between">
-                            <span class="text-muted-foreground">Method</span>
-                            <span class="font-medium">{order.shipping.method}</span>
-                          </div>
-                          <div class="mt-1 flex items-center justify-between">
-                            <span class="text-muted-foreground">Cost</span>
-                            <Pricing cents={order.shipping.cost} country={shop.country} />
-                          </div>
-                          {#if order.shipping.tracking}
-                            <div class="mt-1 flex items-center justify-between">
-                              <span class="text-muted-foreground">Tracking</span>
-                              <span class="font-mono text-xs">{order.shipping.tracking}</span>
-                            </div>
-                          {/if}
-                        </div>
-                      </div>
+              <div class="hidden text-center md:block">
+                <p class="text-sm font-medium">{order.itemsCount}</p>
+                <p class="text-muted-foreground text-xs">items</p>
+              </div>
 
-                      {#if order.notes}
-                        <div>
-                          <h4 class="text-muted-foreground text-xs tracking-wide uppercase">
-                            Customer Notes
-                          </h4>
-                          <p class="text-sm">{order.notes}</p>
-                        </div>
-                      {/if}
-                    </div>
-                  </div>
-                </div>
-              {/if}
+              <div class="text-right">
+                <p class="text-sm font-semibold">
+                  <Pricing cents={order.totalCents} country={shop.country} />
+                </p>
+                <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
+              </div>
             </div>
           </Card.Root>
         {/each}
       </div>
+
+      {#if orders.hasNextPage}
+        <div class="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            onclick={() => orders.fetchNextPage()}
+            disabled={orders.isFetchingNextPage}
+          >
+            {#if orders.isFetchingNextPage}
+              <Loader2Icon class="mr-2 size-4 animate-spin" />
+              Loading...
+            {:else}
+              Load More
+            {/if}
+          </Button>
+        </div>
+      {/if}
     {/if}
   </div>
 </div>
 
-<!-- Order Details Dialog -->
 <Dialog.Root bind:open={isDetailsOpen}>
   <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
-    {#if selectedOrder}
+    {#if orderDetails.isLoading}
+      <div class="flex items-center justify-center py-16">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
+      </div>
+    {:else if orderDetails.data}
+      {@const order = orderDetails.data}
       <Dialog.Header>
         <div class="flex items-center gap-3">
-          <Dialog.Title class="text-xl">{selectedOrder.id}</Dialog.Title>
-          <span
-            class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-wide uppercase {getStatusStyles(
-              selectedOrder.status
-            )}"
-          >
-            {selectedOrder.status}
-          </span>
+          <Dialog.Title class="text-xl">Order #{formatOrderId(order.id)}</Dialog.Title>
         </div>
         <Dialog.Description>
-          Placed on {formatDate(selectedOrder.date)}
+          Placed on {formatDate(order.createdAt)}
         </Dialog.Description>
       </Dialog.Header>
 
       <div class="grid gap-6 py-4">
-        <!-- Customer Info -->
         <div>
           <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
             Customer
@@ -585,25 +376,24 @@
           <div class="flex items-center gap-3 rounded-md border p-3">
             <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
               <span class="text-primary text-sm font-semibold">
-                {selectedOrder.customer.name.charAt(0).toUpperCase()}
+                {order.customerName?.charAt(0).toUpperCase() ?? "I"}
               </span>
             </div>
             <div>
-              <p class="font-medium">{selectedOrder.customer.name}</p>
-              <p class="text-muted-foreground text-sm">{selectedOrder.customer.email}</p>
+              <p class="font-medium">{order.customerName ?? "In-store Purchase"}</p>
+              <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
             </div>
           </div>
         </div>
 
-        <!-- Order Items -->
         <div>
           <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
             Order Items
           </h4>
           <div class="rounded-md border">
-            {#each selectedOrder.items as item, i}
+            {#each order.items as item, i}
               <div
-                class="flex items-center justify-between p-3 {i !== selectedOrder.items.length - 1
+                class="flex items-center justify-between p-3 {i !== order.items.length - 1
                   ? 'border-b'
                   : ''}"
               >
@@ -612,50 +402,48 @@
                     <PackageIcon class="text-muted-foreground size-5" />
                   </div>
                   <div>
-                    <p class="font-medium">{item.name}</p>
-                    <p class="text-muted-foreground text-sm">{item.sku}</p>
+                    <p>{item.product?.name}</p>
+                    <p class="text-muted-foreground text-sm">{item.product?.sku ?? "—"}</p>
                   </div>
                 </div>
                 <div class="text-right">
-                  <p class="text-muted-foreground text-sm">× {item.quantity}</p>
-                  <Pricing cents={item.price} country={shop.country} priceClass="font-medium" />
+                  <p class="text-muted-foreground text-sm">x {item.qty}</p>
+                  <Pricing cents={item.lineTotalCents} country={shop.country} />
                 </div>
               </div>
             {/each}
           </div>
         </div>
 
-        <!-- Order Summary -->
         <div>
           <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
             Order Summary
           </h4>
-          <div class="space-y-2 rounded-md border p-3 text-sm">
+          <div class="space-y-2 rounded-md border p-3">
             <div class="flex justify-between">
               <span class="text-muted-foreground">Subtotal</span>
-              <Pricing
-                cents={selectedOrder.total - selectedOrder.shipping.cost}
-                country={shop.country}
-              />
+              <Pricing cents={order.subtotalCents} country={shop.country} />
             </div>
             <div class="flex justify-between">
-              <span class="text-muted-foreground">Shipping ({selectedOrder.shipping.method})</span>
-              <Pricing cents={selectedOrder.shipping.cost} country={shop.country} />
+              <span class="text-muted-foreground">Discount</span>
+              <Pricing cents={order.discountCents} country={shop.country} />
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">Shipping (Local pickup)</span>
+              <Pricing cents={0} country={shop.country} />
             </div>
             <div class="flex justify-between border-t pt-2 font-semibold">
               <span>Total</span>
-              <Pricing cents={selectedOrder.total} country={shop.country} />
+              <Pricing cents={order.totalCents} country={shop.country} />
             </div>
             <div class="flex justify-between text-xs">
               <span class="text-muted-foreground">Payment Status</span>
-              <span class="{getPaymentStatusStyles(selectedOrder.paymentStatus)} capitalize"
-                >{selectedOrder.paymentStatus}</span
-              >
+              <span class="{getPaymentStatusStyles('paid')} capitalize">paid</span>
             </div>
           </div>
         </div>
 
-        <!-- Shipping Details -->
+        <!--
         <div>
           <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
             Shipping Details
@@ -678,15 +466,15 @@
             {/if}
           </div>
         </div>
+        -->
 
-        <!-- Notes -->
-        {#if selectedOrder.notes}
+        {#if order.notes}
           <div>
             <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
               Customer Notes
             </h4>
             <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-              {selectedOrder.notes}
+              {order.notes}
             </div>
           </div>
         {/if}
@@ -694,10 +482,12 @@
 
       <Dialog.Footer class="gap-2">
         <Button variant="outline" onclick={() => (isDetailsOpen = false)}>Close</Button>
+        <!--
         <Button class="gap-2">
           <TruckIcon class="size-4" />
           Update Status
         </Button>
+        -->
       </Dialog.Footer>
     {/if}
   </Dialog.Content>

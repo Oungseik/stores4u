@@ -7,6 +7,9 @@ const input = z.object({
   slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(20),
+  search: z.string().optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
 });
 
 export const listOrdersHandler = os
@@ -17,7 +20,24 @@ export const listOrdersHandler = os
     const shopDb = getShopDb(context.shop);
 
     const orders = await shopDb.query.order.findMany({
-      where: input.cursor ? { id: { lte: input.cursor } } : undefined,
+      where: {
+        id: input.cursor ? { lte: input.cursor } : undefined,
+        OR: input.search
+          ? [
+              { id: { like: `%${input.search}%` } },
+              { customerName: { like: `%${input.search}%` } },
+              { customerPhone: { like: `%${input.search}%` } },
+            ]
+          : undefined,
+        createdAt: input.dateFrom
+          ? {
+              gte: new Date(input.dateFrom),
+              ...(input.dateTo ? { lte: new Date(input.dateTo + "T23:59:59") } : {}),
+            }
+          : input.dateTo
+            ? { lte: new Date(input.dateTo + "T23:59:59") }
+            : undefined,
+      },
       limit: input.pageSize + 1,
       orderBy: { id: "desc" },
       extras: {
