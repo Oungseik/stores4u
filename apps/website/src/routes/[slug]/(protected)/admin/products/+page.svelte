@@ -9,18 +9,16 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { productsFilterSchema } from "$lib/search_param";
 
@@ -65,29 +63,16 @@
 </script>
 
 <div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <div class="flex flex-col gap-2">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Products</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Products" }]}
+  >
+    {#snippet actions()}
       <a href={`/${shop.slug}/admin/products/add`} class={buttonVariants()}>
         <PlusIcon class="size-4" />
         Add Product
       </a>
-    </div>
-  </div>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <!-- Filters and Search -->
   <div class="flex flex-col items-center justify-start gap-2 lg:flex-row">

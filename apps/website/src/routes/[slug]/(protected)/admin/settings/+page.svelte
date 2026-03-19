@@ -11,7 +11,6 @@
   import UploadIcon from "@lucide/svelte/icons/upload";
   import UserIcon from "@lucide/svelte/icons/user";
   import UsersIcon from "@lucide/svelte/icons/users";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Checkbox } from "@repo/ui/checkbox";
@@ -19,13 +18,14 @@
   import { Label } from "@repo/ui/label";
   import * as Select from "@repo/ui/select";
   import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { Switch } from "@repo/ui/switch";
   import * as Tabs from "@repo/ui/tabs";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { toast } from "svelte-sonner";
   import z from "zod";
+
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -164,28 +164,9 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <!-- Header with Breadcrumb -->
-  <div class="flex flex-col gap-2">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Settings</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
-    </div>
-  </div>
-
-  <Separator />
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Settings" }]}
+  />
 
   <!-- Settings Tabs -->
   <Tabs.Root bind:value={activeTab} class="w-full">

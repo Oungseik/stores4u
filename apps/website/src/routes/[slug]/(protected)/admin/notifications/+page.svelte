@@ -8,13 +8,12 @@
   import TrashIcon from "@lucide/svelte/icons/trash";
   import XCircleIcon from "@lucide/svelte/icons/x-circle";
   import { Badge } from "@repo/ui/badge";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as ScrollArea from "@repo/ui/scroll-area";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { flip } from "svelte/animate";
+
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
   import { receive, send } from "./transition";
@@ -197,24 +196,13 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <div class="flex flex-col gap-2">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Notifications</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
-
+  <AdminDashboardHeader
+    breadcrumbs={[
+      { label: "Dashboard", href: `/${params.slug}/admin` },
+      { label: "Notifications" },
+    ]}
+  >
+    {#snippet actions()}
       <Button
         variant="outline"
         class={["gap-2", unreadCount === 0 && "hidden"]}
@@ -223,8 +211,8 @@
         <CheckCheckIcon class="size-4" />
         Mark all read
       </Button>
-    </div>
-  </div>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <ScrollArea.Root class="h-[calc(100dvh-var(--header-height)-var(--spacing)*16)]">
     {#if notifications.length === 0}

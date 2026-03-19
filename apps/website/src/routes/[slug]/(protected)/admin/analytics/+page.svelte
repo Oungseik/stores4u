@@ -4,16 +4,13 @@
   import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import BoxIcon from "@lucide/svelte/icons/package";
-  import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import { Badge } from "@repo/ui/badge";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import * as Card from "@repo/ui/card";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { createQuery } from "@tanstack/svelte-query";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -82,34 +79,22 @@
   ]);
 </script>
 
-<div class="@container/main flex flex-1 flex-col gap-2">
-  <div class="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-    <!-- Header with Breadcrumb -->
-    <div class="flex flex-col gap-2 px-4 lg:px-6">
-      <div class="flex h-9 items-center justify-between">
-        <div class="flex items-center gap-1 lg:gap-2">
-          <Sidebar.Trigger class="-ms-1" />
-          <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-          <Breadcrumb.Root>
-            <Breadcrumb.List>
-              <Breadcrumb.Item>
-                <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Breadcrumb.Page>Analytics</Breadcrumb.Page>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb.Root>
-          <!-- <p class="text-muted-foreground text-sm font-medium"> -->
-          <!--   Overview of your shop performance -->
-          <!-- </p> -->
-        </div>
+<div class="@container/main flex flex-1 flex-col gap-2 p-4 md:p-6">
+  <div class="flex flex-col gap-4 md:gap-6">
+    <AdminDashboardHeader
+      breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Analytics" }]}
+    />
+
+    <!-- Page Title & Description -->
+    <div>
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-semibold tracking-tight">Analytics</h1>
+        <p class="text-muted-foreground text-sm">Track sales trends, revenue, and key metrics</p>
       </div>
     </div>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       {#each kpiCards() as card (card.title)}
         <Card.Root
           class="@container/card {card.variant === 'warning'
@@ -169,7 +154,7 @@
     </div>
 
     <!-- Recent Activity Placeholder -->
-    <div class="px-4 lg:px-6">
+    <div>
       <Card.Root>
         <Card.Header>
           <Card.Title>Recent Activity</Card.Title>

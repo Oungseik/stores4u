@@ -11,18 +11,16 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
   import TruckIcon from "@lucide/svelte/icons/truck";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -247,30 +245,16 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <!-- Header with Breadcrumb -->
-  <div class="flex flex-col gap-4">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Orders</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Orders" }]}
+  >
+    {#snippet actions()}
       <Button variant="outline" size="sm" class="gap-2">
         <DownloadIcon class="size-4" />
         Export
       </Button>
-    </div>
-  </div>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <!-- Page Title & Description -->
   <div>

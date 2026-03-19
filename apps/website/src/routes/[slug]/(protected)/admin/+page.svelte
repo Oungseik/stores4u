@@ -2,11 +2,10 @@
   import BellIcon from "@lucide/svelte/icons/bell";
   import BoxIcon from "@lucide/svelte/icons/package";
   import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
+
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -37,31 +36,19 @@
   ]);
 </script>
 
-<div class="@container/main flex flex-1 flex-col gap-2">
-  <div class="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-    <!-- Header with Breadcrumb -->
-    <div class="flex flex-col gap-2 px-4 lg:px-6">
-      <div class="flex h-9 items-center justify-between">
-        <div class="flex items-center gap-1 lg:gap-2">
-          <Sidebar.Trigger class="-ms-1" />
-          <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-          <Breadcrumb.Root>
-            <Breadcrumb.List>
-              <Breadcrumb.Item>
-                <Breadcrumb.Page>Dashboard</Breadcrumb.Page>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb.Root>
-          <!-- <p class="text-muted-foreground text-sm font-medium"> -->
-          <!--   Overview of your shop performance -->
-          <!-- </p> -->
-        </div>
-      </div>
+<div class="@container/main flex flex-1 flex-col gap-2 p-4 md:p-6">
+  <div class="flex flex-col gap-4 md:gap-6">
+    <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard" }]} />
+
+    <div class="flex flex-col gap-1">
+      <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+      <p class="text-muted-foreground text-sm">
+        Overview of your shop performance and quick actions
+      </p>
     </div>
 
     <!-- Quick Actions -->
-    <div class="px-4 lg:px-6">
-      <h2 class="mb-4 text-lg font-semibold">Quick Actions</h2>
+    <div>
       <div class="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
         {#each quickActions as action (action.title)}
           <Card.Root class="group transition-all hover:shadow-sm">

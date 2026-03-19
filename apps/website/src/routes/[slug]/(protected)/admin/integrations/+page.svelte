@@ -1,11 +1,9 @@
 <script lang="ts">
   import type { PlatformType, SocialPlatform } from "@repo/config";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import * as Card from "@repo/ui/card";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
 
   import PlatformCard from "$lib/components/cards/PlatformCard.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import ConnectionModal from "$lib/components/modals/SocialConnectionModal.svelte";
 
   import type { PageProps } from "./$types";
@@ -129,25 +127,13 @@
 
 <div class="@container/main flex flex-1 flex-col gap-2">
   <div class="flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
-    <!-- Header with Breadcrumb -->
-    <div class="flex flex-col gap-2 px-4 lg:px-6">
-      <div class="flex h-9 items-center justify-between">
-        <div class="flex items-center gap-1 lg:gap-2">
-          <Sidebar.Trigger class="-ms-1" />
-          <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-          <Breadcrumb.Root>
-            <Breadcrumb.List>
-              <Breadcrumb.Item>
-                <Breadcrumb.Link href={`/${params.slug}/admin`}>Dashboard</Breadcrumb.Link>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Breadcrumb.Page>Integrations</Breadcrumb.Page>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb.Root>
-        </div>
-      </div>
+    <div class="px-4 lg:px-6">
+      <AdminDashboardHeader
+        breadcrumbs={[
+          { label: "Dashboard", href: `/${params.slug}/admin` },
+          { label: "Integrations" },
+        ]}
+      />
     </div>
 
     <!-- Page Header -->

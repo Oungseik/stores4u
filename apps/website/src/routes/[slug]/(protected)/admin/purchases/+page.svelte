@@ -3,7 +3,6 @@
   import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import BoxIcon from "@lucide/svelte/icons/box";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import CheckCircleIcon from "@lucide/svelte/icons/check-circle";
   import ClockIcon from "@lucide/svelte/icons/clock";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
@@ -11,13 +10,11 @@
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
   import UploadIcon from "@lucide/svelte/icons/upload";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
-  import { Button, buttonVariants } from "@repo/ui/button";
+  import { buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -109,44 +106,34 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <!-- Header -->
-  <div class="flex flex-col gap-4">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Purchases</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
+<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Purchases" }]}
+  >
+    {#snippet actions()}
       <a href={`/${shop.slug}/admin/purchases/upload`} class={buttonVariants()}>
         <UploadIcon class="size-4" />
         Upload Invoice
       </a>
-    </div>
-  </div>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <!-- Page Title -->
   <div>
     <div class="flex flex-col gap-1">
       <h1 class="text-2xl font-semibold tracking-tight">Purchases</h1>
-      <p class="text-muted-foreground text-sm">Manage supplier invoices, inventory, and stock levels</p>
+      <p class="text-muted-foreground text-sm">
+        Manage supplier invoices, inventory, and stock levels
+      </p>
     </div>
   </div>
 
   <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <Card.Root class="relative overflow-hidden">
-      <div class="from-primary/20 to-primary/5 absolute top-0 right-0 h-full w-1 bg-gradient-to-b"></div>
+      <div
+        class="from-primary/20 to-primary/5 absolute top-0 right-0 h-full w-1 bg-gradient-to-b"
+      ></div>
       <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
         <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
         <div class="bg-primary/10 rounded-md p-2">
@@ -162,7 +149,9 @@
     </Card.Root>
 
     <Card.Root class="relative overflow-hidden">
-      <div class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-amber-500/20 to-amber-500/5"></div>
+      <div
+        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-amber-500/20 to-amber-500/5"
+      ></div>
       <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
         <Card.Title class="text-sm font-medium">Pending Invoices</Card.Title>
         <div class="rounded-md bg-amber-500/10 p-2">
@@ -176,7 +165,9 @@
     </Card.Root>
 
     <Card.Root class="relative overflow-hidden">
-      <div class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-red-500/20 to-red-500/5"></div>
+      <div
+        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-red-500/20 to-red-500/5"
+      ></div>
       <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
         <Card.Title class="text-sm font-medium">Low Stock</Card.Title>
         <div class="rounded-md bg-red-500/10 p-2">
@@ -190,7 +181,9 @@
     </Card.Root>
 
     <Card.Root class="relative overflow-hidden">
-      <div class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-emerald-500/20 to-emerald-500/5"></div>
+      <div
+        class="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-emerald-500/20 to-emerald-500/5"
+      ></div>
       <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
         <Card.Title class="text-sm font-medium">Monthly Purchases</Card.Title>
         <div class="rounded-md bg-emerald-500/10 p-2">
@@ -215,7 +208,10 @@
           <Card.Title>Recent Invoices</Card.Title>
           <Card.Description>Latest supplier invoices</Card.Description>
         </div>
-        <a href={`/${shop.slug}/admin/purchases/invoices`} class={buttonVariants({ variant: "ghost", size: "sm" })}>
+        <a
+          href={`/${shop.slug}/admin/purchases/invoices`}
+          class={buttonVariants({ variant: "ghost", size: "sm" })}
+        >
           View All
           <ArrowRightIcon class="ml-1 size-4" />
         </a>
@@ -223,14 +219,20 @@
       <Card.Content class="p-0">
         <div class="flex flex-col">
           {#each recentInvoices as invoice}
-            <div class="hover:bg-muted/50 flex items-center gap-4 border-b px-4 py-3 last:border-b-0">
+            <div
+              class="hover:bg-muted/50 flex items-center gap-4 border-b px-4 py-3 last:border-b-0"
+            >
               <div class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md">
                 <ReceiptIcon class="text-muted-foreground size-4" />
               </div>
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
                   <p class="truncate text-sm font-medium">{invoice.supplier}</p>
-                  <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase {getStatusStyles(invoice.status)}">
+                  <span
+                    class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase {getStatusStyles(
+                      invoice.status
+                    )}"
+                  >
                     {invoice.status.replace("_", " ")}
                   </span>
                 </div>
@@ -265,7 +267,10 @@
           </Card.Title>
           <Card.Description>Items requiring restocking</Card.Description>
         </div>
-        <a href={`/${shop.slug}/admin/products`} class={buttonVariants({ variant: "ghost", size: "sm" })}>
+        <a
+          href={`/${shop.slug}/admin/products`}
+          class={buttonVariants({ variant: "ghost", size: "sm" })}
+        >
           Manage Products
           <ArrowRightIcon class="ml-1 size-4" />
         </a>
@@ -273,7 +278,9 @@
       <Card.Content class="p-0">
         <div class="flex flex-col">
           {#each lowStockItems as item}
-            <div class="hover:bg-muted/50 flex items-center gap-4 border-b px-4 py-3 last:border-b-0">
+            <div
+              class="hover:bg-muted/50 flex items-center gap-4 border-b px-4 py-3 last:border-b-0"
+            >
               <div class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md">
                 <BoxIcon class="text-muted-foreground size-4" />
               </div>
@@ -304,8 +311,12 @@
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     <a href={`/${shop.slug}/admin/purchases/upload`} class="group">
       <Card.Root class="h-full transition-all duration-200 hover:shadow-md">
-        <Card.Content class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-          <div class="bg-primary/10 group-hover:bg-primary/20 flex size-12 items-center justify-center rounded-full transition-colors">
+        <Card.Content
+          class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
+        >
+          <div
+            class="bg-primary/10 group-hover:bg-primary/20 flex size-12 items-center justify-center rounded-full transition-colors"
+          >
             <UploadIcon class="text-primary size-6" />
           </div>
           <div>
@@ -318,8 +329,12 @@
 
     <a href={`/${shop.slug}/admin/purchases/suppliers`} class="group">
       <Card.Root class="h-full transition-all duration-200 hover:shadow-md">
-        <Card.Content class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-          <div class="bg-blue-500/10 group-hover:bg-blue-500/20 flex size-12 items-center justify-center rounded-full transition-colors">
+        <Card.Content
+          class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
+        >
+          <div
+            class="flex size-12 items-center justify-center rounded-full bg-blue-500/10 transition-colors group-hover:bg-blue-500/20"
+          >
             <DollarSignIcon class="size-6 text-blue-600" />
           </div>
           <div>
@@ -332,8 +347,12 @@
 
     <a href={`/${shop.slug}/admin/purchases/invoices`} class="group">
       <Card.Root class="h-full transition-all duration-200 hover:shadow-md">
-        <Card.Content class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-          <div class="bg-emerald-500/10 group-hover:bg-emerald-500/20 flex size-12 items-center justify-center rounded-full transition-colors">
+        <Card.Content
+          class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
+        >
+          <div
+            class="flex size-12 items-center justify-center rounded-full bg-emerald-500/10 transition-colors group-hover:bg-emerald-500/20"
+          >
             <FileTextIcon class="size-6 text-emerald-600" />
           </div>
           <div>

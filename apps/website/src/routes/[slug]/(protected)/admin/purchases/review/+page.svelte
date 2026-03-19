@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import CheckIcon from "@lucide/svelte/icons/check";
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
@@ -14,7 +13,6 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
   import XIcon from "@lucide/svelte/icons/x";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Command from "@repo/ui/command";
@@ -23,12 +21,12 @@
   import * as Popover from "@repo/ui/popover";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { Switch } from "@repo/ui/switch";
   import { Textarea } from "@repo/ui/textarea";
   import { tick } from "svelte";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -274,45 +272,20 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <!-- Header -->
-  <div class="flex flex-col gap-4">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin/purchases`}>Purchases</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Review Invoice</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
-    </div>
-  </div>
+  <AdminDashboardHeader
+    breadcrumbs={[
+      { label: "Dashboard", href: `/${shop.slug}/admin` },
+      { label: "Purchases", href: `/${shop.slug}/admin/purchases` },
+      { label: "Review Invoice" },
+    ]}
+  />
 
   <!-- Page Title -->
   <div>
     <div class="flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <a
-          href={`/${shop.slug}/admin/purchases/upload`}
-          class={buttonVariants({ variant: "ghost", size: "icon" })}
-        >
-          <ArrowLeftIcon class="size-4" />
-        </a>
-        <div class="flex flex-col gap-1">
-          <h1 class="text-2xl font-semibold tracking-tight">Review Invoice</h1>
-          <p class="text-muted-foreground text-sm">Verify extracted data before saving</p>
-        </div>
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-semibold tracking-tight">Review Invoice</h1>
+        <p class="text-muted-foreground text-sm">Verify extracted data before saving</p>
       </div>
       <div class="flex gap-2">
         <Button variant="outline" onclick={() => history.back()}>

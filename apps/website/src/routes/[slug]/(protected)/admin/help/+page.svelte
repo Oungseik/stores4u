@@ -13,15 +13,15 @@
   import SparklesIcon from "@lucide/svelte/icons/sparkles";
   import ThumbsDownIcon from "@lucide/svelte/icons/thumbs-down";
   import ThumbsUpIcon from "@lucide/svelte/icons/thumbs-up";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Separator } from "@repo/ui/separator";
   import * as Sheet from "@repo/ui/sheet";
-  import * as Sidebar from "@repo/ui/sidebar";
   import * as Tabs from "@repo/ui/tabs";
   import { fade, fly } from "svelte/transition";
+
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -258,28 +258,9 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <!-- Header with Breadcrumb -->
-  <div class="flex flex-col gap-2">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Help & Support</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
-    </div>
-  </div>
-
-  <Separator />
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Help & Support" }]}
+  />
 
   <!-- Hero Section with AI Search -->
   <div class="flex flex-col items-center gap-6 py-8 text-center md:py-12">

@@ -12,18 +12,16 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UploadIcon from "@lucide/svelte/icons/upload";
   import { Badge } from "@repo/ui/badge";
-  import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import * as Table from "@repo/ui/table";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -210,35 +208,21 @@
   ];
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <!-- Header -->
-  <div class="flex flex-col gap-4">
-    <div class="flex h-9 items-center justify-between">
-      <div class="flex items-center gap-1 lg:gap-2">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb.Root>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin`}>Dashboard</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${shop.slug}/admin/purchases`}>Purchases</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator />
-            <Breadcrumb.Item>
-              <Breadcrumb.Page>Invoices</Breadcrumb.Page>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      </div>
+<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+  <AdminDashboardHeader
+    breadcrumbs={[
+      { label: "Dashboard", href: `/${shop.slug}/admin` },
+      { label: "Purchases", href: `/${shop.slug}/admin/purchases` },
+      { label: "Invoices" },
+    ]}
+  >
+    {#snippet actions()}
       <a href={`/${shop.slug}/admin/purchases/upload`} class={buttonVariants()}>
         <UploadIcon class="mr-2 size-4" />
         Upload Invoice
       </a>
-    </div>
-  </div>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <!-- Page Title -->
   <div>
