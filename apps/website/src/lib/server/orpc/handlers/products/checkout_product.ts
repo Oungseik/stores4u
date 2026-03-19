@@ -128,8 +128,8 @@ export const checkoutHandler = os
         });
       }
 
-      const movements: Array<typeof inventoryMovement.$inferInsert> = input.items.map(
-        (item, index) => ({
+      await tx.insert(inventoryMovement).values(
+        input.items.map((item, index) => ({
           productId: item.productId,
           movementType: "SALE" as const,
           qty: -item.qty,
@@ -137,10 +137,8 @@ export const checkoutHandler = os
           referenceId: orderItems[index].id,
           occurredAt: now,
           createdAt: now,
-        }),
+        })),
       );
-
-      await tx.insert(inventoryMovement).values(movements);
 
       return {
         orderId: createdOrder.id,
