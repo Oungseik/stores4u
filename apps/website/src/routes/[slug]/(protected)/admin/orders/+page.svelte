@@ -224,7 +224,7 @@
     />
   </div>
 
-  <div class="flex flex-col items-center justify-start gap-2 lg:flex-row">
+  <div class="flex flex-col items-start justify-start gap-2 lg:flex-row">
     <div class="flex w-full items-center gap-2 lg:max-w-md">
       <div class="relative w-full">
         <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
