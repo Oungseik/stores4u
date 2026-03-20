@@ -1,8 +1,8 @@
 import { error } from "@sveltejs/kit";
 import { getShopDb } from "$lib/server/shop_db";
-import type { PageServerLoad } from "./$types";
+import type { LayoutServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: LayoutServerLoad = async ({ params }) => {
   const shopDb = getShopDb({ slug: params.slug });
 
   const result = await shopDb.query.product.findFirst({
