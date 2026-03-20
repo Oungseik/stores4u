@@ -13,6 +13,7 @@ const input = z.object({
   uom: z.string().min(1).max(50),
   barcode: z.string().max(100).nullable(),
   description: z.string().max(1000).nullable(),
+  priceCents: z.number().int().positive(),
 });
 
 export const updateProductHandler = os
@@ -31,6 +32,7 @@ export const updateProductHandler = os
         uom: input.uom,
         barcode: input.barcode,
         description: input.description,
+        priceCents: input.priceCents,
       })
       .where(eq(product.id, input.id))
       .returning();

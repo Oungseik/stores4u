@@ -16,13 +16,25 @@
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
 
+  interface ProductInitialData {
+    id: string;
+    name: string;
+    sku: string;
+    priceCents: number;
+    uom: string;
+    description: string | null;
+    image: string | null;
+    barcode: string | null;
+  }
+
   interface Props {
     slug: string;
+    initialData?: ProductInitialData;
     onSuccess?: () => void;
     onCancel?: () => void;
   }
 
-  let { slug, onSuccess, onCancel }: Props = $props();
+  let { slug, initialData, onSuccess, onCancel }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -35,6 +47,19 @@
       },
       onError: (error) => {
         toast.error(error.message || "Failed to create product");
+      },
+    })
+  );
+
+  const updateProduct = createMutation(() =>
+    orpc.products.update.mutationOptions({
+      onSuccess: () => {
+        toast.success("Product updated successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update product");
       },
     })
   );
@@ -59,18 +84,24 @@
   // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
 
+  // svelte-ignore state_referenced_locally
+  const isEditMode = !!initialData;
+
+  // svelte-ignore state_referenced_locally
   const defaultValues = {
-    name: "",
-    sku: "",
-    price: "",
-    uom: "piece",
-    description: "",
+    name: initialData?.name ?? "",
+    sku: initialData?.sku ?? "",
+    // svelte-ignore state_referenced_locally
+    price: initialData ? (initialData.priceCents / 100).toFixed(2) : "",
+    uom: initialData?.uom ?? "piece",
+    description: initialData?.description ?? "",
     image: null as File | null,
-    imageUrl: "",
-    barcode: "",
+    imageUrl: initialData?.image ?? "",
+    barcode: initialData?.barcode ?? "",
   };
 
-  let imagePreview = $state<string | null>(null);
+  // svelte-ignore state_referenced_locally
+  let imagePreview = $state<string | null>(initialData?.image ?? null);
   let isUploadingImage = $state(false);
 
   const form = createForm(() => ({
@@ -78,16 +109,30 @@
     onSubmit: async ({ value }) => {
       const priceCents = Math.round(Number.parseFloat(value.price || "0") * 100);
 
-      createProduct.mutate({
-        slug,
-        sku: value.sku,
-        name: value.name,
-        priceCents,
-        uom: value.uom,
-        description: value.description || undefined,
-        image: value.imageUrl || undefined,
-        barcode: value.barcode || undefined,
-      });
+      if (isEditMode) {
+        updateProduct.mutate({
+          slug,
+          id: initialData.id,
+          sku: value.sku,
+          name: value.name,
+          priceCents,
+          uom: value.uom,
+          description: value.description || null,
+          image: value.imageUrl || null,
+          barcode: value.barcode || null,
+        });
+      } else {
+        createProduct.mutate({
+          slug,
+          sku: value.sku,
+          name: value.name,
+          priceCents,
+          uom: value.uom,
+          description: value.description || undefined,
+          image: value.imageUrl || undefined,
+          barcode: value.barcode || undefined,
+        });
+      }
     },
   }));
 
@@ -314,7 +359,7 @@
         <img
           src={imagePreview}
           alt="Product preview"
-          class="h-40 w-full rounded-lg border object-cover"
+          class="w-full rounded-lg border object-cover"
         />
         <Button
           type="button"
@@ -431,12 +476,15 @@
     {#if onCancel}
       <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
     {/if}
-    <Button type="submit" disabled={createProduct.isPending || isUploadingImage}>
-      {#if createProduct.isPending}
+    <Button
+      type="submit"
+      disabled={createProduct.isPending || updateProduct.isPending || isUploadingImage}
+    >
+      {#if createProduct.isPending || updateProduct.isPending}
         <Loader2Icon class="mr-2 size-4 animate-spin" />
-        Creating...
+        {isEditMode ? "Updating..." : "Creating..."}
       {:else}
-        Create Product
+        {isEditMode ? "Update Product" : "Create Product"}
       {/if}
     </Button>
   </div>

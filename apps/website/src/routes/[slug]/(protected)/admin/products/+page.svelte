@@ -178,8 +178,15 @@
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content align="end">
                   <DropdownMenu.Item>
-                    <PencilIcon class="mr-2 size-4" />
-                    Edit
+                    {#snippet child()}
+                      <a
+                        class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
+                        href={`/${params.slug}/admin/products/${product.id}/edit`}
+                      >
+                        <PencilIcon class="mr-2 size-4" />
+                        Edit
+                      </a>
+                    {/snippet}
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Item class="text-destructive">
