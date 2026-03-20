@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import FilterIcon from "@lucide/svelte/icons/filter";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MapPinIcon from "@lucide/svelte/icons/map-pin";
@@ -10,15 +11,19 @@
   import { Badge } from "@repo/ui/badge";
   import { Button, buttonVariants } from "@repo/ui/button";
   import { Card, CardContent, CardDescription, CardTitle } from "@repo/ui/card";
+  import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { Separator } from "@repo/ui/separator";
   import * as Sheet from "@repo/ui/sheet";
   import { Switch } from "@repo/ui/switch";
-  import { createInfiniteQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import { Debounced } from "runed";
+  import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import { orpc } from "$lib/orpc_client";
+  import { shopProductsFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -30,12 +35,18 @@
   const PLACEHOLDER_HERO =
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='500' viewBox='0 0 1200 500'%3E%3Cdefs%3E%3ClinearGradient id='h' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2327133f'/%3E%3Cstop offset='100%25' stop-color='%235419d5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23h)' width='1200' height='500'/%3E%3C/svg%3E";
 
-  // Filter state
-  let searchQuery = $state("");
-  let showInStockOnly = $state(false);
-  let minPrice = $state("");
-  let maxPrice = $state("");
+  const searchParams = useSearchParams(shopProductsFilterSchema);
+  const debouncedSearch = new Debounced(() => searchParams.search, 500);
+  const debouncedCategoryIds = new Debounced(() => searchParams.categoryIds, 500);
+
   let isFilterSheetOpen = $state(false);
+
+  const categories = createQuery(() =>
+    orpc.categories.list.queryOptions({
+      input: { slug: params.slug, pageSize: 100 },
+      enabled: !!params.slug,
+    })
+  );
 
   const products = createInfiniteQuery(() =>
     orpc.products.list.infiniteOptions({
@@ -43,6 +54,12 @@
       input: (cursor) => ({
         cursor,
         slug: params.slug,
+        search: debouncedSearch.current || undefined,
+        categoryIds:
+          debouncedCategoryIds.current.length > 0 ? debouncedCategoryIds.current : undefined,
+        inStockOnly: searchParams.inStockOnly || undefined,
+        minPriceCents: searchParams.minPrice ? searchParams.minPrice * 100 : undefined,
+        maxPriceCents: searchParams.maxPrice ? searchParams.maxPrice * 100 : undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!params.slug,
@@ -51,58 +68,30 @@
 
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
 
-  // Filtered products
-  const filteredProducts = $derived(() => {
-    let result = allProducts;
+  const hasActiveFilters = $derived(
+    (searchParams.search?.length ?? 0) > 0 ||
+      searchParams.categoryIds.length > 0 ||
+      searchParams.inStockOnly ||
+      (searchParams.minPrice ?? 0) > 0 ||
+      (searchParams.maxPrice ?? 0) > 0
+  );
 
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          (p.description && p.description.toLowerCase().includes(query)) ||
-          (p.sku && p.sku.toLowerCase().includes(query))
-      );
-    }
-
-    // Stock filter
-    if (showInStockOnly) {
-      result = result.filter((p) => p.stock > 0);
-    }
-
-    // Price filters
-    const min = Number.parseInt(minPrice) * 100; // Convert to cents
-    const max = Number.parseInt(maxPrice) * 100;
-
-    if (!isNaN(min) && min > 0) {
-      result = result.filter((p) => p.priceCents >= min);
-    }
-    if (!isNaN(max) && max > 0) {
-      result = result.filter((p) => p.priceCents <= max);
-    }
-
-    return result;
-  });
-
-  // Count active filters
-  const activeFilterCount = $derived(() => {
-    let count = 0;
-    if (searchQuery.trim()) count++;
-    if (showInStockOnly) count++;
-    if (minPrice) count++;
-    if (maxPrice) count++;
-    return count;
-  });
-
-  // Check if any filters are applied
-  const hasActiveFilters = $derived(() => activeFilterCount() > 0);
+  const activeFilterCount = $derived(
+    ((searchParams.search?.length ?? 0) > 0 ? 1 : 0) +
+      (searchParams.categoryIds.length > 0 ? 1 : 0) +
+      (searchParams.inStockOnly ? 1 : 0) +
+      ((searchParams.minPrice ?? 0) > 0 ? 1 : 0) +
+      ((searchParams.maxPrice ?? 0) > 0 ? 1 : 0)
+  );
 
   function clearFilters() {
-    searchQuery = "";
-    showInStockOnly = false;
-    minPrice = "";
-    maxPrice = "";
+    searchParams.update({
+      search: undefined,
+      categoryIds: [],
+      inStockOnly: false,
+      minPrice: undefined,
+      maxPrice: undefined,
+    });
   }
 
   function applyFilters() {
@@ -182,9 +171,9 @@
             <div class="flex items-center gap-2">
               <FilterIcon class="text-primary size-4" />
               <h3 class="text-foreground text-sm font-semibold tracking-wide uppercase">Filters</h3>
-              {#if activeFilterCount() > 0}
+              {#if activeFilterCount > 0}
                 <Badge variant="default" class="ml-auto text-xs">
-                  {activeFilterCount()}
+                  {activeFilterCount}
                 </Badge>
               {/if}
             </div>
@@ -207,10 +196,49 @@
                   id="desktop-search"
                   type="text"
                   placeholder="Find products..."
-                  bind:value={searchQuery}
+                  value={searchParams.search}
+                  oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
                   class="h-10 pl-10"
                 />
               </div>
+            </div>
+
+            <Separator />
+
+            <!-- Category Filter -->
+            <div class="space-y-3">
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger
+                  class={buttonVariants({ variant: "outline", size: "sm" }) +
+                    " w-full justify-between"}
+                >
+                  <span class="flex items-center gap-2">
+                    <FilterIcon class="size-4" />
+                    {searchParams.categoryIds.length > 0
+                      ? `${searchParams.categoryIds.length} categories`
+                      : "All Categories"}
+                  </span>
+                  <ChevronDownIcon class="size-3 opacity-50" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="start" class="w-56">
+                  <DropdownMenu.Label>Filter by Category</DropdownMenu.Label>
+                  <DropdownMenu.Separator />
+                  {#if categories.data?.items}
+                    <DropdownMenu.CheckboxGroup
+                      value={searchParams.categoryIds}
+                      onValueChange={(value: string[]) =>
+                        searchParams.update({ categoryIds: value })}
+                    >
+                      {#each categories.data.items as category (category.id)}
+                        <DropdownMenu.CheckboxItem value={category.id}>
+                          <span class="flex-1">{category.name}</span>
+                          <span class="text-muted-foreground text-xs">{category.productCount}</span>
+                        </DropdownMenu.CheckboxItem>
+                      {/each}
+                    </DropdownMenu.CheckboxGroup>
+                  {/if}
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
             </div>
 
             <Separator />
@@ -224,7 +252,11 @@
                 <Label for="desktop-stock" class="cursor-pointer text-sm font-medium"
                   >In Stock Only</Label
                 >
-                <Switch id="desktop-stock" bind:checked={showInStockOnly} />
+                <Switch
+                  id="desktop-stock"
+                  checked={searchParams.inStockOnly}
+                  onCheckedChange={(checked) => searchParams.update({ inStockOnly: checked })}
+                />
               </div>
             </div>
 
@@ -244,7 +276,9 @@
                   <Input
                     type="number"
                     placeholder="Min"
-                    bind:value={minPrice}
+                    value={searchParams.minPrice}
+                    oninput={(e) =>
+                      searchParams.update({ minPrice: e.currentTarget.valueAsNumber })}
                     min="0"
                     class="h-10 pl-7"
                   />
@@ -257,7 +291,9 @@
                   <Input
                     type="number"
                     placeholder="Max"
-                    bind:value={maxPrice}
+                    value={searchParams.maxPrice}
+                    oninput={(e) =>
+                      searchParams.update({ maxPrice: e.currentTarget.valueAsNumber })}
                     min="0"
                     class="h-10 pl-7"
                   />
@@ -266,7 +302,7 @@
             </div>
 
             <!-- Clear Filters -->
-            {#if hasActiveFilters()}
+            {#if hasActiveFilters}
               <Button variant="ghost" size="sm" onclick={clearFilters} class="w-full text-xs">
                 <XIcon class="mr-1 size-3" />
                 Clear all filters
@@ -292,9 +328,9 @@
                 >
                   <FilterIcon class="size-4" />
                   Filters
-                  {#if activeFilterCount() > 0}
+                  {#if activeFilterCount > 0}
                     <Badge variant="default" class="ml-1 size-5 justify-center p-0 text-xs">
-                      {activeFilterCount()}
+                      {activeFilterCount}
                     </Badge>
                   {/if}
                 </Sheet.Trigger>
@@ -321,11 +357,52 @@
                           id="mobile-search"
                           type="text"
                           placeholder="Search products..."
-                          bind:value={searchQuery}
+                          value={searchParams.search}
+                          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
                           class="pl-10"
                         />
                       </div>
                     </div>
+
+                    <!-- Categories -->
+                    {#if categories.data?.items && categories.data.items.length > 0}
+                      <div class="flex flex-col gap-3">
+                        <Label>Categories</Label>
+                        <div class="flex flex-col gap-2">
+                          {#each categories.data.items as category (category.id)}
+                            <label
+                              class="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2"
+                            >
+                              <span class="text-sm">{category.name}</span>
+                              <div class="flex items-center gap-2">
+                                <span class="text-muted-foreground text-xs"
+                                  >{category.productCount}</span
+                                >
+                                <input
+                                  type="checkbox"
+                                  checked={searchParams.categoryIds.includes(category.id)}
+                                  onchange={() => {
+                                    const current = searchParams.categoryIds;
+                                    if (current.includes(category.id)) {
+                                      searchParams.update({
+                                        categoryIds: current.filter(
+                                          (id: string) => id !== category.id
+                                        ),
+                                      });
+                                    } else {
+                                      searchParams.update({
+                                        categoryIds: [...current, category.id],
+                                      });
+                                    }
+                                  }}
+                                  class="size-4"
+                                />
+                              </div>
+                            </label>
+                          {/each}
+                        </div>
+                      </div>
+                    {/if}
 
                     <!-- Stock Filter -->
                     <div class="flex items-center justify-between">
@@ -333,7 +410,11 @@
                         <Label for="mobile-stock" class="text-sm font-medium">In Stock Only</Label>
                         <span class="text-muted-foreground text-xs">Hide out of stock items</span>
                       </div>
-                      <Switch id="mobile-stock" bind:checked={showInStockOnly} />
+                      <Switch
+                        id="mobile-stock"
+                        checked={searchParams.inStockOnly}
+                        onCheckedChange={(checked) => searchParams.update({ inStockOnly: checked })}
+                      />
                     </div>
 
                     <!-- Price Range -->
@@ -348,7 +429,9 @@
                           <Input
                             type="number"
                             placeholder="Min"
-                            bind:value={minPrice}
+                            value={searchParams.minPrice}
+                            oninput={(e) =>
+                              searchParams.update({ minPrice: e.currentTarget.valueAsNumber })}
                             min="0"
                             class="pl-7"
                           />
@@ -362,7 +445,9 @@
                           <Input
                             type="number"
                             placeholder="Max"
-                            bind:value={maxPrice}
+                            value={searchParams.maxPrice}
+                            oninput={(e) =>
+                              searchParams.update({ maxPrice: e.currentTarget.valueAsNumber })}
                             min="0"
                             class="pl-7"
                           />
@@ -375,7 +460,7 @@
                     <Button
                       variant="ghost"
                       onclick={clearFilters}
-                      disabled={!hasActiveFilters()}
+                      disabled={!hasActiveFilters}
                       class="gap-2"
                     >
                       <XIcon class="size-4" />
@@ -383,12 +468,12 @@
                     </Button>
                     <Button onclick={applyFilters} class="gap-2">
                       Apply Filters
-                      {#if activeFilterCount() > 0}
+                      {#if activeFilterCount > 0}
                         <Badge
                           variant="secondary"
                           class="bg-primary-foreground text-primary justify-center text-xs"
                         >
-                          {filteredProducts().length} results
+                          {allProducts.length} results
                         </Badge>
                       {/if}
                     </Button>
@@ -396,45 +481,57 @@
                 </Sheet.Content>
               </Sheet.Root>
             </div>
-            <span class="text-muted-foreground text-sm">{filteredProducts().length} items</span>
+            <span class="text-muted-foreground text-sm">{allProducts.length} items</span>
           </div>
 
           <!-- Active Filters Display -->
-          {#if hasActiveFilters()}
+          {#if hasActiveFilters}
             <div class="mb-4 flex flex-wrap items-center gap-2">
-              {#if searchQuery.trim()}
+              {#if (searchParams.search?.length ?? 0) > 0}
                 <Badge variant="secondary" class="gap-1">
-                  Search: {searchQuery}
+                  Search: {searchParams.search}
                   <button
                     type="button"
-                    onclick={() => (searchQuery = "")}
+                    onclick={() => searchParams.update({ search: "" })}
                     class="hover:text-primary ml-1"
                   >
                     <XIcon class="size-3" />
                   </button>
                 </Badge>
               {/if}
-              {#if showInStockOnly}
+              {#if searchParams.categoryIds.length > 0}
+                <Badge variant="secondary" class="gap-1">
+                  {searchParams.categoryIds.length} categories
+                  <button
+                    type="button"
+                    onclick={() => searchParams.update({ categoryIds: [] })}
+                    class="hover:text-primary ml-1"
+                  >
+                    <XIcon class="size-3" />
+                  </button>
+                </Badge>
+              {/if}
+              {#if searchParams.inStockOnly}
                 <Badge variant="secondary" class="gap-1">
                   In Stock
                   <button
                     type="button"
-                    onclick={() => (showInStockOnly = false)}
+                    onclick={() => searchParams.update({ inStockOnly: false })}
                     class="hover:text-primary ml-1"
                   >
                     <XIcon class="size-3" />
                   </button>
                 </Badge>
               {/if}
-              {#if minPrice || maxPrice}
+              {#if searchParams.minPrice || searchParams.maxPrice}
                 <Badge variant="secondary" class="gap-1">
-                  Price: {minPrice ? `$${minPrice}` : "$0"} - {maxPrice ? `$${maxPrice}` : "∞"}
+                  Price: {searchParams.minPrice ? `$${searchParams.minPrice}` : "$0"} - {searchParams.maxPrice
+                    ? `$${searchParams.maxPrice}`
+                    : "∞"}
                   <button
                     type="button"
-                    onclick={() => {
-                      minPrice = "";
-                      maxPrice = "";
-                    }}
+                    onclick={() =>
+                      searchParams.update({ minPrice: undefined, maxPrice: undefined })}
                     class="hover:text-primary ml-1"
                   >
                     <XIcon class="size-3" />
@@ -452,7 +549,7 @@
             </div>
           {/if}
 
-          {#if filteredProducts().length === 0}
+          {#if allProducts.length === 0}
             <!-- Empty State -->
             <Card class="py-16">
               <CardContent class="flex flex-col items-center justify-center text-center">
@@ -460,14 +557,14 @@
                   <ShoppingCartIcon class="text-muted-foreground size-7" />
                 </div>
                 <CardTitle class="mb-1 text-base">
-                  {hasActiveFilters() ? "No products match" : "No products yet"}
+                  {hasActiveFilters ? "No products match" : "No products yet"}
                 </CardTitle>
                 <CardDescription>
-                  {hasActiveFilters()
+                  {hasActiveFilters
                     ? "Try adjusting your filters to see more results"
                     : "This shop hasn't added any products"}
                 </CardDescription>
-                {#if hasActiveFilters()}
+                {#if hasActiveFilters}
                   <Button variant="outline" onclick={clearFilters} class="mt-4"
                     >Clear Filters</Button
                   >
@@ -477,7 +574,7 @@
           {:else}
             <!-- Products Grid -->
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-              {#each filteredProducts() as product, index (product.id)}
+              {#each allProducts as product, index (product.id)}
                 <Card
                   class="group transition-[translate shadow] overflow-hidden p-0 duration-300 hover:-translate-y-1 hover:shadow-md"
                   style="animation: fadeInUp 0.4s ease-out {index * 0.03}s both;"
@@ -523,7 +620,7 @@
           {/if}
 
           <!-- Load More -->
-          {#if products.hasNextPage && !hasActiveFilters()}
+          {#if products.hasNextPage}
             <div class="mt-8 flex justify-center">
               <Button
                 variant="outline"

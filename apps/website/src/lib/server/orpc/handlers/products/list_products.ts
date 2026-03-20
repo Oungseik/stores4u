@@ -10,6 +10,7 @@ const input = z.object({
   order: z.enum(["asc", "desc"]).default("desc"),
   search: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),
+  inStockOnly: z.boolean().optional(),
   stockThreshold: z.number().int().nonnegative().optional(),
   minPriceCents: z.number().int().nonnegative().optional(),
   maxPriceCents: z.number().int().nonnegative().optional(),
@@ -36,7 +37,11 @@ export const listProductsHandler = os
         productCategories: input.categoryIds?.length
           ? { categoryId: { in: input.categoryIds } }
           : undefined,
-        stock: input.stockThreshold && { lte: input.stockThreshold },
+        stock: input.inStockOnly
+          ? { gt: 0 }
+          : input.stockThreshold
+            ? { lte: input.stockThreshold }
+            : undefined,
         priceCents: { gte: input.minPriceCents, lte: input.maxPriceCents },
         uom: input.uoms?.length ? { in: input.uoms } : undefined,
       },
