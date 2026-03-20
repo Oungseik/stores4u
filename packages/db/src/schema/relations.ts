@@ -3,6 +3,7 @@ import { inventoryMovement } from "./inventory";
 import { invoice, invoiceItem, invoiceOcrResult } from "./invoice";
 import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
+import { refund, refundItem } from "./refund";
 import { setting } from "./shop";
 import { productSupplier, supplier } from "./supplier";
 
@@ -20,6 +21,8 @@ export const relations = defineRelations(
     setting,
     order,
     orderItem,
+    refund,
+    refundItem,
   },
   (r) => ({
     category: {
@@ -70,10 +73,20 @@ export const relations = defineRelations(
     setting: {},
     order: {
       items: r.many.orderItem(),
+      refunds: r.many.refund(),
     },
     orderItem: {
       order: r.one.order({ from: r.orderItem.orderId, to: r.order.id }),
       product: r.one.product({ from: r.orderItem.productId, to: r.product.id }),
+      refundItems: r.many.refundItem(),
+    },
+    refund: {
+      order: r.one.order({ from: r.refund.orderId, to: r.order.id }),
+      items: r.many.refundItem(),
+    },
+    refundItem: {
+      refund: r.one.refund({ from: r.refundItem.refundId, to: r.refund.id }),
+      orderItem: r.one.orderItem({ from: r.refundItem.orderItemId, to: r.orderItem.id }),
     },
   }),
 );
