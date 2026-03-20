@@ -6,7 +6,7 @@ export const returnUrlSchema = createSearchParamsSchema({
 
 export const productsFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
-  categoryIds: {
+  categories: {
     type: "array",
     arrayType: "",
     default: [],
@@ -21,7 +21,7 @@ export const ordersFilterSchema = createSearchParamsSchema({
 
 type ShopProductFilterSchema = {
   search: string | null;
-  categoryIds: string[];
+  categories: string[];
   inStockOnly: boolean;
   minPrice: number | null;
   maxPrice: number | null;
@@ -29,7 +29,7 @@ type ShopProductFilterSchema = {
 
 export const shopProductsFilterSchema = createSearchParamsSchema({
   search: { type: "string" },
-  categoryIds: { type: "array", arrayType: "", default: [] },
+  categories: { type: "array", arrayType: "", default: [] },
   inStockOnly: { type: "boolean", default: false },
   minPrice: { type: "number" },
   maxPrice: { type: "number" },

@@ -37,7 +37,7 @@
 
   const searchParams = useSearchParams(shopProductsFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
-  const debouncedCategoryIds = new Debounced(() => searchParams.categoryIds, 500);
+  const debouncedCategories = new Debounced(() => searchParams.categories, 500);
 
   let isFilterSheetOpen = $state(false);
 
@@ -55,8 +55,8 @@
         cursor,
         slug: params.slug,
         search: debouncedSearch.current || undefined,
-        categoryIds:
-          debouncedCategoryIds.current.length > 0 ? debouncedCategoryIds.current : undefined,
+        categories:
+          debouncedCategories.current.length > 0 ? debouncedCategories.current : undefined,
         inStockOnly: searchParams.inStockOnly || undefined,
         minPriceCents: searchParams.minPrice ? searchParams.minPrice * 100 : undefined,
         maxPriceCents: searchParams.maxPrice ? searchParams.maxPrice * 100 : undefined,
@@ -70,7 +70,7 @@
 
   const hasActiveFilters = $derived(
     (searchParams.search?.length ?? 0) > 0 ||
-      searchParams.categoryIds.length > 0 ||
+      searchParams.categories.length > 0 ||
       searchParams.inStockOnly ||
       (searchParams.minPrice ?? 0) > 0 ||
       (searchParams.maxPrice ?? 0) > 0
@@ -78,7 +78,7 @@
 
   const activeFilterCount = $derived(
     ((searchParams.search?.length ?? 0) > 0 ? 1 : 0) +
-      (searchParams.categoryIds.length > 0 ? 1 : 0) +
+      (searchParams.categories.length > 0 ? 1 : 0) +
       (searchParams.inStockOnly ? 1 : 0) +
       ((searchParams.minPrice ?? 0) > 0 ? 1 : 0) +
       ((searchParams.maxPrice ?? 0) > 0 ? 1 : 0)
@@ -87,7 +87,7 @@
   function clearFilters() {
     searchParams.update({
       search: undefined,
-      categoryIds: [],
+      categories: [],
       inStockOnly: false,
       minPrice: undefined,
       maxPrice: undefined,
@@ -214,8 +214,8 @@
                 >
                   <span class="flex items-center gap-2">
                     <FilterIcon class="size-4" />
-                    {searchParams.categoryIds.length > 0
-                      ? `${searchParams.categoryIds.length} categories`
+                    {searchParams.categories.length > 0
+                      ? `${searchParams.categories.length} categories`
                       : "All Categories"}
                   </span>
                   <ChevronDownIcon class="size-3 opacity-50" />
@@ -225,12 +225,12 @@
                   <DropdownMenu.Separator />
                   {#if categories.data?.items}
                     <DropdownMenu.CheckboxGroup
-                      value={searchParams.categoryIds}
+                      value={searchParams.categories}
                       onValueChange={(value: string[]) =>
-                        searchParams.update({ categoryIds: value })}
+                        searchParams.update({ categories: value })}
                     >
                       {#each categories.data.items as category (category.id)}
-                        <DropdownMenu.CheckboxItem value={category.id}>
+                        <DropdownMenu.CheckboxItem value={category.name}>
                           <span class="flex-1">{category.name}</span>
                           <span class="text-muted-foreground text-xs">{category.productCount}</span>
                         </DropdownMenu.CheckboxItem>
@@ -380,18 +380,18 @@
                                 >
                                 <input
                                   type="checkbox"
-                                  checked={searchParams.categoryIds.includes(category.id)}
+                                  checked={searchParams.categories.includes(category.name)}
                                   onchange={() => {
-                                    const current = searchParams.categoryIds;
-                                    if (current.includes(category.id)) {
+                                    const current = searchParams.categories;
+                                    if (current.includes(category.name)) {
                                       searchParams.update({
-                                        categoryIds: current.filter(
-                                          (id: string) => id !== category.id
+                                        categories: current.filter(
+                                          (name: string) => name !== category.name
                                         ),
                                       });
                                     } else {
                                       searchParams.update({
-                                        categoryIds: [...current, category.id],
+                                        categories: [...current, category.name],
                                       });
                                     }
                                   }}
@@ -499,12 +499,12 @@
                   </button>
                 </Badge>
               {/if}
-              {#if searchParams.categoryIds.length > 0}
+              {#if searchParams.categories.length > 0}
                 <Badge variant="secondary" class="gap-1">
-                  {searchParams.categoryIds.length} categories
+                  {searchParams.categories.length} categories
                   <button
                     type="button"
-                    onclick={() => searchParams.update({ categoryIds: [] })}
+                    onclick={() => searchParams.update({ categories: [] })}
                     class="hover:text-primary ml-1"
                   >
                     <XIcon class="size-3" />

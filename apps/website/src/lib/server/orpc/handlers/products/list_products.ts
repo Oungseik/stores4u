@@ -9,7 +9,7 @@ const input = z.object({
   pageSize: z.number().int().positive().default(12),
   order: z.enum(["asc", "desc"]).default("desc"),
   search: z.string().optional(),
-  categoryIds: z.array(z.string()).optional(),
+  categories: z.array(z.string()).optional(),
   inStockOnly: z.boolean().optional(),
   stockThreshold: z.number().int().nonnegative().optional(),
   minPriceCents: z.number().int().nonnegative().optional(),
@@ -34,8 +34,8 @@ export const listProductsHandler = os
               { barcode: input.search },
             ]
           : undefined,
-        productCategories: input.categoryIds?.length
-          ? { categoryId: { in: input.categoryIds } }
+        productCategories: input.categories?.length
+          ? { category: { name: { in: input.categories } } }
           : undefined,
         stock: input.inStockOnly
           ? { gt: 0 }

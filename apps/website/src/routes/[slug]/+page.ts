@@ -20,7 +20,7 @@ export const load = (async ({ url, parent, params }) => {
         input: {
           slug: params.slug,
           search: data.search ?? undefined,
-          categoryIds: data.categoryIds?.length > 0 ? data.categoryIds : undefined,
+          categories: data.categories?.length > 0 ? data.categories : undefined,
           inStockOnly: data.inStockOnly ?? undefined,
           minPriceCents: data.minPrice ?? undefined,
           maxPriceCents: data.maxPrice ?? undefined,

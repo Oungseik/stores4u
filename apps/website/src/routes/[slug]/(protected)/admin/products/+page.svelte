@@ -16,9 +16,8 @@
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
-
-  import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import Pricing from "$lib/components/Pricing.svelte";
   import { orpc } from "$lib/orpc_client";
   import { productsFilterSchema } from "$lib/search_param";
 
@@ -28,7 +27,7 @@
 
   const searchParams = useSearchParams(productsFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
-  const debouncedCategoryIds = new Debounced(() => searchParams.categoryIds, 1000);
+  const debouncedCategories = new Debounced(() => searchParams.categories, 1000);
 
   const products = createInfiniteQuery(() =>
     orpc.products.list.infiniteOptions({
@@ -37,8 +36,8 @@
         cursor,
         slug: params.slug,
         search: debouncedSearch.current || undefined,
-        categoryIds:
-          debouncedCategoryIds.current.length > 0 ? debouncedCategoryIds.current : undefined,
+        categories:
+          debouncedCategories.current.length > 0 ? debouncedCategories.current : undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!params.slug,
@@ -54,11 +53,11 @@
   );
 
   const hasFilters = $derived(
-    searchParams.search.length > 0 || searchParams.categoryIds.length > 0
+    searchParams.search.length > 0 || searchParams.categories.length > 0
   );
 
   function resetFilters() {
-    searchParams.update({ search: "", categoryIds: [] });
+    searchParams.update({ search: "", categories: [] });
   }
 </script>
 
@@ -92,8 +91,8 @@
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}>
           <FilterIcon class="size-4" />
-          {searchParams.categoryIds.length > 0
-            ? `${searchParams.categoryIds.length} categories selected`
+          {searchParams.categories.length > 0
+            ? `${searchParams.categories.length} categories selected`
             : "All Categories"}
           <ChevronDownIcon class="size-3 opacity-50" />
         </DropdownMenu.Trigger>
@@ -102,11 +101,11 @@
           <DropdownMenu.Separator />
           {#if categories.data?.items}
             <DropdownMenu.CheckboxGroup
-              value={searchParams.categoryIds}
-              onValueChange={(value: string[]) => searchParams.update({ categoryIds: value })}
+              value={searchParams.categories}
+              onValueChange={(value: string[]) => searchParams.update({ categories: value })}
             >
               {#each categories.data.items as category (category.id)}
-                <DropdownMenu.CheckboxItem value={category.id}>
+                <DropdownMenu.CheckboxItem value={category.name}>
                   <span class="flex-1">{category.name}</span>
                   <span class="text-muted-foreground text-xs">{category.productCount}</span>
                 </DropdownMenu.CheckboxItem>
