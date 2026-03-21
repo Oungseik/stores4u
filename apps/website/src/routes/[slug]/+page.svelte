@@ -161,7 +161,7 @@
   </section>
 
   <!-- Products Section -->
-  <main class="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+  <main class="px-4 py-4 sm:px-6 lg:px-8 lg:py-18">
     <div class="mx-auto max-w-7xl">
       <div class="flex flex-col gap-8 lg:flex-row lg:gap-12">
         <!-- Desktop Sidebar Filters -->
@@ -314,174 +314,169 @@
         <!-- Main Content -->
         <div class="min-w-0 flex-1">
           <!-- Section Header with Mobile Filter -->
-          <div class="mb-6 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <h2 class="text-foreground text-lg font-semibold">Products</h2>
-              <!-- Mobile Filter Sheet -->
-              <Sheet.Root bind:open={isFilterSheetOpen}>
-                <Sheet.Trigger
-                  class={buttonVariants({
-                    variant: "outline",
-                    size: "sm",
-                    class: "gap-2 lg:hidden",
-                  })}
-                >
-                  <FilterIcon class="size-4" />
-                  Filters
-                  {#if activeFilterCount > 0}
-                    <Badge variant="default" class="ml-1 size-5 justify-center p-0 text-xs">
-                      {activeFilterCount}
-                    </Badge>
-                  {/if}
-                </Sheet.Trigger>
-                <Sheet.Content side="right" class="w-full sm:max-w-md [&>div]:px-6">
-                  <Sheet.Header>
-                    <Sheet.Title class="flex items-center gap-2">
-                      <FilterIcon class="size-5" />
-                      Filter Products
-                    </Sheet.Title>
-                    <Sheet.Description>
-                      Narrow down products by search, availability, and price
-                    </Sheet.Description>
-                  </Sheet.Header>
+          <div class="mb-3 flex items-center justify-between gap-3 py-3">
+            <h2 class="text-foreground text-lg font-semibold">Products</h2>
+            <!-- Mobile Filter Sheet -->
+            <Sheet.Root bind:open={isFilterSheetOpen}>
+              <Sheet.Trigger
+                class={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  class: "gap-2 lg:hidden",
+                })}
+              >
+                <FilterIcon class="size-4" />
+                Filters
+                {#if activeFilterCount > 0}
+                  <Badge variant="default" class="ml-1 size-5 justify-center p-0 text-xs">
+                    {activeFilterCount}
+                  </Badge>
+                {/if}
+              </Sheet.Trigger>
+              <Sheet.Content side="right" class="w-full sm:max-w-md [&>div]:px-6">
+                <Sheet.Header>
+                  <Sheet.Title class="flex items-center gap-2">
+                    <FilterIcon class="size-5" />
+                    Filter Products
+                  </Sheet.Title>
+                  <Sheet.Description>
+                    Narrow down products by search, availability, and price
+                  </Sheet.Description>
+                </Sheet.Header>
 
-                  <div class="flex flex-col gap-6 py-6">
-                    <!-- Search -->
-                    <div class="flex flex-col gap-2">
-                      <Label for="mobile-search">Search</Label>
-                      <div class="relative">
-                        <SearchIcon
-                          class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-                        />
-                        <Input
-                          id="mobile-search"
-                          type="text"
-                          placeholder="Search products..."
-                          value={searchParams.search}
-                          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-                          class="pl-10"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Categories -->
-                    {#if categories.data?.items && categories.data.items.length > 0}
-                      <div class="flex flex-col gap-3">
-                        <Label>Categories</Label>
-                        <div class="flex flex-col gap-2">
-                          {#each categories.data.items as category (category.id)}
-                            <label
-                              class="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2"
-                            >
-                              <span class="text-sm">{category.name}</span>
-                              <div class="flex items-center gap-2">
-                                <span class="text-muted-foreground text-xs"
-                                  >{category.productCount}</span
-                                >
-                                <input
-                                  type="checkbox"
-                                  checked={searchParams.categories.includes(category.name)}
-                                  onchange={() => {
-                                    const current = searchParams.categories;
-                                    if (current.includes(category.name)) {
-                                      searchParams.update({
-                                        categories: current.filter(
-                                          (name: string) => name !== category.name
-                                        ),
-                                      });
-                                    } else {
-                                      searchParams.update({
-                                        categories: [...current, category.name],
-                                      });
-                                    }
-                                  }}
-                                  class="size-4"
-                                />
-                              </div>
-                            </label>
-                          {/each}
-                        </div>
-                      </div>
-                    {/if}
-
-                    <!-- Stock Filter -->
-                    <div class="flex items-center justify-between">
-                      <div class="flex flex-col gap-0.5">
-                        <Label for="mobile-stock" class="text-sm font-medium">In Stock Only</Label>
-                        <span class="text-muted-foreground text-xs">Hide out of stock items</span>
-                      </div>
-                      <Switch
-                        id="mobile-stock"
-                        checked={searchParams.inStockOnly}
-                        onCheckedChange={(checked) => searchParams.update({ inStockOnly: checked })}
+                <div class="flex flex-col gap-6 py-6">
+                  <!-- Search -->
+                  <div class="flex flex-col gap-2">
+                    <Label for="mobile-search">Search</Label>
+                    <div class="relative">
+                      <SearchIcon
+                        class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
                       />
-                    </div>
-
-                    <!-- Price Range -->
-                    <div class="flex flex-col gap-3">
-                      <Label>Price Range</Label>
-                      <div class="flex items-center gap-3">
-                        <div class="relative flex-1">
-                          <span
-                            class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
-                            >$</span
-                          >
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={searchParams.minPrice}
-                            oninput={(e) =>
-                              searchParams.update({ minPrice: e.currentTarget.valueAsNumber })}
-                            min="0"
-                            class="pl-7"
-                          />
-                        </div>
-                        <span class="text-muted-foreground">-</span>
-                        <div class="relative flex-1">
-                          <span
-                            class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
-                            >$</span
-                          >
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={searchParams.maxPrice}
-                            oninput={(e) =>
-                              searchParams.update({ maxPrice: e.currentTarget.valueAsNumber })}
-                            min="0"
-                            class="pl-7"
-                          />
-                        </div>
-                      </div>
+                      <Input
+                        id="mobile-search"
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchParams.search}
+                        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+                        class="pl-10"
+                      />
                     </div>
                   </div>
 
-                  <Sheet.Footer class="gap-2 py-6 sm:justify-between">
-                    <Button
-                      variant="ghost"
-                      onclick={clearFilters}
-                      disabled={!hasActiveFilters}
-                      class="gap-2"
-                    >
-                      <XIcon class="size-4" />
-                      Clear All
-                    </Button>
-                    <Button onclick={applyFilters} class="gap-2">
-                      Apply Filters
-                      {#if activeFilterCount > 0}
-                        <Badge
-                          variant="secondary"
-                          class="bg-primary-foreground text-primary justify-center text-xs"
+                  <!-- Categories -->
+                  {#if categories.data?.items && categories.data.items.length > 0}
+                    <div class="flex flex-col gap-3">
+                      <Label>Categories</Label>
+                      <div class="flex flex-col gap-2">
+                        {#each categories.data.items as category (category.id)}
+                          <label
+                            class="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2"
+                          >
+                            <span class="text-sm">{category.name}</span>
+                            <div class="flex items-center gap-2">
+                              <span class="text-muted-foreground text-xs"
+                                >{category.productCount}</span
+                              >
+                              <input
+                                type="checkbox"
+                                checked={searchParams.categories.includes(category.name)}
+                                onchange={() => {
+                                  const current = searchParams.categories;
+                                  if (current.includes(category.name)) {
+                                    searchParams.update({
+                                      categories: current.filter(
+                                        (name: string) => name !== category.name
+                                      ),
+                                    });
+                                  } else {
+                                    searchParams.update({
+                                      categories: [...current, category.name],
+                                    });
+                                  }
+                                }}
+                                class="size-4"
+                              />
+                            </div>
+                          </label>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
+
+                  <!-- Stock Filter -->
+                  <div class="flex items-center justify-between">
+                    <div class="flex flex-col gap-0.5">
+                      <Label for="mobile-stock" class="text-sm font-medium">In Stock Only</Label>
+                      <span class="text-muted-foreground text-xs">Hide out of stock items</span>
+                    </div>
+                    <Switch
+                      id="mobile-stock"
+                      checked={searchParams.inStockOnly}
+                      onCheckedChange={(checked) => searchParams.update({ inStockOnly: checked })}
+                    />
+                  </div>
+
+                  <!-- Price Range -->
+                  <div class="flex flex-col gap-3">
+                    <Label>Price Range</Label>
+                    <div class="flex items-center gap-3">
+                      <div class="relative flex-1">
+                        <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
+                          >$</span
                         >
-                          {allProducts.length} results
-                        </Badge>
-                      {/if}
-                    </Button>
-                  </Sheet.Footer>
-                </Sheet.Content>
-              </Sheet.Root>
-            </div>
-            <span class="text-muted-foreground text-sm">{allProducts.length} items</span>
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={searchParams.minPrice}
+                          oninput={(e) =>
+                            searchParams.update({ minPrice: e.currentTarget.valueAsNumber })}
+                          min="0"
+                          class="pl-7"
+                        />
+                      </div>
+                      <span class="text-muted-foreground">-</span>
+                      <div class="relative flex-1">
+                        <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
+                          >$</span
+                        >
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={searchParams.maxPrice}
+                          oninput={(e) =>
+                            searchParams.update({ maxPrice: e.currentTarget.valueAsNumber })}
+                          min="0"
+                          class="pl-7"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Sheet.Footer class="gap-2 py-6 sm:justify-between">
+                  <Button
+                    variant="ghost"
+                    onclick={clearFilters}
+                    disabled={!hasActiveFilters}
+                    class="gap-2"
+                  >
+                    <XIcon class="size-4" />
+                    Clear All
+                  </Button>
+                  <Button onclick={applyFilters} class="gap-2">
+                    Apply Filters
+                    {#if activeFilterCount > 0}
+                      <Badge
+                        variant="secondary"
+                        class="bg-primary-foreground text-primary justify-center text-xs"
+                      >
+                        {allProducts.length} results
+                      </Badge>
+                    {/if}
+                  </Button>
+                </Sheet.Footer>
+              </Sheet.Content>
+            </Sheet.Root>
           </div>
 
           <!-- Active Filters Display -->
@@ -574,10 +569,9 @@
           {:else}
             <!-- Products Grid -->
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-              {#each allProducts as product, index (product.id)}
+              {#each allProducts as product (product.id)}
                 <Card
                   class="group transition-[translate shadow] overflow-hidden p-0 duration-300 hover:-translate-y-1 hover:shadow-md"
-                  style="animation: fadeInUp 0.4s ease-out {index * 0.03}s both;"
                 >
                   <!-- Image Container -->
                   <div class="bg-muted relative aspect-3/2 overflow-hidden">
@@ -650,16 +644,3 @@
     </div>
   </footer>
 </div>
-
-<style>
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
