@@ -1,11 +1,9 @@
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
 import { COUNTRIES } from "@repo/config";
-import { setting } from "@repo/db";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
 import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -15,7 +13,9 @@ const input = z.object({
   address: z.string().min(1).max(200),
   city: z.string().min(1).max(100),
   phone: z.string().min(1).max(50),
-  region: z.string().max(100).optional(),
+  state: z.string().max(100).optional(),
+  zipCode: z.string().max(20).optional(),
+  email: z.email().max(200).optional(),
   country: z.enum(COUNTRIES),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
@@ -32,28 +32,23 @@ export const updateShopHandler = os
       });
     }
 
-    if (input.name !== undefined) {
-      await db.update(shop).set({ name: input.name }).where(eq(shop.id, context.shop.id));
-    }
-
-    const shopDb = getShopDb(context.shop);
-
-    const settingValues = {
-      title: input.title,
-      description: input.description,
-      address: input.address,
-      city: input.city,
-      phone: input.phone,
-      region: input.region,
-      country: input.country,
-      logo: input.logo,
-      heroImage: input.heroImage,
-    };
-
-    await shopDb.insert(setting).values(settingValues).onConflictDoUpdate({
-      target: setting.id,
-      set: settingValues,
-    });
+    await db
+      .update(shop)
+      .set({
+        name: input.name,
+        title: input.title,
+        description: input.description,
+        address: input.address,
+        city: input.city,
+        state: input.state,
+        zipCode: input.zipCode,
+        country: input.country,
+        phone: input.phone,
+        email: input.email,
+        logo: input.logo,
+        heroImage: input.heroImage,
+      })
+      .where(eq(shop.id, context.shop.id));
 
     return { success: true };
   });

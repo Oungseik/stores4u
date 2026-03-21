@@ -42,7 +42,9 @@
     address: z.string().min(1, "Address is required").max(200),
     city: z.string().min(1, "City is required").max(100),
     phone: z.string().min(1, "Phone is required").max(50),
-    region: z.string().max(100).optional(),
+    email: z.email("Invalid email").max(200).optional().or(z.literal("")),
+    state: z.string().max(100).optional(),
+    zipCode: z.string().max(20).optional(),
     country: z.string().max(100).optional(),
   });
 
@@ -55,7 +57,9 @@
       address: "",
       city: "",
       phone: "",
-      region: "",
+      email: "",
+      state: "",
+      zipCode: "",
       country: "" as CountryCode | "",
     },
     onSubmit: async ({ value }) => {
@@ -69,7 +73,9 @@
           address: value.address,
           city: value.city,
           phone: value.phone,
-          region: value.region || undefined,
+          email: value.email || undefined,
+          state: value.state || undefined,
+          zipCode: value.zipCode || undefined,
           country: value.country || undefined,
         });
         goto("/");
@@ -117,18 +123,18 @@
       });
       form.validateAllFields("change");
       return result.success;
-    } else if (step === 2) {
+    } else {
       const result = step2Schema.safeParse({
         address: values.address,
         city: values.city,
         phone: values.phone,
-        region: values.region,
+        email: values.email,
+        state: values.state,
+        zipCode: values.zipCode,
         country: values.country,
       });
       return result.success;
     }
-
-    return true;
   }
 
   function nextStep() {
@@ -466,11 +472,28 @@
                 {/snippet}
               </form.Field>
 
+              <form.Field name="email">
+                {#snippet children(field)}
+                  <div class="space-y-2">
+                    <Label for={field.name}>Email</Label>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      type="email"
+                      onblur={field.handleBlur}
+                      onchange={(e) => field.handleChange(e.currentTarget.value)}
+                      placeholder="hello@yourshop.com"
+                    />
+                  </div>
+                {/snippet}
+              </form.Field>
+
               <div class="grid grid-cols-2 gap-4">
-                <form.Field name="region">
+                <form.Field name="state">
                   {#snippet children(field)}
                     <div class="space-y-2">
-                      <Label for={field.name}>State/Region</Label>
+                      <Label for={field.name}>State</Label>
                       <Input
                         id={field.name}
                         name={field.name}
@@ -484,34 +507,51 @@
                   {/snippet}
                 </form.Field>
 
-                <form.Field name="country">
+                <form.Field name="zipCode">
                   {#snippet children(field)}
                     <div class="space-y-2">
-                      <Label for={field.name}>Country</Label>
-                      <Select.Root
+                      <Label for={field.name}>ZIP Code</Label>
+                      <Input
+                        id={field.name}
+                        name={field.name}
                         value={field.state.value}
-                        type="single"
-                        onValueChange={(value) => field.setValue(value as CountryCode)}
-                      >
-                        <Select.Trigger class="w-full">
-                          <span data-slot="select-value">
-                            {field.state.value
-                              ? getCountryName(field.state.value)
-                              : "Select a country"}
-                          </span>
-                        </Select.Trigger>
-                        <Select.Content>
-                          {#each COUNTRIES as countryCode}
-                            <Select.Item value={countryCode}>
-                              {getCountryName(countryCode)}
-                            </Select.Item>
-                          {/each}
-                        </Select.Content>
-                      </Select.Root>
+                        type="text"
+                        onblur={field.handleBlur}
+                        onchange={(e) => field.handleChange(e.currentTarget.value)}
+                        placeholder="10001"
+                      />
                     </div>
                   {/snippet}
                 </form.Field>
               </div>
+
+              <form.Field name="country">
+                {#snippet children(field)}
+                  <div class="space-y-2">
+                    <Label for={field.name}>Country</Label>
+                    <Select.Root
+                      value={field.state.value}
+                      type="single"
+                      onValueChange={(value) => field.setValue(value as CountryCode)}
+                    >
+                      <Select.Trigger class="w-full">
+                        <span data-slot="select-value">
+                          {field.state.value
+                            ? getCountryName(field.state.value)
+                            : "Select a country"}
+                        </span>
+                      </Select.Trigger>
+                      <Select.Content>
+                        {#each COUNTRIES as countryCode}
+                          <Select.Item value={countryCode}>
+                            {getCountryName(countryCode)}
+                          </Select.Item>
+                        {/each}
+                      </Select.Content>
+                    </Select.Root>
+                  </div>
+                {/snippet}
+              </form.Field>
             </div>
           {/if}
 

@@ -9,14 +9,7 @@ export const load: LayoutServerLoad = async ({ params }) => {
   }
 
   return {
-    id: shop.id,
-    name: shop.name,
-    slug: shop.slug,
-    logo: shop.logo,
-    heroImage: shop.heroImage,
-    description: shop.description,
-    address: shop.address,
-    phone: shop.phone,
-    country: shop.country,
+    ...shop,
+    tursoDbUrl: undefined,
   };
 };

@@ -1,12 +1,11 @@
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
 import { COUNTRIES } from "@repo/config";
-import { setting } from "@repo/db";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os } from "$lib/server/orpc/base";
-import { createShopDatabase, deleteShopDatabase, getShopDb } from "$lib/server/shop_db";
+import { createShopDatabase } from "$lib/server/shop_db";
 
 const input = z.object({
   name: z.string().min(1).max(100),
@@ -20,7 +19,9 @@ const input = z.object({
   address: z.string().min(1).max(200),
   city: z.string().min(1).max(100),
   phone: z.string().min(1).max(50),
-  region: z.string().max(100).optional(),
+  state: z.string().max(100).optional(),
+  zipCode: z.string().max(20).optional(),
+  email: z.email().max(200).optional(),
   country: z.enum(COUNTRIES).optional(),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
@@ -70,25 +71,6 @@ export const createShopHandler = os
       await db.delete(shop).where(eq(shop.id, shopInfo.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
-      });
-    }
-
-    try {
-      const shopDb = getShopDb({ slug: input.slug });
-      await shopDb.insert(setting).values(shopInfo);
-    } catch (e) {
-      logger.error({ err: e, shopSlug: input.slug }, "Failed to create shop setting");
-      await Promise.all([
-        deleteShopDatabase(input.slug),
-        db.delete(shop).where(eq(shop.id, shopInfo.id)),
-      ]).catch((err) =>
-        logger.error(
-          { err, shopSlug: input.slug },
-          "Failed to delete shop database after shop setup failure",
-        ),
-      );
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to create shop settings. Please try again.",
       });
     }
 
