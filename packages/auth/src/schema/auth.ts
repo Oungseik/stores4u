@@ -99,9 +99,11 @@ export const shop = sqliteTable(
     description: text("description").notNull(),
     address: text("address").notNull(),
     city: text("city").notNull(),
-    region: text("region"),
+    state: text("state"),
+    zipCode: text("zip_code"),
     country: text("country", { enum: COUNTRIES }),
     phone: text("phone").notNull(),
+    email: text("email"),
     tursoDbUrl: text("turso_db_url"),
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
     userId: text("user_id")

@@ -4,7 +4,6 @@ import { invoice, invoiceItem, invoiceOcrResult } from "./invoice";
 import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
 import { refund, refundItem } from "./refund";
-import { setting } from "./shop";
 import { productSupplier, supplier } from "./supplier";
 
 export const relations = defineRelations(
@@ -18,7 +17,6 @@ export const relations = defineRelations(
     invoice,
     invoiceItem,
     inventoryMovement,
-    setting,
     order,
     orderItem,
     refund,
@@ -70,7 +68,6 @@ export const relations = defineRelations(
         to: r.invoiceItem.id,
       }),
     },
-    setting: {},
     order: {
       items: r.many.orderItem(),
       refunds: r.many.refund(),

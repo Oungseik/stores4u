@@ -10,13 +10,11 @@ import {
   product,
   productCategory,
   productSupplier,
-  setting,
   supplier,
 } from "./schema";
 import { relations } from "./schema/relations";
 
 const schema = {
-  setting,
   category,
   image,
   product,
