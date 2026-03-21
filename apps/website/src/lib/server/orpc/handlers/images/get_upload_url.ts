@@ -18,7 +18,6 @@ export const getUploadUrlHandler = os
   .use(shopMiddleware)
   .use(authMiddleware)
   .handler(async ({ input }) => {
-    const ext = input.filename.split(".").pop() || "bin";
     const sanitizedName = input.filename.replace(/[^a-zA-Z0-9._-]/g, "_");
     const objectKey = `images/${randomUUID()}_${sanitizedName}`;
 
