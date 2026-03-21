@@ -108,73 +108,75 @@
 </script>
 
 <div class="bg-background min-h-svh">
-  <!-- Hero Section -->
-  <header class="relative overflow-hidden">
-    <!-- Hero Background -->
-    <div class="relative h-[45vh] max-h-[500px] min-h-[320px]">
-      <img src={getHeroUrl(shop.heroImage)} alt="" class="h-full w-full object-cover" />
-      <div
-        class="from-background/90 via-background/50 to-background/20 absolute inset-0 bg-gradient-to-t"
-      ></div>
-    </div>
+  {#if !hasActiveFilters}
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden">
+      <!-- Hero Background -->
+      <div class="relative h-[45vh] max-h-[500px] min-h-[320px]">
+        <img src={getHeroUrl(shop.heroImage)} alt="" class="h-full w-full object-cover" />
+        <div
+          class="from-background/90 via-background/50 to-background/20 absolute inset-0 bg-gradient-to-t"
+        ></div>
+      </div>
 
-    <!-- Hero Content -->
-    <div class="absolute inset-0 flex items-end">
-      <div class="w-full px-4 pt-32 pb-8 sm:px-6 lg:px-8 lg:pb-12">
-        <div class="mx-auto max-w-7xl">
-          <!-- Shop Badge -->
-          <Badge variant="secondary" class="mb-3 gap-1.5">
-            <StoreIcon class="size-3" />
-            Shop
-          </Badge>
+      <!-- Hero Content -->
+      <div class="absolute inset-0 flex items-end">
+        <div class="w-full px-4 pt-32 pb-8 sm:px-6 lg:px-8 lg:pb-12">
+          <div class="mx-auto max-w-7xl">
+            <!-- Shop Badge -->
+            <Badge variant="secondary" class="mb-3 gap-1.5">
+              <StoreIcon class="size-3" />
+              Shop
+            </Badge>
 
-          <!-- Shop Name -->
-          <h1
-            class="text-foreground mb-3 max-w-3xl text-3xl leading-tight font-semibold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
-          >
-            {shop.name}
-          </h1>
+            <!-- Shop Name -->
+            <h1
+              class="text-foreground mb-3 max-w-3xl text-3xl leading-tight font-semibold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
+            >
+              {shop.name}
+            </h1>
 
-          <!-- Shop Meta -->
-          <div class="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <span class="flex items-center gap-1.5">
-              <MapPinIcon class="size-3.5" />
-              {shop.address}
-            </span>
-            <span class="flex items-center gap-1.5">
-              <PhoneIcon class="size-3.5" />
-              {shop.phone}
-            </span>
+            <!-- Shop Meta -->
+            <div class="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              <span class="flex items-center gap-1.5">
+                <MapPinIcon class="size-3.5" />
+                {shop.address}
+              </span>
+              <span class="flex items-center gap-1.5">
+                <PhoneIcon class="size-3.5" />
+                {shop.phone}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Description Section -->
-  <section class="bg-card border-b px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-7xl">
-      <p class="text-muted-foreground max-w-2xl text-base leading-relaxed">
-        {shop.description}
-      </p>
-    </div>
-  </section>
+    <!-- Description Section -->
+    <section class="bg-card border-b px-4 py-8 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl">
+        <p class="text-muted-foreground max-w-2xl text-base leading-relaxed">
+          {shop.description}
+        </p>
+      </div>
+    </section>
+  {/if}
 
   <!-- Products Section -->
-  <main class="px-4 py-4 sm:px-6 lg:px-8 lg:py-18">
+  <main class="min-h-[calc(100dvh-66px)] px-4 py-4 sm:px-6 lg:px-8 lg:py-12">
     <div class="mx-auto max-w-7xl">
       <div class="flex flex-col gap-8 lg:flex-row lg:gap-12">
         <!-- Desktop Sidebar Filters -->
         <aside class="hidden w-64 shrink-0 lg:block">
-          <div class="sticky top-6 space-y-6">
+          <div class="sticky top-4 space-y-6 lg:top-12">
             <!-- Filter Header -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 lg:pt-4">
               <FilterIcon class="text-primary size-4" />
               <h3 class="text-foreground text-sm font-semibold tracking-wide uppercase">Filters</h3>
               {#if activeFilterCount > 0}
-                <Badge variant="default" class="ml-auto text-xs">
+                <div class="text-primary ml-auto text-xs">
                   {activeFilterCount}
-                </Badge>
+                </div>
               {/if}
             </div>
 
@@ -544,7 +546,12 @@
             </div>
           {/if}
 
-          {#if allProducts.length === 0}
+          {#if products.isLoading}
+            <div class="flex flex-col items-center justify-center py-16">
+              <Loader2Icon class="text-muted-foreground size-8 animate-spin" />
+              <p class="text-muted-foreground mt-3 text-sm">Loading products...</p>
+            </div>
+          {:else if allProducts.length === 0}
             <!-- Empty State -->
             <Card class="py-16">
               <CardContent class="flex flex-col items-center justify-center text-center">
