@@ -41,7 +41,7 @@ export async function getPartialObject(key: string, bytes: number): Promise<Buff
   reader.releaseLock();
 
   const buffer = Buffer.concat(chunks);
-  return buffer.slice(0, bytes);
+  return buffer.subarray(0, bytes);
 }
 
 export async function statObject(key: string): Promise<{ exists: boolean; size?: number }> {

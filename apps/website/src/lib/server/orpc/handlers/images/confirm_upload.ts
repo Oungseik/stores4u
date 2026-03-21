@@ -2,8 +2,10 @@ import { image } from "@repo/db";
 import z from "zod";
 import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
-import { getObjectUrl, getPartialObject, statObject } from "$lib/server/storage";
+import { getObjectUrl, getPartialObject, removeImage, statObject } from "$lib/server/storage";
 import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 const input = z.object({
   slug: z.string(),
@@ -18,6 +20,11 @@ export const confirmUploadHandler = os
     const stat = await statObject(input.objectKey);
     if (!stat.exists) {
       throw new Error("Upload not found");
+    }
+
+    if (stat.size && stat.size > MAX_FILE_SIZE) {
+      await removeImage(input.objectKey);
+      throw new Error("Image exceeds 2MB limit. Please upload a smaller image.");
     }
 
     const headerBytes = await getPartialObject(input.objectKey, 32);
