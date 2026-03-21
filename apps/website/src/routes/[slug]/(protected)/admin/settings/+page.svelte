@@ -169,36 +169,36 @@
   />
 
   <!-- Settings Tabs -->
-  <Tabs.Root bind:value={activeTab} class="w-full">
+  <Tabs.Root bind:value={activeTab} class="w-full max-w-2xl">
     <div class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
       <Tabs.List
-        class="bg-muted inline-flex h-auto w-max min-w-full gap-1 p-1 md:grid md:w-full md:grid-cols-4 lg:grid-cols-7"
+        class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-4 lg:grid-cols-7"
       >
-        <Tabs.Trigger value="profile" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="profile" class="gap-2">
           <StoreIcon class="size-4" />
           <span class="hidden sm:inline">Profile</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="business" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="business" class="gap-2">
           <BuildingIcon class="size-4" />
           <span class="hidden sm:inline">Business</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="payment" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="payment" class="gap-2">
           <CreditCardIcon class="size-4" />
           <span class="hidden sm:inline">Payment</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="receipt" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="receipt" class="gap-2">
           <ReceiptIcon class="size-4" />
           <span class="hidden sm:inline">Receipt</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="tax" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="tax" class="gap-2">
           <PercentIcon class="size-4" />
           <span class="hidden sm:inline">Tax</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="notifications" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="notifications" class="gap-2">
           <MailIcon class="size-4" />
           <span class="hidden sm:inline">Alerts</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="team" class="data-[state=active]:bg-background gap-2">
+        <Tabs.Trigger value="team" class="gap-2">
           <UsersIcon class="size-4" />
           <span class="hidden sm:inline">Team</span>
         </Tabs.Trigger>
