@@ -568,13 +568,13 @@
             </Card>
           {:else}
             <!-- Products Grid -->
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               {#each allProducts as product (product.id)}
                 <Card
                   class="group transition-[translate shadow] overflow-hidden p-0 duration-300 hover:-translate-y-1 hover:shadow-md"
                 >
                   <!-- Image Container -->
-                  <div class="bg-muted relative aspect-3/2 overflow-hidden">
+                  <div class="bg-muted relative aspect-square overflow-hidden">
                     <img
                       src={getImageUrl(product.image)}
                       alt={product.name}
