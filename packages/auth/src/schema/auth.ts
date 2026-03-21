@@ -104,6 +104,7 @@ export const shop = sqliteTable(
     country: text("country", { enum: COUNTRIES }),
     phone: text("phone").notNull(),
     email: text("email"),
+    taxId: text("tax_id"),
     tursoDbUrl: text("turso_db_url"),
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
     userId: text("user_id")
