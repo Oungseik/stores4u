@@ -2,6 +2,7 @@
   import BuildingIcon from "@lucide/svelte/icons/building-2";
   import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import ImageIcon from "@lucide/svelte/icons/image";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
   import MapPinIcon from "@lucide/svelte/icons/map-pin";
   import PercentIcon from "@lucide/svelte/icons/percent";
@@ -11,6 +12,7 @@
   import UploadIcon from "@lucide/svelte/icons/upload";
   import UserIcon from "@lucide/svelte/icons/user";
   import UsersIcon from "@lucide/svelte/icons/users";
+  import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Checkbox } from "@repo/ui/checkbox";
@@ -22,33 +24,38 @@
   import * as Tabs from "@repo/ui/tabs";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
+  import { createMutation } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
   import z from "zod";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
 
   const { data: shop }: PageProps = $props();
 
-  // Mock data for settings
-  const mockSettings = {
+  const shopSettings = $derived({
     profile: {
-      name: "Bakery Delight",
-      description: "Fresh baked goods daily",
-      logo: null as string | null,
-      heroImage: null as string | null,
+      name: shop.name ?? "",
+      title: shop.title,
+      description: shop.description,
+      logo: shop.logo,
+      heroImage: shop.heroImage,
     },
     business: {
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "US",
-      phone: "+1 (555) 123-4567",
-      email: "hello@bakerydelight.com",
-      taxId: "12-3456789",
+      address: shop.address,
+      city: shop.city,
+      state: shop.state ?? "",
+      zipCode: shop.zipCode ?? "",
+      country: shop.country ?? "US",
+      phone: shop.phone,
+      email: shop.email ?? "",
+      taxId: shop.taxId ?? "",
     },
+  });
+
+  const mockSettings = {
     payment: {
       currency: "USD",
       acceptCash: true,
@@ -75,29 +82,172 @@
       newOrderNotifications: true,
     },
     team: [
-      { id: "1", name: "John Doe", email: "john@bakerydelight.com", role: "owner" },
-      { id: "2", name: "Jane Smith", email: "jane@bakerydelight.com", role: "manager" },
-      { id: "3", name: "Bob Wilson", email: "bob@bakerydelight.com", role: "cashier" },
+      { id: "1", name: "John Doe", email: "john@example.com", role: "owner" },
+      { id: "2", name: "Jane Smith", email: "jane@example.com", role: "manager" },
+      { id: "3", name: "Bob Wilson", email: "bob@example.com", role: "cashier" },
     ],
   };
 
-  // Profile form
+  const updateShopMutation = createMutation(() =>
+    orpc.shops.update.mutationOptions({
+      onSuccess: () => {
+        toast.success("Settings updated successfully");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update settings");
+      },
+    })
+  );
+
+  const getUploadUrlMutation = createMutation(() =>
+    orpc.images.getUploadUrl.mutationOptions({
+      onError: () => {
+        toast.error("Failed to upload image");
+      },
+    })
+  );
+
+  const confirmUploadMutation = createMutation(() =>
+    orpc.images.confirmUpload.mutationOptions({
+      onError: () => {
+        toast.error("Failed to upload image");
+      },
+    })
+  );
+
+  let logoPreview = $state<string | null>(shop.logo);
+  let heroImagePreview = $state<string | null>(shop.heroImage);
+  let isUploadingLogo = $state(false);
+  let isUploadingHeroImage = $state(false);
+
+  const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"] as const;
+  type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
+
+  function isValidImageType(type: string): type is AcceptedImageType {
+    return ACCEPTED_IMAGE_TYPES.includes(type as AcceptedImageType);
+  }
+
+  async function handleLogoUpload(file: File) {
+    if (!isValidImageType(file.type)) {
+      toast.error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
+      return;
+    }
+
+    isUploadingLogo = true;
+    try {
+      const { uploadUrl, objectKey } = await getUploadUrlMutation.mutateAsync({
+        slug: shop.slug,
+        filename: file.name,
+        contentType: file.type,
+        size: file.size,
+      });
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const result = await confirmUploadMutation.mutateAsync({ slug: shop.slug, objectKey });
+      profileForm.setFieldValue("logo", result.objectPath);
+      logoPreview = result.objectPath;
+    } catch {
+      toast.error("Failed to upload logo");
+    } finally {
+      isUploadingLogo = false;
+    }
+  }
+
+  async function handleHeroImageUpload(file: File) {
+    if (!isValidImageType(file.type)) {
+      toast.error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
+      return;
+    }
+
+    isUploadingHeroImage = true;
+    try {
+      const { uploadUrl, objectKey } = await getUploadUrlMutation.mutateAsync({
+        slug: shop.slug,
+        filename: file.name,
+        contentType: file.type,
+        size: file.size,
+      });
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const result = await confirmUploadMutation.mutateAsync({ slug: shop.slug, objectKey });
+      profileForm.setFieldValue("heroImage", result.objectPath);
+      heroImagePreview = result.objectPath;
+    } catch {
+      toast.error("Failed to upload hero image");
+    } finally {
+      isUploadingHeroImage = false;
+    }
+  }
+
+  function handleLogoRemove() {
+    profileForm.setFieldValue("logo", null);
+    logoPreview = null;
+  }
+
+  function handleHeroImageRemove() {
+    profileForm.setFieldValue("heroImage", null);
+    heroImagePreview = null;
+  }
+
   const profileForm = createForm(() => ({
-    defaultValues: mockSettings.profile,
+    defaultValues: shopSettings.profile,
     onSubmit: async ({ value }) => {
-      // TODO: Replace with API call
-      console.log("Saving profile:", value);
-      toast.success("Shop profile updated");
+      await updateShopMutation.mutateAsync({
+        slug: shop.slug,
+        name: value.name,
+        title: value.title,
+        description: value.description,
+        logo: value.logo ?? undefined,
+        heroImage: value.heroImage ?? undefined,
+        address: shopSettings.business.address,
+        city: shopSettings.business.city,
+        state: shopSettings.business.state || undefined,
+        zipCode: shopSettings.business.zipCode || undefined,
+        country: shopSettings.business.country,
+        phone: shopSettings.business.phone,
+        email: shopSettings.business.email || undefined,
+        taxId: shopSettings.business.taxId || undefined,
+      });
     },
   }));
 
-  // Business form
   const businessForm = createForm(() => ({
-    defaultValues: mockSettings.business,
+    defaultValues: shopSettings.business,
     onSubmit: async ({ value }) => {
-      // TODO: Replace with API call
-      console.log("Saving business info:", value);
-      toast.success("Business information updated");
+      await updateShopMutation.mutateAsync({
+        slug: shop.slug,
+        name: shopSettings.profile.name,
+        title: shopSettings.profile.title,
+        description: shopSettings.profile.description,
+        logo: shopSettings.profile.logo ?? undefined,
+        heroImage: shopSettings.profile.heroImage ?? undefined,
+        address: value.address,
+        city: value.city,
+        state: value.state || undefined,
+        zipCode: value.zipCode || undefined,
+        country: value.country,
+        phone: value.phone,
+        email: value.email || undefined,
+        taxId: value.taxId || undefined,
+      });
     },
   }));
 
@@ -150,14 +300,10 @@
     { value: "JPY", label: "Japanese Yen (¥)" },
   ];
 
-  const countries = [
+  const countries: { value: "MM" | "TH" | "US"; label: string }[] = [
     { value: "US", label: "United States" },
-    { value: "CA", label: "Canada" },
-    { value: "GB", label: "United Kingdom" },
-    { value: "AU", label: "Australia" },
-    { value: "DE", label: "Germany" },
-    { value: "FR", label: "France" },
-    { value: "JP", label: "Japan" },
+    { value: "TH", label: "Thailand" },
+    { value: "MM", label: "Myanmar" },
   ];
 
   let activeTab = $state("profile");
@@ -272,43 +418,146 @@
 
             <div class="space-y-2">
               <Label>Shop Logo</Label>
-              <div class="flex items-center gap-4">
-                <div class="bg-muted flex size-20 items-center justify-center rounded-lg border">
-                  <StoreIcon class="text-muted-foreground size-8" />
+              {#if logoPreview}
+                <div class="flex items-center gap-4">
+                  <div class="relative">
+                    <img
+                      src={logoPreview}
+                      alt="Shop logo"
+                      class="bg-muted flex size-20 items-center justify-center rounded-lg border object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      class="absolute -top-2 -right-2 size-6"
+                      onclick={handleLogoRemove}
+                    >
+                      <XIcon class="size-3" />
+                    </Button>
+                  </div>
                 </div>
-                <Button type="button" variant="outline" class="gap-2">
-                  <UploadIcon class="size-4" />
-                  Upload Logo
-                </Button>
-              </div>
+              {:else}
+                <div class="flex items-center gap-4">
+                  <div class="bg-muted flex size-20 items-center justify-center rounded-lg border">
+                    <StoreIcon class="text-muted-foreground size-8" />
+                  </div>
+                  <div class="relative">
+                    <Input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                      class={[
+                        "absolute inset-0 cursor-pointer opacity-0",
+                        isUploadingLogo && "invisible",
+                      ]}
+                      onchange={(e) => {
+                        const file = e.currentTarget.files?.[0];
+                        if (file) handleLogoUpload(file);
+                      }}
+                      disabled={isUploadingLogo}
+                    />
+                    {#if isUploadingLogo}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        class="pointer-events-none gap-2"
+                        disabled
+                      >
+                        <Loader2Icon class="size-4 animate-spin" />
+                        <span class="ml-2">Uploading...</span>
+                      </Button>
+                    {:else}
+                      <Button type="button" variant="outline" class="pointer-events-none gap-2">
+                        <UploadIcon class="size-4" />
+                        Upload Logo
+                      </Button>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
               <p class="text-muted-foreground text-xs">Recommended size: 400x400px. Max 2MB.</p>
             </div>
 
             <div class="space-y-2">
               <Label>Hero Image</Label>
-              <div class="space-y-4">
-                <div
-                  class="bg-muted flex h-32 w-full items-center justify-center rounded-lg border"
-                >
-                  <ImageIcon class="text-muted-foreground size-12" />
+              {#if heroImagePreview}
+                <div class="space-y-4">
+                  <div class="relative">
+                    <img
+                      src={heroImagePreview}
+                      alt="Shop hero banner"
+                      class="bg-muted w-full rounded-lg border object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      class="absolute top-2 right-2"
+                      onclick={handleHeroImageRemove}
+                    >
+                      <XIcon class="mr-1 size-4" />
+                      Remove
+                    </Button>
+                  </div>
                 </div>
-                <div class="flex items-center gap-4">
-                  <Button type="button" variant="outline" class="gap-2">
-                    <UploadIcon class="size-4" />
-                    Upload Hero Image
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm">Remove</Button>
+              {:else}
+                <div class="space-y-4">
+                  <div
+                    class="bg-muted flex h-32 w-full items-center justify-center rounded-lg border"
+                  >
+                    <ImageIcon class="text-muted-foreground size-12" />
+                  </div>
+                  <div class="relative">
+                    <Input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                      class={[
+                        "absolute inset-0 cursor-pointer opacity-0",
+                        isUploadingHeroImage && "invisible",
+                      ]}
+                      onchange={(e) => {
+                        const file = e.currentTarget.files?.[0];
+                        if (file) handleHeroImageUpload(file);
+                      }}
+                      disabled={isUploadingHeroImage}
+                    />
+                    {#if isUploadingHeroImage}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        class="pointer-events-none gap-2"
+                        disabled
+                      >
+                        <Loader2Icon class="size-4 animate-spin" />
+                        <span class="ml-2">Uploading...</span>
+                      </Button>
+                    {:else}
+                      <Button type="button" variant="outline" class="pointer-events-none gap-2">
+                        <UploadIcon class="size-4" />
+                        Upload Hero Image
+                      </Button>
+                    {/if}
+                  </div>
                 </div>
-              </div>
+              {/if}
               <p class="text-muted-foreground text-xs">
-                Recommended size: 1920x600px. Max 5MB. This appears at the top of your shop page.
+                Recommended size: 1920x600px. Max 2MB. This appears at the top of your shop page.
               </p>
             </div>
 
             <div class="flex justify-end">
-              <Button type="submit" class="gap-2">
-                <SaveIcon class="size-4" />
-                Save Changes
+              <Button
+                type="submit"
+                class="gap-2"
+                disabled={updateShopMutation.isPending || isUploadingLogo || isUploadingHeroImage}
+              >
+                {#if updateShopMutation.isPending}
+                  <Loader2Icon class="size-4 animate-spin" />
+                  Saving...
+                {:else}
+                  <SaveIcon class="size-4" />
+                  Save Changes
+                {/if}
               </Button>
             </div>
           </form>
@@ -416,7 +665,7 @@
                       <Select.Root
                         type="single"
                         value={field.state.value}
-                        onValueChange={(value) => field.handleChange(value)}
+                        onValueChange={(value) => field.handleChange(value as "MM" | "TH" | "US")}
                       >
                         <Select.Trigger class="w-full">
                           {countries.find((c) => c.value === field.state.value)?.label ??
@@ -498,9 +747,14 @@
             </div>
 
             <div class="flex justify-end">
-              <Button type="submit" class="gap-2">
-                <SaveIcon class="size-4" />
-                Save Changes
+              <Button type="submit" class="gap-2" disabled={updateShopMutation.isPending}>
+                {#if updateShopMutation.isPending}
+                  <Loader2Icon class="size-4 animate-spin" />
+                  Saving...
+                {:else}
+                  <SaveIcon class="size-4" />
+                  Save Changes
+                {/if}
               </Button>
             </div>
           </form>

@@ -16,6 +16,7 @@ const input = z.object({
   state: z.string().max(100).optional(),
   zipCode: z.string().max(20).optional(),
   email: z.email().max(200).optional(),
+  taxId: z.string().max(100).optional(),
   country: z.enum(COUNTRIES),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
@@ -45,6 +46,7 @@ export const updateShopHandler = os
         country: input.country,
         phone: input.phone,
         email: input.email,
+        taxId: input.taxId,
         logo: input.logo,
         heroImage: input.heroImage,
       })
