@@ -1,5 +1,6 @@
 node_modules
 .turbo
+.cache
 
 
 # Local env files
@@ -34,3 +35,4 @@ yarn-error.log*
 **/_generated
 
 databases
+result

@@ -1,118 +1,115 @@
 {
-  description = "Stores For You - SvelteKit POS monorepo";
+  description = "Stores For You Nix entrypoints";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      flake-utils,
+      utils,
     }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" ] (
+    utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        lib = pkgs.lib;
 
-        website =
-          let
-            srcFiles = builtins.path {
-              name = "stores4u-src";
-              path = ./.;
-              filter =
-                path: type:
-                let
-                  name = baseNameOf path;
+        websiteLibs = with pkgs; [
+          cairo
+          fontconfig
+          freetype
+          giflib
+          glib
+          libjpeg
+          libpng
+          librsvg
+          openssl
+          pango
+          pixman
+          sqlite
+          stdenv.cc.cc.lib
+          zlib
+        ];
 
-                  isGit = name == ".git";
-                  isNix = name == "nix" && type == "directory";
-                  isFlake = name == "flake.nix" || name == "flake.lock";
-                  isNodeModules = name == "node_modules";
-                  isSvelteKit = name == ".svelte-kit";
-                  isBuildArtifact = name == "dist" || name == ".turbo";
-                in
-                !(isGit || isNix || isFlake || isNodeModules || isSvelteKit || isBuildArtifact);
-            };
+        ldLibraryPath = lib.makeLibraryPath websiteLibs;
 
-            pnpmDeps = pkgs.pnpm.fetchDeps {
-              pname = "stores4u-website-deps";
-              version = "0.0.1";
-              src = srcFiles;
-              hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-              fetcherVersion = 1;
-            };
-          in
-          pkgs.stdenv.mkDerivation {
-            pname = "stores4u-website";
-            version = "0.0.1";
+        website = pkgs.writeShellApplication {
+          name = "website";
 
-            src = srcFiles;
-
-            inherit pnpmDeps;
-
-            nativeBuildInputs = with pkgs; [
-              pnpm
+          runtimeInputs =
+            with pkgs;
+            [
               bun
+              coreutils
+              gnumake
               nodejs
-              cacert
-              makeWrapper
-            ];
+              pkg-config
+              pnpm
+              python3
+            ]
+            ++ websiteLibs;
 
-            configurePhase = ''
-              runHook preConfigure
+          text = ''
+            if [ ! -f package.json ] || [ ! -f apps/website/package.json ]; then
+              echo "Run \`nix run .#website\` from the repository root." >&2
+              exit 1
+            fi
 
-              export HOME=$(mktemp -d)
+            export LD_LIBRARY_PATH="${ldLibraryPath}:''${LD_LIBRARY_PATH:-}"
+            export HOST="''${HOST:-0.0.0.0}"
+            export PORT="''${PORT:-3000}"
+            export NODE_ENV="''${NODE_ENV:-production}"
 
-              pnpm config set manage-package-manager-versions false
+            cache_root="''${XDG_CACHE_HOME:-$PWD/.cache}"
+            mkdir -p "$cache_root/bun/install"
+            export BUN_INSTALL_CACHE_DIR="$cache_root/bun/install"
+            export BUN_RUNTIME_TRANSPILER_CACHE_PATH="$cache_root/bun/transpiler"
 
-              runHook postConfigure
-            '';
+            if [ ! -d node_modules ]; then
+              bun install --frozen-lockfile
+            fi
 
-            buildPhase = ''
-              runHook preBuild
+            bun run build
+            exec bun run ./apps/website/build/index.js "$@"
+          '';
+        };
 
-              pnpm install --offline --frozen-lockfile --ignore-scripts
+        websiteApp = {
+          type = "app";
+          program = "${website}/bin/website";
+        };
 
-              pnpm --filter website build
+        devShell = pkgs.mkShell {
+          packages =
+            with pkgs;
+            [
+              biome
+              bun
+              gnumake
+              nodejs
+              otel-desktop-viewer
+              pkg-config
+              pnpm
+              python3
+            ]
+            ++ websiteLibs;
 
-              runHook postBuild
-            '';
-
-            installPhase = ''
-              runHook preInstall
-
-              mkdir -p $out/lib/website $out/bin
-
-              cp -r apps/website/.svelte-kit/adapter-bun/* $out/lib/website/
-
-              makeWrapper ${pkgs.bun}/bin/bun $out/bin/website \
-                --add-flags "run" \
-                --add-flags "$out/lib/website/index.js" \
-                --set-default PORT 3000
-
-              runHook postInstall
-            '';
-          };
+          LD_LIBRARY_PATH = ldLibraryPath;
+        };
       in
       {
-        packages = {
-          inherit website;
-          default = self.packages.${system}.website;
-        };
+        apps.website = websiteApp;
+        apps.default = websiteApp;
 
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            bun
-            pnpm
-            nodejs
-            biome
-          ];
+        packages.website = website;
+        packages.default = website;
 
-          LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
-        };
+        devShells.default = devShell;
+        devShell = devShell;
       }
     );
 }
