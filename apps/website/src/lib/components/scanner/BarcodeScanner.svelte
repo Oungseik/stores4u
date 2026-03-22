@@ -14,11 +14,17 @@
     enabled?: boolean;
   }
 
-  let { containerId = "barcode-scanner", onScan, class: className = "", enabled = true }: Props = $props();
+  let {
+    containerId = "barcode-scanner",
+    onScan,
+    class: className = "",
+    enabled = true,
+  }: Props = $props();
 
   let isScanning = $state(false);
   let hasCameraPermission = $state<boolean | null>(null);
   let scannerError = $state<string | null>(null);
+  let isPermissionError = $state(false);
   let html5QrCode: Html5Qrcode | null = null;
 
   async function startScanner() {
@@ -35,6 +41,7 @@
       html5QrCode = new Html5Qrcode(containerId);
       isScanning = true;
       scannerError = null;
+      isPermissionError = false;
 
       await html5QrCode.start(
         { facingMode: "environment" },
@@ -52,7 +59,11 @@
     } catch (err) {
       isScanning = false;
       hasCameraPermission = false;
-      scannerError = "Camera access denied or not available";
+      isPermissionError =
+        err === "Error getting userMedia, error = NotAllowedError: Permission denied";
+      scannerError = isPermissionError
+        ? "Camera permission required. To scan barcodes, allow camera access in your browser settings."
+        : "Camera access denied or not available";
       console.error("Scanner error:", err);
     }
   }
@@ -87,19 +98,25 @@
   });
 </script>
 
-<div id={containerId} class="relative h-full w-full {className}">
-  {#if !isScanning && scannerError}
+{#if !isScanning && scannerError}
+  <div class="relative h-full w-full {className}">
     <div
       class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center"
     >
       <CameraOffIcon class="text-muted-foreground size-8" />
       <p class="text-muted-foreground text-sm">{scannerError}</p>
-      <Button variant="outline" size="sm" onclick={startScanner}>Try Again</Button>
+      {#if !isPermissionError}
+        <Button variant="outline" size="sm" onclick={startScanner}>Try Again</Button>
+      {/if}
     </div>
-  {:else if !isScanning}
-    <div class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2">
-      <Loader2Icon class="size-6 animate-spin" />
-      <p class="text-muted-foreground text-sm">Starting camera...</p>
-    </div>
-  {/if}
-</div>
+  </div>
+{:else}
+  <div id={containerId} class="relative h-full w-full {className}">
+    {#if !isScanning}
+      <div class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <Loader2Icon class="size-6 animate-spin" />
+        <p class="text-muted-foreground text-sm">Starting camera...</p>
+      </div>
+    {/if}
+  </div>
+{/if}
