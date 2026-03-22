@@ -222,12 +222,12 @@
     </div>
 
     {#if mode === "scan"}
-      <div class="shrink-0 overflow-hidden border-b-4" style="height: 220px;">
+      <div class="shrink-0 border-b-4 p-4">
         <BarcodeScanner
           bind:this={scannerRef}
           containerId="pos-barcode-scanner"
           onScan={addToCart}
-          class="relative h-full w-full"
+          class="bg-muted relative h-24 w-full overflow-hidden rounded-lg"
         />
       </div>
     {:else}

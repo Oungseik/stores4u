@@ -66,8 +66,7 @@
   >
     {#snippet actions()}
       <a href={`/${shop.slug}/admin/products/add`} class={buttonVariants()}>
-        <PlusIcon class="size-4" />
-        Add Product
+        <PlusIcon class="size-4" /> Add
       </a>
     {/snippet}
   </AdminDashboardHeader>
