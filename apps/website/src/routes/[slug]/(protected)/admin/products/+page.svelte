@@ -16,8 +16,9 @@
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
-  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { productsFilterSchema } from "$lib/search_param";
 
@@ -52,9 +53,7 @@
     })
   );
 
-  const hasFilters = $derived(
-    searchParams.search.length > 0 || searchParams.categories.length > 0
-  );
+  const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
   function resetFilters() {
     searchParams.update({ search: "", categories: [] });

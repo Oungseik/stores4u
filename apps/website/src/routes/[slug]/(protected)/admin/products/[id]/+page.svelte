@@ -30,12 +30,13 @@
   // ============================================
   // MOCK DATA
   // ============================================
-  
+
   const mockProduct = {
     id: "prod-001",
     name: "Premium Wireless Headphones",
     sku: "AUDIO-WH-001",
-    description: "High-quality wireless headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Features Bluetooth 5.0 connectivity and comfortable over-ear design.",
+    description:
+      "High-quality wireless headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Features Bluetooth 5.0 connectivity and comfortable over-ear design.",
     priceCents: 29999, // $299.99
     stock: 8, // Low stock (below threshold of 10)
     lowStockThreshold: 10,
@@ -202,7 +203,7 @@
   // ============================================
 
   const hasLowStock = $derived(mockProduct.stock < 10);
-  
+
   const mostRecentUnitCost = $derived(() => {
     // Sort invoices by date descending and get the first one
     const sortedInvoices = [...mockInvoices].sort(
@@ -219,13 +220,9 @@
     return mockProduct.priceCents < cost;
   });
 
-  const totalRevenue = $derived(
-    mockOrders.reduce((sum, order) => sum + order.lineTotalCents, 0)
-  );
+  const totalRevenue = $derived(mockOrders.reduce((sum, order) => sum + order.lineTotalCents, 0));
 
-  const totalUnitsSold = $derived(
-    mockOrders.reduce((sum, order) => sum + order.qty, 0)
-  );
+  const totalUnitsSold = $derived(mockOrders.reduce((sum, order) => sum + order.qty, 0));
 
   // ============================================
   // HELPERS
@@ -250,7 +247,9 @@
 
   type MovementType = "PURCHASE" | "SALE" | "RETURN" | "ADJUSTMENT" | "WASTAGE" | "CORRECTION";
 
-  function getMovementBadgeVariant(type: MovementType): "default" | "secondary" | "destructive" | "outline" {
+  function getMovementBadgeVariant(
+    type: MovementType
+  ): "default" | "secondary" | "destructive" | "outline" {
     switch (type) {
       case "PURCHASE":
         return "secondary";
@@ -268,8 +267,8 @@
   }
 </script>
 
-<div class="flex min-h-screen flex-col bg-muted">
-  <header class="sticky top-0 z-10 border-b bg-card px-4 py-3 shadow-sm">
+<div class="bg-muted flex min-h-screen flex-col">
+  <header class="bg-card sticky top-0 z-10 border-b px-4 py-3 shadow-sm">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
         <a
@@ -278,7 +277,7 @@
         >
           <ArrowLeftIcon data-icon class="size-5" />
         </a>
-        <h1 class="text-lg font-semibold text-foreground">Product Details</h1>
+        <h1 class="text-foreground text-lg font-semibold">Product Details</h1>
       </div>
       <a
         href="/{params.slug}/admin/products/{params.id}/edit"
@@ -290,23 +289,21 @@
     </div>
   </header>
 
-  <div class="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+  <div class="bg-muted relative aspect-[4/3] w-full overflow-hidden">
     {#if mockProduct.image}
-      <img
-        src={mockProduct.image}
-        alt={mockProduct.name}
-        class="h-full w-full object-cover"
-      />
+      <img src={mockProduct.image} alt={mockProduct.name} class="h-full w-full object-cover" />
     {:else}
       <div class="flex h-full items-center justify-center">
-        <PackageIcon class="size-20 text-muted-foreground/50" />
+        <PackageIcon class="text-muted-foreground/50 size-20" />
       </div>
     {/if}
   </div>
 
   {#if hasLowStock}
     <div class="mx-4 mt-4">
-      <Alert.Root class="border-amber-500/50 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/50 dark:text-amber-100 [&>svg]:text-amber-600">
+      <Alert.Root
+        class="border-amber-500/50 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/50 dark:text-amber-100 [&>svg]:text-amber-600"
+      >
         <AlertTriangleIcon />
         <Alert.Title>Low Stock Warning</Alert.Title>
         <Alert.Description>
@@ -322,22 +319,24 @@
         <AlertTriangleIcon />
         <Alert.Title>Pricing Warning</Alert.Title>
         <Alert.Description>
-          Selling price ({(mockProduct.priceCents / 100).toFixed(2)}) is below the most recent supplier cost
-          ({(mostRecentUnitCost()! / 100).toFixed(2)}).
+          Selling price ({(mockProduct.priceCents / 100).toFixed(2)}) is below the most recent
+          supplier cost ({(mostRecentUnitCost()! / 100).toFixed(2)}).
         </Alert.Description>
       </Alert.Root>
     </div>
   {/if}
 
-  <div class="border-b bg-card px-4 py-5">
-    <h2 class="text-xl font-semibold text-foreground">{mockProduct.name}</h2>
-    
-    <div class="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-      <span class="font-medium text-foreground">
+  <div class="bg-card border-b px-4 py-5">
+    <h2 class="text-foreground text-xl font-semibold">{mockProduct.name}</h2>
+
+    <div class="text-muted-foreground mt-2 flex items-center gap-2 text-sm">
+      <span class="text-foreground font-medium">
         <Pricing cents={mockProduct.priceCents} priceClass="text-lg font-semibold" />
       </span>
       <span>•</span>
-      <span class={mockProduct.stock < 10 ? "font-medium text-destructive" : "text-muted-foreground"}>
+      <span
+        class={mockProduct.stock < 10 ? "text-destructive font-medium" : "text-muted-foreground"}
+      >
         {mockProduct.stock} in stock
       </span>
     </div>
@@ -350,7 +349,7 @@
       {/each}
     </div>
 
-    <div class="mt-4 flex flex-col gap-1 text-sm text-muted-foreground">
+    <div class="text-muted-foreground mt-4 flex flex-col gap-1 text-sm">
       <div class="flex items-center gap-2">
         <TagIcon class="size-4" />
         <span>SKU: {mockProduct.sku}</span>
@@ -365,7 +364,7 @@
   </div>
 
   <Tabs.Root value="overview" class="flex-1">
-    <div class="sticky top-[57px] z-10 bg-card">
+    <div class="bg-card sticky top-[57px] z-10">
       <Tabs.List>
         <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
         <Tabs.Trigger value="inventory">Inventory</Tabs.Trigger>
@@ -376,51 +375,51 @@
     <Tabs.Content value="overview" class="mt-0">
       <div class="flex flex-col gap-4 p-4">
         {#if mockProduct.description}
-          <Card.Root class="border-0 bg-card shadow-sm">
+          <Card.Root class="bg-card border-0 shadow-sm">
             <Card.Header class="pb-3">
-              <Card.Title class="text-sm font-medium text-muted-foreground">Description</Card.Title>
+              <Card.Title class="text-muted-foreground text-sm font-medium">Description</Card.Title>
             </Card.Header>
             <Card.Content>
-              <p class="text-sm leading-relaxed text-foreground">{mockProduct.description}</p>
+              <p class="text-foreground text-sm leading-relaxed">{mockProduct.description}</p>
             </Card.Content>
           </Card.Root>
         {/if}
 
         <div class="grid grid-cols-2 gap-3">
-          <Card.Root class="border-0 bg-card shadow-sm">
+          <Card.Root class="bg-card border-0 shadow-sm">
             <Card.Content class="p-4">
               <div class="flex items-center gap-3">
-                <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                  <DollarSignIcon class="size-5 text-primary" />
+                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-lg">
+                  <DollarSignIcon class="text-primary size-5" />
                 </div>
                 <div>
-                  <p class="text-xs text-muted-foreground">Total Revenue</p>
-                    <p class="text-lg font-semibold text-foreground">
-                      <Pricing cents={totalRevenue} />
-                    </p>
+                  <p class="text-muted-foreground text-xs">Total Revenue</p>
+                  <p class="text-foreground text-lg font-semibold">
+                    <Pricing cents={totalRevenue} />
+                  </p>
                 </div>
               </div>
             </Card.Content>
           </Card.Root>
 
-          <Card.Root class="border-0 bg-card shadow-sm">
+          <Card.Root class="bg-card border-0 shadow-sm">
             <Card.Content class="p-4">
               <div class="flex items-center gap-3">
-                <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                  <ShoppingCartIcon class="size-5 text-primary" />
+                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-lg">
+                  <ShoppingCartIcon class="text-primary size-5" />
                 </div>
                 <div>
-                  <p class="text-xs text-muted-foreground">Units Sold</p>
-                  <p class="text-lg font-semibold text-foreground">{totalUnitsSold}</p>
+                  <p class="text-muted-foreground text-xs">Units Sold</p>
+                  <p class="text-foreground text-lg font-semibold">{totalUnitsSold}</p>
                 </div>
               </div>
             </Card.Content>
           </Card.Root>
         </div>
 
-        <Card.Root class="border-0 bg-card shadow-sm">
+        <Card.Root class="bg-card border-0 shadow-sm">
           <Card.Header class="pb-3">
-            <Card.Title class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Card.Title class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <StoreIcon class="size-4" />
               Suppliers
             </Card.Title>
@@ -430,22 +429,22 @@
               <div class="flex items-start justify-between rounded-lg border p-3">
                 <div>
                   <div class="flex items-center gap-2">
-                    <p class="font-medium text-foreground">{supplier.name}</p>
+                    <p class="text-foreground font-medium">{supplier.name}</p>
                     {#if supplier.isPreferred}
                       <Badge>Preferred</Badge>
                     {/if}
                   </div>
-                  <p class="mt-1 text-sm text-muted-foreground">{supplier.contactName}</p>
-                  <p class="text-xs text-muted-foreground">{supplier.phone}</p>
+                  <p class="text-muted-foreground mt-1 text-sm">{supplier.contactName}</p>
+                  <p class="text-muted-foreground text-xs">{supplier.phone}</p>
                 </div>
               </div>
             {/each}
           </Card.Content>
         </Card.Root>
 
-        <Card.Root class="border-0 bg-card shadow-sm">
+        <Card.Root class="bg-card border-0 shadow-sm">
           <Card.Header class="pb-3">
-            <Card.Title class="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Card.Title class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <FileTextIcon class="size-4" />
               Recent Invoices
             </Card.Title>
@@ -454,20 +453,22 @@
             {#each mockInvoices.slice(0, 5) as invoice}
               <div class="flex items-center justify-between rounded-lg border p-3">
                 <div class="flex items-center gap-3">
-                  <div class="flex size-10 items-center justify-center rounded-lg bg-muted">
-                    <FileTextIcon class="size-5 text-muted-foreground" />
+                  <div class="bg-muted flex size-10 items-center justify-center rounded-lg">
+                    <FileTextIcon class="text-muted-foreground size-5" />
                   </div>
                   <div>
-                    <p class="font-medium text-foreground">{invoice.invoiceNumber}</p>
-                    <p class="text-sm text-muted-foreground">{invoice.supplierName}</p>
-                    <p class="text-xs text-muted-foreground">{formatDate(new Date(invoice.invoiceDate))}</p>
+                    <p class="text-foreground font-medium">{invoice.invoiceNumber}</p>
+                    <p class="text-muted-foreground text-sm">{invoice.supplierName}</p>
+                    <p class="text-muted-foreground text-xs">
+                      {formatDate(new Date(invoice.invoiceDate))}
+                    </p>
                   </div>
                 </div>
                 <div class="text-right">
-                  <p class="font-medium text-foreground">
+                  <p class="text-foreground font-medium">
                     <Pricing cents={invoice.items[0]?.lineTotalCents ?? 0} />
                   </p>
-                  <p class="text-xs text-muted-foreground">{invoice.items[0]?.qty} units</p>
+                  <p class="text-muted-foreground text-xs">{invoice.items[0]?.qty} units</p>
                 </div>
               </div>
             {/each}
@@ -479,18 +480,18 @@
     <Tabs.Content value="inventory" class="mt-0">
       <div class="flex flex-col gap-3 p-4">
         {#each mockInventoryMovements as movement}
-          <Card.Root class="border-0 bg-card shadow-sm">
+          <Card.Root class="bg-card border-0 shadow-sm">
             <Card.Content class="p-4">
               <div class="flex items-start gap-3">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  {#if movement.movementType === 'PURCHASE'}
-                    <TruckIcon class="size-5 text-primary" />
-                  {:else if movement.movementType === 'SALE'}
-                    <ShoppingCartIcon class="size-5 text-primary" />
-                  {:else if movement.movementType === 'RETURN'}
-                    <TrendingDownIcon class="size-5 text-muted-foreground" />
+                <div class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg">
+                  {#if movement.movementType === "PURCHASE"}
+                    <TruckIcon class="text-primary size-5" />
+                  {:else if movement.movementType === "SALE"}
+                    <ShoppingCartIcon class="text-primary size-5" />
+                  {:else if movement.movementType === "RETURN"}
+                    <TrendingDownIcon class="text-muted-foreground size-5" />
                   {:else}
-                    <BoxIcon class="size-5 text-muted-foreground" />
+                    <BoxIcon class="text-muted-foreground size-5" />
                   {/if}
                 </div>
                 <div class="min-w-0 flex-1">
@@ -499,18 +500,18 @@
                       {movement.movementType}
                     </Badge>
                     <Badge variant={movement.qty > 0 ? "secondary" : "destructive"}>
-                      {movement.qty > 0 ? '+' : ''}{movement.qty}
+                      {movement.qty > 0 ? "+" : ""}{movement.qty}
                     </Badge>
                   </div>
                   {#if movement.reason}
-                    <p class="mt-1 text-sm text-muted-foreground">{movement.reason}</p>
+                    <p class="text-muted-foreground mt-1 text-sm">{movement.reason}</p>
                   {/if}
-                  <div class="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                  <div class="text-muted-foreground mt-2 flex items-center gap-2 text-xs">
                     <CalendarIcon class="size-3" />
                     <span>{formatDateTime(movement.occurredAt)}</span>
                   </div>
                   {#if movement.unitCostCents}
-                    <p class="mt-1 text-xs text-muted-foreground">
+                    <p class="text-muted-foreground mt-1 text-xs">
                       Cost: <Pricing cents={movement.unitCostCents} />
                     </p>
                   {/if}
@@ -525,28 +526,30 @@
     <Tabs.Content value="history" class="mt-0">
       <div class="flex flex-col gap-3 p-4">
         {#each mockOrders as order}
-          <Card.Root class="border-0 bg-card shadow-sm">
+          <Card.Root class="bg-card border-0 shadow-sm">
             <Card.Content class="p-4">
               <div class="flex items-start gap-3">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <UserIcon class="size-5 text-primary" />
+                <div
+                  class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
+                >
+                  <UserIcon class="text-primary size-5" />
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center justify-between">
-                    <p class="font-medium text-foreground">{order.customerName}</p>
+                    <p class="text-foreground font-medium">{order.customerName}</p>
                     <Badge variant="secondary">
                       {order.qty} units
                     </Badge>
                   </div>
                   {#if order.customerPhone}
-                    <p class="mt-1 text-sm text-muted-foreground">{order.customerPhone}</p>
+                    <p class="text-muted-foreground mt-1 text-sm">{order.customerPhone}</p>
                   {/if}
                   <div class="mt-2 flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div class="text-muted-foreground flex items-center gap-2 text-xs">
                       <CalendarIcon class="size-3" />
                       <span>{formatDateTime(order.createdAt)}</span>
                     </div>
-                    <p class="font-semibold text-foreground">
+                    <p class="text-foreground font-semibold">
                       <Pricing cents={order.lineTotalCents} />
                     </p>
                   </div>
@@ -556,16 +559,16 @@
           </Card.Root>
         {/each}
 
-        <Card.Root class="border bg-muted shadow-none">
+        <Card.Root class="bg-muted border shadow-none">
           <Card.Content class="p-4">
             <div class="flex items-center justify-between">
-              <span class="text-sm text-muted-foreground">Total Orders</span>
-              <span class="font-semibold text-foreground">{mockOrders.length}</span>
+              <span class="text-muted-foreground text-sm">Total Orders</span>
+              <span class="text-foreground font-semibold">{mockOrders.length}</span>
             </div>
             <Separator.Root class="my-3" />
             <div class="flex items-center justify-between">
-              <span class="text-sm text-muted-foreground">Total Revenue</span>
-              <span class="font-semibold text-foreground">
+              <span class="text-muted-foreground text-sm">Total Revenue</span>
+              <span class="text-foreground font-semibold">
                 <Pricing cents={totalRevenue} priceClass="text-lg" />
               </span>
             </div>
