@@ -82,7 +82,7 @@
     </Tabs.Content>
 
     <Tabs.Content value="tax" class="mt-6">
-      <Tax />
+      <Tax {shop} />
     </Tabs.Content>
 
     <Tabs.Content value="notifications" class="mt-6">

@@ -99,7 +99,7 @@
       reason: "Based on your recent transactions",
     },
     {
-      title: "Setting up tax rates",
+      title: "Setting up VAT rates",
       category: "settings",
       aiRecommended: false,
     },

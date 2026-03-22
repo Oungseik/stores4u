@@ -24,9 +24,8 @@
   import { Switch } from "@repo/ui/switch";
   import { Textarea } from "@repo/ui/textarea";
   import { tick } from "svelte";
-
-  import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import Pricing from "$lib/components/Pricing.svelte";
 
   import type { PageProps } from "./$types";
 
@@ -97,7 +96,7 @@
     supplierName: "Tech Supplies Co.",
     supplierId: "sup-1",
     subtotalCents: 125000,
-    taxCents: 10000,
+    vatCents: 10000,
     discountCents: 5000,
     freightCents: 2000,
     totalCents: 132000,
@@ -242,7 +241,7 @@
     const subtotal = invoiceData.items.reduce((sum, item) => sum + item.lineTotalCents, 0);
     invoiceData.subtotalCents = subtotal;
     invoiceData.totalCents =
-      subtotal + invoiceData.taxCents - invoiceData.discountCents + invoiceData.freightCents;
+      subtotal + invoiceData.vatCents - invoiceData.discountCents + invoiceData.freightCents;
   }
 
   function saveNewSupplier() {
@@ -604,24 +603,24 @@
               {/if}
             </div>
 
-            <!-- Tax -->
+            <!-- VAT -->
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Tax</span>
-              {#if editingField === "taxCents"}
+              <span class="text-muted-foreground">VAT</span>
+              {#if editingField === "vatCents"}
                 <div class="flex items-center gap-2">
                   <Input
-                    id="edit-taxCents"
+                    id="edit-vatCents"
                     type="number"
                     bind:value={tempValue}
-                    onkeydown={(e) => handleKeyDown(e, "taxCents")}
-                    onblur={() => saveField("taxCents")}
+                    onkeydown={(e) => handleKeyDown(e, "vatCents")}
+                    onblur={() => saveField("vatCents")}
                     class="w-32 text-right"
                   />
                   <Button
                     variant="ghost"
                     size="icon"
                     class="size-8"
-                    onclick={() => saveField("taxCents")}
+                    onclick={() => saveField("vatCents")}
                   >
                     <CheckIcon class="size-4" />
                   </Button>
@@ -629,9 +628,9 @@
               {:else}
                 <Button
                   variant="ghost"
-                  onclick={() => startEditing("taxCents", invoiceData.taxCents.toString())}
+                  onclick={() => startEditing("vatCents", invoiceData.vatCents.toString())}
                 >
-                  <span>{formatCents(invoiceData.taxCents)}</span>
+                  <span>{formatCents(invoiceData.vatCents)}</span>
                   <Edit2Icon class="text-muted-foreground size-3" />
                 </Button>
               {/if}

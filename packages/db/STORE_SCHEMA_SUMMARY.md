@@ -57,7 +57,7 @@ A **single-store convenience store management system** using **SQLite** (Turso).
 - `AUTO_ACCEPTED` means accepted without detailed review; keep it traceable in reports/audits
 6. **Money integrity**:
 - Non-negative cents fields unless explicitly designed otherwise
-- `total_cents = subtotal_cents + tax_cents + freight_cents - discount_cents`
+- `total_cents = subtotal_cents + vat_cents + freight_cents - discount_cents`
 
 ---
 
@@ -139,7 +139,7 @@ Validated invoices after OCR + human review.
 | invoice_date | DATE | NOT NULL | Invoice date |
 | photo_url | TEXT | NOT NULL | Final invoice image path/URL |
 | subtotal_cents | INTEGER | NOT NULL, DEFAULT 0 | Subtotal in cents |
-| tax_cents | INTEGER | NOT NULL, DEFAULT 0 | Tax in cents |
+| vat_cents | INTEGER | NOT NULL, DEFAULT 0 | VAT in cents |
 | discount_cents | INTEGER | NOT NULL, DEFAULT 0 | Discount in cents |
 | freight_cents | INTEGER | NOT NULL, DEFAULT 0 | Freight in cents |
 | total_cents | INTEGER | NOT NULL, DEFAULT 0 | Final total in cents |
@@ -152,7 +152,7 @@ Validated invoices after OCR + human review.
 
 Additional constraints:
 - `UNIQUE(supplier_id, invoice_number)`
-- `CHECK (total_cents = subtotal_cents + tax_cents + freight_cents - discount_cents)`
+- `CHECK (total_cents = subtotal_cents + vat_cents + freight_cents - discount_cents)`
 - `CHECK (status IN ('PENDING', 'VALIDATED', 'REJECTED', 'AUTO_ACCEPTED'))`
 - `CHECK ((status = 'PENDING' AND validated_by IS NULL AND validated_at IS NULL) OR (status <> 'PENDING' AND validated_by IS NOT NULL AND validated_at IS NOT NULL))`
 
@@ -165,7 +165,7 @@ Additional constraints:
 | qty | REAL | NOT NULL, CHECK (qty > 0) | Purchased quantity |
 | unit_cost_cents | INTEGER | NOT NULL, CHECK (unit_cost_cents >= 0) | Unit cost in cents |
 | line_subtotal_cents | INTEGER | NOT NULL, CHECK (line_subtotal_cents >= 0) | Line subtotal in cents |
-| tax_cents | INTEGER | NOT NULL, DEFAULT 0, CHECK (tax_cents >= 0) | Line tax in cents |
+| vat_cents | INTEGER | NOT NULL, DEFAULT 0, CHECK (vat_cents >= 0) | Line VAT in cents |
 | discount_cents | INTEGER | NOT NULL, DEFAULT 0, CHECK (discount_cents >= 0) | Line discount in cents |
 | freight_cents | INTEGER | NOT NULL, DEFAULT 0, CHECK (freight_cents >= 0) | Allocated line freight in cents |
 | line_total_cents | INTEGER | NOT NULL, CHECK (line_total_cents >= 0) | Line total in cents |
@@ -174,7 +174,7 @@ Additional constraints:
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Creation timestamp |
 
 Additional constraint:
-- `CHECK (line_total_cents = line_subtotal_cents + tax_cents + freight_cents - discount_cents)`
+- `CHECK (line_total_cents = line_subtotal_cents + vat_cents + freight_cents - discount_cents)`
 
 ### 9. inventory_batches
 | Column | Type | Constraints | Description |

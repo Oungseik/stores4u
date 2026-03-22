@@ -37,7 +37,7 @@
       status: "validated",
       totalCents: 154990,
       items: 12,
-      taxCents: 10000,
+      vatCents: 10000,
       discountCents: 5000,
       freightCents: 2000,
       subtotalCents: 147990,
@@ -49,7 +49,7 @@
       status: "pending",
       totalCents: 45990,
       items: 5,
-      taxCents: 3000,
+      vatCents: 3000,
       discountCents: 0,
       freightCents: 1500,
       subtotalCents: 41490,
@@ -61,7 +61,7 @@
       status: "auto_accepted",
       totalCents: 289900,
       items: 8,
-      taxCents: 20000,
+      vatCents: 20000,
       discountCents: 10000,
       freightCents: 5000,
       subtotalCents: 274900,
@@ -73,7 +73,7 @@
       status: "rejected",
       totalCents: 12350,
       items: 3,
-      taxCents: 1000,
+      vatCents: 1000,
       discountCents: 0,
       freightCents: 500,
       subtotalCents: 10850,
@@ -85,7 +85,7 @@
       status: "validated",
       totalCents: 67800,
       items: 6,
-      taxCents: 5000,
+      vatCents: 5000,
       discountCents: 2000,
       freightCents: 1000,
       subtotalCents: 63800,
@@ -97,7 +97,7 @@
       status: "pending",
       totalCents: 234500,
       items: 15,
-      taxCents: 15000,
+      vatCents: 15000,
       discountCents: 8000,
       freightCents: 3000,
       subtotalCents: 230500,
@@ -109,7 +109,7 @@
       status: "validated",
       totalCents: 89200,
       items: 7,
-      taxCents: 6000,
+      vatCents: 6000,
       discountCents: 3000,
       freightCents: 2000,
       subtotalCents: 84200,
@@ -121,7 +121,7 @@
       status: "auto_accepted",
       totalCents: 145600,
       items: 10,
-      taxCents: 12000,
+      vatCents: 12000,
       discountCents: 6000,
       freightCents: 2500,
       subtotalCents: 137100,
@@ -450,8 +450,8 @@
                             <Pricing cents={invoice.subtotalCents} country={shop.country} />
                           </div>
                           <div class="flex justify-between">
-                            <span class="text-muted-foreground">Tax</span>
-                            <Pricing cents={invoice.taxCents} country={shop.country} />
+                            <span class="text-muted-foreground">VAT</span>
+                            <Pricing cents={invoice.vatCents} country={shop.country} />
                           </div>
                           {#if invoice.discountCents > 0}
                             <div class="flex justify-between text-red-600">

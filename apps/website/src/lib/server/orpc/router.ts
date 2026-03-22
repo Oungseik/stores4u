@@ -5,8 +5,6 @@ import { createCategoryHandler } from "./handlers/categories/create_category";
 import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
-import { confirmUploadHandler } from "./handlers/images/confirm_upload";
-import { getUploadUrlHandler } from "./handlers/images/get_upload_url";
 import { uploadHandler } from "./handlers/images/upload";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
@@ -20,6 +18,8 @@ import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
+import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
+import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
 
 export const router = os.router({
   categories: {
@@ -29,8 +29,6 @@ export const router = os.router({
     update: updateCategoryHandler,
   },
   images: {
-    confirmUpload: confirmUploadHandler,
-    getUploadUrl: getUploadUrlHandler,
     upload: uploadHandler,
   },
   products: {
@@ -50,6 +48,10 @@ export const router = os.router({
   shops: {
     create: createShopHandler,
     update: updateShopHandler,
+  },
+  tax: {
+    get: getTaxSettingsHandler,
+    update: updateTaxSettingsHandler,
   },
 });
 

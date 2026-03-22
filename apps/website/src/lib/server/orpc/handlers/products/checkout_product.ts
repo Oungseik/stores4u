@@ -33,7 +33,10 @@ export const checkoutHandler = os
     }, new Map<string, number>());
     const productIds = [...requestedQtyByProduct.keys()];
 
-    const products = await shopDb.query.product.findMany({ where: { id: { in: productIds } } });
+    const [products, taxConfig] = await Promise.all([
+      shopDb.query.product.findMany({ where: { id: { in: productIds } } }),
+      shopDb.query.taxSettings.findFirst(),
+    ]);
 
     if (products.length !== productIds.length) {
       const foundIds = new Set(products.map((p) => p.id));
@@ -50,7 +53,13 @@ export const checkoutHandler = os
       const dbProduct = productMap.get(item.productId)!;
       return sum + dbProduct.priceCents * item.qty;
     }, 0);
-    const totalCents = subtotalCents - input.discountCents;
+
+    let vatCents = 0;
+    if (taxConfig?.enabled) {
+      vatCents = Math.round(subtotalCents * (taxConfig.rate / 100));
+    }
+
+    const totalCents = subtotalCents - input.discountCents + vatCents;
 
     const result = await shopDb.transaction(async (tx) => {
       const orderRecord = await tx
@@ -60,6 +69,7 @@ export const checkoutHandler = os
           customerPhone: input.customerPhone,
           subtotalCents,
           discountCents: input.discountCents,
+          vatCents,
           totalCents,
           notes: input.notes,
           createdAt: now,
@@ -145,6 +155,9 @@ export const checkoutHandler = os
 
       return {
         orderId: createdOrder.id,
+        subtotalCents,
+        discountCents: input.discountCents,
+        vatCents,
         totalCents,
         itemCount: input.items.reduce((sum, item) => sum + item.qty, 0),
       };
