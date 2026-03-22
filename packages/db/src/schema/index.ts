@@ -5,3 +5,4 @@ export * from "./product";
 export * from "./refund";
 export * from "./shop";
 export * from "./supplier";
+export * from "./tax";

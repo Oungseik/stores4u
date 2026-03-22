@@ -7,10 +7,15 @@ import {
   invoice,
   invoiceItem,
   invoiceOcrResult,
+  order,
+  orderItem,
   product,
   productCategory,
   productSupplier,
+  refund,
+  refundItem,
   supplier,
+  taxSettings,
 } from "./schema";
 import { relations } from "./schema/relations";
 
@@ -25,6 +30,11 @@ const schema = {
   invoice,
   invoiceItem,
   inventoryMovement,
+  order,
+  orderItem,
+  refund,
+  refundItem,
+  taxSettings,
 };
 
 export const connectRemote = (url: string, authToken: string) => {

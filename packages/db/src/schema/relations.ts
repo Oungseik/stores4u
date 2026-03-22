@@ -5,6 +5,7 @@ import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
 import { refund, refundItem } from "./refund";
 import { productSupplier, supplier } from "./supplier";
+import { taxSettings } from "./tax";
 
 export const relations = defineRelations(
   {
@@ -21,6 +22,7 @@ export const relations = defineRelations(
     orderItem,
     refund,
     refundItem,
+    taxSettings,
   },
   (r) => ({
     category: {

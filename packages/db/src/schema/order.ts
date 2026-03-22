@@ -16,6 +16,7 @@ export const order = sqliteTable(
     customerPhone: text("customer_phone"),
     subtotalCents: integer("subtotal_cents").default(0).notNull(),
     discountCents: integer("discount_cents").default(0).notNull(),
+    vatCents: integer("vat_cents").default(0).notNull(),
     totalCents: integer("total_cents").notNull(),
     notes: text("notes"),
     createdAt: integer("created_at", { mode: "timestamp" })

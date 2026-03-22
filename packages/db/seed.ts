@@ -205,10 +205,10 @@ function generateInvoiceData(suppliers: { id: string }[], ocrResults: { id: stri
   const data = [];
   for (let i = 0; i < suppliers.length; i++) {
     const subtotalCents = randInt(1000, 100000);
-    const taxCents = Math.floor(subtotalCents * 0.1);
+    const vatCents = Math.floor(subtotalCents * 0.1);
     const freightCents = randInt(0, 2000);
-    const discountCents = randInt(0, Math.floor((subtotalCents + taxCents + freightCents) * 0.3));
-    const totalCents = subtotalCents + taxCents + freightCents - discountCents;
+    const discountCents = randInt(0, Math.floor((subtotalCents + vatCents + freightCents) * 0.3));
+    const totalCents = subtotalCents + vatCents + freightCents - discountCents;
 
     const status = rand(arrays.invoiceStatuses);
     const validatedBy = status === "PENDING" ? null : randomUUIDv7();
@@ -222,7 +222,7 @@ function generateInvoiceData(suppliers: { id: string }[], ocrResults: { id: stri
       invoiceDate: `2024-${String(randInt(1, 12)).padStart(2, "0")}-${String(randInt(1, 28)).padStart(2, "0")}`,
       photoUrl: `https://example.com/invoices/${i + 1}.jpg`,
       subtotalCents,
-      taxCents,
+      vatCents,
       discountCents,
       freightCents,
       totalCents,
@@ -247,10 +247,10 @@ function generateInvoiceItemData(invoices: { id: string }[], products: { id: str
       const qty = randFloat(1, 100);
       const unitCostCents = randInt(100, 10000);
       const lineSubtotalCents = Math.floor(qty * unitCostCents);
-      const taxCents = Math.floor(lineSubtotalCents * 0.1);
+      const vatCents = Math.floor(lineSubtotalCents * 0.1);
       const discountCents = randInt(0, 2000);
       const freightCents = randInt(0, 1000);
-      const lineTotalCents = lineSubtotalCents + taxCents + freightCents - discountCents;
+      const lineTotalCents = lineSubtotalCents + vatCents + freightCents - discountCents;
 
       data.push({
         id: randomUUIDv7(),
@@ -259,7 +259,7 @@ function generateInvoiceItemData(invoices: { id: string }[], products: { id: str
         qty,
         unitCostCents,
         lineSubtotalCents,
-        taxCents,
+        vatCents,
         discountCents,
         freightCents,
         lineTotalCents,
