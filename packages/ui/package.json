@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "build": "vite build",
     "prepare": "svelte-kit sync || echo ''",
     "shadcn": "pnpm dlx shadcn-svelte@latest add",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
