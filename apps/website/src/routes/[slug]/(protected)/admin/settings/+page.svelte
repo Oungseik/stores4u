@@ -28,6 +28,7 @@
   import { toast } from "svelte-sonner";
   import z from "zod";
 
+  import { invalidateAll } from "$app/navigation";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
 
@@ -92,6 +93,7 @@
     orpc.shops.update.mutationOptions({
       onSuccess: () => {
         toast.success("Settings updated successfully");
+        invalidateAll();
       },
       onError: (error) => {
         toast.error(error.message || "Failed to update settings");

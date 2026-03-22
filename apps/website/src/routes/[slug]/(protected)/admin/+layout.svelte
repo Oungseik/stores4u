@@ -6,13 +6,8 @@
   import type { LayoutProps } from "./$types";
   import AdminSidebar from "./admin-sidebar.svelte";
 
-  let { children, data }: LayoutProps = $props();
-
-  // Get user from parent layout data
-  const user = $derived(data.user);
-
-  // Get shop data from page store (will be loaded by child pages)
-  const shop = $derived(data);
+  let { children, data: shop }: LayoutProps = $props();
+  const user = $derived(shop.user);
 </script>
 
 {#if shop}
