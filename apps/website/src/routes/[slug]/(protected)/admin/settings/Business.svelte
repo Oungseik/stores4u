@@ -8,6 +8,7 @@
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { PhoneInput } from "@repo/ui/phone-input";
   import * as Select from "@repo/ui/select";
   import { Separator } from "@repo/ui/separator";
   import { createForm } from "@tanstack/svelte-form";
@@ -212,14 +213,21 @@
             {#snippet children(field)}
               <div class="space-y-2">
                 <Label for={field.name}>Phone Number</Label>
-                <Input
-                  id={field.name}
+                <PhoneInput
+                  bind:value={field.state.value}
                   name={field.name}
-                  value={field.state.value}
-                  onblur={field.handleBlur}
-                  onchange={(e) => field.handleChange(e.currentTarget.value)}
+                  class="z-1"
                   placeholder="+1 (555) 123-4567"
-                  type="tel"
+                  {...{
+                    /* @ts-ignore */
+                  }}
+                  onblur={field.handleBlur}
+                  {...{
+                    /* @ts-ignore */
+                  }}
+                  onchange={(e) => {
+                    field.handleChange(e.currentTarget.value);
+                  }}
                 />
               </div>
             {/snippet}
