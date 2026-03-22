@@ -8,7 +8,6 @@ import { getShopDb } from "$lib/server/shop_db";
 const checkoutItem = z.object({
   productId: z.string().min(1),
   qty: z.number().positive(),
-  unitPriceCents: z.number().int().positive(),
 });
 
 const input = z.object({
@@ -47,10 +46,10 @@ export const checkoutHandler = os
     const productMap = new Map(products.map((p) => [p.id, p]));
     const stockQtyByProduct = new Map(products.map((p) => [p.id, p.stock]));
 
-    const subtotalCents = input.items.reduce(
-      (sum, item) => sum + item.unitPriceCents * item.qty,
-      0,
-    );
+    const subtotalCents = input.items.reduce((sum, item) => {
+      const dbProduct = productMap.get(item.productId)!;
+      return sum + dbProduct.priceCents * item.qty;
+    }, 0);
     const totalCents = subtotalCents - input.discountCents;
 
     const result = await shopDb.transaction(async (tx) => {
@@ -75,15 +74,19 @@ export const checkoutHandler = os
         });
       }
 
-      const orderItems = input.items.map((item) => ({
-        id: crypto.randomUUID(),
-        orderId: createdOrder.id,
-        productId: item.productId,
-        qty: item.qty,
-        unitPriceCents: item.unitPriceCents,
-        lineTotalCents: item.unitPriceCents * item.qty,
-        createdAt: now,
-      }));
+      const orderItems = input.items.map((item) => {
+        const dbProduct = productMap.get(item.productId)!;
+        const unitPriceCents = dbProduct.priceCents;
+        return {
+          id: crypto.randomUUID(),
+          orderId: createdOrder.id,
+          productId: item.productId,
+          qty: item.qty,
+          unitPriceCents,
+          lineTotalCents: unitPriceCents * item.qty,
+          createdAt: now,
+        };
+      });
 
       await tx.insert(orderItem).values(orderItems);
 

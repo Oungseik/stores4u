@@ -175,7 +175,6 @@
       items: cart.map((item) => ({
         productId: item.id,
         qty: item.quantity,
-        unitPriceCents: item.priceCents,
       })),
     });
   }
@@ -295,8 +294,6 @@
                       cents={item.priceCents * item.quantity}
                       country={shop.country}
                       priceClass="text-xs tabular-nums text-muted-foreground"
-                      prefixClass="text-sm text-muted-foreground"
-                      suffixClass="text-sm text-muted-foreground"
                     />
                   </div>
 
