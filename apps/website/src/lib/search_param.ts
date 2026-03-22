@@ -1,5 +1,13 @@
 import { createSearchParamsSchema, type StandardSchemaV1 } from "runed/kit";
 
+type CheckoutMode = {
+  mode: "scan" | "search";
+};
+
+export const checkoutModeSchema = createSearchParamsSchema({
+  mode: { type: "string", default: "scan" },
+}) as StandardSchemaV1<unknown, CheckoutMode>;
+
 export const returnUrlSchema = createSearchParamsSchema({
   return_url: { type: "string" },
 });

@@ -8,17 +8,22 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
+  import * as InputGroup from "@repo/ui/input-group";
   import * as ScrollArea from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
   import * as Sidebar from "@repo/ui/sidebar";
+  import { Spinner } from "@repo/ui/spinner";
+  import * as Tabs from "@repo/ui/tabs";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
+  import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import ProductResults from "$lib/components/ProductResults.svelte";
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
+  import { checkoutModeSchema } from "$lib/search_param";
   import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
@@ -52,21 +57,19 @@
   }
 
   let cart = $state<CartItem[]>([]);
-  let mode = $state<"scan" | "search">("scan");
+  const searchParams = useSearchParams(checkoutModeSchema);
   let searchQuery = $state("");
   const debouncedSearch = new Debounced(() => searchQuery, 300);
 
-  // svelte-ignore non_reactive_update
-  let scannerRef: BarcodeScanner | null = null;
+  let lastScannedBarcode = $state<string | null>(null);
 
   const productSearch = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
-      enabled: !!params.slug && debouncedSearch.current.length > 0 && mode === "search",
+      enabled:
+        !!params.slug && debouncedSearch.current.length > 0 && searchParams.mode === "search",
     })
   );
-
-  let lastScannedBarcode = $state<string | null>(null);
 
   const productByBarcode = createQuery(() =>
     orpc.products.get.queryOptions({
@@ -178,83 +181,58 @@
       })),
     });
   }
-
-  $effect(() => {
-    if (mode === "search" && scannerRef) {
-      scannerRef.stop();
-    }
-  });
 </script>
 
 <div
   class="bg-background m-[calc(var(--spacing)*2)] flex h-[calc(100dvh-var(--spacing)*4)] flex-col overflow-hidden rounded-lg border lg:m-0"
 >
-  <section class="shrink-0">
+  <Tabs.Root bind:value={searchParams.mode} class="flex shrink-0 flex-col">
     <div class="flex items-center border-b">
       <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <Sidebar.Trigger class="-ms-1" />
         <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
       </div>
-      <div class="flex flex-1">
-        <button
-          type="button"
-          class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
-          'scan'
-            ? 'border-primary text-primary'
-            : 'text-muted-foreground hover:text-foreground border-transparent'}"
-          onclick={() => (mode = "scan")}
-        >
-          <ScanLineIcon class="size-4" />
+      <Tabs.List class="flex-1">
+        <Tabs.Trigger value="scan" class="gap-2">
+          <ScanLineIcon />
           Scan
-        </button>
-        <button
-          type="button"
-          class="flex flex-1 items-center justify-center gap-2 border-b-2 py-3 text-sm font-medium transition-colors {mode ===
-          'search'
-            ? 'border-primary text-primary'
-            : 'text-muted-foreground hover:text-foreground border-transparent'}"
-          onclick={() => (mode = "search")}
-        >
-          <SearchIcon class="size-4" />
+        </Tabs.Trigger>
+        <Tabs.Trigger value="search" class="gap-2">
+          <SearchIcon />
           Search
-        </button>
-      </div>
+        </Tabs.Trigger>
+      </Tabs.List>
     </div>
 
-    {#if mode === "scan"}
-      <div class="shrink-0 border-b-4 p-4">
+    <Tabs.Content value="scan" class="shrink-0 border-b-4 p-4">
+      <div class="h-48">
         <BarcodeScanner
-          bind:this={scannerRef}
           containerId="pos-barcode-scanner"
           onScan={addToCart}
-          class="bg-muted relative h-24 w-full overflow-hidden rounded-lg"
+          enabled={searchParams.mode === "scan"}
+          class="bg-muted relative h-40 w-full overflow-hidden rounded-lg"
         />
       </div>
-    {:else}
-      <div class="relative flex flex-col gap-3 p-4">
-        <div class="relative">
-          <SearchIcon
-            class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-          />
-          <input
-            type="text"
-            bind:value={searchQuery}
-            placeholder="Search products..."
-            class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-9 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-        {#if searchQuery.length > 0}
-          <ProductResults
-            products={productSearch.data?.items ?? []}
-            isLoading={productSearch.isLoading}
-            country={shop.country}
-            searchQuery={debouncedSearch.current}
-            onSelect={handleProductSelect}
-          />
-        {/if}
-      </div>
-    {/if}
-  </section>
+    </Tabs.Content>
+
+    <Tabs.Content value="search" class="relative flex flex-col gap-3 p-4">
+      <InputGroup.Root>
+        <InputGroup.Addon>
+          <SearchIcon />
+        </InputGroup.Addon>
+        <InputGroup.Input bind:value={searchQuery} placeholder="Search products..." />
+      </InputGroup.Root>
+      {#if searchQuery.length > 0}
+        <ProductResults
+          products={productSearch.data?.items ?? []}
+          isLoading={productSearch.isLoading}
+          country={shop.country}
+          searchQuery={debouncedSearch.current}
+          onSelect={handleProductSelect}
+        />
+      {/if}
+    </Tabs.Content>
+  </Tabs.Root>
 
   <section class="min-h-0 flex-1">
     <ScrollArea.Root class="h-full w-full">
@@ -308,7 +286,7 @@
                       onclick={() => decreaseQuantity(item.id)}
                       aria-label="Decrease quantity"
                     >
-                      <MinusIcon class="size-3.5" />
+                      <MinusIcon />
                     </Button>
                     <span class="min-w-[2rem] text-center text-sm font-semibold tabular-nums">
                       {item.quantity}
@@ -320,7 +298,7 @@
                       onclick={() => increaseQuantity(item.id)}
                       aria-label="Increase quantity"
                     >
-                      <PlusIcon class="size-3.5" />
+                      <PlusIcon />
                     </Button>
                   </div>
 
@@ -360,11 +338,16 @@
       </div>
 
       <Button
-        class="gap-2 px-6"
+        class="px-6"
         onclick={handleCheckout}
         disabled={cart.length === 0 || checkoutMutation.isPending}
       >
-        {checkoutMutation.isPending ? "Processing..." : "Checkout"}
+        {#if checkoutMutation.isPending}
+          <Spinner />
+          Processing...
+        {:else}
+          Checkout
+        {/if}
       </Button>
     </div>
   </section>

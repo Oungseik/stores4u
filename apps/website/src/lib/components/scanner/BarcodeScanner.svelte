@@ -11,9 +11,10 @@
     containerId?: string;
     onScan?: (barcode: string) => void;
     class?: string;
+    enabled?: boolean;
   }
 
-  let { containerId = "barcode-scanner", onScan, class: className = "" }: Props = $props();
+  let { containerId = "barcode-scanner", onScan, class: className = "", enabled = true }: Props = $props();
 
   let isScanning = $state(false);
   let hasCameraPermission = $state<boolean | null>(null);
@@ -77,7 +78,9 @@
   }
 
   $effect(() => {
-    startScanner();
+    if (enabled) {
+      startScanner();
+    }
     return () => {
       stopScanner();
     };
