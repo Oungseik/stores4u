@@ -65,3 +65,20 @@ export async function removeImage(objectPath: string) {
   await storage.delete(objectPath, { bucket: STORAGE_BUCKET_NAME });
   return true;
 }
+
+export async function putObject(key: string, data: Buffer, contentType: string): Promise<void> {
+  const file = storage.file(key);
+  await file.write(data, { type: contentType });
+}
+
+export function extractObjectKey(objectPath: string): string | null {
+  if (!objectPath) return null;
+  try {
+    const url = new URL(objectPath);
+    return url.pathname.slice(1);
+  } catch {
+    return objectPath.startsWith(STORAGE_PUBLIC_URL)
+      ? objectPath.slice(STORAGE_PUBLIC_URL.length + 1)
+      : null;
+  }
+}

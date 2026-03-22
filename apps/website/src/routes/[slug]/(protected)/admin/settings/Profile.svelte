@@ -60,16 +60,8 @@
     })
   );
 
-  const getUploadUrlMutation = createMutation(() =>
-    orpc.images.getUploadUrl.mutationOptions({
-      onError: () => {
-        toast.error("Failed to upload image");
-      },
-    })
-  );
-
-  const confirmUploadMutation = createMutation(() =>
-    orpc.images.confirmUpload.mutationOptions({
+  const uploadMutation = createMutation(() =>
+    orpc.images.upload.mutationOptions({
       onError: () => {
         toast.error("Failed to upload image");
       },
@@ -96,24 +88,7 @@
 
     isUploadingLogo = true;
     try {
-      const { uploadUrl, objectKey } = await getUploadUrlMutation.mutateAsync({
-        slug: shop.slug,
-        filename: file.name,
-        contentType: file.type,
-        size: file.size,
-      });
-
-      const uploadResponse = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const result = await confirmUploadMutation.mutateAsync({ slug: shop.slug, objectKey });
+      const result = await uploadMutation.mutateAsync({ slug: shop.slug, file });
       profileForm.setFieldValue("logo", result.objectPath);
       logoPreview = result.objectPath;
     } catch {
@@ -131,24 +106,7 @@
 
     isUploadingHeroImage = true;
     try {
-      const { uploadUrl, objectKey } = await getUploadUrlMutation.mutateAsync({
-        slug: shop.slug,
-        filename: file.name,
-        contentType: file.type,
-        size: file.size,
-      });
-
-      const uploadResponse = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const result = await confirmUploadMutation.mutateAsync({ slug: shop.slug, objectKey });
+      const result = await uploadMutation.mutateAsync({ slug: shop.slug, file });
       profileForm.setFieldValue("heroImage", result.objectPath);
       heroImagePreview = result.objectPath;
     } catch {

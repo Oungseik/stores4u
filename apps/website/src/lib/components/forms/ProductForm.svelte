@@ -64,16 +64,8 @@
     })
   );
 
-  const getUploadUrlMutation = createMutation(() =>
-    orpc.images.getUploadUrl.mutationOptions({
-      onError: () => {
-        toast.error("Failed to upload image");
-      },
-    })
-  );
-
-  const confirmUploadMutation = createMutation(() =>
-    orpc.images.confirmUpload.mutationOptions({
+  const uploadMutation = createMutation(() =>
+    orpc.images.upload.mutationOptions({
       onError: () => {
         toast.error("Failed to upload image");
       },
@@ -151,24 +143,7 @@
 
     isUploadingImage = true;
     try {
-      const { uploadUrl, objectKey } = await getUploadUrlMutation.mutateAsync({
-        slug,
-        filename: file.name,
-        contentType: file.type,
-        size: file.size,
-      });
-
-      const uploadResponse = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const result = await confirmUploadMutation.mutateAsync({ slug, objectKey });
+      const result = await uploadMutation.mutateAsync({ slug, file });
       form.setFieldValue("imageUrl", result.objectPath);
       imagePreview = result.objectPath;
     } catch {

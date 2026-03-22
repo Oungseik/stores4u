@@ -12,6 +12,10 @@ const input = z.object({
   size: z.number().int().positive().max(MAX_FILE_SIZE),
 });
 
+/**
+ * @deprecated Use `images.upload` instead.
+ * The new upload endpoint handles file processing server-side for better security and control.
+ */
 export const getUploadUrlHandler = os
   .input(input)
   .use(shopMiddleware)

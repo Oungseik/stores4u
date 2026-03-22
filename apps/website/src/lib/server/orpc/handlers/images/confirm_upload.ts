@@ -12,6 +12,10 @@ const input = z.object({
   objectKey: z.string().min(1),
 });
 
+/**
+ * @deprecated Use `images.upload` instead.
+ * The new upload endpoint handles file processing server-side for better security and control.
+ */
 export const confirmUploadHandler = os
   .input(input)
   .use(shopMiddleware)

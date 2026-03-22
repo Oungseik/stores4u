@@ -7,6 +7,7 @@ import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { confirmUploadHandler } from "./handlers/images/confirm_upload";
 import { getUploadUrlHandler } from "./handlers/images/get_upload_url";
+import { uploadHandler } from "./handlers/images/upload";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
@@ -30,6 +31,7 @@ export const router = os.router({
   images: {
     confirmUpload: confirmUploadHandler,
     getUploadUrl: getUploadUrlHandler,
+    upload: uploadHandler,
   },
   products: {
     checkout: checkoutHandler,
