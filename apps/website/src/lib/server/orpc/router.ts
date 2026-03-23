@@ -23,6 +23,7 @@ import { disconnectPlatformHandler } from "./handlers/social/disconnect_platform
 import { getFacebookPagesHandler } from "./handlers/social/get_facebook_pages";
 import { listConnectionsHandler } from "./handlers/social/list_connections";
 import { updatePermissionsHandler } from "./handlers/social/update_permissions";
+import { listSuppliersHandler } from "./handlers/suppliers/list_suppliers";
 import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
 
@@ -60,6 +61,9 @@ export const router = os.router({
     getFacebookPages: getFacebookPagesHandler,
     list: listConnectionsHandler,
     updatePermissions: updatePermissionsHandler,
+  },
+  suppliers: {
+    list: listSuppliersHandler,
   },
   tax: {
     get: getTaxSettingsHandler,

@@ -3,140 +3,72 @@
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import EyeIcon from "@lucide/svelte/icons/eye";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PhoneIcon from "@lucide/svelte/icons/phone";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
-  import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
-  import XIcon from "@lucide/svelte/icons/x";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
+  import * as FilterBar from "@repo/ui/filter-bar";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { Textarea } from "@repo/ui/textarea";
+  import { createInfiniteQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { orpc } from "$lib/orpc_client";
   import { suppliersFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
-  const { data: shop }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
-  // Mock suppliers data
-  const mockSuppliers = [
-    {
-      id: "sup-1",
-      name: "Tech Supplies Co.",
-      contactName: "John Smith",
-      phone: "+1 555-0123",
-      email: "john@techsupplies.com",
-      address: "123 Tech Street, Silicon Valley, CA 94025",
-      paymentTerms: "Net 30",
-      invoicesCount: 15,
-      totalPurchases: 1250000,
-      lastPurchase: "2025-01-15",
-    },
-    {
-      id: "sup-2",
-      name: "Office Depot",
-      contactName: "Sarah Johnson",
-      phone: "+1 555-0456",
-      email: "sarah@officedepot.com",
-      address: "456 Office Ave, Business City, NY 10001",
-      paymentTerms: "Net 15",
-      invoicesCount: 8,
-      totalPurchases: 450000,
-      lastPurchase: "2025-01-14",
-    },
-    {
-      id: "sup-3",
-      name: "Global Electronics",
-      contactName: "Mike Chen",
-      phone: "+1 555-0789",
-      email: "mike@globalelec.com",
-      address: "789 Global Blvd, Electronics Town, TX 75001",
-      paymentTerms: "Net 45",
-      invoicesCount: 12,
-      totalPurchases: 2100000,
-      lastPurchase: "2025-01-12",
-    },
-    {
-      id: "sup-4",
-      name: "Stationery Plus",
-      contactName: "Emily Brown",
-      phone: "+1 555-0321",
-      email: "emily@stationeryplus.com",
-      address: "321 Stationery Lane, Paper City, FL 33101",
-      paymentTerms: "Net 30",
-      invoicesCount: 6,
-      totalPurchases: 125000,
-      lastPurchase: "2025-01-10",
-    },
-    {
-      id: "sup-5",
-      name: "Computer World",
-      contactName: "David Lee",
-      phone: "+1 555-0654",
-      email: "david@computerworld.com",
-      address: "654 Computer Way, Digital City, WA 98001",
-      paymentTerms: "Net 60",
-      invoicesCount: 20,
-      totalPurchases: 3200000,
-      lastPurchase: "2025-01-06",
-    },
-    {
-      id: "sup-6",
-      name: "Supply Chain Inc",
-      contactName: "Lisa Anderson",
-      phone: "+1 555-0987",
-      email: "lisa@supplychain.com",
-      address: "987 Supply Rd, Logistics City, IL 60601",
-      paymentTerms: "Net 30",
-      invoicesCount: 4,
-      totalPurchases: 85000,
-      lastPurchase: "2025-01-03",
-    },
-    {
-      id: "sup-7",
-      name: "Digital Solutions",
-      contactName: "Robert Taylor",
-      phone: "+1 555-0156",
-      email: "robert@digitalsolutions.com",
-      address: "156 Digital Blvd, Tech Hub, CA 90210",
-      paymentTerms: "Net 15",
-      invoicesCount: 10,
-      totalPurchases: 780000,
-      lastPurchase: "2025-01-01",
-    },
-    {
-      id: "sup-8",
-      name: "Premium Supplies",
-      contactName: "Jennifer White",
-      phone: "+1 555-0278",
-      email: "jennifer@premiumsupplies.com",
-      address: "278 Premium St, Quality City, MA 02101",
-      paymentTerms: "Net 30",
-      invoicesCount: 3,
-      totalPurchases: 45000,
-      lastPurchase: "2024-12-28",
-    },
-  ];
+  type ApiSupplier = {
+    id: string;
+    name: string;
+    contactName: string | null;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
+    paymentTerms: string | null;
+    invoicesCount: number;
+    totalPurchases: number;
+    lastPurchase: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 
   const searchParams = useSearchParams(suppliersFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
 
+  const suppliers = createInfiniteQuery(() =>
+    orpc.suppliers.list.infiniteOptions({
+      initialPageParam: undefined as string | undefined,
+      input: (cursor) => ({
+        cursor,
+        slug: params.slug,
+        search: debouncedSearch.current || undefined,
+      }),
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !!params.slug,
+    })
+  );
+
+  const allSuppliers = $derived(suppliers.data?.pages.flatMap((page) => page.items) ?? []);
+
   // State
-  let selectedSupplier = $state<(typeof mockSuppliers)[0] | null>(null);
+  let selectedSupplier = $state<ApiSupplier | null>(null);
   let isViewOpen = $state(false);
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
@@ -151,16 +83,6 @@
     paymentTerms: "Net 30",
   });
 
-  // Filter suppliers
-  const filteredSuppliers = $derived(() => {
-    return mockSuppliers.filter(
-      (supplier) =>
-        supplier.name.toLowerCase().includes(debouncedSearch.current.toLowerCase()) ||
-        supplier.contactName.toLowerCase().includes(debouncedSearch.current.toLowerCase()) ||
-        supplier.email.toLowerCase().includes(debouncedSearch.current.toLowerCase())
-    );
-  });
-
   const hasFilters = $derived(searchParams.search.length > 0);
 
   function resetFilters() {
@@ -169,10 +91,10 @@
 
   // Stats
   const stats = $derived(() => {
-    const total = mockSuppliers.length;
-    const totalPurchases = mockSuppliers.reduce((sum, s) => sum + s.totalPurchases, 0);
-    const totalInvoices = mockSuppliers.reduce((sum, s) => sum + s.invoicesCount, 0);
-    const avgInvoices = Math.round(totalInvoices / total);
+    const total = allSuppliers.length;
+    const totalPurchases = allSuppliers.reduce((sum, s) => sum + s.totalPurchases, 0);
+    const totalInvoices = allSuppliers.reduce((sum, s) => sum + s.invoicesCount, 0);
+    const avgInvoices = total > 0 ? Math.round(totalInvoices / total) : 0;
 
     return { total, totalPurchases, totalInvoices, avgInvoices };
   });
@@ -186,14 +108,21 @@
     }).format(date);
   }
 
-  function viewSupplier(supplier: (typeof mockSuppliers)[0]) {
+  function viewSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
     isViewOpen = true;
   }
 
-  function editSupplier(supplier: (typeof mockSuppliers)[0]) {
+  function editSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
-    newSupplier = { ...supplier };
+    newSupplier = {
+      name: supplier.name,
+      contactName: supplier.contactName ?? "",
+      phone: supplier.phone ?? "",
+      email: supplier.email ?? "",
+      address: supplier.address ?? "",
+      paymentTerms: supplier.paymentTerms ?? "Net 30",
+    };
     isEditOpen = true;
   }
 
@@ -290,113 +219,24 @@
     />
   </div>
 
-  <!-- Search -->
-  <div class="flex flex-col items-center items-start justify-start gap-2 lg:flex-row">
-    <div class="flex w-full items-center gap-2 lg:max-w-md">
-      <div class="relative w-full">
-        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
-          placeholder="Search suppliers by name, contact, or email..."
-          class="pl-9"
-          value={searchParams.search}
-          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-        />
-      </div>
+  <FilterBar.Root {hasFilters} onReset={resetFilters}>
+    <FilterBar.Search
+      placeholder="Search suppliers by name, contact, or email..."
+      value={searchParams.search}
+      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+    />
+    <FilterBar.Reset />
+  </FilterBar.Root>
+
+  {#if suppliers.isLoading}
+    <div class="flex items-center justify-center py-12">
+      <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
     </div>
-
-    <div class="flex items-center gap-2">
-      {#if hasFilters}
-        <Button variant="ghost" size="sm" onclick={resetFilters}>
-          <XIcon class="size-4" />
-          Reset
-        </Button>
-      {/if}
+  {:else if suppliers.isError}
+    <div class="flex items-center justify-center py-12">
+      <p class="text-red-500">Failed to load suppliers</p>
     </div>
-  </div>
-
-  <!-- Suppliers Grid -->
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {#each filteredSuppliers() as supplier}
-      <Card.Root class="group transition-all duration-200 hover:shadow-md">
-        <Card.Header class="pb-3">
-          <div class="flex items-start justify-between">
-            <div class="flex items-center gap-3">
-              <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-                <Building2Icon class="text-primary size-5" />
-              </div>
-              <div>
-                <Card.Title class="text-base">{supplier.name}</Card.Title>
-                <Card.Description class="flex items-center gap-1">
-                  <UserIcon class="size-3" />
-                  {supplier.contactName}
-                </Card.Description>
-              </div>
-            </div>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                class={buttonVariants({ variant: "ghost", size: "icon" }) +
-                  " size-8 opacity-0 group-hover:opacity-100"}
-              >
-                <MoreVerticalIcon class="size-4" />
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end">
-                <DropdownMenu.Item onclick={() => viewSupplier(supplier)}>
-                  <EyeIcon class="size-4" />
-                  View Details
-                </DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => editSupplier(supplier)}>
-                  <PencilIcon class="size-4" />
-                  Edit
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator />
-                <DropdownMenu.Item class="text-red-600" onclick={() => deleteSupplier(supplier.id)}>
-                  <Trash2Icon class="size-4" />
-                  Delete
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </div>
-        </Card.Header>
-        <Card.Content class="space-y-3">
-          <div class="space-y-1 text-sm">
-            <div class="text-muted-foreground flex items-center gap-2">
-              <MailIcon class="size-3" />
-              <span class="truncate">{supplier.email}</span>
-            </div>
-            <div class="text-muted-foreground flex items-center gap-2">
-              <PhoneIcon class="size-3" />
-              <span>{supplier.phone}</span>
-            </div>
-          </div>
-
-          <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
-            <div>
-              <p class="text-muted-foreground text-xs">Total Purchases</p>
-              <p class="font-semibold">
-                <Pricing cents={supplier.totalPurchases} country={shop.country} />
-              </p>
-            </div>
-            <div class="text-right">
-              <p class="text-muted-foreground text-xs">Invoices</p>
-              <p class="font-semibold">{supplier.invoicesCount}</p>
-            </div>
-          </div>
-
-          <div class="text-muted-foreground flex items-center gap-2 text-xs">
-            <ReceiptIcon class="size-3" />
-            Last purchase: {formatDate(supplier.lastPurchase)}
-          </div>
-        </Card.Content>
-        <Card.Footer class="pt-0">
-          <Button variant="outline" class="w-full" onclick={() => viewSupplier(supplier)}>
-            View Details
-          </Button>
-        </Card.Footer>
-      </Card.Root>
-    {/each}
-  </div>
-
-  {#if filteredSuppliers().length === 0}
+  {:else if allSuppliers.length === 0}
     <div class="flex flex-col items-center justify-center py-12 text-center">
       <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
         <Building2Icon class="text-muted-foreground size-8" />
@@ -412,6 +252,116 @@
         </Button>
       {/if}
     </div>
+  {:else}
+    <!-- Suppliers Grid -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {#each allSuppliers as supplier (supplier.id)}
+        <Card.Root class="group transition-all duration-200 hover:shadow-md">
+          <Card.Header class="pb-3">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                  <Building2Icon class="text-primary size-5" />
+                </div>
+                <div>
+                  <Card.Title class="text-base">{supplier.name}</Card.Title>
+                  {#if supplier.contactName}
+                    <Card.Description class="flex items-center gap-1">
+                      <UserIcon class="size-3" />
+                      {supplier.contactName}
+                    </Card.Description>
+                  {/if}
+                </div>
+              </div>
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger
+                  class={buttonVariants({ variant: "ghost", size: "icon" }) +
+                    " size-8 opacity-0 group-hover:opacity-100"}
+                >
+                  <MoreVerticalIcon class="size-4" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="end">
+                  <DropdownMenu.Item onclick={() => viewSupplier(supplier)}>
+                    <EyeIcon class="size-4" />
+                    View Details
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item onclick={() => editSupplier(supplier)}>
+                    <PencilIcon class="size-4" />
+                    Edit
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Item
+                    class="text-red-600"
+                    onclick={() => deleteSupplier(supplier.id)}
+                  >
+                    <Trash2Icon class="size-4" />
+                    Delete
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            </div>
+          </Card.Header>
+          <Card.Content class="space-y-3">
+            <div class="space-y-1 text-sm">
+              {#if supplier.email}
+                <div class="text-muted-foreground flex items-center gap-2">
+                  <MailIcon class="size-3" />
+                  <span class="truncate">{supplier.email}</span>
+                </div>
+              {/if}
+              {#if supplier.phone}
+                <div class="text-muted-foreground flex items-center gap-2">
+                  <PhoneIcon class="size-3" />
+                  <span>{supplier.phone}</span>
+                </div>
+              {/if}
+            </div>
+
+            <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
+              <div>
+                <p class="text-muted-foreground text-xs">Total Purchases</p>
+                <p class="font-semibold">
+                  <Pricing cents={supplier.totalPurchases} country={shop.country} />
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-muted-foreground text-xs">Invoices</p>
+                <p class="font-semibold">{supplier.invoicesCount}</p>
+              </div>
+            </div>
+
+            {#if supplier.lastPurchase}
+              <div class="text-muted-foreground flex items-center gap-2 text-xs">
+                <ReceiptIcon class="size-3" />
+                Last purchase: {formatDate(supplier.lastPurchase)}
+              </div>
+            {/if}
+          </Card.Content>
+          <Card.Footer class="pt-0">
+            <Button variant="outline" class="w-full" onclick={() => viewSupplier(supplier)}>
+              View Details
+            </Button>
+          </Card.Footer>
+        </Card.Root>
+      {/each}
+    </div>
+
+    {#if suppliers.hasNextPage}
+      <div class="mt-4 flex justify-center">
+        <Button
+          variant="outline"
+          onclick={() => suppliers.fetchNextPage()}
+          disabled={suppliers.isFetchingNextPage}
+        >
+          {#if suppliers.isFetchingNextPage}
+            <Loader2Icon class="mr-2 size-4 animate-spin" />
+            Loading...
+          {:else}
+            Load More
+          {/if}
+        </Button>
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -440,23 +390,23 @@
           <div class="space-y-2 rounded-md border p-3 text-sm">
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Contact Person</span>
-              <span class="font-medium">{selectedSupplier.contactName}</span>
+              <span class="font-medium">{selectedSupplier.contactName ?? "—"}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Phone</span>
-              <span>{selectedSupplier.phone}</span>
+              <span>{selectedSupplier.phone ?? "—"}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Email</span>
-              <span>{selectedSupplier.email}</span>
+              <span>{selectedSupplier.email ?? "—"}</span>
             </div>
             <div class="flex items-start justify-between">
               <span class="text-muted-foreground">Address</span>
-              <span class="max-w-xs text-right">{selectedSupplier.address}</span>
+              <span class="max-w-xs text-right">{selectedSupplier.address ?? "—"}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Payment Terms</span>
-              <span class="font-medium">{selectedSupplier.paymentTerms}</span>
+              <span class="font-medium">{selectedSupplier.paymentTerms ?? "—"}</span>
             </div>
           </div>
         </div>
@@ -478,7 +428,9 @@
               <p class="text-muted-foreground text-xs">Invoices</p>
             </div>
             <div class="rounded-md border p-3 text-center">
-              <p class="text-lg font-bold">{formatDate(selectedSupplier.lastPurchase)}</p>
+              <p class="text-lg font-bold">
+                {selectedSupplier.lastPurchase ? formatDate(selectedSupplier.lastPurchase) : "—"}
+              </p>
               <p class="text-muted-foreground text-xs">Last Purchase</p>
             </div>
           </div>
@@ -501,7 +453,6 @@
         <Button
           onclick={() => {
             isViewOpen = false;
-            // editSupplier(selectedSupplier);
           }}
         >
           <PencilIcon class="size-4" />
