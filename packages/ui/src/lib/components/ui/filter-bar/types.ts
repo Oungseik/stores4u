@@ -1,5 +1,11 @@
+import type { DateValue } from "@internationalized/date";
 import type { Component, Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes, HTMLInputAttributes } from "svelte/elements";
+
+export type FilterBarDateRange = {
+  start: DateValue | null;
+  end: DateValue | null;
+};
 
 export type FilterBadge = {
   label: string;
@@ -30,6 +36,15 @@ export type FilterBarResetProps = {
 export type FilterBarBadgesProps = {
   ref?: HTMLDivElement | null;
   badges: FilterBadge[];
+  class?: string;
+};
+
+export type FilterBarDatePickerProps = {
+  ref?: HTMLButtonElement | null;
+  value?: FilterBarDateRange;
+  onValueChange?: (value: FilterBarDateRange) => void;
+  placeholder?: string;
+  numberOfMonths?: number;
   class?: string;
 };
 

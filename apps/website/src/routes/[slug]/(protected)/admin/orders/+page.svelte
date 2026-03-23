@@ -1,21 +1,17 @@
 <script lang="ts">
   import { CalendarDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
-  import SearchIcon from "@lucide/svelte/icons/search";
   import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
-  import XIcon from "@lucide/svelte/icons/x";
-  import { Button, buttonVariants } from "@repo/ui/button";
+  import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
-  import { Input } from "@repo/ui/input";
-  import * as Popover from "@repo/ui/popover";
-  import { RangeCalendar } from "@repo/ui/range-calendar";
+  import type { FilterBarDateRange } from "@repo/ui/filter-bar";
+  import * as FilterBar from "@repo/ui/filter-bar";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
@@ -26,6 +22,7 @@
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { ordersFilterSchema } from "$lib/search_param";
+  import { formatOrderDate } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -91,17 +88,24 @@
 
   function resetFilters() {
     searchParams.update({ search: "", dateFrom: "", dateTo: "" });
-    dateRange = { start: null, end: null };
   }
 
-  function formatDate(date: Date) {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
+  function parseDate(dateStr: string): DateValue | null {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  }
+
+  const dateValue = $derived({
+    start: parseDate(searchParams.dateFrom),
+    end: parseDate(searchParams.dateTo),
+  });
+
+  function handleDateRangeChange(value: FilterBarDateRange) {
+    searchParams.update({
+      dateFrom: value.start ? value.start.toString() : "",
+      dateTo: value.end ? value.end.toString() : "",
+    });
   }
 
   function getPaymentStatusStyles(status: string) {
@@ -124,43 +128,6 @@
   function openOrderDetails(order: ApiOrder) {
     selectedOrderId = order.id;
     isDetailsOpen = true;
-  }
-
-  function formatDateRange(): string {
-    if (searchParams.dateFrom && searchParams.dateTo) {
-      const from = new Date(searchParams.dateFrom);
-      const to = new Date(searchParams.dateTo);
-      const fmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
-      return `${fmt.format(from)} - ${fmt.format(to)}`;
-    }
-    return "All Dates";
-  }
-
-  function parseDateValue(dateStr: string): DateValue | null {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-  }
-
-  let dateRange = $state<{ start: DateValue | null; end: DateValue | null }>({
-    start: parseDateValue(searchParams.dateFrom),
-    end: parseDateValue(searchParams.dateTo),
-  });
-
-  function handleDateRangeChange(
-    value: { start: DateValue | undefined; end: DateValue | undefined } | undefined
-  ) {
-    if (value?.start && value?.end) {
-      dateRange = { start: value.start as DateValue, end: value.end as DateValue };
-      searchParams.update({
-        dateFrom: (value.start as CalendarDate).toString(),
-        dateTo: (value.end as CalendarDate).toString(),
-      });
-    } else if (value?.start && !value?.end) {
-      dateRange = { start: value.start as DateValue, end: null };
-    } else {
-      dateRange = { start: null, end: null };
-    }
   }
 </script>
 
@@ -224,49 +191,17 @@
     />
   </div>
 
-  <div class="flex flex-col items-start justify-start gap-2 lg:flex-row">
-    <div class="flex w-full items-center gap-2 lg:max-w-md">
-      <div class="relative w-full">
-        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
-          placeholder="Search orders, customers..."
-          class="pl-9"
-          value={searchParams.search}
-          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-        />
-      </div>
-    </div>
+  <FilterBar.Root {hasFilters} onReset={resetFilters}>
+    <FilterBar.Search
+      placeholder="Search orders, customers..."
+      value={searchParams.search}
+      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+    />
 
-    <div class="flex items-center gap-2">
-      <Popover.Root>
-        <Popover.Trigger class={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}>
-          <CalendarIcon class="size-4" />
-          {formatDateRange()}
-          <ChevronDownIcon class="size-3 opacity-50" />
-        </Popover.Trigger>
-        <Popover.Content class="w-auto p-0" align="start">
-          {#key dateRange}
-            <RangeCalendar
-              value={dateRange.start && dateRange.end
-                ? { start: dateRange.start, end: dateRange.end }
-                : dateRange.start
-                  ? { start: dateRange.start, end: null as unknown as CalendarDate }
-                  : undefined}
-              onValueChange={handleDateRangeChange}
-              numberOfMonths={2}
-            />
-          {/key}
-        </Popover.Content>
-      </Popover.Root>
+    <FilterBar.DatePicker value={dateValue} onValueChange={handleDateRangeChange} />
 
-      {#if hasFilters}
-        <Button variant="ghost" size="sm" onclick={resetFilters}>
-          <XIcon class="size-4" />
-          Reset
-        </Button>
-      {/if}
-    </div>
-  </div>
+    <FilterBar.Reset />
+  </FilterBar.Root>
 
   <div class="flex flex-col gap-3">
     {#if orders.isLoading}
@@ -305,7 +240,7 @@
                 </div>
                 <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
                   <CalendarIcon class="size-3" />
-                  {formatDate(order.createdAt)}
+                  {formatOrderDate(order.createdAt)}
                 </div>
               </div>
 
@@ -365,7 +300,7 @@
           <Dialog.Title class="text-xl">Order #{formatOrderId(order.id)}</Dialog.Title>
         </div>
         <Dialog.Description>
-          Placed on {formatDate(order.createdAt)}
+          Placed on {formatOrderDate(order.createdAt)}
         </Dialog.Description>
       </Dialog.Header>
 

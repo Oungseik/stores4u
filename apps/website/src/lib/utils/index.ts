@@ -56,3 +56,13 @@ export function formatPrice(cents: number, country?: CountryCode | null): string
   if (config?.suffix) return `${amount} ${config.suffix}`;
   return amount;
 }
+
+export function formatOrderDate(date: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
