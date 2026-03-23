@@ -8,6 +8,14 @@ export const checkoutModeSchema = createSearchParamsSchema({
   mode: { type: "string", default: "scan" },
 }) as StandardSchemaV1<unknown, CheckoutMode>;
 
+type SettingsTab = {
+  tab: "profile" | "business" | "payment" | "receipt" | "tax" | "notifications" | "team";
+};
+
+export const settingsTabSchema = createSearchParamsSchema({
+  tab: { type: "string", default: "profile" },
+}) as StandardSchemaV1<unknown, SettingsTab>;
+
 export const returnUrlSchema = createSearchParamsSchema({
   return_url: { type: "string" },
 });

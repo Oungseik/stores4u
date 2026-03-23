@@ -7,8 +7,10 @@
   import StoreIcon from "@lucide/svelte/icons/store";
   import UsersIcon from "@lucide/svelte/icons/users";
   import * as Tabs from "@repo/ui/tabs";
+  import { useSearchParams } from "runed/kit";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { settingsTabSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
   import Business from "./Business.svelte";
@@ -21,7 +23,7 @@
 
   const { data: shop }: PageProps = $props();
 
-  let activeTab = $state("profile");
+  const searchParams = useSearchParams(settingsTabSchema);
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
@@ -29,7 +31,7 @@
     breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Settings" }]}
   />
 
-  <Tabs.Root bind:value={activeTab} class="w-full max-w-2xl">
+  <Tabs.Root bind:value={searchParams.tab} class="w-full max-w-2xl">
     <div class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
       <Tabs.List
         class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-4 lg:grid-cols-7"
