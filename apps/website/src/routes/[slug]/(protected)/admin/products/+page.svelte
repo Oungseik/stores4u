@@ -1,18 +1,14 @@
 <script lang="ts">
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  import FilterIcon from "@lucide/svelte/icons/filter";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
-  import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
-  import XIcon from "@lucide/svelte/icons/x";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import { Input } from "@repo/ui/input";
+  import * as FilterBar from "@repo/ui/filter-bar";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
@@ -72,55 +68,27 @@
   </AdminDashboardHeader>
 
   <!-- Filters and Search -->
-  <div class="flex flex-col items-center items-start justify-start gap-2 lg:flex-row">
-    <div class="flex w-full items-center gap-2 lg:max-w-md">
-      <div class="relative w-full">
-        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
-          placeholder="Search products, SKU..."
-          class="pl-9"
-          value={searchParams.search}
-          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-        />
-      </div>
-    </div>
+  <FilterBar.Root {hasFilters} onReset={resetFilters}>
+    <FilterBar.Search
+      placeholder="Search products, SKU..."
+      value={searchParams.search}
+      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+    />
 
-    <div class="flex items-center gap-2">
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger class={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}>
-          <FilterIcon class="size-4" />
-          {searchParams.categories.length > 0
-            ? `${searchParams.categories.length} categories selected`
-            : "All Categories"}
-          <ChevronDownIcon class="size-3 opacity-50" />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="start" class="w-56">
-          <DropdownMenu.Label>Filter by Category</DropdownMenu.Label>
-          <DropdownMenu.Separator />
-          {#if categories.data?.items}
-            <DropdownMenu.CheckboxGroup
-              value={searchParams.categories}
-              onValueChange={(value: string[]) => searchParams.update({ categories: value })}
-            >
-              {#each categories.data.items as category (category.id)}
-                <DropdownMenu.CheckboxItem value={category.name}>
-                  <span class="flex-1">{category.name}</span>
-                  <span class="text-muted-foreground text-xs">{category.productCount}</span>
-                </DropdownMenu.CheckboxItem>
-              {/each}
-            </DropdownMenu.CheckboxGroup>
-          {/if}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+    <FilterBar.CheckboxGroup
+      items={(categories.data?.items ?? []).map((c) => ({
+        value: c.name,
+        label: c.name,
+        count: c.productCount,
+      }))}
+      value={searchParams.categories}
+      onValueChange={(value) => searchParams.update({ categories: value })}
+      placeholder="All Categories"
+      label="Filter by Category"
+    />
 
-      {#if hasFilters}
-        <Button variant="ghost" size="sm" onclick={resetFilters}>
-          <XIcon class="size-4" />
-          Reset
-        </Button>
-      {/if}
-    </div>
-  </div>
+    <FilterBar.Reset />
+  </FilterBar.Root>
 
   {#if products.isLoading}
     <div class="flex items-center justify-center py-12">
