@@ -7,6 +7,8 @@ import { env } from "$env/dynamic/public";
 import {
   BETTER_AUTH_SECRET,
   BETTER_AUTH_URL,
+  FACEBOOK_CLIENT_ID,
+  FACEBOOK_CLIENT_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   NO_REPLY_EMAIL,
@@ -46,6 +48,17 @@ export const auth = betterAuth({
       prompt: "select_account",
       clientId: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
+    },
+    facebook: {
+      clientId: FACEBOOK_CLIENT_ID,
+      clientSecret: FACEBOOK_CLIENT_SECRET,
+      scopes: [
+        "email",
+        "public_profile",
+        "pages_show_list",
+        "pages_manage_posts",
+        "pages_read_engagement",
+      ],
     },
   },
 

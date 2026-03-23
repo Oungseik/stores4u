@@ -18,6 +18,11 @@ import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
+import { connectPlatformHandler } from "./handlers/social/connect_platform";
+import { disconnectPlatformHandler } from "./handlers/social/disconnect_platform";
+import { getFacebookPagesHandler } from "./handlers/social/get_facebook_pages";
+import { listConnectionsHandler } from "./handlers/social/list_connections";
+import { updatePermissionsHandler } from "./handlers/social/update_permissions";
 import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
 
@@ -48,6 +53,13 @@ export const router = os.router({
   shops: {
     create: createShopHandler,
     update: updateShopHandler,
+  },
+  social: {
+    connect: connectPlatformHandler,
+    disconnect: disconnectPlatformHandler,
+    getFacebookPages: getFacebookPagesHandler,
+    list: listConnectionsHandler,
+    updatePermissions: updatePermissionsHandler,
   },
   tax: {
     get: getTaxSettingsHandler,
