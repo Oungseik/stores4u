@@ -11,18 +11,22 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UploadIcon from "@lucide/svelte/icons/upload";
+  import XIcon from "@lucide/svelte/icons/x";
   import { Badge } from "@repo/ui/badge";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
   import * as Table from "@repo/ui/table";
+  import { Debounced } from "runed";
+  import { useSearchParams } from "runed/kit";
   import { cubicOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { invoicesFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -128,23 +132,33 @@
     },
   ];
 
-  // State
-  let searchQuery = $state("");
-  let selectedStatus = $state<string | null>(null);
+  const searchParams = useSearchParams(invoicesFilterSchema);
+  const debouncedSearch = new Debounced(() => searchParams.search, 1000);
+  const debouncedStatus = new Debounced(() => searchParams.status, 300);
+
   let expandedInvoice = $state<string | null>(null);
 
   // Filter invoices
   const filteredInvoices = $derived(() => {
     return mockInvoices.filter((invoice) => {
+      const search = debouncedSearch.current.toLowerCase();
       const matchesSearch =
-        invoice.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        invoice.supplier.toLowerCase().includes(searchQuery.toLowerCase());
+        search.length === 0 ||
+        invoice.id.toLowerCase().includes(search) ||
+        invoice.supplier.toLowerCase().includes(search);
 
-      const matchesStatus = selectedStatus ? invoice.status === selectedStatus : true;
+      const status = debouncedStatus.current;
+      const matchesStatus = status.length > 0 ? invoice.status === status : true;
 
       return matchesSearch && matchesStatus;
     });
   });
+
+  const hasFilters = $derived(searchParams.search.length > 0 || searchParams.status.length > 0);
+
+  function resetFilters() {
+    searchParams.update({ search: "", status: "" });
+  }
 
   // Stats
   const stats = $derived(() => {
@@ -282,11 +296,16 @@
   </div>
 
   <!-- Filters -->
-  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-    <div class="flex flex-1 items-center gap-2">
-      <div class="relative max-w-md flex-1">
+  <div class="flex flex-col items-center items-start justify-start gap-2 lg:flex-row">
+    <div class="flex w-full items-center gap-2 lg:max-w-md">
+      <div class="relative w-full">
         <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input placeholder="Search invoices, suppliers..." class="pl-9" bind:value={searchQuery} />
+        <Input
+          placeholder="Search invoices, suppliers..."
+          class="pl-9"
+          value={searchParams.search}
+          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+        />
       </div>
     </div>
 
@@ -294,71 +313,36 @@
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}>
           <FilterIcon class="size-4" />
-          {selectedStatus
-            ? statusOptions.find((s) => s.value === selectedStatus)?.label
-            : "Filter Status"}
+          {searchParams.status.length > 0
+            ? (statusOptions.find((s) => s.value === searchParams.status)?.label ?? "Filter Status")
+            : "All Statuses"}
           <ChevronDownIcon class="size-3 opacity-50" />
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" class="w-48">
+        <DropdownMenu.Content align="start" class="w-48">
           <DropdownMenu.Label>Filter by Status</DropdownMenu.Label>
           <DropdownMenu.Separator />
           {#each statusOptions as option}
             <DropdownMenu.Item
-              onclick={() => (selectedStatus = option.value)}
+              onclick={() =>
+                searchParams.update({
+                  status: searchParams.status === option.value ? "" : option.value,
+                })}
               class="justify-between"
             >
-              {option.label}
+              <span class="flex-1">{option.label}</span>
               <span class="text-muted-foreground text-xs">{option.count}</span>
             </DropdownMenu.Item>
           {/each}
-          {#if selectedStatus}
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item onclick={() => (selectedStatus = null)}>
-              Clear filter
-            </DropdownMenu.Item>
-          {/if}
         </DropdownMenu.Content>
       </DropdownMenu.Root>
 
-      {#if selectedStatus || searchQuery}
-        <Button
-          variant="ghost"
-          size="sm"
-          onclick={() => {
-            selectedStatus = null;
-            searchQuery = "";
-          }}
-        >
-          Clear filters
+      {#if hasFilters}
+        <Button variant="ghost" size="sm" onclick={resetFilters}>
+          <XIcon class="size-4" />
+          Reset
         </Button>
       {/if}
     </div>
-  </div>
-
-  <!-- Status Filter Pills -->
-  <div class="flex flex-wrap gap-2">
-    {#each statusOptions as option}
-      <button
-        type="button"
-        class={[
-          "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200",
-          selectedStatus === option.value
-            ? "bg-primary text-primary-foreground shadow-sm"
-            : "bg-muted text-muted-foreground hover:bg-muted/80",
-        ]}
-        onclick={() => (selectedStatus = selectedStatus === option.value ? null : option.value)}
-      >
-        {option.label}
-        <span
-          class={[
-            "rounded-full px-1.5 py-0.5 text-[10px]",
-            selectedStatus === option.value ? "bg-primary-foreground/20" : "bg-background",
-          ]}
-        >
-          {option.count}
-        </span>
-      </button>
-    {/each}
   </div>
 
   <!-- Invoices Table -->
@@ -515,7 +499,7 @@
           </div>
           <h3 class="text-lg font-semibold">No invoices found</h3>
           <p class="text-muted-foreground max-w-sm text-sm">
-            {searchQuery || selectedStatus
+            {hasFilters
               ? "Try adjusting your search or filters"
               : "Invoices will appear here when you upload supplier invoices"}
           </p>

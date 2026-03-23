@@ -12,6 +12,7 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
+  import XIcon from "@lucide/svelte/icons/x";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
@@ -19,10 +20,13 @@
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { Textarea } from "@repo/ui/textarea";
+  import { Debounced } from "runed";
+  import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { suppliersFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -128,8 +132,10 @@
     },
   ];
 
+  const searchParams = useSearchParams(suppliersFilterSchema);
+  const debouncedSearch = new Debounced(() => searchParams.search, 1000);
+
   // State
-  let searchQuery = $state("");
   let selectedSupplier = $state<(typeof mockSuppliers)[0] | null>(null);
   let isViewOpen = $state(false);
   let isAddOpen = $state(false);
@@ -149,11 +155,17 @@
   const filteredSuppliers = $derived(() => {
     return mockSuppliers.filter(
       (supplier) =>
-        supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        supplier.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        supplier.email.toLowerCase().includes(searchQuery.toLowerCase())
+        supplier.name.toLowerCase().includes(debouncedSearch.current.toLowerCase()) ||
+        supplier.contactName.toLowerCase().includes(debouncedSearch.current.toLowerCase()) ||
+        supplier.email.toLowerCase().includes(debouncedSearch.current.toLowerCase())
     );
   });
+
+  const hasFilters = $derived(searchParams.search.length > 0);
+
+  function resetFilters() {
+    searchParams.update({ search: "" });
+  }
 
   // Stats
   const stats = $derived(() => {
@@ -279,14 +291,26 @@
   </div>
 
   <!-- Search -->
-  <div class="flex items-center gap-2">
-    <div class="relative max-w-md flex-1">
-      <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-      <Input
-        placeholder="Search suppliers by name, contact, or email..."
-        class="pl-9"
-        bind:value={searchQuery}
-      />
+  <div class="flex flex-col items-center items-start justify-start gap-2 lg:flex-row">
+    <div class="flex w-full items-center gap-2 lg:max-w-md">
+      <div class="relative w-full">
+        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        <Input
+          placeholder="Search suppliers by name, contact, or email..."
+          class="pl-9"
+          value={searchParams.search}
+          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+        />
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      {#if hasFilters}
+        <Button variant="ghost" size="sm" onclick={resetFilters}>
+          <XIcon class="size-4" />
+          Reset
+        </Button>
+      {/if}
     </div>
   </div>
 
@@ -379,9 +403,9 @@
       </div>
       <h3 class="text-lg font-semibold">No suppliers found</h3>
       <p class="text-muted-foreground max-w-sm text-sm">
-        {searchQuery ? "Try adjusting your search terms" : "Add your first supplier to get started"}
+        {hasFilters ? "Try adjusting your search terms" : "Add your first supplier to get started"}
       </p>
-      {#if !searchQuery}
+      {#if !hasFilters}
         <Button class="mt-4" onclick={() => (isAddOpen = true)}>
           <PlusIcon class="size-4" />
           Add Supplier

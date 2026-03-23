@@ -35,6 +35,15 @@ export const ordersFilterSchema = createSearchParamsSchema({
   dateTo: { type: "string", default: "" },
 });
 
+export const invoicesFilterSchema = createSearchParamsSchema({
+  search: { type: "string", default: "" },
+  status: { type: "string", default: "" },
+});
+
+export const suppliersFilterSchema = createSearchParamsSchema({
+  search: { type: "string", default: "" },
+});
+
 type ShopProductFilterSchema = {
   search: string | null;
   categories: string[];
