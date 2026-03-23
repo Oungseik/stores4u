@@ -1,26 +1,8 @@
-export interface SocialPlatform {
-  id: string;
-  platform: "facebook" | "tiktok" | "viber" | "telegram";
-  name: string;
-  isConnected: boolean;
-  connectedAccount?: {
-    name: string;
-    avatar?: string;
-    pageName?: string;
-    connectedAt: Date;
-  };
-  permissions: {
-    autoPostProducts: boolean;
-    manualPosting: boolean;
-    postPromotions: boolean;
-    postOrderUpdates: boolean;
-  };
-}
-
-export type PlatformType = "facebook" | "tiktok" | "viber" | "telegram";
+export const SOCIAL_PLATFORMS = ["FACEBOOK", "TIKTOK", "VIBER", "TELEGRAM"] as const;
+export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
 
 export const PLATFORM_CONFIG: Record<
-  PlatformType,
+  SocialPlatform,
   {
     name: string;
     description: string;
@@ -29,7 +11,7 @@ export const PLATFORM_CONFIG: Record<
     icon: string;
   }
 > = {
-  facebook: {
+  FACEBOOK: {
     name: "Facebook",
     description:
       "Connect your Facebook Page to post updates, promotions, and product announcements directly to your audience.",
@@ -37,7 +19,7 @@ export const PLATFORM_CONFIG: Record<
     bgColor: "bg-[#1877F2]/10",
     icon: "facebook",
   },
-  tiktok: {
+  TIKTOK: {
     name: "TikTok",
     description:
       "Link your TikTok Business account to share short-form video content and reach younger demographics.",
@@ -45,7 +27,7 @@ export const PLATFORM_CONFIG: Record<
     bgColor: "bg-black/10",
     icon: "tiktok",
   },
-  viber: {
+  VIBER: {
     name: "Viber",
     description:
       "Integrate with Viber to send messages and updates directly to your customers through chat.",
@@ -53,7 +35,7 @@ export const PLATFORM_CONFIG: Record<
     bgColor: "bg-[#7360F2]/10",
     icon: "viber",
   },
-  telegram: {
+  TELEGRAM: {
     name: "Telegram",
     description:
       "Connect your Telegram channel or bot to broadcast messages and engage with your community.",

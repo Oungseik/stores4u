@@ -1,12 +1,21 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
-import { account, session, shop, twoFactor, user, verification } from "./schema/auth";
+import {
+  account,
+  session,
+  shop,
+  socialConnection,
+  twoFactor,
+  user,
+  verification,
+} from "./schema/auth";
 import { relations } from "./schema/relations";
 
 const schema = {
   account,
   session,
   shop,
+  socialConnection,
   twoFactor,
   user,
   verification,
