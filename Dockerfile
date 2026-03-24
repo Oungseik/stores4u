@@ -69,7 +69,6 @@ COPY --from=build --chown=bun:bun /app/package.json ./package.json
 COPY --from=build --chown=bun:bun /app/node_modules ./node_modules
 COPY --from=build --chown=bun:bun /app/apps/website/package.json ./apps/website/package.json
 COPY --from=build --chown=bun:bun /app/apps/website/build ./apps/website/build
-COPY --from=build --chown=bun:bun /app/apps/website/node_modules ./apps/website/node_modules
 COPY --from=build --chown=bun:bun /app/packages ./packages
 
 USER bun
