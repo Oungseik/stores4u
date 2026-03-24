@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '@lib/components/ui/button';
-	import CheckboxGroup from '@lib/components/ui/dropdown-menu/dropdown-menu-checkbox-group.svelte';
-	import CheckboxItem from '@lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte';
-	import Label from '@lib/components/ui/dropdown-menu/dropdown-menu-label.svelte';
-	import Separator from '@lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte';
+	import { Checkbox } from '@lib/components/ui/checkbox';
 	import * as Popover from '@lib/components/ui/popover';
 	import { cn } from '@lib/utils.js';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
@@ -28,9 +25,13 @@
 		return `${value.length} selected`;
 	}
 
-	function handleValueChange(next: string[]) {
-		value = next;
-		onValueChange?.(next);
+	function toggle(itemValue: string) {
+		if (value.includes(itemValue)) {
+			value = value.filter((v) => v !== itemValue);
+		} else {
+			value = [...value, itemValue];
+		}
+		onValueChange?.(value);
 	}
 </script>
 
@@ -44,21 +45,25 @@
 		<ChevronDownIcon class="size-3 opacity-50" />
 	</Popover.Trigger>
 	<Popover.Content class="w-56 p-0" align="start">
-		<div class="px-1 py-1.5">
-			<Label>{label}</Label>
-		</div>
-		<Separator />
+		<div class="px-2 py-1.5 text-sm font-semibold">{label}</div>
+		<div class="bg-border -mx-1 my-1 h-px"></div>
 		<div class="p-1">
-			<CheckboxGroup {value} onValueChange={handleValueChange}>
-				{#each items as item (item.value)}
-					<CheckboxItem value={item.value} checked={value.includes(item.value)}>
-						<span class="flex-1">{item.label}</span>
-						{#if item.count !== undefined}
-							<span class="text-muted-foreground text-xs">{item.count}</span>
-						{/if}
-					</CheckboxItem>
-				{/each}
-			</CheckboxGroup>
+			{#each items as item (item.value)}
+				{@const checked = value.includes(item.value)}
+				<button
+					type="button"
+					class="focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm pe-2 ps-8 py-1.5 text-sm outline-hidden select-none w-full text-left"
+					onclick={() => toggle(item.value)}
+				>
+					<span class="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center">
+						<Checkbox {checked} onclick={() => {}} />
+					</span>
+					<span class="flex-1">{item.label}</span>
+					{#if item.count !== undefined}
+						<span class="text-muted-foreground text-xs">{item.count}</span>
+					{/if}
+				</button>
+			{/each}
 		</div>
 	</Popover.Content>
 </Popover.Root>
