@@ -1,7 +1,6 @@
 import type { CountryCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
-import { formatDate } from "$lib/utils";
 import ActionsCell from "./cells/ActionsCell.svelte";
 import DateCell from "./cells/DateCell.svelte";
 import InvoiceIdCell from "./cells/InvoiceIdCell.svelte";
