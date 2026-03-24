@@ -2,7 +2,7 @@
   import BellIcon from "@lucide/svelte/icons/bell";
   import BoxIcon from "@lucide/svelte/icons/package";
   import BarcodeIcon from "@lucide/svelte/icons/scan-barcode";
-  import { Button } from "@repo/ui/button";
+  import { buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -63,9 +63,12 @@
                   <h3 class="truncate font-medium">{action.title}</h3>
                   <p class="text-muted-foreground text-sm">{action.description}</p>
                 </div>
-                <Button variant={action.variant} size="sm" href={action.href} class="shrink-0">
+                <a
+                  class={["shrink-0", , buttonVariants({ variant: action.variant, size: "sm" })]}
+                  href={action.href}
+                >
                   Open
-                </Button>
+                </a>
               </div>
             </Card.Content>
           </Card.Root>

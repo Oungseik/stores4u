@@ -47,13 +47,6 @@
 		) => Promise<void>;
 	}>;
 
-	export type AnchorElementProps = ButtonPropsWithoutHTML &
-		WithoutChildren<Omit<HTMLAnchorAttributes, 'href' | 'type'>> & {
-			href: HTMLAnchorAttributes['href'];
-			type?: never;
-			disabled?: HTMLButtonAttributes['disabled'];
-		};
-
 	export type ButtonElementProps = ButtonPropsWithoutHTML &
 		WithoutChildren<Omit<HTMLButtonAttributes, 'type'>> & {
 			type?: HTMLButtonAttributes['type'];
@@ -61,7 +54,7 @@
 			disabled?: HTMLButtonAttributes['disabled'];
 		};
 
-	export type ButtonProps = AnchorElementProps | ButtonElementProps;
+	export type ButtonProps =  ButtonElementProps;
 </script>
 
 <script lang="ts">
