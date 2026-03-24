@@ -64,6 +64,22 @@ export type FilterBarCheckboxGroupProps = {
   class?: string;
 };
 
+export type FilterBarDropdownItem<T> = {
+  value: T;
+  label: string;
+  count?: number;
+};
+
+export type FilterBarDropdownProps<T> = {
+  ref?: HTMLButtonElement | null;
+  value?: T | null;
+  onValueChange?: (value: T | null) => void;
+  items?: FilterBarDropdownItem<T>[];
+  placeholder?: string;
+  label?: string;
+  class?: string;
+};
+
 export type FilterBarEmptyStateProps = {
   ref?: HTMLDivElement | null;
   icon?: Component<{ class?: string }>;
