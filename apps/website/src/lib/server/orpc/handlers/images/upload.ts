@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { image } from "@repo/db";
 import sharp from "sharp";
 import { z } from "zod";
-import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 import { getObjectUrl, putObject } from "$lib/server/storage";
 import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";
@@ -16,8 +16,8 @@ const input = z.object({
 
 export const uploadHandler = os
   .input(input)
-  .use(shopMiddleware)
   .use(authMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
     const file = input.file;
 

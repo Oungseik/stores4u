@@ -63,3 +63,26 @@ export const shopMiddleware = os.middleware(async ({ context, next }, input: { s
 });
 
 Object.defineProperty(shopMiddleware, "name", { value: "shop_middleware" });
+
+export const protectedShopMiddleware = os.middleware(
+  async ({ context, next }, input: { slug: string }) => {
+    const session = context.session;
+    if (!session) {
+      throw new ORPCError("UNAUTHORIZED");
+    }
+
+    const shop = await db.query.shop.findFirst({
+      where: { slug: input.slug },
+    });
+
+    if (!shop || shop.userId !== session.user.id) {
+      throw new ORPCError("NOT_FOUND", {
+        message: `Shop "${input.slug}" not found`,
+      });
+    }
+
+    return next({ context: { session, shop } });
+  },
+);
+
+Object.defineProperty(protectedShopMiddleware, "name", { value: "protected_shop_middleware" });

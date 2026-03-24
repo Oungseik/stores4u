@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
@@ -17,8 +17,8 @@ function escapeCsvField(value: string | null | undefined): string {
 export const exportProductsCsvHandler = os
   .route({ method: "GET" })
   .input(input)
-  .use(shopMiddleware)
   .use(authMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ context }) => {
     const shopDb = getShopDb(context.shop);
 

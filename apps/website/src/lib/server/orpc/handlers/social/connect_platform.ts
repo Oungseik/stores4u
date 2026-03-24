@@ -3,7 +3,7 @@ import { socialConnection } from "@repo/auth";
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
-import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const permissionsSchema = z.object({
   autoPostProducts: z.boolean().default(false),
@@ -23,8 +23,8 @@ const input = z.object({
 
 export const connectPlatformHandler = os
   .input(input)
-  .use(shopMiddleware)
   .use(authMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
     const defaultPermissions = {
       autoPostProducts: false,

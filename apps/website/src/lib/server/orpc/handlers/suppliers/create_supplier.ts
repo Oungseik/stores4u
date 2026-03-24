@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { supplier } from "@repo/db";
 import { z } from "zod";
-import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
@@ -16,8 +16,8 @@ const input = z.object({
 
 export const createSupplierHandler = os
   .input(input)
-  .use(shopMiddleware)
   .use(authMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
     const shopDb = getShopDb(context.shop);
 

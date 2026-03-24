@@ -3,7 +3,7 @@ import { eq, socialConnection } from "@repo/auth";
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
-import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const permissionsSchema = z.object({
   autoPostProducts: z.boolean(),
@@ -20,8 +20,8 @@ const input = z.object({
 
 export const updatePermissionsHandler = os
   .input(input)
-  .use(shopMiddleware)
   .use(authMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
     const existing = await db.query.socialConnection.findFirst({
       where: { shopId: context.shop.id, platform: input.platform },

@@ -1,9 +1,8 @@
-import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/auth";
 import { COUNTRIES } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
-import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
@@ -25,15 +24,9 @@ const input = z.object({
 
 export const updateShopHandler = os
   .input(input)
-  .use(shopMiddleware)
   .use(authMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
-    if (context.shop.userId !== context.session.user.id) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "You do not have permission to update this shop",
-      });
-    }
-
     const oldLogo = context.shop.logo;
     const oldHeroImage = context.shop.heroImage;
 
