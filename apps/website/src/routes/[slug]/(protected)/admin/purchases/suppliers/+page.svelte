@@ -17,15 +17,13 @@
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import { Input } from "@repo/ui/input";
-  import { Label } from "@repo/ui/label";
-  import { Textarea } from "@repo/ui/textarea";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
+  import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { suppliersFilterSchema } from "$lib/search_param";
@@ -57,6 +55,7 @@
     orpc.suppliers.list.infiniteOptions({
       initialPageParam: undefined as string | undefined,
       input: (cursor) => ({
+        pageSize: 6,
         cursor,
         slug: params.slug,
         search: debouncedSearch.current || undefined,
@@ -73,6 +72,10 @@
   let isViewOpen = $state(false);
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
+  // svelte-ignore non_reactive_update
+  let addFormRef: SupplierForm | null = null;
+  // svelte-ignore non_reactive_update
+  let editFormRef: SupplierForm | null = null;
 
   const supplierDetails = createQuery(() =>
     orpc.suppliers.get.queryOptions({
@@ -82,16 +85,6 @@
   );
 
   const displaySupplier = $derived(supplierDetails.data ?? selectedSupplier);
-
-  // New supplier form
-  let newSupplier = $state({
-    name: "",
-    contactName: "",
-    phone: "",
-    email: "",
-    address: "",
-    paymentTerms: "Net 30",
-  });
 
   const hasFilters = $derived(searchParams.search.length > 0);
 
@@ -116,34 +109,7 @@
 
   function editSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
-    newSupplier = {
-      name: supplier.name,
-      contactName: supplier.contactName ?? "",
-      phone: supplier.phone ?? "",
-      email: supplier.email ?? "",
-      address: supplier.address ?? "",
-      paymentTerms: supplier.paymentTerms ?? "Net 30",
-    };
     isEditOpen = true;
-  }
-
-  function saveNewSupplier() {
-    // Mock: Add new supplier
-    isAddOpen = false;
-    newSupplier = {
-      name: "",
-      contactName: "",
-      phone: "",
-      email: "",
-      address: "",
-      paymentTerms: "Net 30",
-    };
-  }
-
-  function saveEditedSupplier() {
-    // Mock: Save edited supplier
-    isEditOpen = false;
-    selectedSupplier = null;
   }
 
   function deleteSupplier(supplierId: string) {
@@ -453,7 +419,10 @@
         <Button variant="outline" onclick={() => (isViewOpen = false)}>Close</Button>
         <Button
           onclick={() => {
-            isViewOpen = false;
+            if (displaySupplier) {
+              isViewOpen = false;
+              editSupplier(displaySupplier);
+            }
           }}
         >
           <PencilIcon class="size-4" />
@@ -465,68 +434,40 @@
 </Dialog.Root>
 
 <!-- Add Supplier Dialog -->
-<Dialog.Root bind:open={isAddOpen}>
+<Dialog.Root
+  bind:open={isAddOpen}
+  onOpenChange={(open) => {
+    if (!open) addFormRef?.resetForm();
+  }}
+>
   <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>Add New Supplier</Dialog.Title>
       <Dialog.Description>Create a new supplier in your system</Dialog.Description>
     </Dialog.Header>
 
-    <div class="grid gap-4 py-4">
-      <div class="grid gap-2">
-        <Label for="new-name">Supplier Name</Label>
-        <Input id="new-name" bind:value={newSupplier.name} placeholder="Enter supplier name" />
-      </div>
-
-      <div class="grid gap-2">
-        <Label for="new-contact">Contact Person</Label>
-        <Input
-          id="new-contact"
-          bind:value={newSupplier.contactName}
-          placeholder="Enter contact name"
-        />
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="grid gap-2">
-          <Label for="new-phone">Phone</Label>
-          <Input id="new-phone" bind:value={newSupplier.phone} placeholder="+1 555-0000" />
-        </div>
-        <div class="grid gap-2">
-          <Label for="new-email">Email</Label>
-          <Input
-            id="new-email"
-            type="email"
-            bind:value={newSupplier.email}
-            placeholder="email@example.com"
-          />
-        </div>
-      </div>
-
-      <div class="grid gap-2">
-        <Label for="new-address">Address</Label>
-        <Textarea
-          id="new-address"
-          bind:value={newSupplier.address}
-          placeholder="Enter full address"
-        />
-      </div>
-
-      <div class="grid gap-2">
-        <Label for="new-terms">Payment Terms</Label>
-        <Input id="new-terms" bind:value={newSupplier.paymentTerms} placeholder="Net 30" />
-      </div>
-    </div>
-
-    <Dialog.Footer>
-      <Button variant="outline" onclick={() => (isAddOpen = false)}>Cancel</Button>
-      <Button onclick={saveNewSupplier} disabled={!newSupplier.name}>Submit</Button>
-    </Dialog.Footer>
+    <SupplierForm
+      bind:this={addFormRef}
+      slug={params.slug}
+      onSuccess={() => {
+        isAddOpen = false;
+        addFormRef?.resetForm();
+      }}
+      onCancel={() => {
+        isAddOpen = false;
+        addFormRef?.resetForm();
+      }}
+    />
   </Dialog.Content>
 </Dialog.Root>
 
 <!-- Edit Supplier Dialog -->
-<Dialog.Root bind:open={isEditOpen}>
+<Dialog.Root
+  bind:open={isEditOpen}
+  onOpenChange={(open) => {
+    if (!open) editFormRef?.resetForm();
+  }}
+>
   <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
     {#if selectedSupplier}
       <Dialog.Header>
@@ -534,59 +475,30 @@
         <Dialog.Description>Update supplier information</Dialog.Description>
       </Dialog.Header>
 
-      <div class="grid gap-4 py-4">
-        <div class="grid gap-2">
-          <Label for="edit-name">Supplier Name</Label>
-          <Input id="edit-name" bind:value={newSupplier.name} placeholder="Enter supplier name" />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="edit-contact">Contact Person</Label>
-          <Input
-            id="edit-contact"
-            bind:value={newSupplier.contactName}
-            placeholder="Enter contact name"
-          />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div class="grid gap-2">
-            <Label for="edit-phone">Phone</Label>
-            <Input id="edit-phone" bind:value={newSupplier.phone} placeholder="+1 555-0000" />
-          </div>
-          <div class="grid gap-2">
-            <Label for="edit-email">Email</Label>
-            <Input
-              id="edit-email"
-              type="email"
-              bind:value={newSupplier.email}
-              placeholder="email@example.com"
-            />
-          </div>
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="edit-address">Address</Label>
-          <Textarea
-            id="edit-address"
-            bind:value={newSupplier.address}
-            placeholder="Enter full address"
-          />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="edit-terms">Payment Terms</Label>
-          <Input id="edit-terms" bind:value={newSupplier.paymentTerms} placeholder="Net 30" />
-        </div>
-      </div>
-
-      <Dialog.Footer>
-        <Button variant="outline" onclick={() => (isEditOpen = false)}>Cancel</Button>
-        <Button onclick={saveEditedSupplier}>
-          <PencilIcon class="size-4" />
-          Save Changes
-        </Button>
-      </Dialog.Footer>
+      {#key selectedSupplier.id}
+        <SupplierForm
+          bind:this={editFormRef}
+          slug={params.slug}
+          initialData={{
+            id: selectedSupplier.id,
+            name: selectedSupplier.name,
+            contactName: selectedSupplier.contactName,
+            phone: selectedSupplier.phone,
+            email: selectedSupplier.email,
+            address: selectedSupplier.address,
+            paymentTerms: selectedSupplier.paymentTerms,
+          }}
+          onSuccess={() => {
+            isEditOpen = false;
+            selectedSupplier = null;
+            editFormRef?.resetForm();
+          }}
+          onCancel={() => {
+            isEditOpen = false;
+            editFormRef?.resetForm();
+          }}
+        />
+      {/key}
     {/if}
   </Dialog.Content>
 </Dialog.Root>
