@@ -38,7 +38,7 @@ export const listSuppliersHandler = os
           ),
         lastPurchase: (table) =>
           sql`(select max(${invoice.invoiceDate}) from ${invoice} where ${invoice.supplierId} = ${table.id})`.mapWith(
-            (v) => (v == null ? null : String(v)),
+            (v) => (v == null ? null : new Date(v as string)),
           ),
       },
     });

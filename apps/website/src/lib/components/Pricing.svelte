@@ -8,12 +8,7 @@
     decimals?: number;
   }
 
-  let {
-    cents,
-    country = null,
-    priceClass = "",
-    decimals = 2,
-  }: Props = $props();
+  let { cents, country = null, priceClass = "", decimals = 2 }: Props = $props();
 
   const formatted = $derived(() => {
     if (!country) return (cents / 100).toFixed(decimals);

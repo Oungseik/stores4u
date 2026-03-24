@@ -80,9 +80,7 @@
             <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="space-y-0.5">
                 <Label class="text-base">Daily Reports</Label>
-                <p class="text-muted-foreground text-sm">
-                  Receive daily sales summary via email
-                </p>
+                <p class="text-muted-foreground text-sm">Receive daily sales summary via email</p>
               </div>
               <Switch
                 checked={field.state.value}

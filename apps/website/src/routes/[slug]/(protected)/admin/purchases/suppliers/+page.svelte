@@ -20,7 +20,7 @@
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { Textarea } from "@repo/ui/textarea";
-  import { createInfiniteQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
@@ -29,6 +29,7 @@
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { suppliersFilterSchema } from "$lib/search_param";
+  import { formatDate } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -44,7 +45,7 @@
     paymentTerms: string | null;
     invoicesCount: number;
     totalPurchases: number;
-    lastPurchase: string | null;
+    lastPurchase: Date | null;
     createdAt: Date;
     updatedAt: Date;
   };
@@ -73,6 +74,15 @@
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
 
+  const supplierDetails = createQuery(() =>
+    orpc.suppliers.get.queryOptions({
+      input: { slug: params.slug, supplierId: selectedSupplier?.id ?? "" },
+      enabled: isViewOpen && !!selectedSupplier?.id,
+    })
+  );
+
+  const displaySupplier = $derived(supplierDetails.data ?? selectedSupplier);
+
   // New supplier form
   let newSupplier = $state({
     name: "",
@@ -98,15 +108,6 @@
 
     return { total, totalPurchases, totalInvoices, avgInvoices };
   });
-
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(date);
-  }
 
   function viewSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
@@ -368,14 +369,14 @@
 <!-- View Supplier Dialog -->
 <Dialog.Root bind:open={isViewOpen}>
   <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
-    {#if selectedSupplier}
+    {#if displaySupplier}
       <Dialog.Header>
         <div class="flex items-center gap-3">
           <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
             <Building2Icon class="text-primary size-5" />
           </div>
           <div>
-            <Dialog.Title class="text-xl">{selectedSupplier.name}</Dialog.Title>
+            <Dialog.Title class="text-xl">{displaySupplier.name}</Dialog.Title>
             <Dialog.Description>Supplier details and history</Dialog.Description>
           </div>
         </div>
@@ -390,23 +391,23 @@
           <div class="space-y-2 rounded-md border p-3 text-sm">
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Contact Person</span>
-              <span class="font-medium">{selectedSupplier.contactName ?? "—"}</span>
+              <span class="font-medium">{displaySupplier.contactName ?? "—"}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Phone</span>
-              <span>{selectedSupplier.phone ?? "—"}</span>
+              <span>{displaySupplier.phone ?? "—"}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Email</span>
-              <span>{selectedSupplier.email ?? "—"}</span>
+              <span>{displaySupplier.email ?? "—"}</span>
             </div>
             <div class="flex items-start justify-between">
               <span class="text-muted-foreground">Address</span>
-              <span class="max-w-xs text-right">{selectedSupplier.address ?? "—"}</span>
+              <span class="max-w-xs text-right">{displaySupplier.address ?? "—"}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Payment Terms</span>
-              <span class="font-medium">{selectedSupplier.paymentTerms ?? "—"}</span>
+              <span class="font-medium">{displaySupplier.paymentTerms ?? "—"}</span>
             </div>
           </div>
         </div>
@@ -419,17 +420,17 @@
           <div class="grid grid-cols-3 gap-4">
             <div class="rounded-md border p-3 text-center">
               <p class="text-lg font-bold">
-                <Pricing cents={selectedSupplier.totalPurchases} country={shop.country} />
+                <Pricing cents={displaySupplier.totalPurchases} country={shop.country} />
               </p>
               <p class="text-muted-foreground text-xs">Total Purchases</p>
             </div>
             <div class="rounded-md border p-3 text-center">
-              <p class="text-lg font-bold">{selectedSupplier.invoicesCount}</p>
+              <p class="text-lg font-bold">{displaySupplier.invoicesCount}</p>
               <p class="text-muted-foreground text-xs">Invoices</p>
             </div>
             <div class="rounded-md border p-3 text-center">
               <p class="text-lg font-bold">
-                {selectedSupplier.lastPurchase ? formatDate(selectedSupplier.lastPurchase) : "—"}
+                {displaySupplier.lastPurchase ? formatDate(displaySupplier.lastPurchase) : "—"}
               </p>
               <p class="text-muted-foreground text-xs">Last Purchase</p>
             </div>

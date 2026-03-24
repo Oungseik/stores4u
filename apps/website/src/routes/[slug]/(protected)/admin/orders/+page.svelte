@@ -22,7 +22,7 @@
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { ordersFilterSchema } from "$lib/search_param";
-  import { formatOrderDate } from "$lib/utils";
+  import { formatDate } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -240,7 +240,7 @@
                 </div>
                 <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
                   <CalendarIcon class="size-3" />
-                  {formatOrderDate(order.createdAt)}
+                  {formatDate(order.createdAt, true)}
                 </div>
               </div>
 
@@ -300,7 +300,7 @@
           <Dialog.Title class="text-xl">Order #{formatOrderId(order.id)}</Dialog.Title>
         </div>
         <Dialog.Description>
-          Placed on {formatOrderDate(order.createdAt)}
+          Placed on {formatDate(order.createdAt, true)}
         </Dialog.Description>
       </Dialog.Header>
 

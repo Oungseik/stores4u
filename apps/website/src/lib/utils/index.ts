@@ -57,12 +57,16 @@ export function formatPrice(cents: number, country?: CountryCode | null): string
   return amount;
 }
 
-export function formatOrderDate(date: Date) {
-  return new Intl.DateTimeFormat("en-US", {
+export function formatDate(date: Date | string, withTime = false) {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const options: Intl.DateTimeFormatOptions = {
     month: "short",
     day: "numeric",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  };
+  if (withTime) {
+    options.hour = "2-digit";
+    options.minute = "2-digit";
+  }
+  return new Intl.DateTimeFormat("en-US", options).format(d);
 }

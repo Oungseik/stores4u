@@ -24,8 +24,9 @@
   import { Switch } from "@repo/ui/switch";
   import { Textarea } from "@repo/ui/textarea";
   import { tick } from "svelte";
-  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+
   import Pricing from "$lib/components/Pricing.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
   import type { PageProps } from "./$types";
 

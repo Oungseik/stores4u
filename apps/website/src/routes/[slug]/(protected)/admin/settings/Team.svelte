@@ -56,9 +56,7 @@
     <div class="rounded-lg border border-dashed p-6 text-center">
       <UsersIcon class="text-muted-foreground mx-auto size-8" />
       <h3 class="mt-2 font-medium">Add team members</h3>
-      <p class="text-muted-foreground mt-1 text-sm">
-        Invite colleagues to help manage your shop
-      </p>
+      <p class="text-muted-foreground mt-1 text-sm">Invite colleagues to help manage your shop</p>
       <Button variant="outline" class="mt-4 gap-2">
         <UserIcon class="size-4" />
         Invite Member

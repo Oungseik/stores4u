@@ -62,8 +62,7 @@
               onValueChange={(value) => field.handleChange(value)}
             >
               <Select.Trigger class="w-full sm:w-[300px]">
-                {currencies.find((c) => c.value === field.state.value)?.label ??
-                  "Select currency"}
+                {currencies.find((c) => c.value === field.state.value)?.label ?? "Select currency"}
               </Select.Trigger>
               <Select.Content>
                 {#each currencies as currency}
@@ -100,9 +99,7 @@
               <div class="flex items-center justify-between rounded-lg border p-4">
                 <div class="space-y-0.5">
                   <Label class="text-base">Credit/Debit Cards</Label>
-                  <p class="text-muted-foreground text-sm">
-                    Accept card payments via terminal
-                  </p>
+                  <p class="text-muted-foreground text-sm">Accept card payments via terminal</p>
                 </div>
                 <Switch
                   checked={field.state.value}

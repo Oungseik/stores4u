@@ -27,6 +27,7 @@
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { invoicesFilterSchema } from "$lib/search_param";
+  import { formatDate } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -184,15 +185,6 @@
       default:
         return "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-50";
     }
-  }
-
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(date);
   }
 
   function toggleExpand(invoiceId: string) {

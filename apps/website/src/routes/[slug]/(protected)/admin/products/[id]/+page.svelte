@@ -22,6 +22,7 @@
   import * as Tabs from "@repo/ui/tabs";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import { formatDate } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -227,23 +228,6 @@
   // ============================================
   // HELPERS
   // ============================================
-
-  function formatDate(date: Date): string {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(date);
-  }
-
-  function formatDateTime(date: Date): string {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  }
 
   type MovementType = "PURCHASE" | "SALE" | "RETURN" | "ADJUSTMENT" | "WASTAGE" | "CORRECTION";
 
@@ -460,7 +444,7 @@
                     <p class="text-foreground font-medium">{invoice.invoiceNumber}</p>
                     <p class="text-muted-foreground text-sm">{invoice.supplierName}</p>
                     <p class="text-muted-foreground text-xs">
-                      {formatDate(new Date(invoice.invoiceDate))}
+                      {formatDate(invoice.invoiceDate)}
                     </p>
                   </div>
                 </div>
@@ -508,7 +492,7 @@
                   {/if}
                   <div class="text-muted-foreground mt-2 flex items-center gap-2 text-xs">
                     <CalendarIcon class="size-3" />
-                    <span>{formatDateTime(movement.occurredAt)}</span>
+                    <span>{formatDate(movement.occurredAt, true)}</span>
                   </div>
                   {#if movement.unitCostCents}
                     <p class="text-muted-foreground mt-1 text-xs">
@@ -547,7 +531,7 @@
                   <div class="mt-2 flex items-center justify-between">
                     <div class="text-muted-foreground flex items-center gap-2 text-xs">
                       <CalendarIcon class="size-3" />
-                      <span>{formatDateTime(order.createdAt)}</span>
+                      <span>{formatDate(order.createdAt, true)}</span>
                     </div>
                     <p class="text-foreground font-semibold">
                       <Pricing cents={order.lineTotalCents} />
