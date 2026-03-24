@@ -1,6 +1,6 @@
 import { eq, invoice, sql } from "@repo/db";
 import { z } from "zod";
-import { os, shopMiddleware } from "$lib/server/orpc/base";
+import { authMiddleware, os, shopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
@@ -14,6 +14,7 @@ export const listSuppliersHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(shopMiddleware)
+  .use(authMiddleware)
   .handler(async ({ input, context }) => {
     const shopDb = getShopDb(context.shop);
 
