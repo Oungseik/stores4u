@@ -1,30 +1,51 @@
 <script lang="ts">
+  import Building2Icon from "@lucide/svelte/icons/building-2";
   import ClockIcon from "@lucide/svelte/icons/clock";
   import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import UploadIcon from "@lucide/svelte/icons/upload";
   import { Button, buttonVariants } from "@repo/ui/button";
+  import * as Dialog from "@repo/ui/dialog";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import { createInfiniteQuery } from "@tanstack/svelte-query";
+  import { ScrollArea } from "@repo/ui/scroll-area";
+  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import Pricing from "$lib/components/Pricing.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import {
-    type PurchaseInvoiceItem,
     createColumns,
+    type PurchaseInvoiceItem,
   } from "$lib/components/tables/purchase-invoices/columns";
   import { orpc } from "$lib/orpc_client";
   import { type PurchaseInvoiceStatus, purchaseInvoicesFilterSchema } from "$lib/search_param";
+  import { formatDate } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
   const { params, data: shop }: PageProps = $props();
 
-  const columns = $derived(createColumns(shop.country));
+  let selectedInvoiceId = $state<string | null>(null);
+  let isDetailsOpen = $state(false);
+
+  const invoiceDetails = createQuery(() =>
+    orpc.purchaseInvoices.get.queryOptions({
+      input: { slug: params.slug, invoiceId: selectedInvoiceId! },
+      enabled: !!selectedInvoiceId,
+    })
+  );
+
+  function openInvoiceDetails(id: string) {
+    selectedInvoiceId = id;
+    isDetailsOpen = true;
+  }
+
+  const columns = $derived(createColumns(shop.country, openInvoiceDetails));
 
   const searchParams = useSearchParams(purchaseInvoicesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -193,3 +214,152 @@
     {/if}
   {/if}
 </div>
+
+<Dialog.Root bind:open={isDetailsOpen}>
+  <Dialog.Content class="flex max-h-[90vh] flex-col">
+    {#if invoiceDetails.isLoading}
+      <div class="flex items-center justify-center py-16">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
+      </div>
+    {:else if invoiceDetails.data}
+      {@const invoice = invoiceDetails.data}
+      {@const statusConfig: Record<string, { class: string; label: string }> = {
+        VALIDATED: { class: "text-emerald-600", label: "Validated" },
+        PENDING: { class: "text-amber-600", label: "Pending" },
+        AUTO_ACCEPTED: { class: "text-blue-600", label: "Auto Accepted" },
+        REJECTED: { class: "text-red-600", label: "Rejected" },
+      }}
+      {@const cfg = statusConfig[invoice.status] ?? { class: "text-gray-600", label: invoice.status }}
+      <Dialog.Header class="flex-shrink-0">
+        <Dialog.Title class="text-xl">{invoice.invoiceNumber}</Dialog.Title>
+        <Dialog.Description>
+          Invoice from {invoice.supplier?.name ?? "—"} · {formatDate(invoice.invoiceDate)}
+        </Dialog.Description>
+      </Dialog.Header>
+
+      <div class="h-[66vh] overflow-hidden">
+        <ScrollArea class="h-full pr-2.5">
+          <div class="grid gap-6 py-4">
+            <!-- Invoice Info -->
+            <div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Invoice Information
+              </h4>
+              <div class="space-y-2 rounded-md border p-3 text-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-muted-foreground">Invoice Number</span>
+                  <span class="font-medium">{invoice.invoiceNumber}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted-foreground">Date</span>
+                  <span>{formatDate(invoice.invoiceDate)}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted-foreground">Status</span>
+                  <span class={cfg.class + " font-medium"}>{cfg.label}</span>
+                </div>
+                {#if invoice.validatedAt}
+                  <div class="flex items-center justify-between">
+                    <span class="text-muted-foreground">Validated</span>
+                    <span>{formatDate(invoice.validatedAt, true)}</span>
+                  </div>
+                {/if}
+              </div>
+            </div>
+
+            <!-- Supplier -->
+            <div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Supplier
+              </h4>
+              <div class="flex items-center gap-2.5 rounded-md border p-2.5 text-sm">
+                <div class="bg-primary/10 flex size-8 items-center justify-center rounded-full">
+                  <Building2Icon class="text-primary size-4" />
+                </div>
+                <div>
+                  <p class="font-medium">{invoice.supplier?.name ?? "—"}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Line Items -->
+            <div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Invoice Items
+              </h4>
+              <div class="rounded-md border text-sm">
+                {#each invoice.items as item, i}
+                  <div
+                    class="flex items-center justify-between p-2.5 {i !== invoice.items.length - 1
+                      ? 'border-b'
+                      : ''}"
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <div class="bg-muted flex size-8 items-center justify-center rounded">
+                        <PackageIcon class="text-muted-foreground size-4" />
+                      </div>
+                      <div>
+                        <p>{item.product?.name ?? "—"}</p>
+                        <p class="text-muted-foreground text-xs">{item.product?.sku ?? "—"}</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-muted-foreground text-xs">x {item.qty}</p>
+                      <Pricing cents={item.lineTotalCents} country={shop.country} />
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div>
+              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+                Financial Summary
+              </h4>
+              <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Subtotal</span>
+                  <Pricing cents={invoice.subtotalCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">VAT</span>
+                  <Pricing cents={invoice.vatCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Discount</span>
+                  <Pricing cents={invoice.discountCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-muted-foreground">Freight</span>
+                  <Pricing cents={invoice.freightCents} country={shop.country} />
+                </div>
+                <div class="flex justify-between border-t pt-2 font-semibold">
+                  <span>Total</span>
+                  <Pricing cents={invoice.totalCents} country={shop.country} />
+                </div>
+              </div>
+            </div>
+
+            {#if invoice.notes}
+              <div>
+                <h4
+                  class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase"
+                >
+                  Notes
+                </h4>
+                <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+                  {invoice.notes}
+                </div>
+              </div>
+            {/if}
+          </div>
+        </ScrollArea>
+      </div>
+
+      <Dialog.Footer class="flex-shrink-0 gap-2">
+        <Button variant="outline" onclick={() => (isDetailsOpen = false)}>Close</Button>
+      </Dialog.Footer>
+    {/if}
+  </Dialog.Content>
+</Dialog.Root>

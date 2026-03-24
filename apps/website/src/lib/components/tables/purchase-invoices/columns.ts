@@ -20,7 +20,10 @@ export type PurchaseInvoiceItem = {
   subtotalCents: number;
 };
 
-export function createColumns(country: CountryCode | null): ColumnDef<PurchaseInvoiceItem>[] {
+export function createColumns(
+  country: CountryCode | null,
+  onView?: (id: string) => void,
+): ColumnDef<PurchaseInvoiceItem>[] {
   return [
     {
       accessorKey: "id",
@@ -64,8 +67,8 @@ export function createColumns(country: CountryCode | null): ColumnDef<PurchaseIn
     {
       id: "actions",
       header: "",
-      cell: () => {
-        return renderComponent(ActionsCell, {});
+      cell: ({ row }) => {
+        return renderComponent(ActionsCell, { id: row.original.id, onView });
       },
     },
   ];

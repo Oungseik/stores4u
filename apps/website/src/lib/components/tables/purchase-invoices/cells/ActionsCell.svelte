@@ -5,6 +5,13 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { buttonVariants } from "@repo/ui/button";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
+
+  type Props = {
+    id: string;
+    onView?: (id: string) => void;
+  };
+
+  const { id, onView }: Props = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -15,7 +22,7 @@
     <MoreVerticalIcon class="size-4" />
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
-    <DropdownMenu.Item>
+    <DropdownMenu.Item onclick={() => onView?.(id)}>
       <EyeIcon class="mr-2 size-4" />
       View Details
     </DropdownMenu.Item>
