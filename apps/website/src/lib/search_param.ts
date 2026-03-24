@@ -35,10 +35,10 @@ export const ordersFilterSchema = createSearchParamsSchema({
   dateTo: { type: "string", default: "" },
 });
 
-export const invoicesFilterSchema = createSearchParamsSchema({
+export const purchaseInvoicesFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
   status: { type: "string", default: "" },
-}) as StandardSchemaV1<unknown, { search: string; status: InvoiceStatus | "" }>;
+}) as StandardSchemaV1<unknown, { search: string; status: PurchaseInvoiceStatus | "" }>;
 
 export const suppliersFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
@@ -60,4 +60,4 @@ export const shopProductsFilterSchema = createSearchParamsSchema({
   maxPrice: { type: "number" },
 }) as StandardSchemaV1<unknown, ShopProductFilterSchema>;
 
-export type InvoiceStatus = "PENDING" | "VALIDATED" | "REJECTED" | "AUTO_ACCEPTED";
+export type PurchaseInvoiceStatus = "PENDING" | "VALIDATED" | "REJECTED" | "AUTO_ACCEPTED";

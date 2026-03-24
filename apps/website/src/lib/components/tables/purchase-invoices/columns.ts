@@ -7,7 +7,7 @@ import InvoiceIdCell from "./cells/InvoiceIdCell.svelte";
 import PriceCell from "./cells/PriceCell.svelte";
 import StatusCell from "./cells/StatusCell.svelte";
 
-export type InvoiceItem = {
+export type PurchaseInvoiceItem = {
   id: string;
   supplier: string;
   date: string;
@@ -20,7 +20,7 @@ export type InvoiceItem = {
   subtotalCents: number;
 };
 
-export function createColumns(country: CountryCode | null): ColumnDef<InvoiceItem>[] {
+export function createColumns(country: CountryCode | null): ColumnDef<PurchaseInvoiceItem>[] {
   return [
     {
       accessorKey: "id",

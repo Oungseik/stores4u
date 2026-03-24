@@ -5,17 +5,22 @@ import { product } from "./product";
 import { supplier } from "./supplier";
 
 /**
- * This invoice is only related to the invoices when we refill stock and got the invoices
+ * This purchaseInvoice is only related to the invoices when we refill stock and got the invoices
  * from the supplier. Not for the order invoice we create when customer buy from the shop.
  */
-export const invoiceStatuses = ["PENDING", "VALIDATED", "REJECTED", "AUTO_ACCEPTED"] as const;
-export type InvoiceStatus = (typeof invoiceStatuses)[number];
+export const purchaseInvoiceStatuses = [
+  "PENDING",
+  "VALIDATED",
+  "REJECTED",
+  "AUTO_ACCEPTED",
+] as const;
+export type PurchaseInvoiceStatus = (typeof purchaseInvoiceStatuses)[number];
 
 export const ocrStatuses = ["PENDING", "PROCESSED", "FAILED", "LINKED"] as const;
 export type OcrStatus = (typeof ocrStatuses)[number];
 
-export const invoiceOcrResult = sqliteTable(
-  "invoice_ocr_result",
+export const purchaseInvoiceOcrResult = sqliteTable(
+  "purchase_invoice_ocr_result",
   {
     id: text("id")
       .primaryKey()
@@ -32,18 +37,18 @@ export const invoiceOcrResult = sqliteTable(
   },
   (t) => [
     check(
-      "invoice_ocr_result_confidence_score_check",
+      "purchase_invoice_ocr_result_confidence_score_check",
       sql`${t.confidenceScore} IS NULL OR (${t.confidenceScore} >= 0 AND ${t.confidenceScore} <= 1)`,
     ),
     check(
-      "invoice_ocr_result_status_check",
+      "purchase_invoice_ocr_result_status_check",
       sql`${t.status} IN ('PENDING', 'PROCESSED', 'FAILED', 'LINKED')`,
     ),
   ],
 );
 
-export const invoice = sqliteTable(
-  "invoice",
+export const purchaseInvoice = sqliteTable(
+  "purchase_invoice",
   {
     id: text("id")
       .primaryKey()
@@ -53,7 +58,7 @@ export const invoice = sqliteTable(
       .notNull()
       .references(() => supplier.id),
     ocrResultId: text("ocr_result_id")
-      .references(() => invoiceOcrResult.id)
+      .references(() => purchaseInvoiceOcrResult.id)
       .unique(),
     invoiceDate: text("invoice_date").notNull(),
     photoUrl: text("photo_url").notNull(),
@@ -62,7 +67,7 @@ export const invoice = sqliteTable(
     discountCents: integer("discount_cents").default(0).notNull(),
     freightCents: integer("freight_cents").default(0).notNull(),
     totalCents: integer("total_cents").default(0).notNull(),
-    status: text("status", { enum: invoiceStatuses }).default("PENDING").notNull(),
+    status: text("status", { enum: purchaseInvoiceStatuses }).default("PENDING").notNull(),
     validatedBy: text("validated_by"),
     validatedAt: integer("validated_at", { mode: "timestamp" }),
     notes: text("notes"),
@@ -74,21 +79,21 @@ export const invoice = sqliteTable(
       .notNull(),
   },
   (t) => [
-    unique("invoice_supplier_invoice_number_unique").on(t.supplierId, t.invoiceNumber),
-    index("invoice_status_created_at_idx").on(t.status, t.createdAt),
-    index("invoice_invoice_date_idx").on(t.invoiceDate),
+    unique("purchase_invoice_supplier_invoice_number_unique").on(t.supplierId, t.invoiceNumber),
+    index("purchase_invoice_status_created_at_idx").on(t.status, t.createdAt),
+    index("purchase_invoice_invoice_date_idx").on(t.invoiceDate),
   ],
 );
 
-export const invoiceItem = sqliteTable(
-  "invoice_item",
+export const purchaseInvoiceItem = sqliteTable(
+  "purchase_invoice_item",
   {
     id: text("id")
       .primaryKey()
       .$defaultFn(() => randomUUIDv7()),
-    invoiceId: text("invoice_id")
+    purchaseInvoiceId: text("purchase_invoice_id")
       .notNull()
-      .references(() => invoice.id, { onDelete: "cascade" }),
+      .references(() => purchaseInvoice.id, { onDelete: "cascade" }),
     productId: text("product_id")
       .notNull()
       .references(() => product.id),
@@ -106,16 +111,16 @@ export const invoiceItem = sqliteTable(
       .notNull(),
   },
   (t) => [
-    index("invoice_item_invoice_id_idx").on(t.invoiceId),
-    index("invoice_item_product_id_idx").on(t.productId),
+    index("purchase_invoice_item_purchase_invoice_id_idx").on(t.purchaseInvoiceId),
+    index("purchase_invoice_item_product_id_idx").on(t.productId),
   ],
 );
 
-export type InvoiceOcrResultSelect = typeof invoiceOcrResult.$inferSelect;
-export type InvoiceOcrResultInsert = typeof invoiceOcrResult.$inferInsert;
+export type PurchaseInvoiceOcrResultSelect = typeof purchaseInvoiceOcrResult.$inferSelect;
+export type PurchaseInvoiceOcrResultInsert = typeof purchaseInvoiceOcrResult.$inferInsert;
 
-export type InvoiceSelect = typeof invoice.$inferSelect;
-export type InvoiceInsert = typeof invoice.$inferInsert;
+export type PurchaseInvoiceSelect = typeof purchaseInvoice.$inferSelect;
+export type PurchaseInvoiceInsert = typeof purchaseInvoice.$inferInsert;
 
-export type InvoiceItemSelect = typeof invoiceItem.$inferSelect;
-export type InvoiceItemInsert = typeof invoiceItem.$inferInsert;
+export type PurchaseInvoiceItemSelect = typeof purchaseInvoiceItem.$inferSelect;
+export type PurchaseInvoiceItemInsert = typeof purchaseInvoiceItem.$inferInsert;

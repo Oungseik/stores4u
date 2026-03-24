@@ -6,10 +6,6 @@ import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadHandler } from "./handlers/images/upload";
-import { createInvoiceHandler } from "./handlers/invoices/create_invoice";
-import { getInvoiceHandler } from "./handlers/invoices/get_invoice";
-import { listInvoicesHandler } from "./handlers/invoices/list_invoices";
-import { updateInvoiceHandler } from "./handlers/invoices/update_invoice";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
@@ -20,6 +16,10 @@ import { getProductHandler } from "./handlers/products/get_product";
 import { importProductsCsvHandler } from "./handlers/products/import_products_csv";
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
+import { createPurchaseInvoiceHandler } from "./handlers/purchase-invoices/create_purchase_invoice";
+import { getPurchaseInvoiceHandler } from "./handlers/purchase-invoices/get_purchase_invoice";
+import { listPurchaseInvoicesHandler } from "./handlers/purchase-invoices/list_purchase_invoices";
+import { updatePurchaseInvoiceHandler } from "./handlers/purchase-invoices/update_purchase_invoice";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
 import { connectPlatformHandler } from "./handlers/social/connect_platform";
@@ -44,11 +44,11 @@ export const router = os.router({
   images: {
     upload: uploadHandler,
   },
-  invoices: {
-    create: createInvoiceHandler,
-    get: getInvoiceHandler,
-    list: listInvoicesHandler,
-    update: updateInvoiceHandler,
+  purchaseInvoices: {
+    create: createPurchaseInvoiceHandler,
+    get: getPurchaseInvoiceHandler,
+    list: listPurchaseInvoicesHandler,
+    update: updatePurchaseInvoiceHandler,
   },
   products: {
     checkout: checkoutHandler,

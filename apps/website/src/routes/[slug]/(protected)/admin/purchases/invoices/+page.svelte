@@ -13,9 +13,12 @@
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
-  import { type InvoiceItem, createColumns } from "$lib/components/tables/invoices/columns";
+  import {
+    type PurchaseInvoiceItem,
+    createColumns,
+  } from "$lib/components/tables/purchase-invoices/columns";
   import { orpc } from "$lib/orpc_client";
-  import { type InvoiceStatus, invoicesFilterSchema } from "$lib/search_param";
+  import { type PurchaseInvoiceStatus, purchaseInvoicesFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -23,7 +26,7 @@
 
   const columns = $derived(createColumns(shop.country));
 
-  const searchParams = useSearchParams(invoicesFilterSchema);
+  const searchParams = useSearchParams(purchaseInvoicesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
 
   const statusOptions = [
@@ -31,10 +34,10 @@
     { value: "VALIDATED", label: "Validated" },
     { value: "AUTO_ACCEPTED", label: "Auto Accepted" },
     { value: "REJECTED", label: "Rejected" },
-  ] satisfies { value: InvoiceStatus; label: string }[];
+  ] satisfies { value: PurchaseInvoiceStatus; label: string }[];
 
-  const invoices = createInfiniteQuery(() =>
-    orpc.invoices.list.infiniteOptions({
+  const purchaseInvoices = createInfiniteQuery(() =>
+    orpc.purchaseInvoices.list.infiniteOptions({
       initialPageParam: undefined as string | undefined,
       input: (cursor) => ({
         pageSize: 20,
@@ -48,8 +51,8 @@
     })
   );
 
-  const allInvoices: InvoiceItem[] = $derived(
-    (invoices.data?.pages.flatMap((page) => page.items) ?? []).map((inv) => ({
+  const allPurchaseInvoices: PurchaseInvoiceItem[] = $derived(
+    (purchaseInvoices.data?.pages.flatMap((page) => page.items) ?? []).map((inv) => ({
       id: inv.id,
       supplier: inv.supplier?.name ?? "—",
       date: inv.invoiceDate,
@@ -152,7 +155,7 @@
     <FilterBar.Dropdown
       items={statusOptions}
       value={searchParams.status === "" ? null : searchParams.status}
-      onValueChange={(status: InvoiceStatus | null) =>
+      onValueChange={(status: PurchaseInvoiceStatus | null) =>
         status ? searchParams.update({ status }) : undefined}
       placeholder="All Statuses"
       label="Filter by Status"
@@ -160,26 +163,26 @@
     <FilterBar.Reset />
   </FilterBar.Root>
 
-  {#if invoices.isLoading}
+  {#if purchaseInvoices.isLoading}
     <div class="flex items-center justify-center py-12">
       <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
     </div>
-  {:else if invoices.isError}
+  {:else if purchaseInvoices.isError}
     <div class="flex items-center justify-center py-12">
       <p class="text-red-500">Failed to load invoices</p>
     </div>
   {:else}
     <!-- Invoices Table -->
-    <DataTable {columns} data={allInvoices} loading={false} />
+    <DataTable {columns} data={allPurchaseInvoices} loading={false} />
 
-    {#if invoices.hasNextPage}
+    {#if purchaseInvoices.hasNextPage}
       <div class="mt-4 flex justify-center">
         <Button
           variant="outline"
-          onclick={() => invoices.fetchNextPage()}
-          disabled={invoices.isFetchingNextPage}
+          onclick={() => purchaseInvoices.fetchNextPage()}
+          disabled={purchaseInvoices.isFetchingNextPage}
         >
-          {#if invoices.isFetchingNextPage}
+          {#if purchaseInvoices.isFetchingNextPage}
             <Loader2Icon class="mr-2 size-4 animate-spin" />
             Loading...
           {:else}

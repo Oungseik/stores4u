@@ -1,7 +1,7 @@
 import { randomUUIDv7 } from "bun";
 import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { invoiceItem } from "./invoice";
 import { product } from "./product";
+import { purchaseInvoiceItem } from "./purchaseInvoice";
 
 export const movementTypes = [
   "PURCHASE",
@@ -22,7 +22,9 @@ export const inventoryMovement = sqliteTable(
     productId: text("product_id")
       .notNull()
       .references(() => product.id),
-    invoiceItemId: text("invoice_item_id").references(() => invoiceItem.id),
+    purchaseInvoiceItemId: text("purchase_invoice_item_id").references(
+      () => purchaseInvoiceItem.id,
+    ),
     movementType: text("movement_type", { enum: movementTypes }).notNull(),
     qty: real("qty").notNull(),
     unitCostCents: integer("unit_cost_cents"),
@@ -39,7 +41,7 @@ export const inventoryMovement = sqliteTable(
   (t) => [
     index("inventory_movement_product_occurred_at_idx").on(t.productId, t.occurredAt),
     index("inventory_movement_reference_idx").on(t.referenceType, t.referenceId),
-    index("inventory_movement_invoice_item_id_idx").on(t.invoiceItemId),
+    index("inventory_movement_purchase_invoice_item_id_idx").on(t.purchaseInvoiceItemId),
   ],
 );
 

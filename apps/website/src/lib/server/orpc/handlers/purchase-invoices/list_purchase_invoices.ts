@@ -1,4 +1,4 @@
-import { eq, invoiceItem } from "@repo/db";
+import { eq, purchaseInvoiceItem } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -14,7 +14,7 @@ const input = z.object({
   dateTo: z.string().optional(),
 });
 
-export const listInvoicesHandler = os
+export const listPurchaseInvoicesHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
@@ -22,7 +22,7 @@ export const listInvoicesHandler = os
   .handler(async ({ input, context }) => {
     const shopDb = getShopDb(context.shop);
 
-    const invoices = await shopDb.query.invoice.findMany({
+    const purchaseInvoices = await shopDb.query.purchaseInvoice.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
         status: input.status,
@@ -50,17 +50,18 @@ export const listInvoicesHandler = os
         },
       },
       extras: {
-        itemsCount: (table) => shopDb.$count(invoiceItem, eq(invoiceItem.invoiceId, table.id)),
+        itemsCount: (table) =>
+          shopDb.$count(purchaseInvoiceItem, eq(purchaseInvoiceItem.purchaseInvoiceId, table.id)),
       },
     });
 
     let nextCursor: string | undefined;
-    if (invoices.length > input.pageSize) {
-      const next = invoices.pop();
+    if (purchaseInvoices.length > input.pageSize) {
+      const next = purchaseInvoices.pop();
       nextCursor = next?.id;
     }
 
-    const items = invoices.map((inv) => ({
+    const items = purchaseInvoices.map((inv) => ({
       id: inv.id,
       invoiceNumber: inv.invoiceNumber,
       supplierId: inv.supplierId,

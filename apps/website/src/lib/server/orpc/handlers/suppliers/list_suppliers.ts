@@ -1,4 +1,4 @@
-import { eq, invoice, sql } from "@repo/db";
+import { eq, purchaseInvoice, sql } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -32,13 +32,14 @@ export const listSuppliersHandler = os
       limit: input.pageSize + 1,
       orderBy: { id: "desc" },
       extras: {
-        invoicesCount: (table) => shopDb.$count(invoice, eq(invoice.supplierId, table.id)),
+        purchaseInvoicesCount: (table) =>
+          shopDb.$count(purchaseInvoice, eq(purchaseInvoice.supplierId, table.id)),
         totalPurchases: (table) =>
-          sql`(select coalesce(sum(${invoice.totalCents}), 0) from ${invoice} where ${invoice.supplierId} = ${table.id})`.mapWith(
+          sql`(select coalesce(sum(${purchaseInvoice.totalCents}), 0) from ${purchaseInvoice} where ${purchaseInvoice.supplierId} = ${table.id})`.mapWith(
             Number,
           ),
         lastPurchase: (table) =>
-          sql`(select max(${invoice.invoiceDate}) from ${invoice} where ${invoice.supplierId} = ${table.id})`.mapWith(
+          sql`(select max(${purchaseInvoice.invoiceDate}) from ${purchaseInvoice} where ${purchaseInvoice.supplierId} = ${table.id})`.mapWith(
             (v) => (v == null ? null : new Date(v as string)),
           ),
       },
@@ -58,7 +59,7 @@ export const listSuppliersHandler = os
       email: s.email,
       address: s.address,
       paymentTerms: s.paymentTerms,
-      invoicesCount: s.invoicesCount,
+      purchaseInvoicesCount: s.purchaseInvoicesCount,
       totalPurchases: s.totalPurchases,
       lastPurchase: s.lastPurchase,
       createdAt: s.createdAt,

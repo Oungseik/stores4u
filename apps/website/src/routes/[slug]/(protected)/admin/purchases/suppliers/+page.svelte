@@ -41,7 +41,7 @@
     email: string | null;
     address: string | null;
     paymentTerms: string | null;
-    invoicesCount: number;
+    purchaseInvoicesCount: number;
     totalPurchases: number;
     lastPurchase: Date | null;
     createdAt: Date;
@@ -96,7 +96,7 @@
   const stats = $derived(() => {
     const total = allSuppliers.length;
     const totalPurchases = allSuppliers.reduce((sum, s) => sum + s.totalPurchases, 0);
-    const totalInvoices = allSuppliers.reduce((sum, s) => sum + s.invoicesCount, 0);
+    const totalInvoices = allSuppliers.reduce((sum, s) => sum + s.purchaseInvoicesCount, 0);
     const avgInvoices = total > 0 ? Math.round(totalInvoices / total) : 0;
 
     return { total, totalPurchases, totalInvoices, avgInvoices };
@@ -293,7 +293,7 @@
               </div>
               <div class="text-right">
                 <p class="text-muted-foreground text-xs">Invoices</p>
-                <p class="font-semibold">{supplier.invoicesCount}</p>
+                <p class="font-semibold">{supplier.purchaseInvoicesCount}</p>
               </div>
             </div>
 
@@ -391,7 +391,7 @@
               <p class="text-muted-foreground text-xs">Total Purchases</p>
             </div>
             <div class="rounded-md border p-3 text-center">
-              <p class="text-lg font-bold">{displaySupplier.invoicesCount}</p>
+              <p class="text-lg font-bold">{displaySupplier.purchaseInvoicesCount}</p>
               <p class="text-muted-foreground text-xs">Invoices</p>
             </div>
             <div class="rounded-md border p-3 text-center">

@@ -1,10 +1,10 @@
 import { ORPCError } from "@orpc/server";
-import { eq, invoice, invoiceItem, supplier } from "@repo/db";
+import { eq, purchaseInvoice, purchaseInvoiceItem, supplier } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 
-const invoiceItemInput = z.object({
+const purchaseInvoiceItemInput = z.object({
   productId: z.string().min(1),
   qty: z.number().positive(),
   unitCostCents: z.number().int().min(0),
@@ -30,10 +30,10 @@ const input = z.object({
   totalCents: z.number().int().min(0),
   notes: z.string().max(1000).optional(),
   status: z.enum(["PENDING", "VALIDATED", "REJECTED", "AUTO_ACCEPTED"]).default("PENDING"),
-  items: z.array(invoiceItemInput).min(1),
+  items: z.array(purchaseInvoiceItemInput).min(1),
 });
 
-export const createInvoiceHandler = os
+export const createPurchaseInvoiceHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
@@ -53,7 +53,7 @@ export const createInvoiceHandler = os
 
     const result = await shopDb.transaction(async (tx) => {
       const inserted = await tx
-        .insert(invoice)
+        .insert(purchaseInvoice)
         .values({
           invoiceNumber: input.invoiceNumber,
           supplierId: input.supplierId,
@@ -76,9 +76,9 @@ export const createInvoiceHandler = os
         throw new ORPCError("INTERNAL_SERVER_ERROR");
       }
 
-      await tx.insert(invoiceItem).values(
+      await tx.insert(purchaseInvoiceItem).values(
         input.items.map((item) => ({
-          invoiceId: created.id,
+          purchaseInvoiceId: created.id,
           productId: item.productId,
           qty: item.qty,
           unitCostCents: item.unitCostCents,

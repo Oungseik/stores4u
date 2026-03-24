@@ -8,7 +8,7 @@ const input = z.object({
   invoiceId: z.string().min(1),
 });
 
-export const getInvoiceHandler = os
+export const getPurchaseInvoiceHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
@@ -16,7 +16,7 @@ export const getInvoiceHandler = os
   .handler(async ({ input, context }) => {
     const shopDb = getShopDb(context.shop);
 
-    const inv = await shopDb.query.invoice.findFirst({
+    const inv = await shopDb.query.purchaseInvoice.findFirst({
       where: { id: input.invoiceId },
       with: {
         supplier: {
@@ -33,7 +33,7 @@ export const getInvoiceHandler = os
     });
 
     if (!inv) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice not found" });
+      throw new ORPCError("NOT_FOUND", { message: "Purchase invoice not found" });
     }
 
     return {

@@ -1,8 +1,8 @@
 import { defineRelations } from "drizzle-orm";
 import { inventoryMovement } from "./inventory";
-import { invoice, invoiceItem, invoiceOcrResult } from "./invoice";
 import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
+import { purchaseInvoice, purchaseInvoiceItem, purchaseInvoiceOcrResult } from "./purchaseInvoice";
 import { refund, refundItem } from "./refund";
 import { productSupplier, supplier } from "./supplier";
 import { taxSettings } from "./tax";
@@ -14,9 +14,9 @@ export const relations = defineRelations(
     productCategory,
     supplier,
     productSupplier,
-    invoiceOcrResult,
-    invoice,
-    invoiceItem,
+    purchaseInvoiceOcrResult,
+    purchaseInvoice,
+    purchaseInvoiceItem,
     inventoryMovement,
     order,
     orderItem,
@@ -31,7 +31,7 @@ export const relations = defineRelations(
     product: {
       productCategories: r.many.productCategory(),
       productSuppliers: r.many.productSupplier(),
-      invoiceItems: r.many.invoiceItem(),
+      purchaseInvoiceItems: r.many.purchaseInvoiceItem(),
       inventoryMovements: r.many.inventoryMovement(),
       orderItems: r.many.orderItem(),
     },
@@ -41,33 +41,48 @@ export const relations = defineRelations(
     },
     supplier: {
       productSuppliers: r.many.productSupplier(),
-      invoices: r.many.invoice(),
+      purchaseInvoices: r.many.purchaseInvoice(),
     },
     productSupplier: {
       product: r.one.product({ from: r.productSupplier.productId, to: r.product.id }),
       supplier: r.one.supplier({ from: r.productSupplier.supplierId, to: r.supplier.id }),
     },
-    invoiceOcrResult: {
-      invoice: r.one.invoice({ from: r.invoiceOcrResult.id, to: r.invoice.ocrResultId }),
-    },
-    invoice: {
-      supplier: r.one.supplier({ from: r.invoice.supplierId, to: r.supplier.id }),
-      ocrResult: r.one.invoiceOcrResult({
-        from: r.invoice.ocrResultId,
-        to: r.invoiceOcrResult.id,
+    purchaseInvoiceOcrResult: {
+      purchaseInvoice: r.one.purchaseInvoice({
+        from: r.purchaseInvoiceOcrResult.id,
+        to: r.purchaseInvoice.ocrResultId,
       }),
-      items: r.many.invoiceItem(),
     },
-    invoiceItem: {
-      invoice: r.one.invoice({ from: r.invoiceItem.invoiceId, to: r.invoice.id }),
-      product: r.one.product({ from: r.invoiceItem.productId, to: r.product.id }),
+    purchaseInvoice: {
+      supplier: r.one.supplier({
+        from: r.purchaseInvoice.supplierId,
+        to: r.supplier.id,
+      }),
+      ocrResult: r.one.purchaseInvoiceOcrResult({
+        from: r.purchaseInvoice.ocrResultId,
+        to: r.purchaseInvoiceOcrResult.id,
+      }),
+      items: r.many.purchaseInvoiceItem(),
+    },
+    purchaseInvoiceItem: {
+      purchaseInvoice: r.one.purchaseInvoice({
+        from: r.purchaseInvoiceItem.purchaseInvoiceId,
+        to: r.purchaseInvoice.id,
+      }),
+      product: r.one.product({
+        from: r.purchaseInvoiceItem.productId,
+        to: r.product.id,
+      }),
       inventoryMovements: r.many.inventoryMovement(),
     },
     inventoryMovement: {
-      product: r.one.product({ from: r.inventoryMovement.productId, to: r.product.id }),
-      invoiceItem: r.one.invoiceItem({
-        from: r.inventoryMovement.invoiceItemId,
-        to: r.invoiceItem.id,
+      product: r.one.product({
+        from: r.inventoryMovement.productId,
+        to: r.product.id,
+      }),
+      purchaseInvoiceItem: r.one.purchaseInvoiceItem({
+        from: r.inventoryMovement.purchaseInvoiceItemId,
+        to: r.purchaseInvoiceItem.id,
       }),
     },
     order: {

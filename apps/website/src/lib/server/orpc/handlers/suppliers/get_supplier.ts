@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { eq, invoice, sql } from "@repo/db";
+import { eq, purchaseInvoice, sql } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -20,13 +20,14 @@ export const getSupplierHandler = os
     const supplier = await shopDb.query.supplier.findFirst({
       where: { id: input.supplierId },
       extras: {
-        invoicesCount: (table) => shopDb.$count(invoice, eq(invoice.supplierId, table.id)),
+        purchaseInvoicesCount: (table) =>
+          shopDb.$count(purchaseInvoice, eq(purchaseInvoice.supplierId, table.id)),
         totalPurchases: (table) =>
-          sql`(select coalesce(sum(${invoice.totalCents}), 0) from ${invoice} where ${invoice.supplierId} = ${table.id})`.mapWith(
+          sql`(select coalesce(sum(${purchaseInvoice.totalCents}), 0) from ${purchaseInvoice} where ${purchaseInvoice.supplierId} = ${table.id})`.mapWith(
             Number,
           ),
         lastPurchase: (table) =>
-          sql`(select max(${invoice.invoiceDate}) from ${invoice} where ${invoice.supplierId} = ${table.id})`.mapWith(
+          sql`(select max(${purchaseInvoice.invoiceDate}) from ${purchaseInvoice} where ${purchaseInvoice.supplierId} = ${table.id})`.mapWith(
             (v) => (v == null ? null : new Date(v as string)),
           ),
       },
@@ -44,7 +45,7 @@ export const getSupplierHandler = os
       email: supplier.email,
       address: supplier.address,
       paymentTerms: supplier.paymentTerms,
-      invoicesCount: supplier.invoicesCount,
+      purchaseInvoicesCount: supplier.purchaseInvoicesCount,
       totalPurchases: supplier.totalPurchases,
       lastPurchase: supplier.lastPurchase,
       createdAt: supplier.createdAt,

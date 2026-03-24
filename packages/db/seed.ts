@@ -4,12 +4,12 @@ import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
   inventoryMovement,
-  invoice,
-  invoiceItem,
-  invoiceOcrResult,
   product,
   productCategory,
   productSupplier,
+  purchaseInvoice,
+  purchaseInvoiceItem,
+  purchaseInvoiceOcrResult,
   supplier,
 } from "./src/schema/index.js";
 import { relations } from "./src/schema/relations.js";
@@ -20,9 +20,9 @@ const schema = {
   productCategory,
   supplier,
   productSupplier,
-  invoiceOcrResult,
-  invoice,
-  invoiceItem,
+  purchaseInvoiceOcrResult,
+  purchaseInvoice,
+  purchaseInvoiceItem,
   inventoryMovement,
 };
 
@@ -182,7 +182,7 @@ function generateProductSupplierData(products: { id: string }[], suppliers: { id
   return data;
 }
 
-function generateInvoiceOcrResultData(count: number) {
+function generatePurchaseInvoiceOcrResultData(count: number) {
   const data = [];
   for (let i = 0; i < count; i++) {
     data.push({
@@ -201,7 +201,7 @@ function generateInvoiceOcrResultData(count: number) {
   return data;
 }
 
-function generateInvoiceData(suppliers: { id: string }[], ocrResults: { id: string }[]) {
+function generatePurchaseInvoiceData(suppliers: { id: string }[], ocrResults: { id: string }[]) {
   const data = [];
   for (let i = 0; i < suppliers.length; i++) {
     const subtotalCents = randInt(1000, 100000);
@@ -235,11 +235,14 @@ function generateInvoiceData(suppliers: { id: string }[], ocrResults: { id: stri
   return data;
 }
 
-function generateInvoiceItemData(invoices: { id: string }[], products: { id: string }[]) {
+function generatePurchaseInvoiceItemData(
+  purchaseInvoices: { id: string }[],
+  products: { id: string }[],
+) {
   const data = [];
   let itemIndex = 0;
 
-  for (const invoice of invoices) {
+  for (const purchaseInvoice of purchaseInvoices) {
     const numItems = randInt(1, 5);
 
     for (let i = 0; i < numItems; i++) {
@@ -254,7 +257,7 @@ function generateInvoiceItemData(invoices: { id: string }[], products: { id: str
 
       data.push({
         id: randomUUIDv7(),
-        invoiceId: invoice.id,
+        purchaseInvoiceId: purchaseInvoice.id,
         productId: product.id,
         qty,
         unitCostCents,
@@ -270,7 +273,10 @@ function generateInvoiceItemData(invoices: { id: string }[], products: { id: str
   return data;
 }
 
-function generateInventoryMovementData(products: { id: string }[], invoiceItems: { id: string }[]) {
+function generateInventoryMovementData(
+  products: { id: string }[],
+  purchaseInvoiceItems: { id: string }[],
+) {
   const data = [];
 
   for (let i = 0; i < products.length * 2; i++) {
@@ -289,7 +295,10 @@ function generateInventoryMovementData(products: { id: string }[], invoiceItems:
     data.push({
       id: randomUUIDv7(),
       productId: product.id,
-      invoiceItemId: i < invoiceItems.length ? invoiceItems[i % invoiceItems.length].id : null,
+      purchaseInvoiceItemId:
+        i < purchaseInvoiceItems.length
+          ? purchaseInvoiceItems[i % purchaseInvoiceItems.length].id
+          : null,
       movementType,
       qty,
       unitCostCents: randInt(100, 10000),
@@ -338,9 +347,9 @@ async function main() {
 
   console.log("Clearing existing data...");
   await db.delete(inventoryMovement);
-  await db.delete(invoiceItem);
-  await db.delete(invoice);
-  await db.delete(invoiceOcrResult);
+  await db.delete(purchaseInvoiceItem);
+  await db.delete(purchaseInvoice);
+  await db.delete(purchaseInvoiceOcrResult);
   await db.delete(productCategory);
   await db.delete(productSupplier);
   await db.delete(product);
@@ -373,23 +382,26 @@ async function main() {
   await db.insert(productSupplier).values(productSupplierData);
   console.log(`Inserted ${productSupplierData.length} product-supplier relations`);
 
-  console.log("Generating invoice OCR results...");
-  const invoiceOcrResultData = generateInvoiceOcrResultData(5);
-  await db.insert(invoiceOcrResult).values(invoiceOcrResultData);
-  console.log(`Inserted ${invoiceOcrResultData.length} invoice OCR results`);
+  console.log("Generating purchase invoice OCR results...");
+  const purchaseInvoiceOcrResultData = generatePurchaseInvoiceOcrResultData(5);
+  await db.insert(purchaseInvoiceOcrResult).values(purchaseInvoiceOcrResultData);
+  console.log(`Inserted ${purchaseInvoiceOcrResultData.length} purchase invoice OCR results`);
 
-  console.log("Generating invoices...");
-  const invoiceData = generateInvoiceData(supplierData, invoiceOcrResultData);
-  await db.insert(invoice).values(invoiceData);
-  console.log(`Inserted ${invoiceData.length} invoices`);
+  console.log("Generating purchase invoices...");
+  const purchaseInvoiceData = generatePurchaseInvoiceData(
+    supplierData,
+    purchaseInvoiceOcrResultData,
+  );
+  await db.insert(purchaseInvoice).values(purchaseInvoiceData);
+  console.log(`Inserted ${purchaseInvoiceData.length} purchase invoices`);
 
-  console.log("Generating invoice items...");
-  const invoiceItemData = generateInvoiceItemData(invoiceData, productData);
-  await db.insert(invoiceItem).values(invoiceItemData);
-  console.log(`Inserted ${invoiceItemData.length} invoice items`);
+  console.log("Generating purchase invoice items...");
+  const purchaseInvoiceItemData = generatePurchaseInvoiceItemData(purchaseInvoiceData, productData);
+  await db.insert(purchaseInvoiceItem).values(purchaseInvoiceItemData);
+  console.log(`Inserted ${purchaseInvoiceItemData.length} purchase invoice items`);
 
   console.log("Generating inventory movements...");
-  const inventoryMovementData = generateInventoryMovementData(productData, invoiceItemData);
+  const inventoryMovementData = generateInventoryMovementData(productData, purchaseInvoiceItemData);
   await db.insert(inventoryMovement).values(inventoryMovementData);
   console.log(`Inserted ${inventoryMovementData.length} inventory movements`);
 

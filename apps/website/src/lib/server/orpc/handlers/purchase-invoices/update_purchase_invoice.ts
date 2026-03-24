@@ -1,10 +1,10 @@
 import { ORPCError } from "@orpc/server";
-import { eq, invoice, invoiceItem } from "@repo/db";
+import { eq, purchaseInvoice, purchaseInvoiceItem } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 
-const invoiceItemInput = z.object({
+const purchaseInvoiceItemInput = z.object({
   productId: z.string().min(1),
   qty: z.number().positive(),
   unitCostCents: z.number().int().min(0),
@@ -31,10 +31,10 @@ const input = z.object({
   totalCents: z.number().int().min(0),
   notes: z.string().max(1000).nullable(),
   status: z.enum(["PENDING", "VALIDATED", "REJECTED", "AUTO_ACCEPTED"]),
-  items: z.array(invoiceItemInput).min(1),
+  items: z.array(purchaseInvoiceItemInput).min(1),
 });
 
-export const updateInvoiceHandler = os
+export const updatePurchaseInvoiceHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
@@ -42,13 +42,13 @@ export const updateInvoiceHandler = os
     const shopDb = getShopDb(context.shop);
     const now = new Date();
 
-    const existing = await shopDb.query.invoice.findFirst({
+    const existing = await shopDb.query.purchaseInvoice.findFirst({
       where: { id: input.id },
       columns: { id: true, status: true },
     });
 
     if (!existing) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice not found" });
+      throw new ORPCError("NOT_FOUND", { message: "Purchase invoice not found" });
     }
 
     const isStatusTransition =
@@ -57,7 +57,7 @@ export const updateInvoiceHandler = os
 
     const result = await shopDb.transaction(async (tx) => {
       const updated = await tx
-        .update(invoice)
+        .update(purchaseInvoice)
         .set({
           invoiceNumber: input.invoiceNumber,
           supplierId: input.supplierId,
@@ -74,7 +74,7 @@ export const updateInvoiceHandler = os
           validatedAt: isStatusTransition ? now : undefined,
           updatedAt: now,
         })
-        .where(eq(invoice.id, input.id))
+        .where(eq(purchaseInvoice.id, input.id))
         .returning();
 
       const result = updated.at(0);
@@ -82,11 +82,13 @@ export const updateInvoiceHandler = os
         throw new ORPCError("NOT_FOUND");
       }
 
-      await tx.delete(invoiceItem).where(eq(invoiceItem.invoiceId, input.id));
+      await tx
+        .delete(purchaseInvoiceItem)
+        .where(eq(purchaseInvoiceItem.purchaseInvoiceId, input.id));
 
-      await tx.insert(invoiceItem).values(
+      await tx.insert(purchaseInvoiceItem).values(
         input.items.map((item) => ({
-          invoiceId: input.id,
+          purchaseInvoiceId: input.id,
           productId: item.productId,
           qty: item.qty,
           unitCostCents: item.unitCostCents,
