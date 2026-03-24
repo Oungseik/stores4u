@@ -18,6 +18,7 @@
   import UserIcon from "@lucide/svelte/icons/user";
   import * as Avatar from "@repo/ui/avatar";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
+  import { LightSwitch } from "@repo/ui/light-switch";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
@@ -250,7 +251,25 @@
         <Sidebar.GroupLabel>Support</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {#each secondaryNavItems as item (item.title)}
+            <Sidebar.MenuItem class="flex items-center gap-2">
+              <Sidebar.MenuButton
+                tooltipContent="Settings"
+                isActive={isActive(secondaryNavItems[0].href)}
+              >
+                {#snippet child({ props })}
+                  <a
+                    href={secondaryNavItems[0].href}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
+                    <SettingsIcon />
+                    <span>Settings</span>
+                  </a>
+                {/snippet}
+              </Sidebar.MenuButton>
+              <LightSwitch />
+            </Sidebar.MenuItem>
+            {#each secondaryNavItems.slice(1) as item (item.title)}
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
                   {#snippet child({ props })}
