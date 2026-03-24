@@ -6,6 +6,10 @@ import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadHandler } from "./handlers/images/upload";
+import { createInvoiceHandler } from "./handlers/invoices/create_invoice";
+import { getInvoiceHandler } from "./handlers/invoices/get_invoice";
+import { listInvoicesHandler } from "./handlers/invoices/list_invoices";
+import { updateInvoiceHandler } from "./handlers/invoices/update_invoice";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
@@ -39,6 +43,12 @@ export const router = os.router({
   },
   images: {
     upload: uploadHandler,
+  },
+  invoices: {
+    create: createInvoiceHandler,
+    get: getInvoiceHandler,
+    list: listInvoicesHandler,
+    update: updateInvoiceHandler,
   },
   products: {
     checkout: checkoutHandler,
