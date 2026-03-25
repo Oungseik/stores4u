@@ -11,7 +11,7 @@ export type PurchaseInvoiceItem = {
   id: string;
   invoiceNumber: string;
   supplier: { name: string } | null;
-  createdAt: string;
+  createdAt: Date;
   status: string;
   totalCents: number;
   itemsCount: number;
