@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { image } from "@repo/db";
 import sharp from "sharp";
 import { z } from "zod";
@@ -33,7 +32,7 @@ export const uploadHandler = os
       throw new Error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
     }
 
-    const uuid = randomUUID();
+    const uuid = Bun.randomUUIDv7();
     let objectKey: string;
     let finalBuffer: Buffer;
     let finalContentType: string;

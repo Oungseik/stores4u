@@ -17,9 +17,12 @@ import { importProductsCsvHandler } from "./handlers/products/import_products_cs
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { createPurchaseInvoiceHandler } from "./handlers/purchase-invoices/create_purchase_invoice";
+import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
 import { getPurchaseInvoiceHandler } from "./handlers/purchase-invoices/get_purchase_invoice";
+import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
 import { listPurchaseInvoicesHandler } from "./handlers/purchase-invoices/list_purchase_invoices";
 import { updatePurchaseInvoiceHandler } from "./handlers/purchase-invoices/update_purchase_invoice";
+import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
 import { connectPlatformHandler } from "./handlers/social/connect_platform";
@@ -48,6 +51,9 @@ export const router = os.router({
     create: createPurchaseInvoiceHandler,
     get: getPurchaseInvoiceHandler,
     list: listPurchaseInvoicesHandler,
+    listFiles: listInvoiceFilesHandler,
+    getFile: getInvoiceFileHandler,
+    uploadFile: uploadInvoiceFileHandler,
     update: updatePurchaseInvoiceHandler,
   },
   products: {

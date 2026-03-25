@@ -88,7 +88,7 @@ export const checkoutHandler = os
         const dbProduct = productMap.get(item.productId)!;
         const unitPriceCents = dbProduct.priceCents;
         return {
-          id: crypto.randomUUID(),
+          id: Bun.randomUUIDv7(),
           orderId: createdOrder.id,
           productId: item.productId,
           qty: item.qty,
