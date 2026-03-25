@@ -8,6 +8,7 @@ import {
   productCategory,
   productSupplier,
   purchaseInvoice,
+  purchaseInvoiceFile,
   purchaseInvoiceItem,
   purchaseInvoiceOcrResult,
   supplier,
@@ -16,6 +17,7 @@ import { relations } from "./src/schema/relations.js";
 
 const schema = {
   category,
+  purchaseInvoiceFile,
   product,
   productCategory,
   supplier,

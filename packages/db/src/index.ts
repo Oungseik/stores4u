@@ -10,6 +10,7 @@ import {
   productCategory,
   productSupplier,
   purchaseInvoice,
+  purchaseInvoiceFile,
   purchaseInvoiceItem,
   purchaseInvoiceOcrResult,
   refund,
@@ -22,6 +23,7 @@ import { relations } from "./schema/relations";
 const schema = {
   category,
   image,
+  invoiceFile: purchaseInvoiceFile,
   product,
   productCategory,
   supplier,

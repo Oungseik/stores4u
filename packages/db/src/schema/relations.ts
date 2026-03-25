@@ -2,7 +2,12 @@ import { defineRelations } from "drizzle-orm";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
 import { category, product, productCategory } from "./product";
-import { purchaseInvoice, purchaseInvoiceItem, purchaseInvoiceOcrResult } from "./purchaseInvoice";
+import {
+  purchaseInvoice,
+  purchaseInvoiceFile,
+  purchaseInvoiceItem,
+  purchaseInvoiceOcrResult,
+} from "./purchaseInvoice";
 import { refund, refundItem } from "./refund";
 import { productSupplier, supplier } from "./supplier";
 import { taxSettings } from "./tax";
@@ -14,6 +19,7 @@ export const relations = defineRelations(
     productCategory,
     supplier,
     productSupplier,
+    purchaseInvoiceFile,
     purchaseInvoiceOcrResult,
     purchaseInvoice,
     purchaseInvoiceItem,
@@ -47,7 +53,17 @@ export const relations = defineRelations(
       product: r.one.product({ from: r.productSupplier.productId, to: r.product.id }),
       supplier: r.one.supplier({ from: r.productSupplier.supplierId, to: r.supplier.id }),
     },
+    purchaseInvoiceFile: {
+      ocrResult: r.one.purchaseInvoiceOcrResult({
+        from: r.purchaseInvoiceFile.id,
+        to: r.purchaseInvoiceOcrResult.invoiceFileId,
+      }),
+    },
     purchaseInvoiceOcrResult: {
+      invoiceFile: r.one.purchaseInvoiceFile({
+        from: r.purchaseInvoiceOcrResult.invoiceFileId,
+        to: r.purchaseInvoiceFile.id,
+      }),
       purchaseInvoice: r.one.purchaseInvoice({
         from: r.purchaseInvoiceOcrResult.id,
         to: r.purchaseInvoice.ocrResultId,
