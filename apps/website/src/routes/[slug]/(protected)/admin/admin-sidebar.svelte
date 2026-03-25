@@ -14,7 +14,6 @@
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import StoreIcon from "@lucide/svelte/icons/store";
-  import UploadIcon from "@lucide/svelte/icons/upload";
   import UserIcon from "@lucide/svelte/icons/user";
   import * as Avatar from "@repo/ui/avatar";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
@@ -181,25 +180,6 @@
                   >
                     <LayoutDashboard class="size-4" />
                     <span>Overview</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-
-            <!-- Upload Invoice -->
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Upload Invoice"
-                isActive={isActive(`/${shop.slug}/admin/purchases/upload`)}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href={`/${shop.slug}/admin/purchases/upload`}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <UploadIcon class="size-4" />
-                    <span>Upload Invoice</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>

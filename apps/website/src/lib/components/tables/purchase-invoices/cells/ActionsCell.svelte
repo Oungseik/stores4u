@@ -6,12 +6,15 @@
   import { buttonVariants } from "@repo/ui/button";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
 
+  import { goto } from "$app/navigation";
+
   type Props = {
     id: string;
+    slug: string;
     onView?: (id: string) => void;
   };
 
-  const { id, onView }: Props = $props();
+  const { id, slug, onView }: Props = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -26,7 +29,7 @@
       <EyeIcon class="mr-2 size-4" />
       View Details
     </DropdownMenu.Item>
-    <DropdownMenu.Item>
+    <DropdownMenu.Item onclick={() => goto(`/${slug}/admin/purchases/invoices/${id}/edit`)}>
       <PencilIcon class="mr-2 size-4" />
       Edit
     </DropdownMenu.Item>

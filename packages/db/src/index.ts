@@ -23,7 +23,7 @@ import { relations } from "./schema/relations";
 const schema = {
   category,
   image,
-  invoiceFile: purchaseInvoiceFile,
+  purchaseInvoiceFile,
   product,
   productCategory,
   supplier,

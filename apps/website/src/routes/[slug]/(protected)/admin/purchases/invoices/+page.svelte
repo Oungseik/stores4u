@@ -18,10 +18,7 @@
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
-  import {
-    type PurchaseInvoiceItem,
-    createColumns,
-  } from "$lib/components/tables/purchase-invoices/columns";
+  import { createColumns } from "$lib/components/tables/purchase-invoices/columns";
   import { orpc } from "$lib/orpc_client";
   import { type PurchaseInvoiceStatus, purchaseInvoicesFilterSchema } from "$lib/search_param";
   import { formatDate } from "$lib/utils";
@@ -72,19 +69,8 @@
     })
   );
 
-  const allPurchaseInvoices: PurchaseInvoiceItem[] = $derived(
-    (purchaseInvoices.data?.pages.flatMap((page) => page.items) ?? []).map((inv) => ({
-      id: inv.id,
-      supplier: inv.supplier?.name ?? "—",
-      date: inv.invoiceDate,
-      status: inv.status,
-      totalCents: inv.totalCents,
-      items: inv.itemsCount,
-      vatCents: inv.vatCents,
-      discountCents: inv.discountCents,
-      freightCents: inv.freightCents,
-      subtotalCents: inv.subtotalCents,
-    }))
+  const allPurchaseInvoices = $derived(
+    purchaseInvoices.data?.pages.flatMap((page) => page.items) ?? []
   );
 
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.status.length > 0);
@@ -103,25 +89,23 @@
     ]}
   >
     {#snippet actions()}
-      <a href={`/${shop.slug}/admin/purchases/upload`} class={buttonVariants()}>
-        <UploadIcon class="mr-2 size-4" />
-        Upload Invoice
-      </a>
+      <div class="flex items-center justify-between gap-2">
+        <Button variant="outline">
+          <DownloadIcon class="mr-2 size-4" />
+          Export
+        </Button>
+        <a href={`/${shop.slug}/admin/purchases/upload`} class={buttonVariants()}>
+          <UploadIcon class="mr-2 size-4" />
+          Upload Invoice
+        </a>
+      </div>
     {/snippet}
   </AdminDashboardHeader>
 
   <!-- Page Title -->
-  <div>
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight">Invoices</h1>
-        <p class="text-muted-foreground text-sm">Manage and track all supplier invoices</p>
-      </div>
-      <Button variant="outline">
-        <DownloadIcon class="mr-2 size-4" />
-        Export
-      </Button>
-    </div>
+  <div class="flex flex-col gap-1">
+    <h1 class="text-2xl font-semibold tracking-tight">Invoices</h1>
+    <p class="text-muted-foreground text-sm">Manage and track all supplier invoices</p>
   </div>
 
   <!-- Stats Cards -->

@@ -3,17 +3,18 @@ import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 import ActionsCell from "./cells/ActionsCell.svelte";
 import DateCell from "./cells/DateCell.svelte";
-import InvoiceIdCell from "./cells/InvoiceIdCell.svelte";
+import InvoiceIdCell from "./cells/InvoiceNumberCell.svelte";
 import PriceCell from "./cells/PriceCell.svelte";
 import StatusCell from "./cells/StatusCell.svelte";
 
 export type PurchaseInvoiceItem = {
   id: string;
-  supplier: string;
-  date: string;
+  invoiceNumber: string;
+  supplier: { name: string } | null;
+  createdAt: string;
   status: string;
   totalCents: number;
-  items: number;
+  itemsCount: number;
   vatCents: number;
   discountCents: number;
   freightCents: number;
@@ -22,11 +23,12 @@ export type PurchaseInvoiceItem = {
 
 export function createColumns(
   country: CountryCode | null,
+  slug: string,
   onView?: (id: string) => void,
 ): ColumnDef<PurchaseInvoiceItem>[] {
   return [
     {
-      accessorKey: "id",
+      accessorKey: "invoiceNumber",
       header: "Invoice",
       cell: ({ row }) => {
         return renderComponent(InvoiceIdCell, { id: row.original.id });
@@ -35,19 +37,20 @@ export function createColumns(
     {
       accessorKey: "supplier",
       header: "Supplier",
+      cell: ({ row }) => (row.original.supplier ? row.original.supplier.name : "-"),
     },
     {
-      accessorKey: "date",
+      accessorKey: "createdAt",
       header: "Date",
       cell: ({ row }) => {
-        return renderComponent(DateCell, { date: row.original.date });
+        return renderComponent(DateCell, { date: row.original.createdAt });
       },
     },
     {
-      accessorKey: "items",
+      accessorKey: "itemsCount",
       header: "Items",
       cell: ({ row }) => {
-        return String(row.original.items);
+        return String(row.original.itemsCount);
       },
     },
     {
@@ -68,7 +71,7 @@ export function createColumns(
       id: "actions",
       header: "",
       cell: ({ row }) => {
-        return renderComponent(ActionsCell, { id: row.original.id, onView });
+        return renderComponent(ActionsCell, { id: row.original.id, slug, onView });
       },
     },
   ];

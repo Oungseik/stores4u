@@ -146,7 +146,6 @@
   let tempValue = $state("");
   let selectedSupplier = $state(suppliers[0]);
   let isSubmitting = $state(false);
-  let showNewSupplierForm = $state(false);
 
   // New supplier form
   let newSupplier = $state({
@@ -254,7 +253,6 @@
     selectedSupplier = supplier;
     invoiceData.supplierId = supplier.id;
     invoiceData.supplierName = supplier.name;
-    showNewSupplierForm = false;
     newSupplier = { name: "", contact: "", phone: "", email: "", address: "" };
   }
 
