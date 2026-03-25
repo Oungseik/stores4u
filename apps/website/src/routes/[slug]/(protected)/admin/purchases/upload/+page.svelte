@@ -58,23 +58,6 @@
     })
   );
 
-  const processMutation = createMutation(() =>
-    orpc.purchaseInvoices.processFile.mutationOptions({
-      onSuccess: (data) => {
-        toast.success("File processed successfully");
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        processingFileId = null;
-        processingProgress = 0;
-        goto(`/${shop.slug}/admin/purchases/review?fileId=${data.invoiceFileId}`);
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to process file");
-        processingFileId = null;
-        processingProgress = 0;
-      },
-    })
-  );
-
   function handleDragOver(e: DragEvent) {
     e.preventDefault();
     isDragging = true;
@@ -134,24 +117,12 @@
     }
   }
 
-  async function handleProcessFile(fileId: string) {
-    processingFileId = fileId;
-    processingProgress = 0;
-
-    const progressInterval = setInterval(() => {
-      if (processingProgress < 90) {
-        processingProgress += 5;
-      }
-    }, 100);
-
-    try {
-      await processMutation.mutateAsync({ slug: params.slug, invoiceFileId: fileId });
-      processingProgress = 100;
-    } finally {
-      clearInterval(progressInterval);
-    }
+  async function handleProcessFile() {
+    // TODO process file
   }
 
+  // TODO create supplier and handle process is two step process
+  // TODO don't use goto use anchor tag 
   function handleReviewFile(fileId: string) {
     goto(`/${shop.slug}/admin/purchases/review?fileId=${fileId}`);
   }
@@ -372,7 +343,7 @@
                       <span class="text-muted-foreground text-xs">{processingProgress}%</span>
                     </div>
                   {:else if file.status === "UPLOADED"}
-                    <Button variant="outline" size="sm" onclick={() => handleProcessFile(file.id)}>
+                    <Button variant="outline" size="sm" onclick={handleProcessFile}>
                       <PlayIcon class="mr-1 size-4" />
                       Process
                     </Button>

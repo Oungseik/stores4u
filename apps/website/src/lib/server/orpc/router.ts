@@ -21,6 +21,7 @@ import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_
 import { getPurchaseInvoiceHandler } from "./handlers/purchase-invoices/get_purchase_invoice";
 import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
 import { listPurchaseInvoicesHandler } from "./handlers/purchase-invoices/list_purchase_invoices";
+import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
 import { updatePurchaseInvoiceHandler } from "./handlers/purchase-invoices/update_purchase_invoice";
 import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
 import { createShopHandler } from "./handlers/shops/create_shop";
@@ -55,6 +56,7 @@ export const router = os.router({
     getFile: getInvoiceFileHandler,
     uploadFile: uploadInvoiceFileHandler,
     update: updatePurchaseInvoiceHandler,
+    submitReview: submitInvoiceReviewHandler,
   },
   products: {
     checkout: checkoutHandler,

@@ -3,19 +3,7 @@ import { eq, purchaseInvoice, purchaseInvoiceItem, supplier } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
-
-const purchaseInvoiceItemInput = z.object({
-  productId: z.string().min(1),
-  qty: z.number().positive(),
-  unitCostCents: z.number().int().min(0),
-  lineSubtotalCents: z.number().int().min(0),
-  vatCents: z.number().int().min(0).default(0),
-  discountCents: z.number().int().min(0).default(0),
-  freightCents: z.number().int().min(0).default(0),
-  lineTotalCents: z.number().int().min(0),
-  expiryDate: z.string().optional(),
-  batchNumber: z.string().max(100).optional(),
-});
+import { invoiceAmountFields, purchaseInvoiceItemInput } from "./schemas";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -23,12 +11,7 @@ const input = z.object({
   supplierId: z.string().min(1),
   invoiceDate: z.string().min(1),
   photoUrl: z.string().min(1).max(500),
-  subtotalCents: z.number().int().min(0),
-  vatCents: z.number().int().min(0),
-  discountCents: z.number().int().min(0),
-  freightCents: z.number().int().min(0),
-  totalCents: z.number().int().min(0),
-  notes: z.string().max(1000).optional(),
+  ...invoiceAmountFields,
   status: z.enum(["PENDING", "VALIDATED", "REJECTED", "AUTO_ACCEPTED"]).default("PENDING"),
   items: z.array(purchaseInvoiceItemInput).min(1),
 });
