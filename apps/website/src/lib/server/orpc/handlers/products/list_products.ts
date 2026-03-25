@@ -69,7 +69,9 @@ export const listProductsHandler = os
       image: p.image,
       uom: p.uom,
       priceCents: p.priceCents,
-      categories: p.productCategories.map((c) => c.category?.name).filter(Boolean),
+      categories: p.productCategories
+        .map((c) => c.category?.name)
+        .filter((c): c is string => c !== undefined),
       stock: p.stock,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,

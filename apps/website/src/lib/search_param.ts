@@ -20,6 +20,8 @@ export const returnUrlSchema = createSearchParamsSchema({
   return_url: { type: "string" },
 });
 
+export type ProductsView = "card" | "table";
+
 export const productsFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
   categories: {
@@ -27,7 +29,8 @@ export const productsFilterSchema = createSearchParamsSchema({
     arrayType: "",
     default: [],
   },
-});
+  view: { type: "string", default: "card" },
+}) as StandardSchemaV1<unknown, { search: string; categories: string[]; view: ProductsView }>;
 
 export const ordersFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },

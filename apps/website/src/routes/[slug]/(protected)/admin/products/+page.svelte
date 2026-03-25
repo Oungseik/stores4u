@@ -1,4 +1,6 @@
 <script lang="ts">
+  import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
+  import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -9,14 +11,17 @@
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
+  import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import DataTable from "$lib/components/tables/DataTable.svelte";
+  import { createColumns } from "$lib/components/tables/products/columns";
   import { orpc } from "$lib/orpc_client";
-  import { productsFilterSchema } from "$lib/search_param";
+  import { type ProductsView, productsFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -49,6 +54,7 @@
     })
   );
 
+  const columns = $derived(createColumns(shop.country, params.slug));
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
   function resetFilters() {
@@ -62,32 +68,53 @@
   >
     {#snippet actions()}
       <a href={`/${shop.slug}/admin/products/add`} class={buttonVariants()}>
-        <PlusIcon class="size-4" /> Add
+        <PlusIcon class="size-4" /> Add Product
       </a>
     {/snippet}
   </AdminDashboardHeader>
 
   <!-- Filters and Search -->
-  <FilterBar.Root {hasFilters} onReset={resetFilters}>
-    <FilterBar.Search
-      placeholder="Search products, SKU..."
-      value={searchParams.search}
-      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-    />
+  <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
+    <div class="flex items-center justify-start gap-4">
+      <FilterBar.Search
+        placeholder="Search products, SKU..."
+        value={searchParams.search}
+        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+      />
 
-    <FilterBar.CheckboxGroup
-      items={(categories.data?.items ?? []).map((c) => ({
-        value: c.name,
-        label: c.name,
-        count: c.productCount,
-      }))}
-      value={searchParams.categories}
-      onValueChange={(value) => searchParams.update({ categories: value })}
-      placeholder="All Categories"
-      label="Filter by Category"
-    />
+      <FilterBar.CheckboxGroup
+        items={(categories.data?.items ?? []).map((c) => ({
+          value: c.name,
+          label: c.name,
+          count: c.productCount,
+        }))}
+        value={searchParams.categories}
+        onValueChange={(value) => searchParams.update({ categories: value })}
+        placeholder="All Categories"
+        label="Filter by Category"
+      />
 
-    <FilterBar.Reset />
+      <FilterBar.Reset />
+    </div>
+
+    <ToggleGroup
+      type="single"
+      value={searchParams.view}
+      onValueChange={(value) => {
+        if (value && (value === "card" || value === "table")) {
+          searchParams.update({ view: value as ProductsView });
+        }
+      }}
+      variant="outline"
+      size="sm"
+    >
+      <ToggleGroupItem value="card" aria-label="Card view">
+        <LayoutGridIcon class="size-4" />
+      </ToggleGroupItem>
+      <ToggleGroupItem value="table" aria-label="Table view">
+        <ListIcon class="size-4" />
+      </ToggleGroupItem>
+    </ToggleGroup>
   </FilterBar.Root>
 
   {#if products.isLoading}
@@ -105,6 +132,25 @@
       </div>
       <p class="text-muted-foreground">No products found</p>
     </div>
+  {:else if searchParams.view === "table"}
+    <DataTable {columns} data={allProducts} loading={false} />
+
+    {#if products.hasNextPage}
+      <div class="mt-4 flex justify-center">
+        <Button
+          variant="outline"
+          onclick={() => products.fetchNextPage()}
+          disabled={products.isFetchingNextPage}
+        >
+          {#if products.isFetchingNextPage}
+            <Loader2Icon class="mr-2 size-4 animate-spin" />
+            Loading...
+          {:else}
+            Load More
+          {/if}
+        </Button>
+      </div>
+    {/if}
   {:else}
     <div class="space-y-2">
       {#each allProducts as product (product.id)}
