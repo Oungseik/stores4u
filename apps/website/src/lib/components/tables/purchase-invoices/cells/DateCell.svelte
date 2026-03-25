@@ -4,7 +4,7 @@
   import { formatDate } from "$lib/utils";
 
   type Props = {
-    date: string;
+    date: Date;
   };
 
   const { date }: Props = $props();

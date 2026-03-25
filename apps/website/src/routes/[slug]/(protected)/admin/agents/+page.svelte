@@ -497,19 +497,34 @@
                               {#each message.reviewData.platforms as platform}
                                 <Badge variant="outline" class="gap-1">
                                   {#if platform === "facebook"}
-                                    <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" role="img">
+                                    <svg
+                                      class="size-3"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="img"
+                                    >
                                       <title>Facebook</title>
                                       <path d={siFacebook.path} />
                                     </svg>
                                   {:else if platform === "tiktok"}
-                                    <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" role="img">
+                                    <svg
+                                      class="size-3"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="img"
+                                    >
                                       <title>TikTok</title>
                                       <path d={siTiktok.path} />
                                     </svg>
                                   {:else if platform === "viber"}
                                     <MessageCircleIcon class="size-3" />
                                   {:else if platform === "telegram"}
-                                    <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" role="img">
+                                    <svg
+                                      class="size-3"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="img"
+                                    >
                                       <title>Telegram</title>
                                       <path d={siTelegram.path} />
                                     </svg>

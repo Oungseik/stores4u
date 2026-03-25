@@ -122,7 +122,7 @@
   }
 
   // TODO create supplier and handle process is two step process
-  // TODO don't use goto use anchor tag 
+  // TODO don't use goto use anchor tag
   function handleReviewFile(fileId: string) {
     goto(`/${shop.slug}/admin/purchases/review?fileId=${fileId}`);
   }
