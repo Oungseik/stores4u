@@ -41,7 +41,7 @@
   <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
     <Card.Title class="text-sm font-medium">{title}</Card.Title>
     <div class="rounded-md p-2 {iconBgClass}">
-      <props.icon class="size-4 {iconTextClass}" />
+      <props.icon class="size: 5 lg:size-6 {iconTextClass}" />
     </div>
   </Card.Header>
   <Card.Content>
