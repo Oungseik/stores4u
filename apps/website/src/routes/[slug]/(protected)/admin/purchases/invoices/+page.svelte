@@ -14,13 +14,13 @@
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
+  import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
-  import Pricing from "$lib/components/Pricing.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import {
-    createColumns,
     type PurchaseInvoiceItem,
+    createColumns,
   } from "$lib/components/tables/purchase-invoices/columns";
   import { orpc } from "$lib/orpc_client";
   import { type PurchaseInvoiceStatus, purchaseInvoicesFilterSchema } from "$lib/search_param";
@@ -45,7 +45,7 @@
     isDetailsOpen = true;
   }
 
-  const columns = $derived(createColumns(shop.country, openInvoiceDetails));
+  const columns = $derived(createColumns(shop.country, params.slug, openInvoiceDetails));
 
   const searchParams = useSearchParams(purchaseInvoicesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -229,7 +229,10 @@
         AUTO_ACCEPTED: { class: "text-blue-600", label: "Auto Accepted" },
         REJECTED: { class: "text-red-600", label: "Rejected" },
       }}
-      {@const cfg = statusConfig[invoice.status] ?? { class: "text-gray-600", label: invoice.status }}
+      {@const cfg = statusConfig[invoice.status] ?? {
+        class: "text-gray-600",
+        label: invoice.status,
+      }}
       <Dialog.Header class="flex-shrink-0">
         <Dialog.Title class="text-xl">{invoice.invoiceNumber}</Dialog.Title>
         <Dialog.Description>
