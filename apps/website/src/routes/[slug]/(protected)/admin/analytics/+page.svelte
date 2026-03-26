@@ -8,10 +8,9 @@
   import { Badge } from "@repo/ui/badge";
   import * as Card from "@repo/ui/card";
   import { createQuery } from "@tanstack/svelte-query";
-
-  import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import Pricing from "$lib/components/Pricing.svelte";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -40,12 +39,14 @@
     value: string | number;
     description: string;
     icon: typeof DollarSignIcon;
+    iconBgClass: string;
+    iconTextClass: string;
+    borderClass: string;
     trend?: {
       value: number;
       label: string;
       positive: boolean;
     };
-    variant?: "default" | "warning" | "danger";
   }
 
   const kpiCards = $derived((): KPICard[] => [
@@ -54,6 +55,9 @@
       value: "Sales Data",
       description: "Revenue today",
       icon: DollarSignIcon,
+      iconBgClass: "bg-emerald-500/10",
+      iconTextClass: "text-emerald-600",
+      borderClass: "from-emerald-500/20 to-emerald-500/5",
       trend: { value: 12.5, label: "vs yesterday", positive: true },
     },
     {
@@ -61,6 +65,9 @@
       value: stats.totalProducts,
       description: "Active products",
       icon: BoxIcon,
+      iconBgClass: "bg-primary/10",
+      iconTextClass: "text-primary",
+      borderClass: "from-primary/20 to-primary/5",
       trend: { value: 5, label: "new this week", positive: true },
     },
     {
@@ -68,14 +75,18 @@
       value: stats.lowStockItems,
       description: "Items need restocking",
       icon: AlertTriangleIcon,
-      variant: stats.lowStockItems > 0 ? "warning" : "default",
+      iconBgClass: "bg-amber-500/10",
+      iconTextClass: "text-amber-600",
+      borderClass: "from-amber-500/20 to-amber-500/5",
     },
     {
       title: "Out of Stock",
       value: stats.outOfStockItems,
       description: "Unavailable items",
       icon: ShoppingCartIcon,
-      variant: stats.outOfStockItems > 0 ? "danger" : "default",
+      iconBgClass: "bg-red-500/10",
+      iconTextClass: "text-red-600",
+      borderClass: "from-red-500/20 to-red-500/5",
     },
   ]);
 </script>
@@ -102,15 +113,13 @@
           value={card.value}
           description={card.description}
           icon={card.icon}
+          iconBgClass={card.iconBgClass}
+          iconTextClass={card.iconTextClass}
+          borderClass={card.borderClass}
           price={card.title === "Today's Sales" ? stats.todaySales : undefined}
           country={shop.country}
           priceClass="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl"
-          borderClass={card.variant === "warning"
-            ? "from-amber-500/20 to-amber-500/5"
-            : card.variant === "danger"
-              ? "from-red-500/20 to-red-500/5"
-              : "from-primary/20 to-primary/5"}
-        ></StatsCard>
+        />
       {/each}
     </div>
 
