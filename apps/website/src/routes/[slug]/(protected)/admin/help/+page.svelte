@@ -16,8 +16,8 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
+  import * as ResizableSheet from "@repo/ui/resizable-sheet";
   import { Separator } from "@repo/ui/separator";
-  import * as Sheet from "@repo/ui/sheet";
   import * as Tabs from "@repo/ui/tabs";
   import { fade, fly } from "svelte/transition";
 
@@ -480,80 +480,82 @@
 </div>
 
 <!-- AI Chat Sheet -->
-<Sheet.Root bind:open={isChatOpen}>
-  <Sheet.Content side="right" class="flex w-full flex-col px-4 pb-2 sm:max-w-md">
-    <Sheet.Header class="border-b pb-4">
+<ResizableSheet.Root bind:open={isChatOpen} defaultWidth={448} minWidth={340} maxWidth={800}>
+  {#snippet header()}
+    <ResizableSheet.SheetHeader class="border-b pb-4">
       <div class="flex items-center gap-3">
         <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
           <BotIcon class="text-primary size-6" />
         </div>
         <div>
-          <Sheet.Title>AI Assistant</Sheet.Title>
-          <Sheet.Description>Ask me anything about your shop</Sheet.Description>
+          <ResizableSheet.SheetTitle>AI Assistant</ResizableSheet.SheetTitle>
+          <ResizableSheet.SheetDescription
+            >Ask me anything about your shop</ResizableSheet.SheetDescription
+          >
         </div>
       </div>
-    </Sheet.Header>
+    </ResizableSheet.SheetHeader>
+  {/snippet}
 
-    <!-- Chat Messages -->
-    <div class="flex-1 overflow-y-auto py-4">
-      <div class="flex flex-col gap-4">
-        {#each messages as message (message.id)}
-          <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-            <div
-              class="max-w-[80%] rounded-2xl px-4 py-2.5 {message.role === 'user'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted'}"
-            >
-              {#if message.role === "assistant"}
-                <div class="mb-1 flex items-center gap-1.5">
-                  <BotIcon class="size-3.5" />
-                  <span class="text-xs font-medium">Assistant</span>
-                </div>
-              {/if}
-              <p class="text-sm leading-relaxed">{message.content}</p>
-            </div>
+  <!-- Chat Messages -->
+  <div class="flex-1 overflow-y-auto py-4">
+    <div class="flex flex-col gap-4">
+      {#each messages as message (message.id)}
+        <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+          <div
+            class="max-w-[80%] rounded-2xl px-4 py-2.5 {message.role === 'user'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted'}"
+          >
+            {#if message.role === "assistant"}
+              <div class="mb-1 flex items-center gap-1.5">
+                <BotIcon class="size-3.5" />
+                <span class="text-xs font-medium">Assistant</span>
+              </div>
+            {/if}
+            <p class="text-sm leading-relaxed">{message.content}</p>
           </div>
+        </div>
+      {/each}
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  {#if messages.length === 1}
+    <div class="border-t py-3">
+      <p class="text-muted-foreground mb-2 text-xs font-medium">Quick actions:</p>
+      <div class="scrollbar-hide flex gap-2 overflow-x-auto">
+        {#each ["Process a refund", "Add a product", "View reports", "Update settings"] as action}
+          <button
+            type="button"
+            class="bg-secondary hover:bg-secondary/80 flex-shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors"
+            onclick={() => {
+              chatInput = action;
+              sendMessage();
+            }}
+          >
+            {action}
+          </button>
         {/each}
       </div>
     </div>
+  {/if}
 
-    <!-- Quick Actions -->
-    {#if messages.length === 1}
-      <div class="border-t pt-3">
-        <p class="text-muted-foreground mb-2 text-xs font-medium">Quick actions:</p>
-        <div class="scrollbar-hide flex gap-2 overflow-x-auto">
-          {#each ["Process a refund", "Add a product", "View reports", "Update settings"] as action}
-            <button
-              type="button"
-              class="bg-secondary hover:bg-secondary/80 flex-shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors"
-              onclick={() => {
-                chatInput = action;
-                sendMessage();
-              }}
-            >
-              {action}
-            </button>
-          {/each}
-        </div>
-      </div>
-    {/if}
-
-    <!-- Input Area -->
-    <div>
-      <div class="flex gap-2">
-        <Input
-          placeholder="Type your question..."
-          class="flex-1"
-          bind:value={chatInput}
-          onkeydown={handleKeydown}
-        />
-        <Button size="icon" onclick={sendMessage} disabled={!chatInput.trim()}>
-          <SendIcon class="size-4" />
-        </Button>
-      </div>
-      <p class="text-muted-foreground mt-2 text-center text-xs">
-        AI responses are generated based on your shop's documentation
-      </p>
+  <!-- Input Area -->
+  <div>
+    <div class="flex gap-2">
+      <Input
+        placeholder="Type your question..."
+        class="flex-1"
+        bind:value={chatInput}
+        onkeydown={handleKeydown}
+      />
+      <Button size="icon" onclick={sendMessage} disabled={!chatInput.trim()}>
+        <SendIcon class="size-4" />
+      </Button>
     </div>
-  </Sheet.Content>
-</Sheet.Root>
+    <p class="text-muted-foreground mt-2 text-center text-xs">
+      AI responses are generated based on your shop's documentation
+    </p>
+  </div>
+</ResizableSheet.Root>

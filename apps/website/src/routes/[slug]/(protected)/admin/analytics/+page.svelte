@@ -8,9 +8,10 @@
   import { Badge } from "@repo/ui/badge";
   import * as Card from "@repo/ui/card";
   import { createQuery } from "@tanstack/svelte-query";
+
+  import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
-  import Pricing from "$lib/components/Pricing.svelte";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";

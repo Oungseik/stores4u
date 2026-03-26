@@ -78,7 +78,7 @@
 			onpointerdown={handlePointerDown}
 		></div>
 
-		<div class="flex h-full flex-col px-6 py-6">
+		<div class="flex h-full flex-col px-4 py-4">
 			{@render children?.()}
 		</div>
 
