@@ -43,7 +43,7 @@ export function getCountryName(code: CountryCode, locale = "en") {
   try {
     const regionNames = new Intl.DisplayNames([locale], { type: "region", fallback: "code" });
     return regionNames.of(code);
-  } catch (error) {
+  } catch (_error) {
     return code;
   }
 }

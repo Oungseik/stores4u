@@ -33,10 +33,10 @@ export const listOrdersHandler = os
         createdAt: input.dateFrom
           ? {
               gte: new Date(input.dateFrom),
-              ...(input.dateTo ? { lte: new Date(input.dateTo + "T23:59:59") } : {}),
+              ...(input.dateTo ? { lte: new Date(`${input.dateTo}T23:59:59`) } : {}),
             }
           : input.dateTo
-            ? { lte: new Date(input.dateTo + "T23:59:59") }
+            ? { lte: new Date(`${input.dateTo}T23:59:59`) }
             : undefined,
       },
       limit: input.pageSize + 1,

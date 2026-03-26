@@ -28,7 +28,7 @@ const rateLimitHandle: Handle = async ({ event, resolve }) => {
   const cost = event.request.method === "GET" || event.request.method === "OPTIONS" ? 1 : 2;
   try {
     await rateLimiter.consume(clientIP, cost);
-  } catch (error) {
+  } catch (_error) {
     return new Response("Too many requests", { status: 429 });
   }
 

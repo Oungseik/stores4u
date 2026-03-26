@@ -49,8 +49,16 @@ export const checkoutHandler = os
     const productMap = new Map(products.map((p) => [p.id, p]));
     const stockQtyByProduct = new Map(products.map((p) => [p.id, p.stock]));
 
+    const getProduct = (id: string) => {
+      const p = productMap.get(id);
+      if (!p) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: `Product ${id} not found` });
+      }
+      return p;
+    };
+
     const subtotalCents = input.items.reduce((sum, item) => {
-      const dbProduct = productMap.get(item.productId)!;
+      const dbProduct = getProduct(item.productId);
       return sum + dbProduct.priceCents * item.qty;
     }, 0);
 
@@ -85,7 +93,7 @@ export const checkoutHandler = os
       }
 
       const orderItems = input.items.map((item) => {
-        const dbProduct = productMap.get(item.productId)!;
+        const dbProduct = getProduct(item.productId);
         const unitPriceCents = dbProduct.priceCents;
         return {
           id: Bun.randomUUIDv7(),
@@ -132,7 +140,7 @@ export const checkoutHandler = os
         const insufficient = [...requestedQtyByProduct.entries()]
           .filter(([id, requested]) => (stockQtyByProduct.get(id) ?? 0) < requested)
           .map(([id, requested]) => {
-            const p = productMap.get(id)!;
+            const p = getProduct(id);
             return `"${p.name}" (available: ${stockQtyByProduct.get(id)}, requested: ${requested})`;
           });
 

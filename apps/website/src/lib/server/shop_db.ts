@@ -15,7 +15,7 @@ export function getShopDb(shop: { slug: string }) {
 export async function createShopDatabase(slug: string): Promise<string> {
   const db = await turso.databases.create(`pos-${slug}`, {
     group: TURSO_GROUP,
-    seed: { type: "database", name: TURSO_PARENT_DB_NAME! },
+    seed: { type: "database", name: TURSO_PARENT_DB_NAME },
   });
 
   return `libsql://${db.hostname}`;
