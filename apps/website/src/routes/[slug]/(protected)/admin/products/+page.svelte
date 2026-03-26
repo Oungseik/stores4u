@@ -62,7 +62,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/admin` }, { label: "Products" }]}
   >
@@ -73,160 +73,165 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <!-- Filters and Search -->
-  <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
-    <div class="flex items-center justify-start gap-4">
-      <FilterBar.Search
-        placeholder="Search products, SKU..."
-        value={searchParams.search}
-        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-      />
+  <section class="mt-4 space-y-6">
+    <!-- Filters and Search -->
+    <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
+      <div class="flex items-center justify-start gap-4">
+        <FilterBar.Search
+          placeholder="Search products, SKU..."
+          value={searchParams.search}
+          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+        />
 
-      <FilterBar.CheckboxGroup
-        items={(categories.data?.items ?? []).map((c) => ({
-          value: c.name,
-          label: c.name,
-          count: c.productCount,
-        }))}
-        value={searchParams.categories}
-        onValueChange={(value) => searchParams.update({ categories: value })}
-        placeholder="All Categories"
-        label="Filter by Category"
-      />
+        <FilterBar.CheckboxGroup
+          items={(categories.data?.items ?? []).map((c) => ({
+            value: c.name,
+            label: c.name,
+            count: c.productCount,
+          }))}
+          value={searchParams.categories}
+          onValueChange={(value) => searchParams.update({ categories: value })}
+          placeholder="All Categories"
+          label="Filter by Category"
+        />
 
-      <FilterBar.Reset />
-    </div>
-
-    <ToggleGroup
-      type="single"
-      value={searchParams.view}
-      onValueChange={(value) => {
-        if (value && (value === "card" || value === "table")) {
-          searchParams.update({ view: value as ProductsView });
-        }
-      }}
-      variant="outline"
-      size="sm"
-    >
-      <ToggleGroupItem value="card" aria-label="Card view">
-        <LayoutGridIcon class="size-4" />
-      </ToggleGroupItem>
-      <ToggleGroupItem value="table" aria-label="Table view">
-        <ListIcon class="size-4" />
-      </ToggleGroupItem>
-    </ToggleGroup>
-  </FilterBar.Root>
-
-  {#if products.isLoading}
-    <div class="flex items-center justify-center py-12">
-      <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-    </div>
-  {:else if products.isError}
-    <div class="flex items-center justify-center py-12">
-      <p class="text-red-500">Failed to load products</p>
-    </div>
-  {:else if allProducts.length === 0}
-    <div class="flex flex-col items-center justify-center py-12 text-center">
-      <div class="bg-muted mb-3 flex size-12 items-center justify-center rounded-full">
-        <PackageIcon class="text-muted-foreground size-6" />
+        <FilterBar.Reset />
       </div>
-      <p class="text-muted-foreground">No products found</p>
-    </div>
-  {:else if searchParams.view === "table"}
-    <DataTable {columns} data={allProducts} loading={false} />
 
-    {#if products.hasNextPage}
-      <div class="mt-4 flex justify-center">
-        <Button
-          variant="outline"
-          onclick={() => products.fetchNextPage()}
-          disabled={products.isFetchingNextPage}
-        >
-          {#if products.isFetchingNextPage}
-            <Loader2Icon class="mr-2 size-4 animate-spin" />
-            Loading...
-          {:else}
-            Load More
-          {/if}
-        </Button>
+      <ToggleGroup
+        type="single"
+        value={searchParams.view}
+        onValueChange={(value) => {
+          if (value && (value === "card" || value === "table")) {
+            searchParams.update({ view: value as ProductsView });
+          }
+        }}
+        variant="outline"
+        size="sm"
+      >
+        <ToggleGroupItem value="card" aria-label="Card view">
+          <LayoutGridIcon class="size-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="table" aria-label="Table view">
+          <ListIcon class="size-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </FilterBar.Root>
+
+    {#if products.isLoading}
+      <div class="flex items-center justify-center py-12">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
-    {/if}
-  {:else}
-    <div class="space-y-2">
-      {#each allProducts as product (product.id)}
-        <Card.Root class="overflow-hidden p-0">
-          <Card.Content class="p-0">
-            <div class="hover:bg-muted/50 flex w-full items-center gap-2.5 px-3 py-2">
-              <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
-                <PackageIcon class="text-muted-foreground size-4" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div>
-                  <p class="truncate text-sm font-medium">{product.name}</p>
+    {:else if products.isError}
+      <div class="flex items-center justify-center py-12">
+        <p class="text-red-500">Failed to load products</p>
+      </div>
+    {:else if allProducts.length === 0}
+      <div class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="bg-muted mb-3 flex size-12 items-center justify-center rounded-full">
+          <PackageIcon class="text-muted-foreground size-6" />
+        </div>
+        <p class="text-muted-foreground">No products found</p>
+      </div>
+    {:else if searchParams.view === "table"}
+      <DataTable {columns} data={allProducts} loading={false} />
 
-                  <div class="text-muted-foreground text-xs">
-                    {product.sku}{product.categories?.length > 0
-                      ? ` • ${product.categories[0]}`
-                      : ""}
+      {#if products.hasNextPage}
+        <div class="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            onclick={() => products.fetchNextPage()}
+            disabled={products.isFetchingNextPage}
+          >
+            {#if products.isFetchingNextPage}
+              <Loader2Icon class="mr-2 size-4 animate-spin" />
+              Loading...
+            {:else}
+              Load More
+            {/if}
+          </Button>
+        </div>
+      {/if}
+    {:else}
+      <div class="space-y-2">
+        {#each allProducts as product (product.id)}
+          <Card.Root class="overflow-hidden p-0">
+            <Card.Content class="p-0">
+              <div class="hover:bg-muted/50 flex w-full items-center gap-2.5 px-3 py-2">
+                <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
+                  <PackageIcon class="text-muted-foreground size-4" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div>
+                    <p class="truncate text-sm font-medium">{product.name}</p>
+
+                    <div class="text-muted-foreground text-xs">
+                      {product.sku}{product.categories?.length > 0
+                        ? ` • ${product.categories[0]}`
+                        : ""}
+                    </div>
                   </div>
                 </div>
+
+                <div>
+                  <Pricing
+                    cents={product.priceCents}
+                    country={shop.country}
+                    priceClass="text-sm font-semibold"
+                  />
+                  <p class="text-muted-foreground text-xs">{product.stock} left</p>
+                </div>
+
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger
+                    class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
+                  >
+                    <MoreVerticalIcon class="text-muted-foreground size-4" />
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end">
+                    <DropdownMenu.Item>
+                      {#snippet child()}
+                        <a
+                          class={buttonVariants({
+                            variant: "ghost",
+                            class: "w-full justify-start",
+                          })}
+                          href={`/${params.slug}/admin/products/${product.id}/edit`}
+                        >
+                          <PencilIcon class="mr-2 size-4" />
+                          Edit
+                        </a>
+                      {/snippet}
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item class="text-destructive">
+                      <Trash2Icon class="mr-2 size-4" />
+                      Delete
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
               </div>
-
-              <div>
-                <Pricing
-                  cents={product.priceCents}
-                  country={shop.country}
-                  priceClass="text-sm font-semibold"
-                />
-                <p class="text-muted-foreground text-xs">{product.stock} left</p>
-              </div>
-
-              <DropdownMenu.Root>
-                <DropdownMenu.Trigger
-                  class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
-                >
-                  <MoreVerticalIcon class="text-muted-foreground size-4" />
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="end">
-                  <DropdownMenu.Item>
-                    {#snippet child()}
-                      <a
-                        class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-                        href={`/${params.slug}/admin/products/${product.id}/edit`}
-                      >
-                        <PencilIcon class="mr-2 size-4" />
-                        Edit
-                      </a>
-                    {/snippet}
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Item class="text-destructive">
-                    <Trash2Icon class="mr-2 size-4" />
-                    Delete
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
-            </div>
-          </Card.Content>
-        </Card.Root>
-      {/each}
-    </div>
-
-    {#if products.hasNextPage}
-      <div class="mt-4 flex justify-center">
-        <Button
-          variant="outline"
-          onclick={() => products.fetchNextPage()}
-          disabled={products.isFetchingNextPage}
-        >
-          {#if products.isFetchingNextPage}
-            <Loader2Icon class="mr-2 size-4 animate-spin" />
-            Loading...
-          {:else}
-            Load More
-          {/if}
-        </Button>
+            </Card.Content>
+          </Card.Root>
+        {/each}
       </div>
+
+      {#if products.hasNextPage}
+        <div class="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            onclick={() => products.fetchNextPage()}
+            disabled={products.isFetchingNextPage}
+          >
+            {#if products.isFetchingNextPage}
+              <Loader2Icon class="mr-2 size-4 animate-spin" />
+              Loading...
+            {:else}
+              Load More
+            {/if}
+          </Button>
+        </div>
+      {/if}
     {/if}
-  {/if}
+  </section>
 </div>

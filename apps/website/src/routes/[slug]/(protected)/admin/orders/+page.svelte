@@ -191,100 +191,102 @@
     />
   </div>
 
-  <FilterBar.Root {hasFilters} onReset={resetFilters}>
-    <FilterBar.Search
-      placeholder="Search orders, customers..."
-      value={searchParams.search}
-      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-    />
+  <section class="mt-4 space-y-6">
+    <FilterBar.Root {hasFilters} onReset={resetFilters}>
+      <FilterBar.Search
+        placeholder="Search orders, customers..."
+        value={searchParams.search}
+        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+      />
 
-    <FilterBar.DatePicker value={dateValue} onValueChange={handleDateRangeChange} />
+      <FilterBar.DatePicker value={dateValue} onValueChange={handleDateRangeChange} />
 
-    <FilterBar.Reset />
-  </FilterBar.Root>
+      <FilterBar.Reset />
+    </FilterBar.Root>
 
-  <div class="flex flex-col gap-3">
-    {#if orders.isLoading}
-      <div class="flex items-center justify-center py-12">
-        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-      </div>
-    {:else if orders.isError}
-      <div class="flex items-center justify-center py-12">
-        <p class="text-red-500">Failed to load orders</p>
-      </div>
-    {:else if allOrders.length === 0}
-      <div class="flex flex-col items-center justify-center py-16 text-center">
-        <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
-          <ShoppingBagIcon class="text-muted-foreground size-8" />
+    <div class="flex flex-col gap-3">
+      {#if orders.isLoading}
+        <div class="flex items-center justify-center py-12">
+          <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
         </div>
-        <h3 class="text-lg font-semibold">No orders found</h3>
-        <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters
-            ? "Try adjusting your search or date filters"
-            : "Orders will appear here when customers make purchases"}
-        </p>
-      </div>
-    {:else}
-      <div class="flex flex-col gap-3">
-        {#each allOrders as order (order.id)}
-          <Card.Root
-            class="group hover:border-primary/30 cursor-pointer overflow-hidden py-0 transition-all duration-200 hover:shadow-md"
-            onclick={() => openOrderDetails(order)}
-          >
-            <div class="flex items-center gap-4 p-4">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold">
-                    {formatOrderId(order.id)}
-                  </span>
-                </div>
-                <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-                  <CalendarIcon class="size-3" />
-                  {formatDate(order.createdAt, true)}
-                </div>
-              </div>
-
-              <div class="hidden min-w-0 flex-1 md:block">
-                <p class="truncate text-sm font-medium">
-                  {order.customerName ?? "In-store Purchase"}
-                </p>
-                <p class="text-muted-foreground truncate text-xs">{order.customerPhone ?? "—"}</p>
-              </div>
-
-              <div class="hidden text-center md:block">
-                <p class="text-sm font-medium">{order.itemsCount}</p>
-                <p class="text-muted-foreground text-xs">items</p>
-              </div>
-
-              <div class="text-right">
-                <p class="text-sm font-semibold">
-                  <Pricing cents={order.totalCents} country={shop.country} />
-                </p>
-                <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
-              </div>
-            </div>
-          </Card.Root>
-        {/each}
-      </div>
-
-      {#if orders.hasNextPage}
-        <div class="mt-4 flex justify-center">
-          <Button
-            variant="outline"
-            onclick={() => orders.fetchNextPage()}
-            disabled={orders.isFetchingNextPage}
-          >
-            {#if orders.isFetchingNextPage}
-              <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
-            {:else}
-              Load More
-            {/if}
-          </Button>
+      {:else if orders.isError}
+        <div class="flex items-center justify-center py-12">
+          <p class="text-red-500">Failed to load orders</p>
         </div>
+      {:else if allOrders.length === 0}
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+          <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
+            <ShoppingBagIcon class="text-muted-foreground size-8" />
+          </div>
+          <h3 class="text-lg font-semibold">No orders found</h3>
+          <p class="text-muted-foreground max-w-sm text-sm">
+            {hasFilters
+              ? "Try adjusting your search or date filters"
+              : "Orders will appear here when customers make purchases"}
+          </p>
+        </div>
+      {:else}
+        <div class="flex flex-col gap-3">
+          {#each allOrders as order (order.id)}
+            <Card.Root
+              class="group hover:border-primary/30 cursor-pointer overflow-hidden py-0 transition-all duration-200 hover:shadow-md"
+              onclick={() => openOrderDetails(order)}
+            >
+              <div class="flex items-center gap-4 p-4">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold">
+                      {formatOrderId(order.id)}
+                    </span>
+                  </div>
+                  <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+                    <CalendarIcon class="size-3" />
+                    {formatDate(order.createdAt, true)}
+                  </div>
+                </div>
+
+                <div class="hidden min-w-0 flex-1 md:block">
+                  <p class="truncate text-sm font-medium">
+                    {order.customerName ?? "In-store Purchase"}
+                  </p>
+                  <p class="text-muted-foreground truncate text-xs">{order.customerPhone ?? "—"}</p>
+                </div>
+
+                <div class="hidden text-center md:block">
+                  <p class="text-sm font-medium">{order.itemsCount}</p>
+                  <p class="text-muted-foreground text-xs">items</p>
+                </div>
+
+                <div class="text-right">
+                  <p class="text-sm font-semibold">
+                    <Pricing cents={order.totalCents} country={shop.country} />
+                  </p>
+                  <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
+                </div>
+              </div>
+            </Card.Root>
+          {/each}
+        </div>
+
+        {#if orders.hasNextPage}
+          <div class="mt-4 flex justify-center">
+            <Button
+              variant="outline"
+              onclick={() => orders.fetchNextPage()}
+              disabled={orders.isFetchingNextPage}
+            >
+              {#if orders.isFetchingNextPage}
+                <Loader2Icon class="mr-2 size-4 animate-spin" />
+                Loading...
+              {:else}
+                Load More
+              {/if}
+            </Button>
+          </div>
+        {/if}
       {/if}
-    {/if}
-  </div>
+    </div>
+  </section>
 </div>
 
 <Dialog.Root bind:open={isDetailsOpen}>

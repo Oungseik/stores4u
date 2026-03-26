@@ -80,7 +80,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/${shop.slug}/admin` },
@@ -150,53 +150,55 @@
     />
   </div>
 
-  <!-- Filters -->
-  <FilterBar.Root {hasFilters} onReset={resetFilters}>
-    <FilterBar.Search
-      placeholder="Search invoices, suppliers..."
-      value={searchParams.search}
-      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-    />
-    <FilterBar.Dropdown
-      items={statusOptions}
-      value={searchParams.status === "" ? null : searchParams.status}
-      onValueChange={(status: PurchaseInvoiceStatus | null) =>
-        status ? searchParams.update({ status }) : undefined}
-      placeholder="All Statuses"
-      label="Filter by Status"
-    />
-    <FilterBar.Reset />
-  </FilterBar.Root>
+  <section class="mt-4 space-y-6">
+    <!-- Filters -->
+    <FilterBar.Root {hasFilters} onReset={resetFilters}>
+      <FilterBar.Search
+        placeholder="Search invoices, suppliers..."
+        value={searchParams.search}
+        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+      />
+      <FilterBar.Dropdown
+        items={statusOptions}
+        value={searchParams.status === "" ? null : searchParams.status}
+        onValueChange={(status: PurchaseInvoiceStatus | null) =>
+          status ? searchParams.update({ status }) : undefined}
+        placeholder="All Statuses"
+        label="Filter by Status"
+      />
+      <FilterBar.Reset />
+    </FilterBar.Root>
 
-  {#if purchaseInvoices.isLoading}
-    <div class="flex items-center justify-center py-12">
-      <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-    </div>
-  {:else if purchaseInvoices.isError}
-    <div class="flex items-center justify-center py-12">
-      <p class="text-red-500">Failed to load invoices</p>
-    </div>
-  {:else}
-    <!-- Invoices Table -->
-    <DataTable {columns} data={allPurchaseInvoices} loading={false} />
-
-    {#if purchaseInvoices.hasNextPage}
-      <div class="mt-4 flex justify-center">
-        <Button
-          variant="outline"
-          onclick={() => purchaseInvoices.fetchNextPage()}
-          disabled={purchaseInvoices.isFetchingNextPage}
-        >
-          {#if purchaseInvoices.isFetchingNextPage}
-            <Loader2Icon class="mr-2 size-4 animate-spin" />
-            Loading...
-          {:else}
-            Load More
-          {/if}
-        </Button>
+    {#if purchaseInvoices.isLoading}
+      <div class="flex items-center justify-center py-12">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
+    {:else if purchaseInvoices.isError}
+      <div class="flex items-center justify-center py-12">
+        <p class="text-red-500">Failed to load invoices</p>
+      </div>
+    {:else}
+      <!-- Invoices Table -->
+      <DataTable {columns} data={allPurchaseInvoices} loading={false} />
+
+      {#if purchaseInvoices.hasNextPage}
+        <div class="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            onclick={() => purchaseInvoices.fetchNextPage()}
+            disabled={purchaseInvoices.isFetchingNextPage}
+          >
+            {#if purchaseInvoices.isFetchingNextPage}
+              <Loader2Icon class="mr-2 size-4 animate-spin" />
+              Loading...
+            {:else}
+              Load More
+            {/if}
+          </Button>
+        </div>
+      {/if}
     {/if}
-  {/if}
+  </section>
 </div>
 
 <Dialog.Root bind:open={isDetailsOpen}>

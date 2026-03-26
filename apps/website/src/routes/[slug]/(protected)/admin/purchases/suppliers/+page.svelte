@@ -118,7 +118,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/${shop.slug}/admin` },
@@ -186,150 +186,154 @@
     />
   </div>
 
-  <FilterBar.Root {hasFilters} onReset={resetFilters}>
-    <FilterBar.Search
-      placeholder="Search suppliers by name, contact, or email..."
-      value={searchParams.search}
-      oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-    />
-    <FilterBar.Reset />
-  </FilterBar.Root>
+  <section class="mt-4 space-y-6">
+    <FilterBar.Root {hasFilters} onReset={resetFilters}>
+      <FilterBar.Search
+        placeholder="Search suppliers by name, contact, or email..."
+        value={searchParams.search}
+        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+      />
+      <FilterBar.Reset />
+    </FilterBar.Root>
 
-  {#if suppliers.isLoading}
-    <div class="flex items-center justify-center py-12">
-      <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-    </div>
-  {:else if suppliers.isError}
-    <div class="flex items-center justify-center py-12">
-      <p class="text-red-500">Failed to load suppliers</p>
-    </div>
-  {:else if allSuppliers.length === 0}
-    <div class="flex flex-col items-center justify-center py-12 text-center">
-      <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
-        <Building2Icon class="text-muted-foreground size-8" />
+    {#if suppliers.isLoading}
+      <div class="flex items-center justify-center py-12">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
-      <h3 class="text-lg font-semibold">No suppliers found</h3>
-      <p class="text-muted-foreground max-w-sm text-sm">
-        {hasFilters ? "Try adjusting your search terms" : "Add your first supplier to get started"}
-      </p>
-      {#if !hasFilters}
-        <Button class="mt-4" onclick={() => (isAddOpen = true)}>
-          <PlusIcon class="size-4" />
-          Add Supplier
-        </Button>
-      {/if}
-    </div>
-  {:else}
-    <!-- Suppliers Grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {#each allSuppliers as supplier (supplier.id)}
-        <Card.Root class="group transition-all duration-200 hover:shadow-md">
-          <Card.Header class="pb-3">
-            <div class="flex items-start justify-between">
-              <div class="flex items-center gap-3">
-                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-                  <Building2Icon class="text-primary size-5" />
+    {:else if suppliers.isError}
+      <div class="flex items-center justify-center py-12">
+        <p class="text-red-500">Failed to load suppliers</p>
+      </div>
+    {:else if allSuppliers.length === 0}
+      <div class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
+          <Building2Icon class="text-muted-foreground size-8" />
+        </div>
+        <h3 class="text-lg font-semibold">No suppliers found</h3>
+        <p class="text-muted-foreground max-w-sm text-sm">
+          {hasFilters
+            ? "Try adjusting your search terms"
+            : "Add your first supplier to get started"}
+        </p>
+        {#if !hasFilters}
+          <Button class="mt-4" onclick={() => (isAddOpen = true)}>
+            <PlusIcon class="size-4" />
+            Add Supplier
+          </Button>
+        {/if}
+      </div>
+    {:else}
+      <!-- Suppliers Grid -->
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {#each allSuppliers as supplier (supplier.id)}
+          <Card.Root class="group transition-all duration-200 hover:shadow-md">
+            <Card.Header class="pb-3">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                    <Building2Icon class="text-primary size-5" />
+                  </div>
+                  <div>
+                    <Card.Title class="text-base">{supplier.name}</Card.Title>
+                    {#if supplier.contactName}
+                      <Card.Description class="flex items-center gap-1">
+                        <UserIcon class="size-3" />
+                        {supplier.contactName}
+                      </Card.Description>
+                    {/if}
+                  </div>
                 </div>
-                <div>
-                  <Card.Title class="text-base">{supplier.name}</Card.Title>
-                  {#if supplier.contactName}
-                    <Card.Description class="flex items-center gap-1">
-                      <UserIcon class="size-3" />
-                      {supplier.contactName}
-                    </Card.Description>
-                  {/if}
-                </div>
-              </div>
-              <DropdownMenu.Root>
-                <DropdownMenu.Trigger
-                  class={buttonVariants({ variant: "ghost", size: "icon" }) +
-                    " size-8 opacity-0 group-hover:opacity-100"}
-                >
-                  <MoreVerticalIcon class="size-4" />
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="end">
-                  <DropdownMenu.Item onclick={() => viewSupplier(supplier)}>
-                    <EyeIcon class="size-4" />
-                    View Details
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item onclick={() => editSupplier(supplier)}>
-                    <PencilIcon class="size-4" />
-                    Edit
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Item
-                    class="text-red-600"
-                    onclick={() => deleteSupplier(supplier.id)}
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger
+                    class={buttonVariants({ variant: "ghost", size: "icon" }) +
+                      " size-8 opacity-0 group-hover:opacity-100"}
                   >
-                    <Trash2Icon class="size-4" />
-                    Delete
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
-            </div>
-          </Card.Header>
-          <Card.Content class="space-y-3">
-            <div class="space-y-1 text-sm">
-              {#if supplier.email}
-                <div class="text-muted-foreground flex items-center gap-2">
-                  <MailIcon class="size-3" />
-                  <span class="truncate">{supplier.email}</span>
+                    <MoreVerticalIcon class="size-4" />
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content align="end">
+                    <DropdownMenu.Item onclick={() => viewSupplier(supplier)}>
+                      <EyeIcon class="size-4" />
+                      View Details
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item onclick={() => editSupplier(supplier)}>
+                      <PencilIcon class="size-4" />
+                      Edit
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item
+                      class="text-red-600"
+                      onclick={() => deleteSupplier(supplier.id)}
+                    >
+                      <Trash2Icon class="size-4" />
+                      Delete
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </div>
+            </Card.Header>
+            <Card.Content class="space-y-3">
+              <div class="space-y-1 text-sm">
+                {#if supplier.email}
+                  <div class="text-muted-foreground flex items-center gap-2">
+                    <MailIcon class="size-3" />
+                    <span class="truncate">{supplier.email}</span>
+                  </div>
+                {/if}
+                {#if supplier.phone}
+                  <div class="text-muted-foreground flex items-center gap-2">
+                    <PhoneIcon class="size-3" />
+                    <span>{supplier.phone}</span>
+                  </div>
+                {/if}
+              </div>
+
+              <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
+                <div>
+                  <p class="text-muted-foreground text-xs">Total Purchases</p>
+                  <p class="font-semibold">
+                    <Pricing cents={supplier.totalPurchases} country={shop.country} />
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-muted-foreground text-xs">Invoices</p>
+                  <p class="font-semibold">{supplier.purchaseInvoicesCount}</p>
+                </div>
+              </div>
+
+              {#if supplier.lastPurchase}
+                <div class="text-muted-foreground flex items-center gap-2 text-xs">
+                  <ReceiptIcon class="size-3" />
+                  Last purchase: {formatDate(supplier.lastPurchase)}
                 </div>
               {/if}
-              {#if supplier.phone}
-                <div class="text-muted-foreground flex items-center gap-2">
-                  <PhoneIcon class="size-3" />
-                  <span>{supplier.phone}</span>
-                </div>
-              {/if}
-            </div>
-
-            <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
-              <div>
-                <p class="text-muted-foreground text-xs">Total Purchases</p>
-                <p class="font-semibold">
-                  <Pricing cents={supplier.totalPurchases} country={shop.country} />
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-muted-foreground text-xs">Invoices</p>
-                <p class="font-semibold">{supplier.purchaseInvoicesCount}</p>
-              </div>
-            </div>
-
-            {#if supplier.lastPurchase}
-              <div class="text-muted-foreground flex items-center gap-2 text-xs">
-                <ReceiptIcon class="size-3" />
-                Last purchase: {formatDate(supplier.lastPurchase)}
-              </div>
-            {/if}
-          </Card.Content>
-          <Card.Footer class="pt-0">
-            <Button variant="outline" class="w-full" onclick={() => viewSupplier(supplier)}>
-              View Details
-            </Button>
-          </Card.Footer>
-        </Card.Root>
-      {/each}
-    </div>
-
-    {#if suppliers.hasNextPage}
-      <div class="mt-4 flex justify-center">
-        <Button
-          variant="outline"
-          onclick={() => suppliers.fetchNextPage()}
-          disabled={suppliers.isFetchingNextPage}
-        >
-          {#if suppliers.isFetchingNextPage}
-            <Loader2Icon class="mr-2 size-4 animate-spin" />
-            Loading...
-          {:else}
-            Load More
-          {/if}
-        </Button>
+            </Card.Content>
+            <Card.Footer class="pt-0">
+              <Button variant="outline" class="w-full" onclick={() => viewSupplier(supplier)}>
+                View Details
+              </Button>
+            </Card.Footer>
+          </Card.Root>
+        {/each}
       </div>
+
+      {#if suppliers.hasNextPage}
+        <div class="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            onclick={() => suppliers.fetchNextPage()}
+            disabled={suppliers.isFetchingNextPage}
+          >
+            {#if suppliers.isFetchingNextPage}
+              <Loader2Icon class="mr-2 size-4 animate-spin" />
+              Loading...
+            {:else}
+              Load More
+            {/if}
+          </Button>
+        </div>
+      {/if}
     {/if}
-  {/if}
+  </section>
 </div>
 
 <!-- View Supplier Dialog -->
