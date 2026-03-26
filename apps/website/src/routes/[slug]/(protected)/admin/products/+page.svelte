@@ -16,6 +16,7 @@
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
+  import { goto } from "$app/navigation";
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
@@ -134,7 +135,12 @@
         <p class="text-muted-foreground">No products found</p>
       </div>
     {:else if searchParams.view === "table"}
-      <DataTable {columns} data={allProducts} loading={false} />
+      <DataTable
+        {columns}
+        data={allProducts}
+        loading={false}
+        onRowClick={(product) => goto(`/${params.slug}/admin/products/${product.id}`)}
+      />
 
       {#if products.hasNextPage}
         <div class="mt-4 flex justify-center">
@@ -158,29 +164,34 @@
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
               <div class="hover:bg-muted/50 flex w-full items-center gap-2.5 px-3 py-2">
-                <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
-                  <PackageIcon class="text-muted-foreground size-4" />
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div>
-                    <p class="truncate text-sm font-medium">{product.name}</p>
+                <a
+                  href={`/${params.slug}/admin/products/${product.id}`}
+                  class="flex min-w-0 flex-1 items-center gap-2.5"
+                >
+                  <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
+                    <PackageIcon class="text-muted-foreground size-4" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div>
+                      <p class="truncate text-sm font-medium">{product.name}</p>
 
-                    <div class="text-muted-foreground text-xs">
-                      {product.sku}{product.categories?.length > 0
-                        ? ` • ${product.categories[0]}`
-                        : ""}
+                      <div class="text-muted-foreground text-xs">
+                        {product.sku}{product.categories?.length > 0
+                          ? ` • ${product.categories[0]}`
+                          : ""}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <Pricing
-                    cents={product.priceCents}
-                    country={shop.country}
-                    priceClass="text-sm font-semibold"
-                  />
-                  <p class="text-muted-foreground text-xs">{product.stock} left</p>
-                </div>
+                  <div>
+                    <Pricing
+                      cents={product.priceCents}
+                      country={shop.country}
+                      priceClass="text-sm font-semibold"
+                    />
+                    <p class="text-muted-foreground text-xs">{product.stock} left</p>
+                  </div>
+                </a>
 
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger

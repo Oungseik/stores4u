@@ -13,6 +13,7 @@
     data: TData[];
     border?: boolean;
     rowSelection?: RowSelectionState;
+    onRowClick?: (row: TData) => void;
   };
 
   let {
@@ -21,6 +22,7 @@
     loading,
     border = true,
     rowSelection = $bindable({}),
+    onRowClick,
   }: DataTableProps<TData, TValue> = $props();
 
   const table = $derived(
@@ -67,7 +69,11 @@
       </Table.Header>
       <Table.Body>
         {#each table.getRowModel().rows as row (row.id)}
-          <Table.Row data-state={row.getIsSelected() && "selected"}>
+          <Table.Row
+            data-state={row.getIsSelected() && "selected"}
+            class={onRowClick && "cursor-pointer"}
+            onclick={() => onRowClick?.(row.original)}
+          >
             {#each row.getVisibleCells() as cell (cell.id)}
               <Table.Cell>
                 <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
