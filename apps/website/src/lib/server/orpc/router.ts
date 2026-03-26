@@ -6,6 +6,7 @@ import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadHandler } from "./handlers/images/upload";
+import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";

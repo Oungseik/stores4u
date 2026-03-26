@@ -6,12 +6,12 @@ import { getShopDb } from "$lib/server/shop_db";
 const input = z
   .object({
     slug: z.string().min(1).max(100),
+    id: z.string().optional(),
     barcode: z.string().optional(),
-    name: z.string().optional(),
     sku: z.string().optional(),
   })
-  .refine((data) => data.barcode || data.name || data.sku, {
-    message: "At least one of barcode, name, or sku is required",
+  .refine((data) => data.id || data.barcode || data.sku, {
+    message: "At least one of id, barcode,  or sku is required",
   });
 
 export const getProductHandler = os
@@ -22,7 +22,14 @@ export const getProductHandler = os
     const shopDb = getShopDb(context.shop);
 
     const product = await shopDb.query.product.findFirst({
-      where: { barcode: input.barcode, sku: input.sku },
+      where: { id: input.id, barcode: input.barcode, sku: input.sku },
+      with: {
+        productCategories: {
+          with: {
+            category: { columns: { id: true, name: true } },
+          },
+        },
+      },
     });
 
     if (!product) {
@@ -39,6 +46,10 @@ export const getProductHandler = os
       uom: product.uom,
       priceCents: product.priceCents,
       stock: product.stock,
+      lowStockThreshold: product.lowStockThreshold,
+      categories: product.productCategories
+        .map((pc) => pc.category)
+        .filter((c): c is NonNullable<typeof c> => c !== null),
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     };
