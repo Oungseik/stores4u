@@ -6,6 +6,7 @@
   import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
+  import FolderIcon from "@lucide/svelte/icons/folder";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LinkIcon from "@lucide/svelte/icons/link";
@@ -63,11 +64,6 @@
       title: "Analytics",
       href: `/${shop.slug}/admin/analytics`,
       icon: ChartNoAxesCombinedIcon,
-    },
-    {
-      title: "Products",
-      href: `/${shop.slug}/admin/products`,
-      icon: BoxIcon,
     },
     {
       title: "Orders",
@@ -157,6 +153,50 @@
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             {/each}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+
+      <!-- Products Group -->
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>Products</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                tooltipContent="All Products"
+                isActive={isActive(`/${shop.slug}/admin/products`)}
+              >
+                {#snippet child({ props })}
+                  <a
+                    href={`/${shop.slug}/admin/products`}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
+                    <BoxIcon class="size-4" />
+                    <span>All Products</span>
+                  </a>
+                {/snippet}
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                tooltipContent="Categories"
+                isActive={isActive(`/${shop.slug}/admin/products/categories`)}
+              >
+                {#snippet child({ props })}
+                  <a
+                    href={`/${shop.slug}/admin/products/categories`}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
+                    <FolderIcon class="size-4" />
+                    <span>Categories</span>
+                  </a>
+                {/snippet}
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
