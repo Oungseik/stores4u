@@ -3,33 +3,20 @@
     id: number;
     x: number;
     y: number;
-    color: string;
     delay: number;
     duration: number;
   }
 
-  // Rainbow colors
-  const colors = [
-    "rgba(255, 182, 193, 0.2)", // Soft pink
-    "rgba(255, 200, 150, 0.2)", // Soft orange
-    "rgba(255, 255, 180, 0.2)", // Soft yellow
-    "rgba(180, 255, 200, 0.2)", // Soft mint
-    "rgba(180, 200, 255, 0.2)", // Soft sky
-    "rgba(220, 180, 255, 0.2)", // Soft lavender
-  ];
-
-  // Create dense particles across entire section
   function createParticles(count: number): Particle[] {
     const particles: Particle[] = [];
 
     for (let i = 0; i < count; i++) {
       particles.push({
         id: i,
-        x: Math.random() * 100, // Random position 0-100%
-        y: Math.random() * 100, // Random position 0-100%
-        color: colors[Math.floor(Math.random() * colors.length)],
-        delay: Math.random() * -20, // Negative delay so they start at different positions
-        duration: 8 + Math.random() * 12, // 8-20s
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        delay: Math.random() * -20,
+        duration: 8 + Math.random() * 12,
       });
     }
 
@@ -52,7 +39,6 @@
         cx={particle.x}
         cy={particle.y}
         r="0.15"
-        fill={particle.color}
         class="particle"
         style="
           animation-delay: {particle.delay}s;
@@ -70,6 +56,22 @@
     animation-iteration-count: infinite;
     will-change: transform;
   }
+
+  /* Light mode colors */
+  :root .particle:nth-child(6n+1) { fill: rgba(255, 120, 140, 0.55); }
+  :root .particle:nth-child(6n+2) { fill: rgba(255, 160, 90, 0.55); }
+  :root .particle:nth-child(6n+3) { fill: rgba(255, 220, 80, 0.55); }
+  :root .particle:nth-child(6n+4) { fill: rgba(100, 210, 140, 0.55); }
+  :root .particle:nth-child(6n+5) { fill: rgba(100, 150, 255, 0.55); }
+  :root .particle:nth-child(6n+6) { fill: rgba(180, 110, 255, 0.55); }
+
+  /* Dark mode colors */
+  :global(.dark) .particle:nth-child(6n+1) { fill: rgba(255, 182, 193, 0.2); }
+  :global(.dark) .particle:nth-child(6n+2) { fill: rgba(255, 200, 150, 0.2); }
+  :global(.dark) .particle:nth-child(6n+3) { fill: rgba(255, 255, 180, 0.2); }
+  :global(.dark) .particle:nth-child(6n+4) { fill: rgba(180, 255, 200, 0.2); }
+  :global(.dark) .particle:nth-child(6n+5) { fill: rgba(180, 200, 255, 0.2); }
+  :global(.dark) .particle:nth-child(6n+6) { fill: rgba(220, 180, 255, 0.2); }
 
   @keyframes float {
     0%,
