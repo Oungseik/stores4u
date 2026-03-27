@@ -1,7 +1,7 @@
 <script lang="ts">
+  import BokehParticles from "../BokehParticles.svelte";
   import QRScanner from "../QRScanner.svelte";
   import ScrollReveal from "../ScrollReveal.svelte";
-  import BokehParticles from "../BokehParticles.svelte";
 </script>
 
 <section id="features" class="relative px-4 py-24 sm:px-6 lg:px-8 xl:px-12">

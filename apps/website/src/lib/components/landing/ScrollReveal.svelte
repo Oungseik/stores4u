@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  
+  import { onMount } from "svelte";
+
   interface Props {
-    children: import('svelte').Snippet;
+    children: import("svelte").Snippet;
     delay?: number;
     class?: string;
   }
-  
-  let { children, delay = 0, class: className = '' }: Props = $props();
-  
+
+  let { children, delay = 0, class: className = "" }: Props = $props();
+
   let visible = $state(false);
   let element: HTMLElement;
-  
+
   onMount(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -24,13 +24,13 @@
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
-    
+
     if (element) {
       observer.observe(element);
     }
-    
+
     return () => observer.disconnect();
   });
 </script>
