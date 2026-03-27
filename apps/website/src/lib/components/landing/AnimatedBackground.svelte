@@ -43,7 +43,7 @@
 
   <!-- Floating particles -->
   <div class="absolute inset-0">
-    {#each Array(20) as _, i}
+    {#each Array(20) as _, i (i)}
       <div
         class="bg-primary/20 animate-float absolute h-1 w-1 rounded-full"
         style="

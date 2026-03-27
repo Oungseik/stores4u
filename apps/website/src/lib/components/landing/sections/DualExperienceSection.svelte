@@ -3,6 +3,44 @@
   import ScrollReveal from "../ScrollReveal.svelte";
 
   let activeView = $state<"owner" | "customer">("owner");
+
+  const ownerFeatures = [
+    {
+      title: "Inventory Management",
+      desc: "Track stock levels, receive AI-powered reorder suggestions, and manage suppliers all in one place.",
+    },
+    {
+      title: "Sales Analytics",
+      desc: "Real-time insights into your sales performance, popular products, and customer trends.",
+    },
+    {
+      title: "AI Assistant",
+      desc: "Your virtual business partner that suggests optimizations, creates content, and automates tasks.",
+    },
+    {
+      title: "Order Management",
+      desc: "Process orders, track fulfillment, and communicate with customers seamlessly.",
+    },
+  ];
+
+  const customerFeatures = [
+    {
+      title: "Quick QR Access",
+      desc: "Customers scan your store QR code to instantly browse your products—no app download required.",
+    },
+    {
+      title: "Easy Product Search",
+      desc: "Smart search helps customers find exactly what they need with filters and categories.",
+    },
+    {
+      title: "One-Tap Checkout",
+      desc: "Streamlined checkout process with saved payment methods and quick reorder options.",
+    },
+    {
+      title: "Order Tracking",
+      desc: "Customers can track their orders in real-time and receive automatic updates.",
+    },
+  ];
 </script>
 
 <section class="relative px-4 py-24 sm:px-6 lg:px-8 xl:px-12">
@@ -112,13 +150,13 @@
           </div>
 
           <!-- Right: Features list -->
-          <div class="order-1 space-y-6 lg:order-2">
+          <div class="order-1 flex flex-col gap-6 lg:order-2">
             <h3 class="text-foreground text-2xl font-bold">
               Everything you need to manage your business
             </h3>
 
-            <div class="space-y-4">
-              {#each [{ title: "Inventory Management", desc: "Track stock levels, receive AI-powered reorder suggestions, and manage suppliers all in one place." }, { title: "Sales Analytics", desc: "Real-time insights into your sales performance, popular products, and customer trends." }, { title: "AI Assistant", desc: "Your virtual business partner that suggests optimizations, creates content, and automates tasks." }, { title: "Order Management", desc: "Process orders, track fulfillment, and communicate with customers seamlessly." }] as feature}
+            <div class="flex flex-col gap-4">
+              {#each ownerFeatures as feature}
                 <div
                   class="bg-card border-border hover:border-primary/30 flex gap-4 rounded-xl border p-4 transition-colors"
                 >
@@ -151,13 +189,13 @@
       {:else}
         <div class="grid items-center gap-12 lg:grid-cols-2">
           <!-- Left: Features list -->
-          <div class="space-y-6">
+          <div class="flex flex-col gap-6">
             <h3 class="text-foreground text-2xl font-bold">
               A seamless shopping experience for your customers
             </h3>
 
-            <div class="space-y-4">
-              {#each [{ title: "Quick QR Access", desc: "Customers scan your store QR code to instantly browse your products—no app download required." }, { title: "Easy Product Search", desc: "Smart search helps customers find exactly what they need with filters and categories." }, { title: "One-Tap Checkout", desc: "Streamlined checkout process with saved payment methods and quick reorder options." }, { title: "Order Tracking", desc: "Customers can track their orders in real-time and receive automatic updates." }] as feature}
+            <div class="flex flex-col gap-4">
+              {#each customerFeatures as feature}
                 <div
                   class="bg-card border-border hover:border-primary/30 flex gap-4 rounded-xl border p-4 transition-colors"
                 >
@@ -212,7 +250,7 @@
                       class="from-chart-4 to-chart-3 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br"
                     >
                       <svg
-                        class="h-10 w-10 text-white"
+                        class="text-primary-foreground h-10 w-10"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"

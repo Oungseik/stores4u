@@ -1,18 +1,9 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   let scrolled = $state(false);
   let mobileMenuOpen = $state(false);
-
-  onMount(() => {
-    const handleScroll = () => {
-      scrolled = window.scrollY > 50;
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  });
 </script>
+
+<svelte:window onscroll={() => (scrolled = window.scrollY > 50)} />
 
 <nav
   class={[
@@ -21,7 +12,7 @@
     !scrolled && "py-4",
   ]}
 >
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-12">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-0">
     <div class="flex items-center justify-between">
       <!-- Logo -->
       <a href="/" class="flex items-center gap-2">

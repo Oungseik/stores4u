@@ -235,7 +235,7 @@
               Description: Chat interface showing AI generating content for a product post
               Style: Chat bubble interface with AI avatar and generated text
             -->
-            <div class="space-y-3">
+            <div class="flex flex-col gap-3">
               <div class="flex items-start gap-3">
                 <div class="flex-1">
                   <div
@@ -340,9 +340,9 @@
             </div>
             <!-- TikTok -->
             <div
-              class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl bg-black/10 transition-transform hover:scale-110 dark:bg-white/10"
+              class="bg-muted text-foreground flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl transition-transform hover:scale-110"
             >
-              <svg class="text-zinc-700 h-6 w-6 dark:text-zinc-300" viewBox="0 0 24 24" fill="currentColor">
+              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                 <path d={siTiktok.path} />
               </svg>
             </div>

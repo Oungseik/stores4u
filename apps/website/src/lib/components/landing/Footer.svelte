@@ -63,7 +63,7 @@
       <!-- Product -->
       <div>
         <h3 class="text-foreground mb-4 font-semibold">Product</h3>
-        <ul class="space-y-3">
+        <ul class="flex flex-col gap-3">
           <li>
             <a
               href="#features"
@@ -98,7 +98,7 @@
       <!-- Resources -->
       <div>
         <h3 class="text-foreground mb-4 font-semibold">Resources</h3>
-        <ul class="space-y-3">
+        <ul class="flex flex-col gap-3">
           <li>
             <a
               href="#"
@@ -132,7 +132,7 @@
       <!-- Company -->
       <div>
         <h3 class="text-foreground mb-4 font-semibold">Company</h3>
-        <ul class="space-y-3">
+        <ul class="flex flex-col gap-3">
           <li>
             <a
               href="#"
