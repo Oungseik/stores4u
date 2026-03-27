@@ -61,15 +61,15 @@
       icon: ScanBarcodeIcon,
     },
     {
-      title: "Analytics",
-      href: `/${shop.slug}/admin/analytics`,
-      icon: ChartNoAxesCombinedIcon,
-    },
-    {
       title: "Orders",
       href: `/${shop.slug}/admin/orders`,
       icon: ClipboardListIcon,
     },
+    // {
+    //   title: "Analytics",
+    //   href: `/${shop.slug}/admin/analytics`,
+    //   icon: ChartNoAxesCombinedIcon,
+    // },
     {
       title: "Integrations",
       href: `/${shop.slug}/admin/integrations`,
