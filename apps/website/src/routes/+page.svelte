@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LandingPage from '$lib/components/landing/LandingPage.svelte';
 </script>
 
-<h1>Hello</h1>
+<LandingPage />
