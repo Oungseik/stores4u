@@ -82,3 +82,9 @@ export function extractObjectKey(objectPath: string): string | null {
       : null;
   }
 }
+
+export async function getObject(key: string): Promise<Buffer> {
+  const file = storage.file(key);
+  const arrayBuffer = await file.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+}

@@ -18,6 +18,7 @@
   const invoiceQuery = createQuery(() =>
     orpc.purchaseInvoices.get.queryOptions({
       input: { slug: params.slug, invoiceId: params.invoiceId },
+      enabled: !!params.invoiceId,
     })
   );
 </script>

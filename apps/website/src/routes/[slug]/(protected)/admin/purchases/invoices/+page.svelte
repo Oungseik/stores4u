@@ -91,11 +91,11 @@
     {#snippet actions()}
       <div class="flex items-center justify-between gap-2">
         <Button variant="outline">
-          <DownloadIcon class="mr-2 size-4" />
+          <DownloadIcon class="size-4" />
           Export
         </Button>
         <a href={`/${shop.slug}/admin/purchases/upload`} class={buttonVariants()}>
-          <UploadIcon class="mr-2 size-4" />
+          <UploadIcon class="size-4" />
           Upload Invoice
         </a>
       </div>

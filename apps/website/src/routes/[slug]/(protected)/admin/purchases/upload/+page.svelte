@@ -7,14 +7,12 @@
   import ReviewIcon from "@lucide/svelte/icons/search";
   import UploadIcon from "@lucide/svelte/icons/upload";
   import { Badge } from "@repo/ui/badge";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import { Progress } from "@repo/ui/progress";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
-  import { goto } from "$app/navigation";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { formatDate } from "$lib/utils";
@@ -27,9 +25,8 @@
 
   let isDragging = $state(false);
   let isUploading = $state(false);
-  let uploadProgress = $state(0);
+  let fileInput: HTMLInputElement | undefined = $state();
   let processingFileId = $state<string | null>(null);
-  let processingProgress = $state(0);
 
   const invoiceFiles = createInfiniteQuery(() =>
     orpc.purchaseInvoices.listFiles.infiniteOptions({
@@ -54,6 +51,20 @@
       },
       onError: (error) => {
         toast.error(error.message || "Failed to upload file");
+      },
+    })
+  );
+
+  const processMutation = createMutation(() =>
+    orpc.purchaseInvoices.processFile.mutationOptions({
+      onSuccess: () => {
+        toast.success("Invoice processed successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        processingFileId = null;
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to process invoice");
+        processingFileId = null;
       },
     })
   );
@@ -99,32 +110,21 @@
     }
 
     isUploading = true;
-    uploadProgress = 0;
-
-    const progressInterval = setInterval(() => {
-      if (uploadProgress < 90) {
-        uploadProgress += 10;
-      }
-    }, 100);
 
     try {
       await uploadMutation.mutateAsync({ slug: params.slug, file });
-      uploadProgress = 100;
     } finally {
-      clearInterval(progressInterval);
       isUploading = false;
-      uploadProgress = 0;
     }
   }
 
-  async function handleProcessFile() {
-    // TODO process file
-  }
+  async function handleProcessFile(fileId: string) {
+    processingFileId = fileId;
 
-  // TODO create supplier and handle process is two step process
-  // TODO don't use goto use anchor tag
-  function handleReviewFile(fileId: string) {
-    goto(`/${shop.slug}/admin/purchases/review?fileId=${fileId}`);
+    try {
+      await processMutation.mutateAsync({ slug: params.slug, fileId });
+    } finally {
+    }
   }
 
   function getStatusBadgeVariant(status: string) {
@@ -195,7 +195,7 @@
         ondrop={handleDrop}
         role="button"
         tabindex="0"
-        onkeydown={(e) => e.key === "Enter" && document.getElementById("file-input")?.click()}
+        onkeydown={(e) => e.key === "Enter" && fileInput?.click()}
       >
         <div class="flex flex-col items-center justify-center gap-4 text-center">
           {#if isUploading}
@@ -206,9 +206,6 @@
               <div>
                 <p class="text-lg font-semibold">Uploading...</p>
                 <p class="text-muted-foreground mt-1 text-sm">Please wait</p>
-              </div>
-              <div class="w-full max-w-xs">
-                <Progress value={uploadProgress} class="h-2" />
               </div>
             </div>
           {:else}
@@ -224,13 +221,13 @@
               <p>Maximum file size: 10MB</p>
             </div>
             <input
-              id="file-input"
+              bind:this={fileInput}
               type="file"
               accept=".jpg,.jpeg,.png,.pdf"
               class="hidden"
               onchange={handleFileInput}
             />
-            <Button onclick={() => document.getElementById("file-input")?.click()}>
+            <Button onclick={() => fileInput?.click()}>
               <UploadIcon class="mr-2 size-4" />
               Select File
             </Button>
@@ -338,20 +335,23 @@
 
                 <div class="flex shrink-0 gap-2">
                   {#if processingFileId === file.id}
-                    <div class="flex items-center gap-2">
-                      <Progress value={processingProgress} class="h-2 w-20" />
-                      <span class="text-muted-foreground text-xs">{processingProgress}%</span>
+                    <div class="text-muted-foreground flex items-center gap-2">
+                      <Loader2Icon class="size-4 animate-spin" />
+                      <span class="text-sm">Processing...</span>
                     </div>
                   {:else if file.status === "UPLOADED"}
-                    <Button variant="outline" size="sm" onclick={handleProcessFile}>
+                    <Button variant="outline" size="sm" onclick={() => handleProcessFile(file.id)}>
                       <PlayIcon class="mr-1 size-4" />
                       Process
                     </Button>
                   {:else if file.status === "PROCESSED"}
-                    <Button variant="default" size="sm" onclick={() => handleReviewFile(file.id)}>
-                      <ReviewIcon class="mr-1 size-4" />
+                    <a
+                      href={`/${shop.slug}/admin/purchases/review?fileId=${file.id}`}
+                      class={buttonVariants({ size: "sm" })}
+                    >
+                      <ReviewIcon class="size-4" />
                       Review
-                    </Button>
+                    </a>
                   {:else if file.status === "PROCESSING"}
                     <div class="text-muted-foreground flex items-center gap-2">
                       <Loader2Icon class="size-4 animate-spin" />
