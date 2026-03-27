@@ -238,9 +238,7 @@
             <div class="flex flex-col gap-3">
               <div class="flex items-start gap-3">
                 <div class="flex-1">
-                  <div
-                    class="bg-card border-border rounded-lg rounded-tr-none border p-3"
-                  >
+                  <div class="bg-card border-border rounded-lg rounded-tr-none border p-3">
                     <p class="text-muted-foreground text-sm">
                       Create a promotional post for my new wireless headphones
                     </p>
@@ -283,7 +281,9 @@
                   </svg>
                 </div>
                 <div class="flex-1">
-                  <div class="bg-primary/10 border-primary/20 rounded-lg rounded-tl-none border p-3">
+                  <div
+                    class="bg-primary/10 border-primary/20 rounded-lg rounded-tl-none border p-3"
+                  >
                     <p class="text-foreground animate-pulse text-sm">
                       🎧 Just arrived! Experience crystal-clear sound with our new Wireless Pro
                       headphones. 30-hour battery, active noise cancellation, and premium comfort... <span
