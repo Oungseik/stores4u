@@ -7,9 +7,10 @@
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { TagsInput } from "@repo/ui/tags-input";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
-  import { createMutation, useQueryClient } from "@tanstack/svelte-query";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
   import z from "zod";
 
@@ -25,6 +26,7 @@
     description: string | null;
     image: string | null;
     barcode: string | null;
+    categoryIds?: string[];
   }
 
   interface Props {
@@ -37,6 +39,12 @@
   let { slug, initialData, onSuccess, onCancel }: Props = $props();
 
   const queryClient = useQueryClient();
+
+  const categoriesQuery = createQuery(() =>
+    orpc.categories.list.queryOptions({
+      input: { slug, pageSize: 1000 },
+    })
+  );
 
   const createProduct = createMutation(() =>
     orpc.products.create.mutationOptions({
@@ -80,6 +88,13 @@
   const isEditMode = !!initialData;
 
   // svelte-ignore state_referenced_locally
+  const categoryNames = $derived(
+    initialData?.categoryIds
+      ?.map((id) => categoriesQuery.data?.items.find((c) => c.id === id)?.name)
+      .filter((name): name is string => name !== undefined) ?? []
+  );
+
+  // svelte-ignore state_referenced_locally
   const defaultValues = {
     name: initialData?.name ?? "",
     sku: initialData?.sku ?? "",
@@ -90,6 +105,7 @@
     image: null as File | null,
     imageUrl: initialData?.image ?? "",
     barcode: initialData?.barcode ?? "",
+    categoryNames,
   };
 
   // svelte-ignore state_referenced_locally
@@ -100,6 +116,10 @@
     defaultValues,
     onSubmit: async ({ value }) => {
       const priceCents = Math.round(Number.parseFloat(value.price || "0") * 100);
+
+      const categoryIds = value.categoryNames
+        .map((name) => categoriesQuery.data?.items.find((c) => c.name === name)?.id)
+        .filter((id): id is string => id !== undefined);
 
       if (isEditMode) {
         updateProduct.mutate({
@@ -112,6 +132,7 @@
           description: value.description || null,
           image: value.imageUrl || null,
           barcode: value.barcode || null,
+          categoryIds: categoryIds.length > 0 ? categoryIds : null,
         });
       } else {
         createProduct.mutate({
@@ -123,10 +144,13 @@
           description: value.description || undefined,
           image: value.imageUrl || undefined,
           barcode: value.barcode || undefined,
+          categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
         });
       }
     },
   }));
+
+  const categorySuggestions = $derived(categoriesQuery.data?.items.map((c) => c.name) ?? []);
 
   const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"] as const;
   type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
@@ -323,6 +347,31 @@
           placeholder="Product description (optional)"
           rows={3}
         />
+      </div>
+    {/snippet}
+  </form.Field>
+
+  <form.Field name="categoryNames">
+    {#snippet children(field)}
+      <div class="space-y-2">
+        <Label>Categories</Label>
+        {#if categoriesQuery.isPending}
+          <div class="text-muted-foreground flex items-center gap-2 text-sm">
+            <Loader2Icon class="size-4 animate-spin" />
+            Loading categories...
+          </div>
+        {:else}
+          <TagsInput
+            value={field.state.value}
+            onValueChange={(value) => field.handleChange(value)}
+            suggestions={categorySuggestions}
+            restrictToSuggestions={true}
+            placeholder="Select categories..."
+          />
+          <p class="text-muted-foreground text-xs">
+            Type to search and select categories. Create categories first in the Categories page.
+          </p>
+        {/if}
       </div>
     {/snippet}
   </form.Field>

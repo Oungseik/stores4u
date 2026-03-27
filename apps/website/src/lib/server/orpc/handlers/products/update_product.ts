@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { eq, product } from "@repo/db";
+import { and, eq, product, productCategory } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -15,6 +15,7 @@ const input = z.object({
   barcode: z.string().max(100).nullable(),
   description: z.string().max(1000).nullable(),
   priceCents: z.number().int().positive(),
+  categoryIds: z.array(z.string()).nullable(),
 });
 
 export const updateProductHandler = os
@@ -56,6 +57,19 @@ export const updateProductHandler = os
       if (oldImageKey) {
         await removeImage(oldImageKey).catch(() => {});
       }
+    }
+
+    await shopDb
+      .delete(productCategory)
+      .where(eq(productCategory.productId, input.id));
+
+    if (input.categoryIds && input.categoryIds.length > 0) {
+      await shopDb.insert(productCategory).values(
+        input.categoryIds.map((categoryId) => ({
+          productId: input.id,
+          categoryId,
+        }))
+      );
     }
 
     return result;

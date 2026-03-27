@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { product } from "@repo/db";
+import { product, productCategory } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -13,6 +13,7 @@ const input = z.object({
   barcode: z.string().max(100).optional(),
   description: z.string().max(1000).optional(),
   priceCents: z.number().int().positive(),
+  categoryIds: z.array(z.string()).optional(),
 });
 
 export const createProductHandler = os
@@ -38,6 +39,15 @@ export const createProductHandler = os
     const created = inserted.at(0);
     if (!created) {
       throw new ORPCError("INTERNAL_SERVER_ERROR");
+    }
+
+    if (input.categoryIds && input.categoryIds.length > 0) {
+      await shopDb.insert(productCategory).values(
+        input.categoryIds.map((categoryId) => ({
+          productId: created.id,
+          categoryId,
+        }))
+      );
     }
 
     return created;

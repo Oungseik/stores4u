@@ -7,6 +7,13 @@ export const load: LayoutServerLoad = async ({ params }) => {
 
   const result = await shopDb.query.product.findFirst({
     where: { id: params.id },
+    with: {
+      productCategories: {
+        with: {
+          category: { columns: { id: true, name: true } },
+        },
+      },
+    },
   });
 
   if (!result) {
@@ -23,6 +30,9 @@ export const load: LayoutServerLoad = async ({ params }) => {
       description: result.description,
       image: result.image,
       barcode: result.barcode,
+      categoryIds: result.productCategories
+        .map((pc) => pc.category?.id)
+        .filter((id): id is string => id !== undefined),
     },
   };
 };
