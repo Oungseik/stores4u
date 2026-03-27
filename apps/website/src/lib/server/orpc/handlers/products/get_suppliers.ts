@@ -1,0 +1,36 @@
+import { z } from "zod";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { getShopDb } from "$lib/server/shop_db";
+
+const input = z.object({
+  slug: z.string().min(1).max(100),
+  productId: z.string().min(1),
+});
+
+export const getSuppliersHandler = os
+  .route({ method: "GET" })
+  .input(input)
+  .use(protectedShopMiddleware)
+  .handler(async ({ input, context }) => {
+    const shopDb = getShopDb(context.shop);
+
+    const productSuppliers = await shopDb.query.productSupplier.findMany({
+      where: {
+        productId: input.productId,
+      },
+      with: {
+        supplier: true,
+      },
+    });
+
+    const items = productSuppliers.map((ps) => ({
+      id: ps.supplier?.id ?? null,
+      name: ps.supplier?.name ?? null,
+      contactName: ps.supplier?.contactName ?? null,
+      phone: ps.supplier?.phone ?? null,
+      email: ps.supplier?.email ?? null,
+      isPreferred: ps.isPreferred === "1",
+    }));
+
+    return { items };
+  });

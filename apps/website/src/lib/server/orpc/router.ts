@@ -13,7 +13,10 @@ import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
 import { exportProductsCsvHandler } from "./handlers/products/export_products_csv";
+import { getInvoiceHistoryHandler } from "./handlers/products/get_invoice_history";
+import { getOrderHistoryHandler } from "./handlers/products/get_order_history";
 import { getProductHandler } from "./handlers/products/get_product";
+import { getSuppliersHandler } from "./handlers/products/get_suppliers";
 import { importProductsCsvHandler } from "./handlers/products/import_products_csv";
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
@@ -49,6 +52,9 @@ export const router = os.router({
   images: {
     upload: uploadHandler,
   },
+  inventory: {
+    listMovements: listMovementsHandler,
+  },
   purchaseInvoices: {
     create: createPurchaseInvoiceHandler,
     get: getPurchaseInvoiceHandler,
@@ -65,6 +71,9 @@ export const router = os.router({
     delete: deleteProductHandler,
     exportCsv: exportProductsCsvHandler,
     get: getProductHandler,
+    getInvoiceHistory: getInvoiceHistoryHandler,
+    getOrderHistory: getOrderHistoryHandler,
+    getSuppliers: getSuppliersHandler,
     importCsv: importProductsCsvHandler,
     list: listProductsHandler,
     update: updateProductHandler,

@@ -64,3 +64,11 @@ export const shopProductsFilterSchema = createSearchParamsSchema({
 }) as StandardSchemaV1<unknown, ShopProductFilterSchema>;
 
 export type PurchaseInvoiceStatus = "PENDING" | "VALIDATED" | "REJECTED" | "AUTO_ACCEPTED";
+
+type ProductDetailTab = {
+  tab: "overview" | "inventory" | "history";
+};
+
+export const productDetailTabSchema = createSearchParamsSchema({
+  tab: { type: "string", default: "overview" },
+}) as StandardSchemaV1<unknown, ProductDetailTab>;
