@@ -6,6 +6,8 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import UploadIcon from "@lucide/svelte/icons/upload";
   import { Button, buttonVariants } from "@repo/ui/button";
+  import * as Card from "@repo/ui/card";
+  import * as Dialog from "@repo/ui/dialog";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
@@ -26,6 +28,10 @@
   const queryClient = useQueryClient();
 
   let processingFileId = $state<string | null>(null);
+  let isUploadDialogOpen = $state(false);
+  let isDragging = $state(false);
+  let isUploading = $state(false);
+  let fileInput: HTMLInputElement | undefined = $state();
 
   const searchParams = useSearchParams(invoiceFilesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
@@ -91,9 +97,73 @@
     })
   );
 
+  const uploadMutation = createMutation(() =>
+    orpc.purchaseInvoices.uploadFile.mutationOptions({
+      onSuccess: () => {
+        toast.success("File uploaded successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        isUploadDialogOpen = false;
+        isUploading = false;
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to upload file");
+        isUploading = false;
+      },
+    })
+  );
+
   function handleProcessFile(fileId: string) {
     processingFileId = fileId;
     processMutation.mutateAsync({ slug: params.slug, fileId });
+  }
+
+  function handleDragOver(e: DragEvent) {
+    e.preventDefault();
+    isDragging = true;
+  }
+
+  function handleDragLeave(e: DragEvent) {
+    e.preventDefault();
+    isDragging = false;
+  }
+
+  function handleDrop(e: DragEvent) {
+    e.preventDefault();
+    isDragging = false;
+
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  }
+
+  function handleFileInput(e: Event) {
+    const input = e.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      handleFileUpload(input.files[0]);
+    }
+    input.value = "";
+  }
+
+  async function handleFileUpload(file: File) {
+    const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a valid image (JPG, PNG) or PDF file");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
+    isUploading = true;
+
+    try {
+      await uploadMutation.mutateAsync({ slug: params.slug, file });
+    } finally {
+      isUploading = false;
+    }
   }
 
   const columns = $derived(createColumns(params.slug, handleProcessFile, processingFileId));
@@ -109,10 +179,10 @@
   >
     {#snippet actions()}
       <div class="flex items-center justify-between gap-2">
-        <a href={`/${shop.slug}/admin/purchases/upload`} class={buttonVariants()}>
+        <Button onclick={() => (isUploadDialogOpen = true)}>
           <UploadIcon class="size-4" />
           Upload Invoice
-        </a>
+        </Button>
       </div>
     {/snippet}
   </AdminDashboardHeader>
@@ -213,3 +283,76 @@
     {/if}
   </section>
 </div>
+
+<Dialog.Root bind:open={isUploadDialogOpen}>
+  <Dialog.Content class="max-h-[90vh] max-w-lg overflow-y-auto">
+    <Dialog.Header>
+      <Dialog.Title>Upload Invoice</Dialog.Title>
+      <Dialog.Description>Upload a supplier invoice for OCR processing</Dialog.Description>
+    </Dialog.Header>
+
+    <div class="space-y-4">
+      <div
+        class="rounded-lg border-2 border-dashed p-8 transition-all duration-200 {isDragging
+          ? 'border-primary bg-primary/5'
+          : 'border-muted-foreground/25'}"
+        ondragover={handleDragOver}
+        ondragleave={handleDragLeave}
+        ondrop={handleDrop}
+        role="button"
+        tabindex="0"
+        onkeydown={(e) => e.key === "Enter" && fileInput?.click()}
+      >
+        <div class="flex flex-col items-center justify-center gap-4 text-center">
+          {#if isUploading}
+            <div class="flex flex-col items-center gap-4">
+              <div class="bg-primary/10 flex size-16 items-center justify-center rounded-full">
+                <Loader2Icon class="text-primary size-8 animate-spin" />
+              </div>
+              <div>
+                <p class="text-lg font-semibold">Uploading...</p>
+                <p class="text-muted-foreground mt-1 text-sm">Please wait</p>
+              </div>
+            </div>
+          {:else}
+            <div class="bg-primary/10 flex size-16 items-center justify-center rounded-full">
+              <UploadIcon class="text-primary size-8" />
+            </div>
+            <div>
+              <p class="text-lg font-semibold">Drop your invoice here</p>
+              <p class="text-muted-foreground mt-1 text-sm">or click to browse files</p>
+            </div>
+            <div class="text-muted-foreground text-xs">
+              <p>Supported formats: JPG, PNG, PDF</p>
+              <p>Maximum file size: 10MB</p>
+            </div>
+            <input
+              bind:this={fileInput}
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              class="hidden"
+              onchange={handleFileInput}
+            />
+            <Button onclick={() => fileInput?.click()}>
+              <UploadIcon class="mr-2 size-4" />
+              Select File
+            </Button>
+          {/if}
+        </div>
+      </div>
+
+      <Card.Root>
+        <Card.Header class="pb-2">
+          <Card.Title class="text-base">Tips for Best Results</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <ul class="text-muted-foreground list-disc space-y-1.5 pl-4 text-sm">
+            <li>Ensure the invoice is well-lit and in focus</li>
+            <li>Capture the entire invoice including header and totals</li>
+            <li>Make sure all text is clearly visible and not blurred</li>
+          </ul>
+        </Card.Content>
+      </Card.Root>
+    </div>
+  </Dialog.Content>
+</Dialog.Root>
