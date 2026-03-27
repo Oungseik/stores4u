@@ -181,7 +181,7 @@
 
             <!-- Floating stats card -->
             <div
-              class="bg-card border-border animate-float-delay absolute -bottom-6 -left-6 rounded-xl border p-4 shadow-xl"
+              class="bg-card border-border animate-float-delay absolute bottom-2 left-6 rounded-xl border p-4 shadow-xl"
             >
               <div class="flex items-center gap-3">
                 <div class="bg-chart-4/20 flex h-10 w-10 items-center justify-center rounded-lg">
@@ -208,7 +208,7 @@
 
             <!-- Floating AI card -->
             <div
-              class="bg-card border-border animate-float-slow absolute -top-4 -right-4 rounded-xl border p-4 shadow-xl"
+              class="bg-card border-border animate-float-slow absolute top-4 right-4 rounded-xl border p-4 shadow-xl"
             >
               <div class="flex items-center gap-2">
                 <div class="bg-primary/20 flex h-8 w-8 items-center justify-center rounded-full">

@@ -276,7 +276,7 @@
 
               <!-- Floating notification -->
               <div
-                class="bg-card border-border animate-float-delay absolute -top-4 -right-4 rounded-xl border p-3 shadow-xl"
+                class="bg-card border-border animate-float-delay absolute top-8 right-4 rounded-xl border p-3 shadow-xl"
               >
                 <div class="flex items-center gap-2">
                   <div class="bg-chart-4/20 flex h-8 w-8 items-center justify-center rounded-full">
