@@ -13,6 +13,7 @@ export type InvoiceFileItem = {
   fileType: string;
   size: number;
   status: string;
+  confidenceScore: number | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -36,9 +37,16 @@ export function createColumns(
       },
     },
     {
-      accessorKey: "size",
-      header: "Size",
-      cell: ({ row }) => formatFileSize(row.original.size),
+      accessorKey: "confidenceScore",
+      header: "Confidence",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const score = row.original.confidenceScore;
+        if ((status === "PROCESSED" || status === "REVIEWED") && score !== null) {
+          return `${Math.round(score * 100)}%`;
+        }
+        return "-";
+      },
     },
     {
       accessorKey: "createdAt",
@@ -81,10 +89,4 @@ export function createColumns(
       },
     },
   ];
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

@@ -22,6 +22,13 @@ export const listInvoiceFilesHandler = os
         id: input.cursor ? { lte: input.cursor } : undefined,
         status: input.status,
       },
+      with: {
+        ocrResult: {
+          columns: {
+            confidenceScore: true,
+          },
+        },
+      },
       limit: input.pageSize + 1,
       orderBy: { id: "desc" },
     });
@@ -39,6 +46,7 @@ export const listInvoiceFilesHandler = os
       fileType: file.fileType,
       size: file.size,
       status: file.status,
+      confidenceScore: file.ocrResult?.confidenceScore ?? null,
       createdAt: file.createdAt,
       updatedAt: file.updatedAt,
     }));

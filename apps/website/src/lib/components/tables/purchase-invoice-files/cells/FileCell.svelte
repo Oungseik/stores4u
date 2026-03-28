@@ -8,6 +8,10 @@
   };
 
   const { filename, fileType }: Props = $props();
+
+  const truncatedFilename = $derived(
+    filename.length > 25 ? `${filename.slice(0, 25)}...` : filename
+  );
 </script>
 
 <div class="flex items-center gap-2.5">
@@ -18,5 +22,5 @@
       <FileTextIcon class="text-primary size-4" />
     {/if}
   </div>
-  <span class="truncate font-medium">{filename}</span>
+  <span class="font-medium" title={filename}>{truncatedFilename}</span>
 </div>
