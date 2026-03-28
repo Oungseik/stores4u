@@ -218,13 +218,6 @@
                   name={field.name}
                   class="z-1"
                   placeholder="+1 (555) 123-4567"
-                  {...{
-                    /* @ts-ignore */
-                  }}
-                  onblur={field.handleBlur}
-                  {...{
-                    /* @ts-ignore */
-                  }}
                   onchange={(e) => {
                     field.handleChange(e.currentTarget.value);
                   }}

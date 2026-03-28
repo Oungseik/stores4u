@@ -452,14 +452,7 @@
                       bind:value={field.state.value}
                       name={field.name}
                       placeholder="+1 234 567 8900"
-                      {...{
-                        /** @ts-expect-error */
-                      }}
-                      onchange={(
-                        e: Event & {
-                          currentTarget: EventTarget & HTMLInputElement;
-                        }
-                      ) => {
+                      onchange={(e) => {
                         field.handleChange(e.currentTarget.value);
                       }}
                     />
