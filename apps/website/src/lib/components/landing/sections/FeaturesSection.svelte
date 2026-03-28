@@ -1,8 +1,8 @@
 <script lang="ts">
   import { siFacebook, siTelegram, siTiktok, siViber } from "simple-icons";
 
+  import BarcodeScanner from "../BarcodeScanner.svelte";
   import BokehParticles from "../BokehParticles.svelte";
-  import QRScanner from "../QRScanner.svelte";
   import ScrollReveal from "../ScrollReveal.svelte";
 </script>
 
@@ -178,20 +178,26 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 12v4M11 12v4M15 12v4"
               />
             </svg>
           </div>
 
-          <h3 class="text-foreground mb-3 text-xl font-bold">One-Tap QR Checkout</h3>
+          <h3 class="text-foreground mb-3 text-xl font-bold">Mobile Barcode Scanner</h3>
           <p class="text-muted-foreground mb-6">
-            Customers scan a QR code to view your store, browse products, and complete purchases in
-            seconds. No app downloads required.
+            Scan product barcodes with your phone camera to add items and complete sales instantly.
+            No expensive POS hardware needed—just your phone.
           </p>
 
           <!-- Visual demo -->
           <div class="bg-muted relative overflow-hidden rounded-xl p-6">
-            <QRScanner />
+            <BarcodeScanner />
           </div>
         </div>
       </ScrollReveal>
