@@ -2,7 +2,6 @@
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import CheckIcon from "@lucide/svelte/icons/check";
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import Edit2Icon from "@lucide/svelte/icons/edit-2";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
@@ -23,138 +22,90 @@
   import { Separator } from "@repo/ui/separator";
   import { Switch } from "@repo/ui/switch";
   import { Textarea } from "@repo/ui/textarea";
+  import { createMutation } from "@tanstack/svelte-query";
   import { tick } from "svelte";
+  import { toast } from "svelte-sonner";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import { orpc } from "$lib/orpc_client";
+  import type { ExtractedInvoiceData } from "$lib/server/ai/invoice-processor";
+  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
-  const { data: shop }: PageProps = $props();
+  const { data, params }: PageProps = $props();
 
-  // Mock suppliers
-  const suppliers = [
-    {
-      id: "sup-1",
-      name: "Tech Supplies Co.",
-      contact: "John Smith",
-      phone: "+1 555-0123",
-      email: "john@techsupplies.com",
-      address: "123 Tech Street, Silicon Valley, CA",
-    },
-    {
-      id: "sup-2",
-      name: "Office Depot",
-      contact: "Sarah Johnson",
-      phone: "+1 555-0456",
-      email: "sarah@officedepot.com",
-      address: "456 Office Ave, Business City, NY",
-    },
-    {
-      id: "sup-3",
-      name: "Global Electronics",
-      contact: "Mike Chen",
-      phone: "+1 555-0789",
-      email: "mike@globalelec.com",
-      address: "789 Global Blvd, Electronics Town, TX",
-    },
-    {
-      id: "sup-4",
-      name: "Stationery Plus",
-      contact: "Emily Brown",
-      phone: "+1 555-0321",
-      email: "emily@stationeryplus.com",
-      address: "321 Stationery Lane, Paper City, FL",
-    },
-    {
-      id: "sup-5",
-      name: "Computer World",
-      contact: "David Lee",
-      phone: "+1 555-0654",
-      email: "david@computerworld.com",
-      address: "654 Computer Way, Digital City, WA",
-    },
-  ];
+  type Supplier = {
+    id: string;
+    name: string;
+    contactName: string | null;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
+  };
 
-  // Mock products for search
-  const products = [
-    { id: "prod-1", name: "Wireless Mouse", sku: "MOU-001", priceCents: 4999 },
-    { id: "prod-2", name: "Mechanical Keyboard", sku: "KEY-002", priceCents: 12999 },
-    { id: "prod-3", name: "USB-C Cable", sku: "USB-003", priceCents: 1299 },
-    { id: "prod-4", name: "Laptop Stand", sku: "STD-001", priceCents: 5999 },
-    { id: "prod-5", name: "Webcam HD", sku: "CAM-001", priceCents: 8999 },
-    { id: "prod-6", name: "USB Stick 64GB", sku: "USB-064", priceCents: 2499 },
-    { id: "prod-7", name: "USB Stick 128GB", sku: "USB-128", priceCents: 3999 },
-    { id: "prod-8", name: "External Hard Drive 1TB", sku: "HDD-001", priceCents: 6999 },
-    { id: "prod-9", name: 'Monitor 24"', sku: "MON-024", priceCents: 19999 },
-    { id: "prod-10", name: 'Monitor 27"', sku: "MON-027", priceCents: 29999 },
-  ];
+  const extractedData = data.extractedData as ExtractedInvoiceData | null;
+  const suppliers = data.suppliers as Supplier[];
+  const matchedSupplier = data.matchedSupplier;
 
-  // OCR Extracted Data (Mock)
   let invoiceData = $state({
-    invoiceNumber: "INV-2025-0892",
-    invoiceDate: "2025-01-15",
-    supplierName: "Tech Supplies Co.",
-    supplierId: "sup-1",
-    subtotalCents: 125000,
-    vatCents: 10000,
-    discountCents: 5000,
-    freightCents: 2000,
-    totalCents: 132000,
-    notes: "",
-    isExistingSupplier: true,
-    items: [
-      {
-        id: "item-1",
-        productId: "prod-1",
-        productName: "Wireless Mouse",
-        qty: 10,
-        unitCostCents: 3500,
-        lineTotalCents: 35000,
-      },
-      {
-        id: "item-2",
-        productId: "prod-2",
-        productName: "Mechanical Keyboard",
-        qty: 5,
-        unitCostCents: 9000,
-        lineTotalCents: 45000,
-      },
-      {
-        id: "item-3",
-        productId: "prod-3",
-        productName: "USB-C Cable",
-        qty: 20,
-        unitCostCents: 899,
-        lineTotalCents: 17980,
-      },
-      {
-        id: "item-4",
-        productId: "prod-4",
-        productName: "Laptop Stand",
-        qty: 8,
-        unitCostCents: 4000,
-        lineTotalCents: 32000,
-      },
-    ],
+    invoiceNumber: extractedData?.invoice?.invoiceNumber ?? "",
+    invoiceDate: extractedData?.invoice?.invoiceDate ?? "",
+    subtotalCents: extractedData?.invoice?.subtotalCents ?? 0,
+    vatCents: extractedData?.invoice?.vatCents ?? 0,
+    discountCents: extractedData?.invoice?.discountCents ?? 0,
+    freightCents: extractedData?.invoice?.freightCents ?? 0,
+    totalCents: extractedData?.invoice?.totalCents ?? 0,
+    notes: extractedData?.invoice?.notes ?? "",
+    items:
+      extractedData?.items.map((item, idx) => ({
+        id: `item-${idx}`,
+        productName: item.productName,
+        qty: item.quantity,
+        unitCostCents: item.unitCostCents,
+        lineTotalCents: item.lineTotalCents,
+      })) ?? [],
   });
 
-  // UI State
-  let editingField = $state<string | null>(null);
+  let isExistingSupplier = $state(matchedSupplier !== null);
   let supplierOpen = $state(false);
-  let productSearchOpen = $state<string | null>(null);
+  let editingField = $state<string | null>(null);
   let tempValue = $state("");
-  let selectedSupplier = $state(suppliers[0]);
   let isSubmitting = $state(false);
 
-  // New supplier form
+  let selectedSupplier = $state<Supplier | null>(matchedSupplier);
+
   let newSupplier = $state({
-    name: "",
-    contact: "",
-    phone: "",
-    email: "",
-    address: "",
+    name: extractedData?.supplier?.name ?? "",
+    contactName: extractedData?.supplier?.contactName ?? "",
+    phone: extractedData?.supplier?.phone ?? "",
+    email: extractedData?.supplier?.email ?? "",
+    address: extractedData?.supplier?.address ?? "",
   });
+
+  const canSave = $derived(selectedSupplier !== null);
+
+  const createSupplierMutation = createMutation(() =>
+    orpc.suppliers.create.mutationOptions({
+      onSuccess: (created) => {
+        const newSup: Supplier = {
+          id: created.id,
+          name: created.name,
+          contactName: created.contactName ?? null,
+          phone: created.phone ?? null,
+          email: created.email ?? null,
+          address: created.address ?? null,
+        };
+        suppliers.push(newSup);
+        selectedSupplier = newSup;
+        isExistingSupplier = true;
+        toast.success("Supplier created successfully");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to create supplier");
+      },
+    })
+  );
 
   function startEditing(field: string, value: string) {
     editingField = field;
@@ -169,20 +120,18 @@
   function saveField(field: string) {
     const keys = field.split(".");
     if (keys.length === 1) {
-      (invoiceData as any)[keys[0]] = tempValue;
+      (invoiceData as Record<string, unknown>)[keys[0]] = tempValue;
     } else if (keys.length === 3 && keys[0] === "items") {
       const itemIndex = Number.parseInt(keys[1]);
       const itemField = keys[2];
       if (itemField === "qty" || itemField === "unitCostCents") {
         invoiceData.items[itemIndex][itemField as "qty" | "unitCostCents"] =
           Number.parseFloat(tempValue) || 0;
-        // Recalculate line total
         invoiceData.items[itemIndex].lineTotalCents =
           invoiceData.items[itemIndex].qty * invoiceData.items[itemIndex].unitCostCents;
       } else {
-        (invoiceData.items[itemIndex] as any)[itemField] = tempValue;
+        (invoiceData.items[itemIndex] as Record<string, unknown>)[itemField] = tempValue;
       }
-      // Recalculate totals
       recalculateTotals();
     }
     editingField = null;
@@ -201,20 +150,9 @@
     }
   }
 
-  function selectSupplier(supplier: (typeof suppliers)[0]) {
+  function selectSupplier(supplier: Supplier) {
     selectedSupplier = supplier;
-    invoiceData.supplierId = supplier.id;
-    invoiceData.supplierName = supplier.name;
     supplierOpen = false;
-  }
-
-  function selectProduct(itemId: string, product: (typeof products)[0]) {
-    const item = invoiceData.items.find((i) => i.id === itemId);
-    if (item) {
-      item.productId = product.id;
-      item.productName = product.name;
-    }
-    productSearchOpen = null;
   }
 
   function addItem() {
@@ -222,7 +160,6 @@
       ...invoiceData.items,
       {
         id: `item-${Date.now()}`,
-        productId: "",
         productName: "",
         qty: 1,
         unitCostCents: 0,
@@ -244,41 +181,34 @@
       subtotal + invoiceData.vatCents - invoiceData.discountCents + invoiceData.freightCents;
   }
 
-  function saveNewSupplier() {
-    // Mock: Add new supplier
-    const supplier = {
-      id: `sup-${Date.now()}`,
-      ...newSupplier,
-    };
-    selectedSupplier = supplier;
-    invoiceData.supplierId = supplier.id;
-    invoiceData.supplierName = supplier.name;
-    newSupplier = { name: "", contact: "", phone: "", email: "", address: "" };
+  async function saveNewSupplier() {
+    await createSupplierMutation.mutateAsync({
+      slug: params.slug,
+      name: newSupplier.name,
+      contactName: newSupplier.contactName || undefined,
+      phone: newSupplier.phone || undefined,
+      email: newSupplier.email || undefined,
+      address: newSupplier.address || undefined,
+    });
   }
 
   async function validateAndSave() {
     isSubmitting = true;
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
     isSubmitting = false;
-    alert("Invoice validated and inventory updated successfully!");
-  }
-
-  function formatCents(cents: number) {
-    return `${(cents / 100).toFixed(2)}`;
+    toast.success("Invoice validated and inventory updated successfully!");
   }
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/${shop.slug}/admin` },
-      { label: "Purchases", href: `/${shop.slug}/admin/purchases` },
+      { label: "Dashboard", href: `/${params.slug}/admin` },
+      { label: "Purchases", href: `/${params.slug}/admin/purchases` },
       { label: "Review Invoice" },
     ]}
   />
 
-  <!-- Page Title -->
   <div>
     <div class="flex items-center justify-between">
       <div class="flex flex-col gap-1">
@@ -290,7 +220,7 @@
           <XIcon class="size-4" />
           Cancel
         </Button>
-        <Button onclick={validateAndSave} disabled={isSubmitting}>
+        <Button onclick={validateAndSave} disabled={isSubmitting || !canSave}>
           {#if isSubmitting}
             <Loader2Icon class="size-4 animate-spin" />
             Saving...
@@ -303,28 +233,41 @@
     </div>
   </div>
 
-  <!-- Two Column Layout -->
   <div class="grid gap-6 lg:grid-cols-2">
-    <!-- Left: Invoice Preview -->
-    <Card.Root class="h-fit lg:col-start-2 lg:col-end-3 lg:row-start-1">
+    <Card.Root class="h-fit lg:sticky lg:top-6 lg:col-start-2 lg:col-end-3 lg:row-start-1">
       <Card.Header>
         <Card.Title>Invoice Preview</Card.Title>
         <Card.Description>Original document uploaded</Card.Description>
       </Card.Header>
       <Card.Content>
-        <div class="bg-muted flex aspect-[3/4] items-center justify-center rounded-lg border">
-          <div class="text-muted-foreground flex flex-col items-center gap-2">
-            <CreditCardIcon class="size-12" />
-            <p class="text-sm">Invoice Image Preview</p>
-            <p class="text-xs">INV-2025-0892</p>
+        {#if data.imageUrl}
+          <ScrollArea class="h-[calc(100vh-160px)] min-h-100">
+            {#if data.file?.fileType === "application/pdf"}
+              <iframe
+                src={data.imageUrl}
+                title="Invoice PDF"
+                class="h-full min-h-96 w-full rounded-lg border"
+              ></iframe>
+            {:else}
+              <img
+                src={data.imageUrl}
+                alt="Invoice"
+                class="w-full rounded-lg border object-contain"
+              />
+            {/if}
+          </ScrollArea>
+        {:else}
+          <div class="bg-muted flex aspect-[3/4] items-center justify-center rounded-lg border">
+            <div class="text-muted-foreground flex flex-col items-center gap-2">
+              <XIcon class="size-12" />
+              <p class="text-sm">Unable to load invoice preview</p>
+            </div>
           </div>
-        </div>
+        {/if}
       </Card.Content>
     </Card.Root>
 
-    <!-- Right: Data Review -->
     <div class="flex flex-col gap-6 lg:col-start-1 lg:col-end-2 lg:row-start-1">
-      <!-- Supplier Section -->
       <Card.Root>
         <Card.Header>
           <Card.Title class="flex items-center gap-2">
@@ -333,20 +276,18 @@
           </Card.Title>
         </Card.Header>
         <Card.Content class="space-y-4">
-          <!-- Supplier Toggle -->
           <div class="flex items-center gap-4">
             <Switch
               id="existing-supplier"
-              checked={invoiceData.isExistingSupplier}
-              onCheckedChange={(v) => (invoiceData.isExistingSupplier = v)}
+              checked={isExistingSupplier}
+              onCheckedChange={(v) => (isExistingSupplier = v)}
             />
             <Label for="existing-supplier">
-              {invoiceData.isExistingSupplier ? "Existing Supplier" : "Create New Supplier"}
+              {isExistingSupplier ? "Existing Supplier" : "Create New Supplier"}
             </Label>
           </div>
 
-          {#if invoiceData.isExistingSupplier}
-            <!-- Existing Supplier Search -->
+          {#if isExistingSupplier}
             <Popover.Root bind:open={supplierOpen}>
               <Popover.Trigger
                 class={buttonVariants({ variant: "outline", class: "w-full justify-between" })}
@@ -369,7 +310,10 @@
                         />
                         <div class="flex flex-col">
                           <span>{supplier.name}</span>
-                          <span class="text-muted-foreground text-xs">{supplier.contact}</span>
+                          {#if supplier.contactName}
+                            <span class="text-muted-foreground text-xs">{supplier.contactName}</span
+                            >
+                          {/if}
                         </div>
                       </Command.Item>
                     {/each}
@@ -393,48 +337,55 @@
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-sm">
-                    <div
-                      class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
-                    >
-                      <UserIcon class="size-3.5" />
+                  {#if selectedSupplier.contactName}
+                    <div class="flex items-center gap-2 text-sm">
+                      <div
+                        class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
+                      >
+                        <UserIcon class="size-3.5" />
+                      </div>
+                      <span class="truncate">{selectedSupplier.contactName}</span>
                     </div>
-                    <span class="truncate">{selectedSupplier.contact}</span>
-                  </div>
+                  {/if}
 
-                  <div class="flex items-center gap-2 text-sm">
-                    <div
-                      class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
-                    >
-                      <PhoneIcon class="size-3.5" />
+                  {#if selectedSupplier.phone}
+                    <div class="flex items-center gap-2 text-sm">
+                      <div
+                        class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
+                      >
+                        <PhoneIcon class="size-3.5" />
+                      </div>
+                      <span class="truncate">{selectedSupplier.phone}</span>
                     </div>
-                    <span class="truncate">{selectedSupplier.phone}</span>
-                  </div>
+                  {/if}
 
-                  <div class="flex items-center gap-2 text-sm">
-                    <div
-                      class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
-                    >
-                      <MailIcon class="size-3.5" />
+                  {#if selectedSupplier.email}
+                    <div class="flex items-center gap-2 text-sm">
+                      <div
+                        class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
+                      >
+                        <MailIcon class="size-3.5" />
+                      </div>
+                      <span class="text-primary truncate">{selectedSupplier.email}</span>
                     </div>
-                    <span class="text-primary truncate">{selectedSupplier.email}</span>
-                  </div>
+                  {/if}
 
-                  <div class="flex items-center gap-2 text-sm">
-                    <div
-                      class="bg-muted text-muted-foreground mt-0.5 flex size-6 shrink-0 items-center justify-center rounded"
-                    >
-                      <MapPinIcon class="size-3.5" />
+                  {#if selectedSupplier.address}
+                    <div class="flex items-center gap-2 text-sm">
+                      <div
+                        class="bg-muted text-muted-foreground mt-0.5 flex size-6 shrink-0 items-center justify-center rounded"
+                      >
+                        <MapPinIcon class="size-3.5" />
+                      </div>
+                      <span class="text-muted-foreground text-sm leading-relaxed"
+                        >{selectedSupplier.address}</span
+                      >
                     </div>
-                    <span class="text-muted-foreground text-sm leading-relaxed"
-                      >{selectedSupplier.address}</span
-                    >
-                  </div>
+                  {/if}
                 </div>
               </div>
             {/if}
           {:else}
-            <!-- New Supplier Form -->
             <div class="grid gap-3">
               <div class="grid gap-2">
                 <Label for="new-supplier-name">Supplier Name</Label>
@@ -448,7 +399,7 @@
                 <Label for="new-supplier-contact">Contact Person</Label>
                 <Input
                   id="new-supplier-contact"
-                  bind:value={newSupplier.contact}
+                  bind:value={newSupplier.contactName}
                   placeholder="Enter contact name"
                 />
               </div>
@@ -478,16 +429,24 @@
                   placeholder="Enter address"
                 />
               </div>
-              <Button variant="secondary" onclick={saveNewSupplier} disabled={!newSupplier.name}>
-                <PlusIcon class="size-4" />
-                Add Supplier
+              <Button
+                variant="secondary"
+                onclick={saveNewSupplier}
+                disabled={!newSupplier.name || createSupplierMutation.isPending}
+              >
+                {#if createSupplierMutation.isPending}
+                  <Loader2Icon class="size-4 animate-spin" />
+                  Creating...
+                {:else}
+                  <PlusIcon class="size-4" />
+                  Add Supplier
+                {/if}
               </Button>
             </div>
           {/if}
         </Card.Content>
       </Card.Root>
 
-      <!-- Items Table -->
       <Card.Root>
         <Card.Header class="flex flex-row items-center justify-between">
           <Card.Title class="flex items-center gap-2">
@@ -514,68 +473,35 @@
               <tbody>
                 {#each invoiceData.items as item, index}
                   <tr class="hover:bg-muted/50 border-b last:border-b-0">
-                    <!-- Product -->
                     <td class="px-4 py-2">
-                      {#if productSearchOpen === item.id}
-                        <Popover.Root open={true}>
-                          <Popover.Trigger class="w-full">
-                            <div class="flex items-center gap-2">
-                              <Input
-                                placeholder="Search products..."
-                                class="w-full"
-                                autofocus
-                                oninput={(e) => {
-                                  const value = e.currentTarget.value;
-                                  if (value.length > 0) {
-                                    // Filter products (in real app, this would be debounced)
-                                  }
-                                }}
-                              />
-                            </div>
-                          </Popover.Trigger>
-                          <Popover.Content class="w-80 p-0" align="start">
-                            <Command.Root>
-                              <Command.Input placeholder="Search products..." />
-                              <Command.List>
-                                <Command.Empty>No products found.</Command.Empty>
-                                {#each products as product}
-                                  <Command.Item
-                                    value={product.name}
-                                    onSelect={() => selectProduct(item.id, product)}
-                                  >
-                                    <div class="flex flex-col">
-                                      <span>{product.name}</span>
-                                      <span class="text-muted-foreground text-xs"
-                                        >{product.sku}</span
-                                      >
-                                    </div>
-                                  </Command.Item>
-                                {/each}
-                              </Command.List>
-                            </Command.Root>
-                          </Popover.Content>
-                        </Popover.Root>
+                      {#if editingField === `items.${index}.productName`}
+                        <Input
+                          id={`edit-items.${index}.productName`}
+                          bind:value={tempValue}
+                          onkeydown={(e) => handleKeyDown(e, `items.${index}.productName`)}
+                          onblur={() => saveField(`items.${index}.productName`)}
+                          class="w-full"
+                        />
                       {:else}
                         <div
                           class="hover:bg-muted flex cursor-pointer items-center gap-2 rounded px-2 py-1"
-                          onclick={() => (productSearchOpen = item.id)}
+                          onclick={() =>
+                            startEditing(`items.${index}.productName`, item.productName)}
                           role="button"
                           tabindex="0"
-                          onkeydown={(e) => e.key === "Enter" && (productSearchOpen = item.id)}
+                          onkeydown={(e) =>
+                            e.key === "Enter" &&
+                            startEditing(`items.${index}.productName`, item.productName)}
                         >
-                          {#if item.productId}
-                            <div class="flex flex-col">
-                              <span class="font-medium">{item.productName}</span>
-                              <span class="text-muted-foreground text-xs">{item.productId}</span>
-                            </div>
+                          {#if item.productName}
+                            <span class="font-medium">{item.productName}</span>
                           {:else}
-                            <span class="text-muted-foreground italic">Click to search...</span>
+                            <span class="text-muted-foreground italic">Click to edit...</span>
                           {/if}
                         </div>
                       {/if}
                     </td>
 
-                    <!-- Qty -->
                     <td class="px-4 py-2">
                       {#if editingField === `items.${index}.qty`}
                         <Input
@@ -596,7 +522,6 @@
                       {/if}
                     </td>
 
-                    <!-- Unit Cost -->
                     <td class="px-4 py-2 text-right">
                       {#if editingField === `items.${index}.unitCostCents`}
                         <Input
@@ -616,17 +541,15 @@
                               item.unitCostCents.toString()
                             )}
                         >
-                          {formatCents(item.unitCostCents)}
+                          {formatPrice(item.unitCostCents)}
                         </Button>
                       {/if}
                     </td>
 
-                    <!-- Total -->
                     <td class="px-4 py-2 text-right font-medium">
-                      {formatCents(item.lineTotalCents)}
+                      {formatPrice(item.lineTotalCents)}
                     </td>
 
-                    <!-- Remove -->
                     <td class="px-4 py-2">
                       <Button
                         variant="ghost"
@@ -645,14 +568,12 @@
         </Card.Content>
       </Card.Root>
 
-      <!-- Invoice Details -->
       <Card.Root>
         <Card.Header>
           <Card.Title>Invoice Details</Card.Title>
         </Card.Header>
         <Card.Content class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Invoice Number -->
+          <div class="grid grid-cols-2 gap-4 text-sm">
             <div class="grid gap-2">
               <Label>Invoice Number</Label>
               {#if editingField === "invoiceNumber"}
@@ -687,7 +608,6 @@
               {/if}
             </div>
 
-            <!-- Invoice Date -->
             <div class="grid gap-2">
               <Label>Invoice Date</Label>
               {#if editingField === "invoiceDate"}
@@ -724,9 +644,7 @@
             </div>
           </div>
 
-          <!-- Totals -->
-          <div class="space-y-2 rounded-lg border p-4">
-            <!-- Subtotal -->
+          <div class="space-y-2 rounded-lg border p-4 text-sm">
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Subtotal</span>
               {#if editingField === "subtotalCents"}
@@ -754,13 +672,12 @@
                   onclick={() =>
                     startEditing("subtotalCents", invoiceData.subtotalCents.toString())}
                 >
-                  <span>{formatCents(invoiceData.subtotalCents)}</span>
+                  <span>{formatPrice(invoiceData.subtotalCents)}</span>
                   <Edit2Icon class="text-muted-foreground size-3" />
                 </Button>
               {/if}
             </div>
 
-            <!-- VAT -->
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">VAT</span>
               {#if editingField === "vatCents"}
@@ -787,13 +704,12 @@
                   variant="ghost"
                   onclick={() => startEditing("vatCents", invoiceData.vatCents.toString())}
                 >
-                  <span>{formatCents(invoiceData.vatCents)}</span>
+                  <span>{formatPrice(invoiceData.vatCents)}</span>
                   <Edit2Icon class="text-muted-foreground size-3" />
                 </Button>
               {/if}
             </div>
 
-            <!-- Discount -->
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Discount</span>
               {#if editingField === "discountCents"}
@@ -821,13 +737,12 @@
                   onclick={() =>
                     startEditing("discountCents", invoiceData.discountCents.toString())}
                 >
-                  <span>-{formatCents(invoiceData.discountCents)}</span>
+                  <span>-{formatPrice(invoiceData.discountCents)}</span>
                   <Edit2Icon class="text-muted-foreground size-3" />
                 </Button>
               {/if}
             </div>
 
-            <!-- Freight -->
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Freight</span>
               {#if editingField === "freightCents"}
@@ -854,7 +769,7 @@
                   variant="ghost"
                   onclick={() => startEditing("freightCents", invoiceData.freightCents.toString())}
                 >
-                  <span>{formatCents(invoiceData.freightCents)}</span>
+                  <span>{formatPrice(invoiceData.freightCents)}</span>
                   <Edit2Icon class="text-muted-foreground size-3" />
                 </Button>
               {/if}
@@ -862,16 +777,14 @@
 
             <Separator />
 
-            <!-- Total -->
             <div class="flex items-center justify-between">
               <span class="font-semibold">Total</span>
               <span class="text-lg font-bold">
-                <Pricing cents={invoiceData.totalCents} country={shop.country} />
+                {formatPrice(invoiceData.totalCents)}
               </span>
             </div>
           </div>
 
-          <!-- Notes -->
           <div class="grid gap-2">
             <Label for="notes">Notes</Label>
             <Textarea

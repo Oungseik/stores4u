@@ -49,12 +49,21 @@ export function getCountryName(code: CountryCode, locale = "en") {
 }
 
 export function formatPrice(cents: number, country?: CountryCode | null): string {
-  const amount = (cents / 100).toFixed(2);
-  if (!country) return amount;
+  const amount = cents / 100;
+
+  if (!country) {
+    return new Intl.NumberFormat(undefined, {
+      style: "decimal",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  }
+
   const config = currency[country];
-  if (config?.prefix) return `${config.prefix}${amount}`;
-  if (config?.suffix) return `${amount} ${config.suffix}`;
-  return amount;
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: config.code,
+  }).format(amount);
 }
 
 export function formatDate(date: Date | string, withTime = false) {
