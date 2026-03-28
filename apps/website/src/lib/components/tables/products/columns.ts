@@ -16,7 +16,11 @@ export type ProductItem = {
   stock: number;
 };
 
-export function createColumns(country: CountryCode | null, slug: string): ColumnDef<ProductItem>[] {
+export function createColumns(
+  country: CountryCode | null,
+  slug: string,
+  onDelete?: (id: string) => void
+): ColumnDef<ProductItem>[] {
   return [
     {
       accessorKey: "name",
@@ -57,7 +61,7 @@ export function createColumns(country: CountryCode | null, slug: string): Column
       id: "actions",
       header: "",
       cell: ({ row }) => {
-        return renderComponent(ActionsCell, { id: row.original.id, slug });
+        return renderComponent(ActionsCell, { id: row.original.id, slug, onDelete });
       },
     },
   ];

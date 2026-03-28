@@ -25,6 +25,7 @@ export function createColumns(
   country: CountryCode | null,
   slug: string,
   onView?: (id: string) => void,
+  onDelete?: (id: string) => void,
 ): ColumnDef<PurchaseInvoiceItem>[] {
   return [
     {
@@ -71,7 +72,7 @@ export function createColumns(
       id: "actions",
       header: "",
       cell: ({ row }) => {
-        return renderComponent(ActionsCell, { id: row.original.id, slug, onView });
+        return renderComponent(ActionsCell, { id: row.original.id, slug, onView, onDelete });
       },
     },
   ];

@@ -13,6 +13,7 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
   import { Button, buttonVariants } from "@repo/ui/button";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
@@ -113,8 +114,13 @@
   }
 
   function deleteSupplier(supplierId: string) {
-    // Mock: Delete supplier
-    alert(`Delete supplier ${supplierId}`);
+    confirmDelete({
+      title: "Delete Supplier",
+      description: "Are you sure you want to delete this supplier? This action cannot be undone.",
+      onConfirm: async () => {
+        alert("Supplier deletion is not yet implemented. Backend handler needed.");
+      },
+    });
   }
 </script>
 

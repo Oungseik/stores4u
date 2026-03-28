@@ -8,13 +8,15 @@
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button, buttonVariants } from "@repo/ui/button";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Card from "@repo/ui/card";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
-  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
+  import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
   import Pricing from "$lib/components/Pricing.svelte";
@@ -27,10 +29,33 @@
   import type { PageProps } from "./$types";
 
   const { params, data: shop }: PageProps = $props();
+  const queryClient = useQueryClient();
 
   const searchParams = useSearchParams(productsFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
   const debouncedCategories = new Debounced(() => searchParams.categories, 1000);
+
+  const deleteMutation = createMutation(() =>
+    orpc.products.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Product deleted successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to delete product");
+      },
+    })
+  );
+
+  function handleDeleteProduct(id: string) {
+    confirmDelete({
+      title: "Delete Product",
+      description: "Are you sure you want to delete this product? This action cannot be undone.",
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync({ slug: params.slug, id });
+      },
+    });
+  }
 
   const products = createInfiniteQuery(() =>
     orpc.products.list.infiniteOptions({
@@ -55,7 +80,7 @@
     })
   );
 
-  const columns = $derived(createColumns(shop.country, params.slug));
+  const columns = $derived(createColumns(shop.country, params.slug, handleDeleteProduct));
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
   function resetFilters() {
@@ -209,14 +234,14 @@
                           })}
                           href={`/${params.slug}/admin/products/${product.id}/edit`}
                         >
-                          <PencilIcon class="mr-2 size-4" />
+                          <PencilIcon class="size-4" />
                           Edit
                         </a>
                       {/snippet}
                     </DropdownMenu.Item>
                     <DropdownMenu.Separator />
-                    <DropdownMenu.Item class="text-destructive">
-                      <Trash2Icon class="mr-2 size-4" />
+                    <DropdownMenu.Item class="text-destructive" onclick={() => handleDeleteProduct(product.id)}>
+                      <Trash2Icon class="size-4" />
                       Delete
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>

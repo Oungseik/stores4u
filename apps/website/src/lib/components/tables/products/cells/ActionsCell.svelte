@@ -3,14 +3,26 @@
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { buttonVariants } from "@repo/ui/button";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
 
   type Props = {
     id: string;
     slug: string;
+    onDelete?: (id: string) => void;
   };
 
-  const { id, slug }: Props = $props();
+  const { id, slug, onDelete }: Props = $props();
+
+  function handleDelete() {
+    confirmDelete({
+      title: "Delete Product",
+      description: "Are you sure you want to delete this product? This action cannot be undone.",
+      onConfirm: async () => {
+        onDelete?.(id);
+      },
+    });
+  }
 </script>
 
 <DropdownMenu.Root>
@@ -27,14 +39,14 @@
           class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
           href={`/${slug}/admin/products/${id}/edit`}
         >
-          <PencilIcon class="mr-2 size-4" />
+          <PencilIcon class="size-4" />
           Edit
         </a>
       {/snippet}
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
-    <DropdownMenu.Item class="text-red-600">
-      <Trash2Icon class="mr-2 size-4" />
+    <DropdownMenu.Item class="text-red-600" onclick={handleDelete} disabled={!onDelete}>
+      <Trash2Icon class="size-4" />
       Delete
     </DropdownMenu.Item>
   </DropdownMenu.Content>

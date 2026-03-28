@@ -4,6 +4,7 @@
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { buttonVariants } from "@repo/ui/button";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
 
   import { goto } from "$app/navigation";
@@ -12,9 +13,20 @@
     id: string;
     slug: string;
     onView?: (id: string) => void;
+    onDelete?: (id: string) => void;
   };
 
-  const { id, slug, onView }: Props = $props();
+  const { id, slug, onView, onDelete }: Props = $props();
+
+  function handleDelete() {
+    confirmDelete({
+      title: "Delete Purchase Invoice",
+      description: "Are you sure you want to delete this invoice? This action cannot be undone.",
+      onConfirm: async () => {
+        onDelete?.(id);
+      },
+    });
+  }
 </script>
 
 <DropdownMenu.Root>
@@ -30,12 +42,12 @@
       View Details
     </DropdownMenu.Item>
     <DropdownMenu.Item onclick={() => goto(`/${slug}/admin/purchases/invoices/${id}/edit`)}>
-      <PencilIcon class="mr-2 size-4" />
+      <PencilIcon class="size-4" />
       Edit
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
-    <DropdownMenu.Item class="text-red-600">
-      <Trash2Icon class="mr-2 size-4" />
+    <DropdownMenu.Item class="text-red-600" onclick={handleDelete} disabled={!onDelete}>
+      <Trash2Icon class="size-4" />
       Delete
     </DropdownMenu.Item>
   </DropdownMenu.Content>
