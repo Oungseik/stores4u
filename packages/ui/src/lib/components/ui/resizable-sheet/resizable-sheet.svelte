@@ -34,7 +34,7 @@
 		contentProps?: WithoutChildrenOrChild<ComponentProps<typeof ResizableSheetContent>>;
 	} = $props();
 
-	let width = $state(defaultWidth);
+	let width = $derived(defaultWidth);
 </script>
 
 <SheetPrimitive.Root bind:open {...restProps}>

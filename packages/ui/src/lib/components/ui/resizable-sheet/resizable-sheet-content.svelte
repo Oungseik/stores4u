@@ -54,8 +54,10 @@
 		document.addEventListener("pointerup", onPointerUp);
 	}
 
-	const handlePosition = side === "left" ? "end-0" : "start-0";
-	const contentPadding = side === "left" ? "pe-3" : "ps-3";
+	// svelte-ignore state_referenced_locally
+		const handlePosition = side === "left" ? "end-0" : "start-0";
+	// svelte-ignore state_referenced_locally
+		const contentPadding = side === "left" ? "pe-3" : "ps-3";
 </script>
 
 <SheetPortal {...portalProps}>
@@ -73,10 +75,11 @@
 		)}
 		{...restProps}
 	>
-		<div
-			class="{handlePosition} absolute top-0 bottom-0 z-50 w-1 cursor-col-resize transition-colors hover:bg-primary/50 {isResizing ? 'bg-primary' : 'bg-border'}"
+		<button
+      aria-label="resize button"
+			class="{handlePosition} block absolute top-0 bottom-0 z-50 w-1 cursor-col-resize transition-colors hover:bg-primary/50 {isResizing ? 'bg-primary' : 'bg-border'}"
 			onpointerdown={handlePointerDown}
-		></div>
+		></button>
 
 		<div class="flex h-full flex-col px-4 py-4">
 			{@render children?.()}

@@ -25,7 +25,8 @@
 
   let { count = 200 }: { count?: number } = $props();
 
-  const particles = createParticles(count);
+  // svelte-ignore state_referenced_locally
+    const particles = createParticles(count);
 </script>
 
 <div class="pointer-events-none absolute inset-0 overflow-hidden">
