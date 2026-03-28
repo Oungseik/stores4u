@@ -647,35 +647,10 @@
           <div class="space-y-2 rounded-lg border p-4 text-sm">
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Subtotal</span>
-              {#if editingField === "subtotalCents"}
-                <div class="flex items-center gap-2">
-                  <Input
-                    id="edit-subtotalCents"
-                    type="number"
-                    bind:value={tempValue}
-                    onkeydown={(e) => handleKeyDown(e, "subtotalCents")}
-                    onblur={() => saveField("subtotalCents")}
-                    class="w-32 text-right"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="size-8"
-                    onclick={() => saveField("subtotalCents")}
-                  >
-                    <CheckIcon class="size-4" />
-                  </Button>
-                </div>
-              {:else}
-                <Button
-                  variant="ghost"
-                  onclick={() =>
-                    startEditing("subtotalCents", invoiceData.subtotalCents.toString())}
-                >
-                  <span>{formatPrice(invoiceData.subtotalCents)}</span>
-                  <Edit2Icon class="text-muted-foreground size-3" />
-                </Button>
-              {/if}
+              <div class={buttonVariants({ variant: "ghost" })}>
+                <span>{formatPrice(invoiceData.subtotalCents)}</span>
+                <Edit2Icon class="text-muted-foreground invisible size-3" />
+              </div>
             </div>
 
             <div class="flex items-center justify-between">
@@ -779,9 +754,12 @@
 
             <div class="flex items-center justify-between">
               <span class="font-semibold">Total</span>
-              <span class="text-lg font-bold">
-                {formatPrice(invoiceData.totalCents)}
-              </span>
+              <div class={buttonVariants({ variant: "ghost" })}>
+                <span class="text-lg font-bold">
+                  {formatPrice(invoiceData.totalCents)}
+                </span>
+                <Edit2Icon class="text-muted-foreground invisible size-3" />
+              </div>
             </div>
           </div>
 
