@@ -8,12 +8,17 @@
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button, buttonVariants } from "@repo/ui/button";
-  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Card from "@repo/ui/card";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
-  import { createInfiniteQuery, createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
+  import {
+    createInfiniteQuery,
+    createMutation,
+    createQuery,
+    useQueryClient,
+  } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
@@ -240,7 +245,10 @@
                       {/snippet}
                     </DropdownMenu.Item>
                     <DropdownMenu.Separator />
-                    <DropdownMenu.Item class="text-destructive" onclick={() => handleDeleteProduct(product.id)}>
+                    <DropdownMenu.Item
+                      class="text-destructive"
+                      onclick={() => handleDeleteProduct(product.id)}
+                    >
                       <Trash2Icon class="size-4" />
                       Delete
                     </DropdownMenu.Item>

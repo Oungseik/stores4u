@@ -22,7 +22,6 @@
   }: Props = $props();
 
   let isScanning = $state(false);
-  let hasCameraPermission = $state<boolean | null>(null);
   let scannerError = $state<string | null>(null);
   let isPermissionError = $state(false);
   let html5QrCode: Html5Qrcode | null = null;
@@ -54,11 +53,8 @@
         },
         () => {}
       );
-
-      hasCameraPermission = true;
     } catch (err) {
       isScanning = false;
-      hasCameraPermission = false;
       isPermissionError =
         err === "Error getting userMedia, error = NotAllowedError: Permission denied";
       scannerError = isPermissionError
