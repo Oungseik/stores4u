@@ -2,7 +2,6 @@ import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 import ActionsCell from "./cells/ActionsCell.svelte";
 import FileCell from "./cells/FileCell.svelte";
-import QuickActionsCell from "./cells/QuickActionsCell.svelte";
 import StatusCell from "./cells/StatusCell.svelte";
 import DateCell from "../purchase-invoices/cells/DateCell.svelte";
 
@@ -72,17 +71,6 @@ export function createColumns(
           status: row.original.status,
           isProcessing: processingFileId === row.original.id,
           onProcess,
-        });
-      },
-    },
-    {
-      id: "quickActions",
-      header: "",
-      cell: ({ row }) => {
-        return renderComponent(QuickActionsCell, {
-          id: row.original.id,
-          slug,
-          status: row.original.status,
           onDelete,
           onDownload,
         });
