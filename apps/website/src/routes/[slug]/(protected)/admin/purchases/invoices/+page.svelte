@@ -5,7 +5,7 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import SearchIcon from "@lucide/svelte/icons/search";
   import UploadIcon from "@lucide/svelte/icons/upload";
-  import { Button, buttonVariants } from "@repo/ui/button";
+  import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import * as FilterBar from "@repo/ui/filter-bar";
@@ -32,6 +32,8 @@
   let isDragging = $state(false);
   let isUploading = $state(false);
   let fileInput: HTMLInputElement | undefined = $state();
+  let isDeleteDialogOpen = $state(false);
+  let fileIdToDelete = $state<string | null>(null);
 
   const searchParams = useSearchParams(invoiceFilesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
@@ -112,6 +114,31 @@
     })
   );
 
+  const deleteMutation = createMutation(() =>
+    orpc.purchaseInvoices.deleteFile.mutationOptions({
+      onSuccess: () => {
+        toast.success("File deleted successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        isDeleteDialogOpen = false;
+        fileIdToDelete = null;
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to delete file");
+      },
+    })
+  );
+
+  const downloadMutation = createMutation(() =>
+    orpc.purchaseInvoices.downloadFile.mutationOptions({
+      onSuccess: (data) => {
+        window.open(data.downloadUrl, "_blank");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to generate download link");
+      },
+    })
+  );
+
   function handleProcessFile(fileId: string) {
     processingFileId = fileId;
     processMutation.mutateAsync({ slug: params.slug, fileId });
@@ -166,7 +193,35 @@
     }
   }
 
-  const columns = $derived(createColumns(params.slug, handleProcessFile, processingFileId));
+  function handleDeleteFile(id: string) {
+    fileIdToDelete = id;
+    isDeleteDialogOpen = true;
+  }
+
+  async function handleConfirmDelete() {
+    if (!fileIdToDelete) return;
+    await deleteMutation.mutateAsync({ slug: params.slug, fileId: fileIdToDelete });
+  }
+
+  async function handleDownloadFile(fileId: string) {
+    downloadMutation.mutate(
+      { slug: params.slug, fileId },
+      {
+        onSuccess: (data) => window.open(data.downloadUrl, "_blank"),
+        onError: (e) => toast(e.message),
+      }
+    );
+  }
+
+  const columns = $derived(
+    createColumns(
+      params.slug,
+      handleProcessFile,
+      processingFileId,
+      handleDeleteFile,
+      handleDownloadFile
+    )
+  );
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
@@ -354,5 +409,29 @@
         </Card.Content>
       </Card.Root>
     </div>
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={isDeleteDialogOpen}>
+  <Dialog.Content class="max-w-md">
+    <Dialog.Header>
+      <Dialog.Title>Delete Invoice File</Dialog.Title>
+      <Dialog.Description>
+        Are you sure you want to delete this invoice file? This action cannot be undone.
+      </Dialog.Description>
+    </Dialog.Header>
+    <Dialog.Footer>
+      <Button variant="outline" onclick={() => (isDeleteDialogOpen = false)}>Cancel</Button>
+      <Button
+        variant="destructive"
+        onclick={handleConfirmDelete}
+        disabled={deleteMutation.isPending}
+      >
+        {#if deleteMutation.isPending}
+          <Loader2Icon class="mr-2 size-4 animate-spin" />
+        {/if}
+        Delete
+      </Button>
+    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

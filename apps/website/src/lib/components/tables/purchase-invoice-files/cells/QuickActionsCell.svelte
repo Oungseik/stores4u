@@ -24,7 +24,8 @@
   function handleDelete() {
     confirmDelete({
       title: "Delete Invoice File",
-      description: "Are you sure you want to delete this invoice file? This action cannot be undone.",
+      description:
+        "Are you sure you want to delete this invoice file? This action cannot be undone.",
       onConfirm: async () => {
         onDelete(id);
       },
@@ -45,7 +46,7 @@
         {#snippet child()}
           <a
             class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-            href={`/${slug}/admin/purchases/review?fileId=${id}`}
+            href={`/${slug}/admin/purchases/invoices/${id}/review`}
           >
             <PencilIcon class="mr-2 size-4" />
             Edit

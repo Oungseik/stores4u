@@ -26,7 +26,7 @@
     Process
   </Button>
 {:else if status === "PROCESSED"}
-  <a href={`/${slug}/admin/purchases/review?fileId=${id}`} class={buttonVariants({ size: "sm" })}>
+  <a href={`/${slug}/admin/purchases/invoices/${id}/review`} class={buttonVariants({ size: "sm" })}>
     <SearchIcon class="mr-1 size-4" />
     Review
   </a>
