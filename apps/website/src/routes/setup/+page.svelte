@@ -19,7 +19,7 @@
   import z from "zod";
 
   import { goto } from "$app/navigation";
-  import { PUBLIC_SITE_NAME } from "$env/static/public";
+  import { PUBLIC_DOMAIN } from "$env/static/public";
   import { orpc } from "$lib/orpc_client";
   import { getCountryName } from "$lib/utils";
 
@@ -78,7 +78,7 @@
           zipCode: value.zipCode || undefined,
           country: value.country || undefined,
         });
-        goto("/");
+        goto(`/${value.slug}/admin`);
       } catch (error) {
         isSubmitting = false;
         if (error instanceof Error) {
@@ -150,7 +150,7 @@
   const stepConfig = [
     {
       title: "Shop Identity",
-      description: "Tell us about your shop",
+      description: "Tell us about your shop (You can edit later in settings)",
       icon: StoreIcon,
     },
     {
@@ -168,7 +168,7 @@
   <div class="flex w-full max-w-lg flex-col gap-6">
     <a href="/" class="flex items-center gap-2 self-center font-medium">
       <img src="/logo.svg" class="size-5" alt="logo" />
-      <span>{PUBLIC_SITE_NAME}</span>
+      <span>{PUBLIC_DOMAIN}</span>
     </a>
 
     <div class="flex items-center justify-center gap-2">
@@ -281,9 +281,7 @@
                   <div class="space-y-2">
                     <Label for={field.name}>Slug *</Label>
                     <div class="flex items-center gap-2">
-                      <span class="text-muted-foreground text-sm"
-                        >{PUBLIC_SITE_NAME.toLowerCase()}.com/</span
-                      >
+                      <span class="text-muted-foreground text-sm">{PUBLIC_DOMAIN}/</span>
                       <Input
                         id={field.name}
                         name={field.name}
