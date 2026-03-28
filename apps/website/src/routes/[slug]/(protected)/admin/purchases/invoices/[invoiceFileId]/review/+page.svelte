@@ -1,33 +1,23 @@
 <script lang="ts">
-  import Building2Icon from "@lucide/svelte/icons/building-2";
   import CheckIcon from "@lucide/svelte/icons/check";
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import Edit2Icon from "@lucide/svelte/icons/edit-2";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
-  import MailIcon from "@lucide/svelte/icons/mail";
-  import MapPinIcon from "@lucide/svelte/icons/map-pin";
   import PackageIcon from "@lucide/svelte/icons/package";
-  import PhoneIcon from "@lucide/svelte/icons/phone";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
-  import UserIcon from "@lucide/svelte/icons/user";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import * as Command from "@repo/ui/command";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
-  import * as Popover from "@repo/ui/popover";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
-  import { Switch } from "@repo/ui/switch";
   import { Textarea } from "@repo/ui/textarea";
-  import { createMutation } from "@tanstack/svelte-query";
   import { tick } from "svelte";
   import { toast } from "svelte-sonner";
 
+  import SupplierCard, { type Supplier } from "$lib/components/cards/SupplierCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
-  import { orpc } from "$lib/orpc_client";
   import type { ExtractedInvoiceData } from "$lib/server/ai/invoice-processor";
   import { formatPrice } from "$lib/utils";
 
@@ -35,17 +25,7 @@
 
   const { data, params }: PageProps = $props();
 
-  type Supplier = {
-    id: string;
-    name: string;
-    contactName: string | null;
-    phone: string | null;
-    email: string | null;
-    address: string | null;
-  };
-
   const extractedData = data.extractedData as ExtractedInvoiceData | null;
-  const suppliers = data.suppliers as Supplier[];
   const matchedSupplier = data.matchedSupplier;
 
   let invoiceData = $state({
@@ -68,44 +48,13 @@
   });
 
   let isExistingSupplier = $state(matchedSupplier !== null);
-  let supplierOpen = $state(false);
   let editingField = $state<string | null>(null);
   let tempValue = $state("");
   let isSubmitting = $state(false);
 
   let selectedSupplier = $state<Supplier | null>(matchedSupplier);
 
-  let newSupplier = $state({
-    name: extractedData?.supplier?.name ?? "",
-    contactName: extractedData?.supplier?.contactName ?? "",
-    phone: extractedData?.supplier?.phone ?? "",
-    email: extractedData?.supplier?.email ?? "",
-    address: extractedData?.supplier?.address ?? "",
-  });
-
   const canSave = $derived(selectedSupplier !== null);
-
-  const createSupplierMutation = createMutation(() =>
-    orpc.suppliers.create.mutationOptions({
-      onSuccess: (created) => {
-        const newSup: Supplier = {
-          id: created.id,
-          name: created.name,
-          contactName: created.contactName ?? null,
-          phone: created.phone ?? null,
-          email: created.email ?? null,
-          address: created.address ?? null,
-        };
-        suppliers.push(newSup);
-        selectedSupplier = newSup;
-        isExistingSupplier = true;
-        toast.success("Supplier created successfully");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to create supplier");
-      },
-    })
-  );
 
   function startEditing(field: string, value: string) {
     editingField = field;
@@ -150,11 +99,6 @@
     }
   }
 
-  function selectSupplier(supplier: Supplier) {
-    selectedSupplier = supplier;
-    supplierOpen = false;
-  }
-
   function addItem() {
     invoiceData.items = [
       ...invoiceData.items,
@@ -179,17 +123,6 @@
     invoiceData.subtotalCents = subtotal;
     invoiceData.totalCents =
       subtotal + invoiceData.vatCents - invoiceData.discountCents + invoiceData.freightCents;
-  }
-
-  async function saveNewSupplier() {
-    await createSupplierMutation.mutateAsync({
-      slug: params.slug,
-      name: newSupplier.name,
-      contactName: newSupplier.contactName || undefined,
-      phone: newSupplier.phone || undefined,
-      email: newSupplier.email || undefined,
-      address: newSupplier.address || undefined,
-    });
   }
 
   async function validateAndSave() {
@@ -268,184 +201,13 @@
     </Card.Root>
 
     <div class="flex flex-col gap-6 lg:col-start-1 lg:col-end-2 lg:row-start-1">
-      <Card.Root>
-        <Card.Header>
-          <Card.Title class="flex items-center gap-2">
-            <Building2Icon class="size-4" />
-            Supplier Information
-          </Card.Title>
-        </Card.Header>
-        <Card.Content class="space-y-4">
-          <div class="flex items-center gap-4">
-            <Switch
-              id="existing-supplier"
-              checked={isExistingSupplier}
-              onCheckedChange={(v) => (isExistingSupplier = v)}
-            />
-            <Label for="existing-supplier">
-              {isExistingSupplier ? "Existing Supplier" : "Create New Supplier"}
-            </Label>
-          </div>
-
-          {#if isExistingSupplier}
-            <Popover.Root bind:open={supplierOpen}>
-              <Popover.Trigger
-                class={buttonVariants({ variant: "outline", class: "w-full justify-between" })}
-              >
-                <span class="truncate">{selectedSupplier?.name || "Select supplier..."}</span>
-                <ChevronDownIcon class="size-4 opacity-50" />
-              </Popover.Trigger>
-              <Popover.Content class="w-80 p-0" align="start">
-                <Command.Root>
-                  <Command.Input placeholder="Search suppliers..." />
-                  <Command.List>
-                    <Command.Empty>No suppliers found.</Command.Empty>
-                    {#each suppliers as supplier}
-                      <Command.Item value={supplier.name} onSelect={() => selectSupplier(supplier)}>
-                        <CheckIcon
-                          class={[
-                            "size-4",
-                            selectedSupplier?.id !== supplier.id && "text-transparent",
-                          ]}
-                        />
-                        <div class="flex flex-col">
-                          <span>{supplier.name}</span>
-                          {#if supplier.contactName}
-                            <span class="text-muted-foreground text-xs">{supplier.contactName}</span
-                            >
-                          {/if}
-                        </div>
-                      </Command.Item>
-                    {/each}
-                  </Command.List>
-                </Command.Root>
-              </Popover.Content>
-            </Popover.Root>
-
-            {#if selectedSupplier}
-              <div class="bg-background rounded-lg border p-4 shadow-sm">
-                <div class="mb-3 flex items-start gap-3">
-                  <div
-                    class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-full"
-                  >
-                    <Building2Icon class="size-5" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold">{selectedSupplier.name}</p>
-                    <p class="text-muted-foreground text-xs">{selectedSupplier.id}</p>
-                  </div>
-                </div>
-
-                <div class="space-y-2">
-                  {#if selectedSupplier.contactName}
-                    <div class="flex items-center gap-2 text-sm">
-                      <div
-                        class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
-                      >
-                        <UserIcon class="size-3.5" />
-                      </div>
-                      <span class="truncate">{selectedSupplier.contactName}</span>
-                    </div>
-                  {/if}
-
-                  {#if selectedSupplier.phone}
-                    <div class="flex items-center gap-2 text-sm">
-                      <div
-                        class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
-                      >
-                        <PhoneIcon class="size-3.5" />
-                      </div>
-                      <span class="truncate">{selectedSupplier.phone}</span>
-                    </div>
-                  {/if}
-
-                  {#if selectedSupplier.email}
-                    <div class="flex items-center gap-2 text-sm">
-                      <div
-                        class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
-                      >
-                        <MailIcon class="size-3.5" />
-                      </div>
-                      <span class="text-primary truncate">{selectedSupplier.email}</span>
-                    </div>
-                  {/if}
-
-                  {#if selectedSupplier.address}
-                    <div class="flex items-center gap-2 text-sm">
-                      <div
-                        class="bg-muted text-muted-foreground mt-0.5 flex size-6 shrink-0 items-center justify-center rounded"
-                      >
-                        <MapPinIcon class="size-3.5" />
-                      </div>
-                      <span class="text-muted-foreground text-sm leading-relaxed"
-                        >{selectedSupplier.address}</span
-                      >
-                    </div>
-                  {/if}
-                </div>
-              </div>
-            {/if}
-          {:else}
-            <div class="grid gap-3">
-              <div class="grid gap-2">
-                <Label for="new-supplier-name">Supplier Name</Label>
-                <Input
-                  id="new-supplier-name"
-                  bind:value={newSupplier.name}
-                  placeholder="Enter supplier name"
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="new-supplier-contact">Contact Person</Label>
-                <Input
-                  id="new-supplier-contact"
-                  bind:value={newSupplier.contactName}
-                  placeholder="Enter contact name"
-                />
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div class="grid gap-2">
-                  <Label for="new-supplier-phone">Phone</Label>
-                  <Input
-                    id="new-supplier-phone"
-                    bind:value={newSupplier.phone}
-                    placeholder="+1 555-0000"
-                  />
-                </div>
-                <div class="grid gap-2">
-                  <Label for="new-supplier-email">Email</Label>
-                  <Input
-                    id="new-supplier-email"
-                    bind:value={newSupplier.email}
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-              <div class="grid gap-2">
-                <Label for="new-supplier-address">Address</Label>
-                <Textarea
-                  id="new-supplier-address"
-                  bind:value={newSupplier.address}
-                  placeholder="Enter address"
-                />
-              </div>
-              <Button
-                variant="secondary"
-                onclick={saveNewSupplier}
-                disabled={!newSupplier.name || createSupplierMutation.isPending}
-              >
-                {#if createSupplierMutation.isPending}
-                  <Loader2Icon class="size-4 animate-spin" />
-                  Creating...
-                {:else}
-                  <PlusIcon class="size-4" />
-                  Add Supplier
-                {/if}
-              </Button>
-            </div>
-          {/if}
-        </Card.Content>
-      </Card.Root>
+      <SupplierCard
+        slug={params.slug}
+        suppliers={data.suppliers}
+        bind:selectedSupplier
+        bind:isExistingSupplier
+        initialSupplierData={extractedData?.supplier}
+      />
 
       <Card.Root>
         <Card.Header class="flex flex-row items-center justify-between">

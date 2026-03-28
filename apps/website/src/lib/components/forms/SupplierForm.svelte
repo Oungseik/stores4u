@@ -11,15 +11,26 @@
 
   import { orpc } from "$lib/orpc_client";
 
-  interface SupplierInitialData {
-    id: string;
-    name: string;
-    contactName: string | null;
-    phone: string | null;
-    email: string | null;
-    address: string | null;
-    paymentTerms: string | null;
-  }
+  type SupplierInitialData =
+    | {
+        action: "create";
+        name?: string;
+        contactName?: string | null;
+        phone?: string | null;
+        email?: string | null;
+        address?: string | null;
+        paymentTerms?: string | null;
+      }
+    | {
+        action: "update";
+        id: string;
+        name: string;
+        contactName: string | null;
+        phone: string | null;
+        email: string | null;
+        address: string | null;
+        paymentTerms: string | null;
+      };
 
   interface Props {
     slug: string;
@@ -59,7 +70,7 @@
   );
 
   // svelte-ignore state_referenced_locally
-  const isEditMode = !!initialData;
+  const isEditMode = initialData?.action === "update";
 
   // svelte-ignore state_referenced_locally
   const defaultValues = {
@@ -74,7 +85,7 @@
   const form = createForm(() => ({
     defaultValues,
     onSubmit: async ({ value }) => {
-      if (isEditMode) {
+      if (initialData?.action === "update") {
         updateSupplier.mutate({
           slug,
           id: initialData.id,

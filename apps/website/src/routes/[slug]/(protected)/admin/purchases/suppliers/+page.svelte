@@ -509,6 +509,7 @@
           bind:this={editFormRef}
           slug={params.slug}
           initialData={{
+            action: "update",
             id: selectedSupplier.id,
             name: selectedSupplier.name,
             contactName: selectedSupplier.contactName,
