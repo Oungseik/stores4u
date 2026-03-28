@@ -487,6 +487,164 @@
         </Card.Content>
       </Card.Root>
 
+      <!-- Items Table -->
+      <Card.Root>
+        <Card.Header class="flex flex-row items-center justify-between">
+          <Card.Title class="flex items-center gap-2">
+            <PackageIcon class="size-4" />
+            Items ({invoiceData.items.length})
+          </Card.Title>
+          <Button variant="outline" size="sm" onclick={addItem}>
+            <PlusIcon class="size-4" />
+            Add Item
+          </Button>
+        </Card.Header>
+        <Card.Content class="p-0">
+          <ScrollArea class="max-h-96">
+            <table class="w-full text-sm">
+              <thead class="bg-muted sticky top-0">
+                <tr>
+                  <th class="px-4 py-3 text-left font-medium">Product</th>
+                  <th class="w-24 px-4 py-3 text-center font-medium">Qty</th>
+                  <th class="w-32 px-4 py-3 text-right font-medium">Unit Cost</th>
+                  <th class="w-32 px-4 py-3 text-right font-medium">Total</th>
+                  <th class="w-10 px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each invoiceData.items as item, index}
+                  <tr class="hover:bg-muted/50 border-b last:border-b-0">
+                    <!-- Product -->
+                    <td class="px-4 py-2">
+                      {#if productSearchOpen === item.id}
+                        <Popover.Root open={true}>
+                          <Popover.Trigger class="w-full">
+                            <div class="flex items-center gap-2">
+                              <Input
+                                placeholder="Search products..."
+                                class="w-full"
+                                autofocus
+                                oninput={(e) => {
+                                  const value = e.currentTarget.value;
+                                  if (value.length > 0) {
+                                    // Filter products (in real app, this would be debounced)
+                                  }
+                                }}
+                              />
+                            </div>
+                          </Popover.Trigger>
+                          <Popover.Content class="w-80 p-0" align="start">
+                            <Command.Root>
+                              <Command.Input placeholder="Search products..." />
+                              <Command.List>
+                                <Command.Empty>No products found.</Command.Empty>
+                                {#each products as product}
+                                  <Command.Item
+                                    value={product.name}
+                                    onSelect={() => selectProduct(item.id, product)}
+                                  >
+                                    <div class="flex flex-col">
+                                      <span>{product.name}</span>
+                                      <span class="text-muted-foreground text-xs"
+                                        >{product.sku}</span
+                                      >
+                                    </div>
+                                  </Command.Item>
+                                {/each}
+                              </Command.List>
+                            </Command.Root>
+                          </Popover.Content>
+                        </Popover.Root>
+                      {:else}
+                        <div
+                          class="hover:bg-muted flex cursor-pointer items-center gap-2 rounded px-2 py-1"
+                          onclick={() => (productSearchOpen = item.id)}
+                          role="button"
+                          tabindex="0"
+                          onkeydown={(e) => e.key === "Enter" && (productSearchOpen = item.id)}
+                        >
+                          {#if item.productId}
+                            <div class="flex flex-col">
+                              <span class="font-medium">{item.productName}</span>
+                              <span class="text-muted-foreground text-xs">{item.productId}</span>
+                            </div>
+                          {:else}
+                            <span class="text-muted-foreground italic">Click to search...</span>
+                          {/if}
+                        </div>
+                      {/if}
+                    </td>
+
+                    <!-- Qty -->
+                    <td class="px-4 py-2">
+                      {#if editingField === `items.${index}.qty`}
+                        <Input
+                          id={`edit-items.${index}.qty`}
+                          type="number"
+                          bind:value={tempValue}
+                          onkeydown={(e) => handleKeyDown(e, `items.${index}.qty`)}
+                          onblur={() => saveField(`items.${index}.qty`)}
+                          class="w-20 text-center"
+                        />
+                      {:else}
+                        <Button
+                          variant="ghost"
+                          onclick={() => startEditing(`items.${index}.qty`, item.qty.toString())}
+                        >
+                          {item.qty}
+                        </Button>
+                      {/if}
+                    </td>
+
+                    <!-- Unit Cost -->
+                    <td class="px-4 py-2 text-right">
+                      {#if editingField === `items.${index}.unitCostCents`}
+                        <Input
+                          id={`edit-items.${index}.unitCostCents`}
+                          type="number"
+                          bind:value={tempValue}
+                          onkeydown={(e) => handleKeyDown(e, `items.${index}.unitCostCents`)}
+                          onblur={() => saveField(`items.${index}.unitCostCents`)}
+                          class="w-28 text-right"
+                        />
+                      {:else}
+                        <Button
+                          variant="ghost"
+                          onclick={() =>
+                            startEditing(
+                              `items.${index}.unitCostCents`,
+                              item.unitCostCents.toString()
+                            )}
+                        >
+                          {formatCents(item.unitCostCents)}
+                        </Button>
+                      {/if}
+                    </td>
+
+                    <!-- Total -->
+                    <td class="px-4 py-2 text-right font-medium">
+                      {formatCents(item.lineTotalCents)}
+                    </td>
+
+                    <!-- Remove -->
+                    <td class="px-4 py-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        class="size-8 text-red-500 hover:text-red-700"
+                        onclick={() => removeItem(item.id)}
+                      >
+                        <Trash2Icon class="size-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </ScrollArea>
+        </Card.Content>
+      </Card.Root>
+
       <!-- Invoice Details -->
       <Card.Root>
         <Card.Header>
@@ -722,164 +880,6 @@
               placeholder="Add any additional notes..."
             />
           </div>
-        </Card.Content>
-      </Card.Root>
-
-      <!-- Items Table -->
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between">
-          <Card.Title class="flex items-center gap-2">
-            <PackageIcon class="size-4" />
-            Items ({invoiceData.items.length})
-          </Card.Title>
-          <Button variant="outline" size="sm" onclick={addItem}>
-            <PlusIcon class="size-4" />
-            Add Item
-          </Button>
-        </Card.Header>
-        <Card.Content class="p-0">
-          <ScrollArea class="max-h-96">
-            <table class="w-full text-sm">
-              <thead class="bg-muted sticky top-0">
-                <tr>
-                  <th class="px-4 py-3 text-left font-medium">Product</th>
-                  <th class="w-24 px-4 py-3 text-center font-medium">Qty</th>
-                  <th class="w-32 px-4 py-3 text-right font-medium">Unit Cost</th>
-                  <th class="w-32 px-4 py-3 text-right font-medium">Total</th>
-                  <th class="w-10 px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each invoiceData.items as item, index}
-                  <tr class="hover:bg-muted/50 border-b last:border-b-0">
-                    <!-- Product -->
-                    <td class="px-4 py-2">
-                      {#if productSearchOpen === item.id}
-                        <Popover.Root open={true}>
-                          <Popover.Trigger class="w-full">
-                            <div class="flex items-center gap-2">
-                              <Input
-                                placeholder="Search products..."
-                                class="w-full"
-                                autofocus
-                                oninput={(e) => {
-                                  const value = e.currentTarget.value;
-                                  if (value.length > 0) {
-                                    // Filter products (in real app, this would be debounced)
-                                  }
-                                }}
-                              />
-                            </div>
-                          </Popover.Trigger>
-                          <Popover.Content class="w-80 p-0" align="start">
-                            <Command.Root>
-                              <Command.Input placeholder="Search products..." />
-                              <Command.List>
-                                <Command.Empty>No products found.</Command.Empty>
-                                {#each products as product}
-                                  <Command.Item
-                                    value={product.name}
-                                    onSelect={() => selectProduct(item.id, product)}
-                                  >
-                                    <div class="flex flex-col">
-                                      <span>{product.name}</span>
-                                      <span class="text-muted-foreground text-xs"
-                                        >{product.sku}</span
-                                      >
-                                    </div>
-                                  </Command.Item>
-                                {/each}
-                              </Command.List>
-                            </Command.Root>
-                          </Popover.Content>
-                        </Popover.Root>
-                      {:else}
-                        <div
-                          class="hover:bg-muted flex cursor-pointer items-center gap-2 rounded px-2 py-1"
-                          onclick={() => (productSearchOpen = item.id)}
-                          role="button"
-                          tabindex="0"
-                          onkeydown={(e) => e.key === "Enter" && (productSearchOpen = item.id)}
-                        >
-                          {#if item.productId}
-                            <div class="flex flex-col">
-                              <span class="font-medium">{item.productName}</span>
-                              <span class="text-muted-foreground text-xs">{item.productId}</span>
-                            </div>
-                          {:else}
-                            <span class="text-muted-foreground italic">Click to search...</span>
-                          {/if}
-                        </div>
-                      {/if}
-                    </td>
-
-                    <!-- Qty -->
-                    <td class="px-4 py-2">
-                      {#if editingField === `items.${index}.qty`}
-                        <Input
-                          id={`edit-items.${index}.qty`}
-                          type="number"
-                          bind:value={tempValue}
-                          onkeydown={(e) => handleKeyDown(e, `items.${index}.qty`)}
-                          onblur={() => saveField(`items.${index}.qty`)}
-                          class="w-20 text-center"
-                        />
-                      {:else}
-                        <Button
-                          variant="ghost"
-                          onclick={() => startEditing(`items.${index}.qty`, item.qty.toString())}
-                        >
-                          {item.qty}
-                        </Button>
-                      {/if}
-                    </td>
-
-                    <!-- Unit Cost -->
-                    <td class="px-4 py-2 text-right">
-                      {#if editingField === `items.${index}.unitCostCents`}
-                        <Input
-                          id={`edit-items.${index}.unitCostCents`}
-                          type="number"
-                          bind:value={tempValue}
-                          onkeydown={(e) => handleKeyDown(e, `items.${index}.unitCostCents`)}
-                          onblur={() => saveField(`items.${index}.unitCostCents`)}
-                          class="w-28 text-right"
-                        />
-                      {:else}
-                        <Button
-                          variant="ghost"
-                          onclick={() =>
-                            startEditing(
-                              `items.${index}.unitCostCents`,
-                              item.unitCostCents.toString()
-                            )}
-                        >
-                          {formatCents(item.unitCostCents)}
-                        </Button>
-                      {/if}
-                    </td>
-
-                    <!-- Total -->
-                    <td class="px-4 py-2 text-right font-medium">
-                      {formatCents(item.lineTotalCents)}
-                    </td>
-
-                    <!-- Remove -->
-                    <td class="px-4 py-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-8 text-red-500 hover:text-red-700"
-                        onclick={() => removeItem(item.id)}
-                      >
-                        <Trash2Icon class="size-4" />
-                      </Button>
-                    </td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </ScrollArea>
         </Card.Content>
       </Card.Root>
     </div>
