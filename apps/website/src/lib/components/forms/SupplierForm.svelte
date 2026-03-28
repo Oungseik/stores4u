@@ -3,6 +3,7 @@
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { PhoneInput } from "@repo/ui/phone-input";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
@@ -187,14 +188,20 @@
       {#snippet children(field)}
         <div class="space-y-2">
           <Label for={field.name}>Phone</Label>
-          <Input
-            id={field.name}
+          <PhoneInput
+            bind:value={field.state.value}
             name={field.name}
-            value={field.state.value}
-            type="text"
-            onblur={field.handleBlur}
-            onchange={(e) => field.handleChange(e.currentTarget.value)}
             placeholder="+1 555-0000"
+            {...{
+              /** @ts-expect-error */
+            }}
+            onchange={(
+              e: Event & {
+                currentTarget: EventTarget & HTMLInputElement;
+              }
+            ) => {
+              field.handleChange(e.currentTarget.value);
+            }}
           />
           {#if field.state.meta.errors.length}
             <p class="text-sm text-red-500">{field.state.meta.errors}</p>
