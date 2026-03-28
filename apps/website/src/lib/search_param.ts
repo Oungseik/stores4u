@@ -65,11 +65,13 @@ export const shopProductsFilterSchema = createSearchParamsSchema({
 
 export type PurchaseInvoiceStatus = "PENDING" | "VALIDATED" | "REJECTED" | "AUTO_ACCEPTED";
 export type InvoiceFileStatus = "UPLOADED" | "PROCESSING" | "PROCESSED" | "FAILED" | "REVIEWED";
+export type InvoiceFilesView = "card" | "table";
 
 export const invoiceFilesFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
   status: { type: "string", default: "" },
-}) as StandardSchemaV1<unknown, { search: string; status: InvoiceFileStatus | "" }>;
+  view: { type: "string", default: "card" },
+}) as StandardSchemaV1<unknown, { search: string; status: InvoiceFileStatus | ""; view: InvoiceFilesView }>;
 
 type ProductDetailTab = {
   tab: "overview" | "inventory" | "history";

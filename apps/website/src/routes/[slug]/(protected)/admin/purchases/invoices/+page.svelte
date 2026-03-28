@@ -1,14 +1,24 @@
 <script lang="ts">
   import CheckCircleIcon from "@lucide/svelte/icons/check-circle";
   import ClockIcon from "@lucide/svelte/icons/clock";
+  import DownloadIcon from "@lucide/svelte/icons/download";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
+  import ImageIcon from "@lucide/svelte/icons/image";
+  import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
+  import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import PlayIcon from "@lucide/svelte/icons/play";
   import SearchIcon from "@lucide/svelte/icons/search";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UploadIcon from "@lucide/svelte/icons/upload";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
+  import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
+  import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
@@ -17,9 +27,14 @@
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
+  import StatusCell from "$lib/components/tables/purchase-invoice-files/cells/StatusCell.svelte";
   import { createColumns } from "$lib/components/tables/purchase-invoice-files/columns";
   import { orpc } from "$lib/orpc_client";
-  import { type InvoiceFileStatus, invoiceFilesFilterSchema } from "$lib/search_param";
+  import {
+    type InvoiceFileStatus,
+    type InvoiceFilesView,
+    invoiceFilesFilterSchema,
+  } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -32,8 +47,6 @@
   let isDragging = $state(false);
   let isUploading = $state(false);
   let fileInput: HTMLInputElement | undefined = $state();
-  let isDeleteDialogOpen = $state(false);
-  let fileIdToDelete = $state<string | null>(null);
 
   const searchParams = useSearchParams(invoiceFilesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
@@ -119,8 +132,6 @@
       onSuccess: () => {
         toast.success("File deleted successfully");
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        isDeleteDialogOpen = false;
-        fileIdToDelete = null;
       },
       onError: (error) => {
         toast.error(error.message || "Failed to delete file");
@@ -194,23 +205,18 @@
   }
 
   function handleDeleteFile(id: string) {
-    fileIdToDelete = id;
-    isDeleteDialogOpen = true;
+    confirmDelete({
+      title: "Delete Invoice File",
+      description:
+        "Are you sure you want to delete this invoice file? This action cannot be undone.",
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync({ slug: params.slug, fileId: id });
+      },
+    });
   }
 
-  async function handleConfirmDelete() {
-    if (!fileIdToDelete) return;
-    await deleteMutation.mutateAsync({ slug: params.slug, fileId: fileIdToDelete });
-  }
-
-  async function handleDownloadFile(fileId: string) {
-    downloadMutation.mutate(
-      { slug: params.slug, fileId },
-      {
-        onSuccess: (data) => window.open(data.downloadUrl, "_blank"),
-        onError: (e) => toast(e.message),
-      }
-    );
+  function handleDownloadFile(fileId: string) {
+    downloadMutation.mutate({ slug: params.slug, fileId });
   }
 
   const columns = $derived(
@@ -222,6 +228,18 @@
       handleDownloadFile
     )
   );
+
+  function formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function getFileTypeLabel(fileType: string): string {
+    if (fileType === "application/pdf") return "PDF";
+    if (fileType.startsWith("image/")) return "Image";
+    return fileType;
+  }
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
@@ -242,13 +260,11 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <!-- Page Title -->
   <div class="flex flex-col gap-1">
     <h1 class="text-2xl font-semibold tracking-tight">Invoice Files</h1>
     <p class="text-muted-foreground text-sm">Upload, process, and review supplier invoices</p>
   </div>
 
-  <!-- Stats Cards -->
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <StatsCard
       title="Total Files"
@@ -289,22 +305,42 @@
   </div>
 
   <section class="mt-4 space-y-6">
-    <!-- Filters -->
-    <FilterBar.Root {hasFilters} onReset={resetFilters}>
-      <FilterBar.Search
-        placeholder="Search by filename..."
-        value={searchParams.search}
-        oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
-      />
-      <FilterBar.Dropdown
-        items={statusOptions}
-        value={searchParams.status === "" ? null : searchParams.status}
-        onValueChange={(status: InvoiceFileStatus | null) =>
-          status ? searchParams.update({ status }) : undefined}
-        placeholder="All Statuses"
-        label="Filter by Status"
-      />
-      <FilterBar.Reset />
+    <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
+      <div class="flex items-center justify-start gap-4">
+        <FilterBar.Search
+          placeholder="Search by filename..."
+          value={searchParams.search}
+          oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
+        />
+        <FilterBar.Dropdown
+          items={statusOptions}
+          value={searchParams.status === "" ? null : searchParams.status}
+          onValueChange={(status: InvoiceFileStatus | null) =>
+            status ? searchParams.update({ status }) : undefined}
+          placeholder="All Statuses"
+          label="Filter by Status"
+        />
+        <FilterBar.Reset />
+      </div>
+
+      <ToggleGroup
+        type="single"
+        value={searchParams.view}
+        onValueChange={(value) => {
+          if (value && (value === "card" || value === "table")) {
+            searchParams.update({ view: value as InvoiceFilesView });
+          }
+        }}
+        variant="outline"
+        size="sm"
+      >
+        <ToggleGroupItem value="card" aria-label="Card view">
+          <LayoutGridIcon class="size-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="table" aria-label="Table view">
+          <ListIcon class="size-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
     </FilterBar.Root>
 
     {#if invoiceFiles.isLoading}
@@ -315,9 +351,133 @@
       <div class="flex items-center justify-center py-12">
         <p class="text-red-500">Failed to load invoice files</p>
       </div>
-    {:else}
-      <!-- Invoice Files Table -->
+    {:else if filteredFiles.length === 0}
+      <div class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="bg-muted mb-3 flex size-12 items-center justify-center rounded-full">
+          <FileTextIcon class="text-muted-foreground size-6" />
+        </div>
+        <p class="text-muted-foreground">No invoice files found</p>
+      </div>
+    {:else if searchParams.view === "table"}
       <DataTable {columns} data={filteredFiles} loading={false} />
+
+      {#if invoiceFiles.hasNextPage}
+        <div class="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            onclick={() => invoiceFiles.fetchNextPage()}
+            disabled={invoiceFiles.isFetchingNextPage}
+          >
+            {#if invoiceFiles.isFetchingNextPage}
+              <Loader2Icon class="mr-2 size-4 animate-spin" />
+              Loading...
+            {:else}
+              Load More
+            {/if}
+          </Button>
+        </div>
+      {/if}
+    {:else}
+      <div class="space-y-2">
+        {#each filteredFiles as file (file.id)}
+          <Card.Root class="overflow-hidden p-0">
+            <Card.Content class="p-0">
+              <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
+                <a
+                  href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
+                  class="flex min-w-0 flex-1 items-center gap-3"
+                >
+                  <div
+                    class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
+                  >
+                    {#if file.fileType.startsWith("image/")}
+                      <ImageIcon class="text-primary size-5" />
+                    {:else}
+                      <FileTextIcon class="text-primary size-5" />
+                    {/if}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="truncate text-sm font-medium">{file.filename}</p>
+                      <div class="hidden sm:block">
+                        <StatusCell status={file.status} />
+                      </div>
+                    </div>
+                    <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
+                      <span>{getFileTypeLabel(file.fileType)}</span>
+                      <span>•</span>
+                      <span>{new Date(file.createdAt).toLocaleDateString()}</span>
+                      {#if (file.status === "PROCESSED" || file.status === "REVIEWED") && file.confidenceScore !== null}
+                        <span>•</span>
+                        <span>{Math.round(file.confidenceScore * 100)}% confidence</span>
+                      {/if}
+                      <span class="sm:hidden">•</span>
+                      <span class="sm:hidden"
+                        >{statusOptions.find((s) => s.value === file.status)?.label ??
+                          file.status}</span
+                      >
+                    </div>
+                  </div>
+                </a>
+
+                <div class="flex shrink-0 items-center gap-1.5">
+                  {#if file.status === "PROCESSING" || processingFileId === file.id}
+                    <div class="text-muted-foreground flex items-center gap-1.5">
+                      <Loader2Icon class="size-4 animate-spin" />
+                      <span class="hidden text-sm sm:inline">Processing...</span>
+                    </div>
+                  {:else if file.status === "UPLOADED"}
+                    <Button variant="outline" size="sm" onclick={() => handleProcessFile(file.id)}>
+                      <PlayIcon class="size-4 sm:mr-1" />
+                      <span class="hidden sm:inline">Process</span>
+                    </Button>
+                  {:else if file.status === "FAILED"}
+                    <Button variant="outline" size="sm" onclick={() => handleProcessFile(file.id)}>
+                      <PlayIcon class="size-4 sm:mr-1" />
+                      <span class="hidden sm:inline">Retry</span>
+                    </Button>
+                  {:else if file.status === "PROCESSED" || file.status === "REVIEWED"}
+                    <a
+                      href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
+                      class={buttonVariants({ size: "sm" })}
+                    >
+                      <SearchIcon class="size-4 sm:mr-1" />
+                      <span class="hidden sm:inline">Review</span>
+                    </a>
+                  {/if}
+
+                  {#if file.status !== "PROCESSING" && processingFileId !== file.id}
+                    <DropdownMenu.Root>
+                      <DropdownMenu.Trigger
+                        class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
+                        onclick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVerticalIcon class="text-muted-foreground size-4" />
+                      </DropdownMenu.Trigger>
+                      <DropdownMenu.Content align="end">
+                        <DropdownMenu.Item onclick={() => handleDownloadFile(file.id)}>
+                          <DownloadIcon class="size-4" />
+                          Download
+                        </DropdownMenu.Item>
+                        {#if file.status === "UPLOADED" || file.status === "FAILED"}
+                          <DropdownMenu.Separator />
+                          <DropdownMenu.Item
+                            class="text-destructive"
+                            onclick={() => handleDeleteFile(file.id)}
+                          >
+                            <Trash2Icon class="size-4" />
+                            Delete
+                          </DropdownMenu.Item>
+                        {/if}
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
+                  {/if}
+                </div>
+              </div>
+            </Card.Content>
+          </Card.Root>
+        {/each}
+      </div>
 
       {#if invoiceFiles.hasNextPage}
         <div class="mt-4 flex justify-center">
@@ -409,29 +569,5 @@
         </Card.Content>
       </Card.Root>
     </div>
-  </Dialog.Content>
-</Dialog.Root>
-
-<Dialog.Root bind:open={isDeleteDialogOpen}>
-  <Dialog.Content class="max-w-md">
-    <Dialog.Header>
-      <Dialog.Title>Delete Invoice File</Dialog.Title>
-      <Dialog.Description>
-        Are you sure you want to delete this invoice file? This action cannot be undone.
-      </Dialog.Description>
-    </Dialog.Header>
-    <Dialog.Footer>
-      <Button variant="outline" onclick={() => (isDeleteDialogOpen = false)}>Cancel</Button>
-      <Button
-        variant="destructive"
-        onclick={handleConfirmDelete}
-        disabled={deleteMutation.isPending}
-      >
-        {#if deleteMutation.isPending}
-          <Loader2Icon class="mr-2 size-4 animate-spin" />
-        {/if}
-        Delete
-      </Button>
-    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
