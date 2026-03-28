@@ -66,6 +66,13 @@ export function formatPrice(cents: number, country?: CountryCode | null): string
   }).format(amount);
 }
 
+export function formatNumber(value: number, fraction = 2): string {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: fraction,
+    maximumFractionDigits: fraction,
+  }).format(value);
+}
+
 export function formatDate(date: Date | string, withTime = false) {
   const d = typeof date === "string" ? new Date(date) : date;
   const options: Intl.DateTimeFormatOptions = {

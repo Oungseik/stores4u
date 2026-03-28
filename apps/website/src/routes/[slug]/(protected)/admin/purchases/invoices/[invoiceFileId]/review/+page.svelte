@@ -9,6 +9,7 @@
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { NumberInput } from "@repo/ui/number-input";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
   import { Textarea } from "@repo/ui/textarea";
@@ -18,7 +19,7 @@
   import SupplierCard, { type Supplier } from "$lib/components/cards/SupplierCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { formatPrice } from "$lib/utils";
+  import { formatNumber, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -304,22 +305,20 @@
                       </td>
 
                       <td class="px-4 py-2">
-                        <Input
-                          type="number"
+                        <NumberInput
                           bind:value={item.qty}
-                          class="w-20 text-center"
-                          min="0"
-                          step="1"
+                          class="w-24 text-center"
+                          fraction={0}
+                          min={0}
                         />
                       </td>
 
                       <td class="px-4 py-2">
-                        <Input
-                          type="number"
+                        <NumberInput
                           bind:value={item.unitCost}
-                          class="w-28 text-right"
-                          min="0"
-                          step="0.01"
+                          class="w-32 text-right"
+                          fraction={2}
+                          min={0}
                         />
                       </td>
 
@@ -365,44 +364,41 @@
             <div class="space-y-2 rounded-lg border p-4 text-sm">
               <div class="flex items-center justify-between">
                 <span class="text-muted-foreground">Subtotal</span>
-                <Input
-                  type="number"
+                <NumberInput
                   value={subtotalCents / 100}
-                  class="w-32 text-right disabled:cursor-default disabled:opacity-100"
+                  class="w-32 text-right"
+                  fraction={2}
                   disabled
                 />
               </div>
 
               <div class="flex items-center justify-between">
                 <span class="text-muted-foreground">VAT</span>
-                <Input
-                  type="number"
+                <NumberInput
                   bind:value={invoiceData.vat}
                   class="w-32 text-right"
-                  min="0"
-                  step="0.01"
+                  fraction={2}
+                  min={0}
                 />
               </div>
 
               <div class="flex items-center justify-between">
                 <span class="text-muted-foreground">Discount</span>
-                <Input
-                  type="number"
+                <NumberInput
                   bind:value={invoiceData.discount}
                   class="w-32 text-right"
-                  min="0"
-                  step="0.01"
+                  fraction={2}
+                  min={0}
                 />
               </div>
 
               <div class="flex items-center justify-between">
                 <span class="text-muted-foreground">Freight</span>
-                <Input
-                  type="number"
+                <NumberInput
                   bind:value={invoiceData.freight}
                   class="w-32 text-right"
-                  min="0"
-                  step="0.01"
+                  fraction={2}
+                  min={0}
                 />
               </div>
 
@@ -410,10 +406,10 @@
 
               <div class="flex items-center justify-between">
                 <span class="font-semibold">Total</span>
-                <Input
-                  type="number"
+                <NumberInput
                   value={totalCents / 100}
-                  class="w-32 text-right text-lg font-bold disabled:cursor-default disabled:opacity-100"
+                  class="w-32 text-right text-lg font-bold"
+                  fraction={2}
                   disabled
                 />
               </div>
