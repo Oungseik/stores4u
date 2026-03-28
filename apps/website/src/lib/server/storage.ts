@@ -23,6 +23,13 @@ export function presignUpload(key: string, contentType: string, expiresIn = 900)
   });
 }
 
+export function presignDownload(key: string, expiresIn = 900): string {
+  return storage.presign(key, {
+    expiresIn,
+    method: "GET",
+  });
+}
+
 export async function getPartialObject(key: string, bytes: number): Promise<Buffer> {
   const file = storage.file(key);
   const stream = file.stream();
@@ -64,6 +71,11 @@ export function getObjectUrl(key: string): string {
 export async function removeImage(objectPath: string) {
   await storage.delete(objectPath, { bucket: STORAGE_BUCKET_NAME });
   return true;
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  const file = storage.file(key);
+  await file.delete();
 }
 
 export async function putObject(key: string, data: Buffer, contentType: string): Promise<void> {
