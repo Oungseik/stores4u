@@ -66,7 +66,6 @@
           email: created.email ?? null,
           address: created.address ?? null,
         };
-        suppliers.push(newSupplier);
         selectedSupplier = newSupplier;
         isExistingSupplier = true;
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });

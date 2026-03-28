@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
-import { eq, purchaseInvoiceFile, purchaseInvoiceOcrResult } from "@repo/db";
+import { eq, purchaseInvoiceFile, purchaseInvoiceOcrResult, type ExtractedInvoiceData } from "@repo/db";
 import { z } from "zod";
-import { type ExtractedInvoiceData, processInvoice } from "$lib/server/ai/invoice-processor";
+import { processInvoice } from "$lib/server/ai/invoice-processor";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -59,27 +59,15 @@ export const processInvoiceFileHandler = os
       });
     }
 
-    const extractedSupplierName = extractedData.supplier.name.toLowerCase().trim();
-    const existingSuppliers = await shopDb.query.supplier.findMany({
-      where: { name: { like: `%${extractedSupplierName}%` } },
-    });
-
-    const matchedSupplierId = existingSuppliers.at(0)?.id ?? null;
-
     const photoUrl = file.objectPath;
-    const rawJson = JSON.stringify(extractedData);
-    const extractedJson = JSON.stringify({
-      ...extractedData,
-      matchedSupplierId,
-    });
     const now = new Date();
 
     const ocrResultData = {
       photoUrl,
       invoiceFileId: file.id,
-      rawJson,
+      rawJson: extractedData,
       extractedText: extractedData.rawText ?? null,
-      extractedData: extractedJson,
+      extractedData,
       confidenceScore: extractedData.confidence,
       status: "PROCESSED" as const,
       createdAt: now,

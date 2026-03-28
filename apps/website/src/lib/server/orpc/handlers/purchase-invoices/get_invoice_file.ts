@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
+import { extractObjectKey, presignDownload } from "$lib/server/storage";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -27,6 +28,9 @@ export const getInvoiceFileHandler = os
       throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
+    const objectKey = extractObjectKey(file.objectPath);
+    const imageUrl = objectKey ? presignDownload(objectKey, 3600) : null;
+
     return {
       id: file.id,
       objectPath: file.objectPath,
@@ -36,6 +40,7 @@ export const getInvoiceFileHandler = os
       status: file.status,
       createdAt: file.createdAt,
       updatedAt: file.updatedAt,
+      imageUrl,
       ocrResult: file.ocrResult
         ? {
             id: file.ocrResult.id,

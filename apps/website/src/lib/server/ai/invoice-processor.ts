@@ -1,45 +1,12 @@
 import { OpenRouter } from "@openrouter/sdk";
+import {
+  type ExtractedInvoiceData,
+  ExtractedInvoiceDataSchema,
+} from "@repo/db";
 import { OPENROUTER_API_KEY } from "$env/static/private";
 import { logger } from "../logger";
 
 const openRouter = new OpenRouter({ apiKey: OPENROUTER_API_KEY });
-
-export type ExtractedSupplier = {
-  name: string;
-  contactName?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-};
-
-export type ExtractedInvoice = {
-  invoiceNumber: string;
-  invoiceDate?: string;
-  subtotalCents?: number;
-  vatCents?: number;
-  discountCents?: number;
-  freightCents?: number;
-  totalCents: number;
-  paymentTerms?: string;
-  notes?: string;
-};
-
-export type ExtractedItem = {
-  productName: string;
-  description?: string;
-  quantity: number;
-  unitCostCents: number;
-  lineTotalCents: number;
-  sku?: string;
-};
-
-export type ExtractedInvoiceData = {
-  supplier: ExtractedSupplier;
-  invoice: ExtractedInvoice;
-  items: ExtractedItem[];
-  confidence: number;
-  rawText?: string;
-};
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -188,7 +155,8 @@ async function callOpenRouter(images: string[]): Promise<ExtractedInvoiceData> {
         throw new Error("No response content from OpenRouter");
       }
 
-      return JSON.parse(content) satisfies ExtractedInvoiceData;
+      const parsed = JSON.parse(content);
+      return ExtractedInvoiceDataSchema.parse(parsed);
     }
 
     throw new Error("Unexpected response type from OpenRouter");

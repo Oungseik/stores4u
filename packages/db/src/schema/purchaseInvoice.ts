@@ -1,8 +1,51 @@
 import { randomUUIDv7 } from "bun";
 import { sql } from "drizzle-orm";
 import { check, index, integer, real, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
+import { z } from "zod";
 import { product } from "./product";
 import { supplier } from "./supplier";
+
+export const ExtractedSupplierSchema = z.object({
+  name: z.string(),
+  contactName: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  address: z.string().optional(),
+});
+
+export const ExtractedInvoiceSchema = z.object({
+  invoiceNumber: z.string(),
+  invoiceDate: z.string().optional(),
+  subtotalCents: z.number().optional(),
+  vatCents: z.number().optional(),
+  discountCents: z.number().optional(),
+  freightCents: z.number().optional(),
+  totalCents: z.number(),
+  paymentTerms: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const ExtractedItemSchema = z.object({
+  productName: z.string(),
+  description: z.string().optional(),
+  quantity: z.number(),
+  unitCostCents: z.number(),
+  lineTotalCents: z.number(),
+  sku: z.string().optional(),
+});
+
+export const ExtractedInvoiceDataSchema = z.object({
+  supplier: ExtractedSupplierSchema,
+  invoice: ExtractedInvoiceSchema,
+  items: z.array(ExtractedItemSchema),
+  confidence: z.number(),
+  rawText: z.string().optional(),
+});
+
+export type ExtractedSupplier = z.infer<typeof ExtractedSupplierSchema>;
+export type ExtractedInvoice = z.infer<typeof ExtractedInvoiceSchema>;
+export type ExtractedItem = z.infer<typeof ExtractedItemSchema>;
+export type ExtractedInvoiceData = z.infer<typeof ExtractedInvoiceDataSchema>;
 
 /**
  * This purchaseInvoice is only related to the invoices when we refill stock and got the invoices
@@ -64,9 +107,9 @@ export const purchaseInvoiceOcrResult = sqliteTable(
       .$defaultFn(() => randomUUIDv7()),
     photoUrl: text("photo_url").notNull(),
     invoiceFileId: text("invoice_file_id").references(() => purchaseInvoiceFile.id),
-    rawJson: text("raw_json").notNull(),
+    rawJson: text("raw_json", { mode: "json" }).$type<ExtractedInvoiceData>().notNull(),
     extractedText: text("extracted_text"),
-    extractedData: text("extracted_data"),
+    extractedData: text("extracted_data", { mode: "json" }).$type<ExtractedInvoiceData>(),
     confidenceScore: real("confidence_score"),
     status: text("status", { enum: ocrStatuses }).default("PENDING").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })

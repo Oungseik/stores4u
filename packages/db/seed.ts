@@ -187,15 +187,48 @@ function generateProductSupplierData(products: { id: string }[], suppliers: { id
 function generatePurchaseInvoiceOcrResultData(count: number) {
   const data = [];
   for (let i = 0; i < count; i++) {
+    const extractedDataObj = {
+      supplier: {
+        name: `Supplier ${i + 1}`,
+        contactName: `Contact ${i + 1}`,
+        phone: "+1-555-0100",
+        email: `supplier${i + 1}@example.com`,
+        address: `${i + 100} Main St`,
+      },
+      invoice: {
+        invoiceNumber: `INV-${i + 1}`,
+        invoiceDate: `2024-0${(i % 9) + 1}-15`,
+        subtotalCents: randInt(10000, 100000),
+        vatCents: randInt(1000, 10000),
+        discountCents: randInt(0, 5000),
+        freightCents: randInt(0, 2000),
+        totalCents: randInt(10000, 120000),
+        paymentTerms: "Net 30",
+        notes: `Notes for invoice ${i + 1}`,
+      },
+      items: [
+        {
+          productName: `Product ${i + 1}-A`,
+          quantity: randInt(1, 10),
+          unitCostCents: randInt(100, 1000),
+          lineTotalCents: randInt(100, 10000),
+        },
+        {
+          productName: `Product ${i + 1}-B`,
+          quantity: randInt(1, 5),
+          unitCostCents: randInt(200, 2000),
+          lineTotalCents: randInt(200, 10000),
+        },
+      ],
+      confidence: randFloat(0.5, 1.0),
+      rawText: `Raw extracted text from invoice ${i + 1}`,
+    };
     data.push({
       id: randomUUIDv7(),
       photoUrl: `https://example.com/invoices/ocr-${i + 1}.jpg`,
-      rawJson: JSON.stringify({ items: [], total: randInt(1000, 100000) }),
+      rawJson: extractedDataObj,
       extractedText: `Extracted text from invoice ${i + 1}`,
-      extractedData: JSON.stringify({
-        invoiceNumber: `INV-${i + 1}`,
-        total: randInt(1000, 100000),
-      }),
+      extractedData: extractedDataObj,
       confidenceScore: randFloat(0.5, 1.0),
       status: rand(arrays.ocrStatuses),
     });
