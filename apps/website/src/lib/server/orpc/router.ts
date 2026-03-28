@@ -22,6 +22,7 @@ import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { createPurchaseInvoiceHandler } from "./handlers/purchase-invoices/create_purchase_invoice";
 import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_invoice_file";
+import { deletePurchaseInvoiceHandler } from "./handlers/purchase-invoices/delete_purchase_invoice";
 import { downloadInvoiceFileHandler } from "./handlers/purchase-invoices/download_invoice_file";
 import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
 import { getPurchaseInvoiceHandler } from "./handlers/purchase-invoices/get_purchase_invoice";
@@ -39,6 +40,7 @@ import { getFacebookPagesHandler } from "./handlers/social/get_facebook_pages";
 import { listConnectionsHandler } from "./handlers/social/list_connections";
 import { updatePermissionsHandler } from "./handlers/social/update_permissions";
 import { createSupplierHandler } from "./handlers/suppliers/create_supplier";
+import { deleteSupplierHandler } from "./handlers/suppliers/delete_supplier";
 import { getSupplierHandler } from "./handlers/suppliers/get_supplier";
 import { listSuppliersHandler } from "./handlers/suppliers/list_suppliers";
 import { updateSupplierHandler } from "./handlers/suppliers/update_supplier";
@@ -60,6 +62,7 @@ export const router = os.router({
   },
   purchaseInvoices: {
     create: createPurchaseInvoiceHandler,
+    delete: deletePurchaseInvoiceHandler,
     deleteFile: deleteInvoiceFileHandler,
     downloadFile: downloadInvoiceFileHandler,
     get: getPurchaseInvoiceHandler,
@@ -101,6 +104,7 @@ export const router = os.router({
   },
   suppliers: {
     create: createSupplierHandler,
+    delete: deleteSupplierHandler,
     get: getSupplierHandler,
     list: listSuppliersHandler,
     update: updateSupplierHandler,

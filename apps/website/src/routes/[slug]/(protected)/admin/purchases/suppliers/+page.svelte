@@ -13,14 +13,20 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
   import { Button, buttonVariants } from "@repo/ui/button";
-  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Card from "@repo/ui/card";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
+  import {
+    createInfiniteQuery,
+    createMutation,
+    createQuery,
+    useQueryClient,
+  } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
+  import { toast } from "svelte-sonner";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
@@ -33,6 +39,19 @@
   import type { PageProps } from "./$types";
 
   const { params, data: shop }: PageProps = $props();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = createMutation(() =>
+    orpc.suppliers.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Supplier deleted successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to delete supplier");
+      },
+    })
+  );
 
   type ApiSupplier = {
     id: string;
@@ -113,12 +132,12 @@
     isEditOpen = true;
   }
 
-  function deleteSupplier(supplierId: string) {
+  function deleteSupplier(supplier: ApiSupplier) {
     confirmDelete({
       title: "Delete Supplier",
-      description: "Are you sure you want to delete this supplier? This action cannot be undone.",
+      description: `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
       onConfirm: async () => {
-        alert("Supplier deletion is not yet implemented. Backend handler needed.");
+        await deleteMutation.mutateAsync({ slug: params.slug, id: supplier.id });
       },
     });
   }
@@ -268,7 +287,7 @@
                     <DropdownMenu.Separator />
                     <DropdownMenu.Item
                       class="text-red-600"
-                      onclick={() => deleteSupplier(supplier.id)}
+                      onclick={() => deleteSupplier(supplier)}
                     >
                       <Trash2Icon class="size-4" />
                       Delete

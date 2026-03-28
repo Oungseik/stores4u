@@ -197,7 +197,7 @@
       validators={{
         onChange: ({ value }) => {
           if (!value) return undefined;
-          const emailSchema = z.string().max(255).email("Invalid email address");
+          const emailSchema = z.email();
           return emailSchema.safeParse(value).error?.issues.at(0)?.message;
         },
       }}
