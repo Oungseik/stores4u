@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import {
   eq,
+  productAlias,
   purchaseInvoice,
   purchaseInvoiceFile,
   purchaseInvoiceItem,
@@ -38,9 +39,15 @@ export const submitInvoiceReviewHandler = os
       throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
-    if (existingFile.status !== "PROCESSED") {
+    if (existingFile.status === "PROCESSING") {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Invoice file must be processed before review",
+        message: "Invoice is under processing. Please wait until processing finish",
+      });
+    }
+
+    if (existingFile.status === "REVIEWED") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Invoice is already review. Please upload again if you missed to add some items.",
       });
     }
 
@@ -87,6 +94,7 @@ export const submitInvoiceReviewHandler = os
         input.items.map((item) => ({
           purchaseInvoiceId: createdInvoice.id,
           productId: item.productId,
+          invoiceItemName: item.invoiceItemName,
           qty: item.qty,
           unitCostCents: item.unitCostCents,
           lineSubtotalCents: item.lineSubtotalCents,
@@ -99,6 +107,21 @@ export const submitInvoiceReviewHandler = os
           createdAt: now,
         })),
       );
+
+      const aliasesToCreate = input.items
+        .filter(
+          (item): item is typeof item & { productId: string; invoiceItemName: string } =>
+            item.saveAlias === true && !!item.productId && !!item.invoiceItemName,
+        )
+        .map((item) => ({
+          productId: item.productId,
+          alias: item.invoiceItemName,
+          createdAt: now,
+        }));
+
+      if (aliasesToCreate.length > 0) {
+        await tx.insert(productAlias).values(aliasesToCreate).onConflictDoNothing();
+      }
 
       if (existingFile.ocrResult) {
         await tx

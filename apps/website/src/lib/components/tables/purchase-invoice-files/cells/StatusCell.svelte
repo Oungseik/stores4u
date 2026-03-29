@@ -15,19 +15,30 @@
     PROCESSING: {
       variant: "default",
       label: "Processing",
-      class: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50",
+      class:
+        "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10 dark:text-amber-400",
     },
     PROCESSED: {
       variant: "default",
       label: "Ready to Review",
-      class: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50",
+      class:
+        "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10 dark:text-emerald-400",
     },
-    FAILED: { variant: "destructive", label: "Failed" },
-    REVIEWED: { variant: "outline", label: "Reviewed" },
+    FAILED: {
+      variant: "default",
+      label: "Failed",
+      class: "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/10 dark:text-red-400",
+    },
+    REVIEWED: {
+      variant: "default",
+      label: "Reviewed",
+      class:
+        "bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/10 dark:text-blue-400",
+    },
     REJECTED: {
       variant: "default",
       label: "Rejected",
-      class: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
+      class: "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/10 dark:text-red-400",
     },
   };
 

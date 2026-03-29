@@ -73,6 +73,10 @@ export function formatNumber(value: number, fraction = 2): string {
   }).format(value);
 }
 
+export function calcLineTotalCents(qty: number, unitCost: number): number {
+  return Math.round(qty * unitCost * 100);
+}
+
 export function formatDate(date: Date | string, withTime = false) {
   const d = typeof date === "string" ? new Date(date) : date;
   const options: Intl.DateTimeFormatOptions = {

@@ -63,6 +63,7 @@ export const createPurchaseInvoiceHandler = os
         input.items.map((item) => ({
           purchaseInvoiceId: created.id,
           productId: item.productId,
+          invoiceItemName: item.invoiceItemName,
           qty: item.qty,
           unitCostCents: item.unitCostCents,
           lineSubtotalCents: item.lineSubtotalCents,

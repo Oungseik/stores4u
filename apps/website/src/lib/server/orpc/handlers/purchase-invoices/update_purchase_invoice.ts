@@ -78,6 +78,7 @@ export const updatePurchaseInvoiceHandler = os
         input.items.map((item) => ({
           purchaseInvoiceId: input.id,
           productId: item.productId,
+          invoiceItemName: item.invoiceItemName,
           qty: item.qty,
           unitCostCents: item.unitCostCents,
           lineSubtotalCents: item.lineSubtotalCents,

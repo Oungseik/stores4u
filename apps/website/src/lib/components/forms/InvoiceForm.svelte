@@ -164,6 +164,7 @@
         status: value.status,
         items: items.map((item) => ({
           productId: item.productId,
+          invoiceItemName: item.productName,
           qty: item.qty,
           unitCostCents: item.unitCostCents,
           lineSubtotalCents: calculateLineTotal(item.qty, item.unitCostCents),

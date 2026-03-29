@@ -45,7 +45,7 @@ export const listProductsHandler = os
         priceCents: { gte: input.minPriceCents, lte: input.maxPriceCents },
         uom: input.uoms?.length ? { in: input.uoms } : undefined,
       },
-      with: { productCategories: { with: { category: true } } },
+      with: { productCategories: { with: { category: true } }, productAliases: { columns: { alias: true } } },
       limit: input.pageSize + 1,
       orderBy: { id: input.order },
     });
@@ -72,6 +72,7 @@ export const listProductsHandler = os
       categories: p.productCategories
         .map((c) => c.category?.name)
         .filter((c): c is string => c !== undefined),
+      aliases: p.productAliases.map((a) => a.alias),
       stock: p.stock,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,

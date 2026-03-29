@@ -32,9 +32,9 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
-    if (file.status !== "UPLOADED" && file.status !== "REJECTED") {
+    if (file.status === "REVIEWED") {
       throw new ORPCError("BAD_REQUEST", {
-        message: `File status must be UPLOADED or REJECTED, current status: ${file.status}`,
+        message: `Unable to process file. File is already reviewed.`,
       });
     }
 
@@ -65,6 +65,7 @@ export const processInvoiceFileHandler = os
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
 
+      logger.error({ error }, "Failed to process invoice");
       throw new ORPCError("BAD_REQUEST", {
         message: "Failed to process invoice: Please upload clear and correctly formatted invoice",
       });
