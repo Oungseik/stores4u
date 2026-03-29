@@ -1,3 +1,4 @@
+import type { PurchaseInvoiceFileStatus, PurchaseInvoiceStatus } from "@repo/db";
 import { createSearchParamsSchema, type StandardSchemaV1 } from "runed/kit";
 
 type CheckoutMode = {
@@ -63,8 +64,6 @@ export const shopProductsFilterSchema = createSearchParamsSchema({
   maxPrice: { type: "number" },
 }) as StandardSchemaV1<unknown, ShopProductFilterSchema>;
 
-export type PurchaseInvoiceStatus = "PENDING" | "VALIDATED" | "REJECTED" | "AUTO_ACCEPTED";
-export type InvoiceFileStatus = "UPLOADED" | "PROCESSING" | "PROCESSED" | "FAILED" | "REVIEWED";
 export type InvoiceFilesView = "card" | "table";
 
 export const invoiceFilesFilterSchema = createSearchParamsSchema({
@@ -73,7 +72,7 @@ export const invoiceFilesFilterSchema = createSearchParamsSchema({
   view: { type: "string", default: "card" },
 }) as StandardSchemaV1<
   unknown,
-  { search: string; status: InvoiceFileStatus | ""; view: InvoiceFilesView }
+  { search: string; status: PurchaseInvoiceFileStatus | ""; view: InvoiceFilesView }
 >;
 
 type ProductDetailTab = {

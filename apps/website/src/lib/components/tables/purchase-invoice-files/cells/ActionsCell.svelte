@@ -22,7 +22,7 @@
   const { id, slug, status, isProcessing, onProcess, onDelete, onDownload }: Props = $props();
 
   const canDownload = $derived(status !== "PROCESSING");
-  const canDelete = $derived(status === "UPLOADED" || status === "FAILED");
+  const canDelete = $derived(status === "UPLOADED" || status === "FAILED" || status === "REJECTED");
 
   function handleDelete() {
     confirmDelete({
@@ -60,7 +60,7 @@
           <PlayIcon class="size-4" />
           Retry
         </DropdownMenu.Item>
-      {:else if status === "PROCESSED" || status === "REVIEWED"}
+      {:else if status === "PROCESSED" || status === "REVIEWED" || status === "REJECTED"}
         <DropdownMenu.Item>
           {#snippet child()}
             <a

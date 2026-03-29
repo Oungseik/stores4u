@@ -1,11 +1,14 @@
 <script lang="ts">
   import CheckIcon from "@lucide/svelte/icons/check";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
-  import { createQuery } from "@tanstack/svelte-query";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
+  import { createMutation, createQuery } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
+  import { goto } from "$app/navigation";
   import InvoicePreviewCard from "$lib/components/cards/InvoicePreviewCard.svelte";
   import SupplierCard, { type Supplier } from "$lib/components/cards/SupplierCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -76,6 +79,10 @@
 
   const canSave = $derived(selectedSupplier !== null);
 
+  const canShowActions = $derived(
+    !isLoading && !error && invoiceFileQuery.isSuccess && suppliersQuery.isSuccess
+  );
+
   const lineTotalsCents = $derived(
     invoiceData.items.map((item) => Math.round(item.qty * item.unitCost * 100))
   );
@@ -130,6 +137,36 @@
     isSubmitting = false;
     toast.success("Invoice validated and inventory updated successfully!");
   }
+
+  const rejectMutation = createMutation(() => orpc.purchaseInvoices.rejectFile.mutationOptions());
+
+  let isRejecting = $state(false);
+
+  function handleReject() {
+    confirmDelete({
+      title: "Reject Invoice",
+      description:
+        "Are you sure you want to reject this invoice? The OCR data will be kept for future re-processing.",
+      confirm: { text: "Reject" },
+      onConfirm: async () => {
+        isRejecting = true;
+        rejectMutation.mutate(
+          { slug: params.slug, invoiceFileId: params.invoiceFileId },
+          {
+            onSuccess: () => {
+              toast.success("Invoice rejected");
+              goto(`/${params.slug}/admin/purchases/invoices`);
+            },
+            onError: (e) => {
+              console.error(e);
+              toast.error("Failed to reject invoice");
+            },
+            onSettled: () => (isRejecting = false),
+          }
+        );
+      },
+    });
+  }
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
@@ -141,11 +178,22 @@
     ]}
   >
     {#snippet actions()}
-      {#if invoiceFileQuery.data?.status === "PROCESSED"}
+      {#if canShowActions}
         <div class="flex gap-2">
-          <Button variant="outline" onclick={() => history.back()}>
-            <XIcon class="size-4" />
-            Cancel
+          <Button
+            variant="destructive"
+            onclick={handleReject}
+            disabled={isRejecting || invoiceFileQuery.data?.status === "REJECTED"}
+          >
+            {#if isRejecting}
+              <Loader2Icon class="size-4 animate-spin" />
+              Rejecting...
+            {:else if invoiceFileQuery.data?.status === "REJECTED"}
+              Rejected
+            {:else}
+              <Trash2Icon class="size-4" />
+              Reject
+            {/if}
           </Button>
           <Button onclick={validateAndSave} disabled={isSubmitting || !canSave}>
             {#if isSubmitting}
@@ -172,15 +220,6 @@
       <div class="text-center">
         <p class="text-lg font-semibold">Error Loading Invoice</p>
         <p class="text-muted-foreground">{error?.message ?? "Invoice file not found"}</p>
-      </div>
-      <Button variant="outline" onclick={() => history.back()}>Go Back</Button>
-    </div>
-  {:else if invoiceFileQuery.data.status !== "PROCESSED"}
-    <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-      <XIcon class="text-destructive size-12" />
-      <div class="text-center">
-        <p class="text-lg font-semibold">Invoice Not Ready</p>
-        <p class="text-muted-foreground">Invoice file must be processed before review</p>
       </div>
       <Button variant="outline" onclick={() => history.back()}>Go Back</Button>
     </div>

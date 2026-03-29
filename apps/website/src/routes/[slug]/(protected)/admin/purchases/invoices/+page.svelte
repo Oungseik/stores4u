@@ -12,6 +12,8 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UploadIcon from "@lucide/svelte/icons/upload";
+  import XCircleIcon from "@lucide/svelte/icons/x-circle";
+  import type { PurchaseInvoiceFileStatus } from "@repo/db";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
@@ -30,11 +32,7 @@
   import StatusCell from "$lib/components/tables/purchase-invoice-files/cells/StatusCell.svelte";
   import { createColumns } from "$lib/components/tables/purchase-invoice-files/columns";
   import { orpc } from "$lib/orpc_client";
-  import {
-    type InvoiceFileStatus,
-    type InvoiceFilesView,
-    invoiceFilesFilterSchema,
-  } from "$lib/search_param";
+  import { type InvoiceFilesView, invoiceFilesFilterSchema } from "$lib/search_param";
 
   import type { PageProps } from "./$types";
 
@@ -57,7 +55,8 @@
     { value: "PROCESSED", label: "Ready to Review" },
     { value: "FAILED", label: "Failed" },
     { value: "REVIEWED", label: "Reviewed" },
-  ] satisfies { value: InvoiceFileStatus; label: string }[];
+    { value: "REJECTED", label: "Rejected" },
+  ] satisfies { value: PurchaseInvoiceFileStatus; label: string }[];
 
   const invoiceFiles = createInfiniteQuery(() =>
     orpc.purchaseInvoices.listFiles.infiniteOptions({
@@ -89,6 +88,7 @@
       processing: files.filter((f) => f.status === "PROCESSING").length,
       readyToReview: files.filter((f) => f.status === "PROCESSED").length,
       reviewed: files.filter((f) => f.status === "REVIEWED").length,
+      rejected: files.filter((f) => f.status === "REJECTED").length,
     };
   });
 
@@ -261,15 +261,6 @@
 
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <StatsCard
-      title="Total Files"
-      value={stats.total}
-      description="All uploaded"
-      icon={FileTextIcon}
-      iconBgClass="bg-primary/10"
-      iconTextClass="text-primary"
-      borderClass="from-primary/20 to-primary/5"
-    />
-    <StatsCard
       title="Pending"
       value={stats.pending}
       description="Awaiting processing"
@@ -296,6 +287,15 @@
       iconTextClass="text-blue-600"
       borderClass="from-blue-500/20 to-blue-500/5"
     />
+    <StatsCard
+      title="Rejected"
+      value={stats.rejected}
+      description="Declined"
+      icon={XCircleIcon}
+      iconBgClass="bg-red-500/10"
+      iconTextClass="text-red-600"
+      borderClass="from-red-500/20 to-red-500/5"
+    />
   </div>
 
   <section class="mt-4 space-y-6">
@@ -309,7 +309,7 @@
         <FilterBar.Dropdown
           items={statusOptions}
           value={searchParams.status === "" ? null : searchParams.status}
-          onValueChange={(status: InvoiceFileStatus | null) =>
+          onValueChange={(status: PurchaseInvoiceFileStatus | null) =>
             status ? searchParams.update({ status }) : undefined}
           placeholder="All Statuses"
           label="Filter by Status"
@@ -401,7 +401,7 @@
                       <span>{getFileTypeLabel(file.fileType)}</span>
                       <span>•</span>
                       <span>{new Date(file.createdAt).toLocaleDateString()}</span>
-                      {#if (file.status === "PROCESSED" || file.status === "REVIEWED") && file.confidenceScore !== null}
+                      {#if file.confidenceScore !== null}
                         <span>•</span>
                         <span>{Math.round(file.confidenceScore * 100)}% confidence</span>
                       {/if}
@@ -430,7 +430,7 @@
                       <PlayIcon class="size-4 sm:mr-1" />
                       <span class="hidden sm:inline">Retry</span>
                     </Button>
-                  {:else if file.status === "PROCESSED" || file.status === "REVIEWED"}
+                  {:else if file.status === "PROCESSED"}
                     <a
                       href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
                       class={buttonVariants({ size: "sm" })}
@@ -449,11 +449,25 @@
                         <MoreVerticalIcon class="text-muted-foreground size-4" />
                       </DropdownMenu.Trigger>
                       <DropdownMenu.Content align="end">
+                        <DropdownMenu.Item>
+                          {#snippet child()}
+                            <a
+                              href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
+                              class={buttonVariants({
+                                variant: "ghost",
+                                class: "w-full justify-start px-2!",
+                              })}
+                            >
+                              <SearchIcon class="text-muted-foreground size-4" />
+                              <span class="hidden sm:inline">Review</span>
+                            </a>
+                          {/snippet}
+                        </DropdownMenu.Item>
                         <DropdownMenu.Item onclick={() => handleDownloadFile(file.id)}>
                           <DownloadIcon class="size-4" />
                           Download
                         </DropdownMenu.Item>
-                        {#if file.status === "UPLOADED" || file.status === "FAILED"}
+                        {#if file.status === "UPLOADED" || file.status === "FAILED" || file.status === "REJECTED"}
                           <DropdownMenu.Separator />
                           <DropdownMenu.Item
                             class="text-destructive"

@@ -1,4 +1,5 @@
-import { eq, purchaseInvoiceFile } from "@repo/db";
+import { eq, inArray, purchaseInvoice, purchaseInvoiceFile, purchaseInvoiceOcrResult } from "@repo/db";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -21,7 +22,15 @@ export const deleteInvoiceFileHandler = os
     });
 
     if (!file) {
-      throw new Error("Invoice file not found");
+      throw new ORPCError("NOT_FOUND", {
+        message: "Invoice file not found",
+      });
+    }
+
+    if (file.status === "PROCESSING") {
+      throw new ORPCError("FORBIDDEN", {
+        message: "Cannot delete file while processing",
+      });
     }
 
     const ocrResults = await shopDb.query.purchaseInvoiceOcrResult.findMany({
@@ -29,17 +38,39 @@ export const deleteInvoiceFileHandler = os
     });
 
     if (ocrResults.length > 0) {
-      throw new Error(
-        "Cannot delete invoice file with processed data. Delete the associated invoices first.",
-      );
+      const ocrResultIds = ocrResults.map((r) => r.id);
+
+      const existingInvoice = await shopDb
+        .select()
+        .from(purchaseInvoice)
+        .where(inArray(purchaseInvoice.ocrResultId, ocrResultIds))
+        .limit(1);
+
+      if (existingInvoice.length > 0) {
+        throw new ORPCError("FORBIDDEN", {
+          message: "Cannot delete invoice file with confirmed purchase invoices",
+        });
+      }
     }
+
+    await shopDb.transaction(async (tx) => {
+      if (ocrResults.length > 0) {
+        await tx
+          .delete(purchaseInvoiceOcrResult)
+          .where(eq(purchaseInvoiceOcrResult.invoiceFileId, input.fileId));
+      }
+
+      await tx.delete(purchaseInvoiceFile).where(eq(purchaseInvoiceFile.id, input.fileId));
+    });
 
     const objectKey = extractObjectKey(file.objectPath);
     if (objectKey) {
-      await deleteObject(objectKey);
+      try {
+        await deleteObject(objectKey);
+      } catch {
+        // Best effort - orphan files are acceptable
+      }
     }
-
-    await shopDb.delete(purchaseInvoiceFile).where(eq(purchaseInvoiceFile.id, input.fileId));
 
     return { success: true };
   });

@@ -24,6 +24,11 @@
     },
     FAILED: { variant: "destructive", label: "Failed" },
     REVIEWED: { variant: "outline", label: "Reviewed" },
+    REJECTED: {
+      variant: "default",
+      label: "Rejected",
+      class: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
+    },
   };
 
   const config = $derived(statusConfig[status] ?? { variant: "secondary" as const, label: status });

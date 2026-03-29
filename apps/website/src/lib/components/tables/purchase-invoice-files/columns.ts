@@ -39,9 +39,8 @@ export function createColumns(
       accessorKey: "confidenceScore",
       header: "Confidence",
       cell: ({ row }) => {
-        const status = row.original.status;
         const score = row.original.confidenceScore;
-        if ((status === "PROCESSED" || status === "REVIEWED") && score !== null) {
+        if (score !== null) {
           return `${Math.round(score * 100)}%`;
         }
         return "-";

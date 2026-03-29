@@ -6,7 +6,9 @@ const input = z.object({
   slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(20),
-  status: z.enum(["UPLOADED", "PROCESSING", "PROCESSED", "FAILED", "REVIEWED"]).optional(),
+  status: z
+    .enum(["UPLOADED", "PROCESSING", "PROCESSED", "FAILED", "REVIEWED", "REJECTED"])
+    .optional(),
 });
 
 export const listInvoiceFilesHandler = os
