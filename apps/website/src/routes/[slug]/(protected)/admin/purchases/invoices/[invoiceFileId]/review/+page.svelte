@@ -211,7 +211,7 @@
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/${params.slug}/admin` },
-      { label: "Purchases", href: `/${params.slug}/admin/purchases` },
+      { label: "Invoices files", href: `/${params.slug}/admin/purchases/invoices` },
       { label: "Review Invoice" },
     ]}
   >
