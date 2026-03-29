@@ -150,7 +150,7 @@
     </div>
   </div>
 
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="hidden gap-4 sm:grid-cols-2 lg:grid lg:grid-cols-4">
     <StatsCard
       title="Total Orders"
       value={stats().total}
