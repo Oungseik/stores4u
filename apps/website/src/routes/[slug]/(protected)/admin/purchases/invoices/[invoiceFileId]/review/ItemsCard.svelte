@@ -20,7 +20,7 @@
 
   let { items = $bindable([]) }: { items: InvoiceItem[] } = $props();
 
-  let editingItemId = $state<string | null>(null);
+  let isEditing = $state(false);
 
   const lineTotalsCents = $derived(items.map((item) => Math.round(item.qty * item.unitCost * 100)));
 
@@ -35,7 +35,6 @@
         unitCost: 0,
       },
     ];
-    editingItemId = newItemId;
   }
 
   function removeItem(itemId: string) {
@@ -49,25 +48,39 @@
       <PackageIcon class="size-4" />
       Items ({items.length})
     </Card.Title>
-    <Button variant="outline" size="sm" onclick={addItem}>
-      <PlusIcon class="size-4" />
-      Add Item
-    </Button>
+    <div class="flex gap-2">
+      {#if isEditing}
+        <Button variant="outline" size="sm" onclick={() => (isEditing = false)}>
+          <CheckIcon class="size-4" />
+          Done
+        </Button>
+        <Button variant="outline" size="sm" onclick={addItem}>
+          <PlusIcon class="size-4" />
+          Add Item
+        </Button>
+      {:else}
+        <Button variant="outline" size="sm" onclick={() => (isEditing = true)}>
+          <PencilIcon class="size-4" />
+          Edit
+        </Button>
+      {/if}
+    </div>
   </Card.Header>
   <Card.Content class="p-0">
     {#if items.length === 0}
       <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12">
         <PackageIcon class="size-10 opacity-50" />
         <p class="text-sm">No items yet</p>
-        <Button variant="outline" size="sm" onclick={addItem}>
-          <PlusIcon class="size-4" />
-          Add first item
-        </Button>
+        {#if isEditing}
+          <Button variant="outline" size="sm" onclick={addItem}>
+            <PlusIcon class="size-4" />
+            Add first item
+          </Button>
+        {/if}
       </div>
     {:else}
       <div class="divide-y">
         {#each items as item, index (item.id)}
-          {@const isEditing = editingItemId === item.id}
           <div class="hover:bg-muted/30 transition-colors {isEditing ? 'bg-muted/50' : ''}">
             {#if isEditing}
               <div class="flex flex-wrap items-center gap-2 p-3">
@@ -85,19 +98,8 @@
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="size-7 text-green-600 hover:bg-green-100 hover:text-green-700"
-                  onclick={() => (editingItemId = null)}
-                >
-                  <CheckIcon class="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
                   class="size-7 text-red-500 hover:text-red-700"
-                  onclick={() => {
-                    removeItem(item.id);
-                    editingItemId = null;
-                  }}
+                  onclick={() => removeItem(item.id)}
                 >
                   <Trash2Icon class="size-3.5" />
                 </Button>
@@ -118,22 +120,6 @@
                 <span class="font-medium tabular-nums">
                   {formatPrice(lineTotalsCents[index])}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="size-7"
-                  onclick={() => (editingItemId = item.id)}
-                >
-                  <PencilIcon class="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="size-7 text-red-500 hover:text-red-700"
-                  onclick={() => removeItem(item.id)}
-                >
-                  <Trash2Icon class="size-3.5" />
-                </Button>
               </div>
             {/if}
           </div>
