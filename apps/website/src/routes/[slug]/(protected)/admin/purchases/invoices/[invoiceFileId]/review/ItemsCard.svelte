@@ -83,29 +83,38 @@
         {#each items as item, index (item.id)}
           <div class="hover:bg-muted/30 transition-colors {isEditing ? 'bg-muted/50' : ''}">
             {#if isEditing}
-              <div class="flex flex-wrap items-center gap-2 p-3">
+              <div class="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
                 <Input bind:value={item.productName} placeholder="Product" class="min-w-0 flex-1" />
-                <NumberInput bind:value={item.qty} class="w-16 text-center" fraction={0} min={0} />
-                <NumberInput
-                  bind:value={item.unitCost}
-                  class="w-24 text-right"
-                  fraction={2}
-                  min={0}
-                />
-                <span class="font-medium tabular-nums">
-                  {formatPrice(lineTotalsCents[index])}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="size-7 text-red-500 hover:text-red-700"
-                  onclick={() => removeItem(item.id)}
-                >
-                  <Trash2Icon class="size-3.5" />
-                </Button>
+                <div class="flex items-center gap-2">
+                  <NumberInput
+                    bind:value={item.qty}
+                    class="w-16 text-center"
+                    fraction={0}
+                    min={0}
+                  />
+                  <NumberInput
+                    bind:value={item.unitCost}
+                    class="w-24 text-right"
+                    fraction={2}
+                    min={0}
+                  />
+                  <span class="font-medium tabular-nums">
+                    {formatPrice(lineTotalsCents[index])}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="size-7 text-red-500 hover:text-red-700"
+                    onclick={() => removeItem(item.id)}
+                  >
+                    <Trash2Icon class="size-3.5" />
+                  </Button>
+                </div>
               </div>
             {:else}
-              <div class="flex items-center gap-2 p-3">
+              <div
+                class="flex flex-col items-start gap-0.5 p-3 sm:flex-row sm:items-center sm:gap-2"
+              >
                 <div class="min-w-0 flex-1 truncate font-medium">
                   {#if item.productName}
                     {item.productName}
@@ -113,13 +122,15 @@
                     <span class="text-muted-foreground italic">Unnamed</span>
                   {/if}
                 </div>
-                <span class="text-muted-foreground text-sm tabular-nums">
-                  {item.qty}×{formatPrice(Math.round(item.unitCost * 100))}
-                  =
-                </span>
-                <span class="font-medium tabular-nums">
-                  {formatPrice(lineTotalsCents[index])}
-                </span>
+                <div class="flex gap-1 text-sm">
+                  <span class="text-muted-foreground tabular-nums">
+                    {item.qty}×{formatPrice(Math.round(item.unitCost * 100))}
+                    =
+                  </span>
+                  <span class="font-medium tabular-nums">
+                    {formatPrice(lineTotalsCents[index])}
+                  </span>
+                </div>
               </div>
             {/if}
           </div>
