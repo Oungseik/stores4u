@@ -6,12 +6,13 @@
   interface Props {
     imageUrl?: string | null;
     fileType?: string | null;
+    class?: string;
   }
 
-  let { imageUrl, fileType }: Props = $props();
+  let { imageUrl, fileType, class: className }: Props = $props();
 </script>
 
-<Card.Root class="h-fit lg:sticky lg:top-6 lg:col-start-2 lg:col-end-3 lg:row-start-1">
+<Card.Root class="h-fit lg:sticky lg:top-6 lg:col-start-2 lg:col-end-3 lg:row-start-1 {className}">
   <Card.Header>
     <Card.Title>Invoice Preview</Card.Title>
     <Card.Description>Original document uploaded</Card.Description>
