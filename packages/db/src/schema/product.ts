@@ -1,5 +1,5 @@
 import { randomUUIDv7 } from "bun";
-import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
 export const category = sqliteTable("category", {
   id: text("id")
@@ -57,6 +57,26 @@ export const productCategory = sqliteTable(
   ],
 );
 
+export const productAlias = sqliteTable(
+  "product_alias",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUIDv7()),
+    productId: text("product_id")
+      .notNull()
+      .references(() => product.id, { onDelete: "cascade" }),
+    alias: text("alias").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index("product_alias_product_id_idx").on(t.productId),
+    unique("product_alias_product_id_alias_unique").on(t.productId, t.alias),
+  ],
+);
+
 export type CategorySelect = typeof category.$inferSelect;
 export type CategoryInsert = typeof category.$inferInsert;
 
@@ -65,3 +85,6 @@ export type ProductInsert = typeof product.$inferInsert;
 
 export type ProductCategorySelect = typeof productCategory.$inferSelect;
 export type ProductCategoryInsert = typeof productCategory.$inferInsert;
+
+export type ProductAliasSelect = typeof productAlias.$inferSelect;
+export type ProductAliasInsert = typeof productAlias.$inferInsert;
