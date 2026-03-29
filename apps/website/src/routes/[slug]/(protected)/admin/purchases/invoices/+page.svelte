@@ -405,6 +405,13 @@
                         <span>•</span>
                         <span>{Math.round(file.confidenceScore * 100)}% confidence</span>
                       {/if}
+                      {#if file.status === "REJECTED" && file.rejectionReason}
+                        <span>•</span>
+                        <span
+                          class="text-destructive max-w-[200px] truncate"
+                          title={file.rejectionReason}>{file.rejectionReason}</span
+                        >
+                      {/if}
                       <span class="sm:hidden">•</span>
                       <span class="sm:hidden"
                         >{statusOptions.find((s) => s.value === file.status)?.label ??

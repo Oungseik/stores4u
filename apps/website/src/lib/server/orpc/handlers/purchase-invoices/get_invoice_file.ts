@@ -49,6 +49,7 @@ export const getInvoiceFileHandler = os
             extractedText: file.ocrResult.extractedText,
             extractedData: file.ocrResult.extractedData,
             confidenceScore: file.ocrResult.confidenceScore,
+            rejectionReason: file.ocrResult.rejectionReason,
             status: file.ocrResult.status,
             createdAt: file.ocrResult.createdAt,
           }

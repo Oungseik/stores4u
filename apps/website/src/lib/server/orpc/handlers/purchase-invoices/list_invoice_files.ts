@@ -28,6 +28,7 @@ export const listInvoiceFilesHandler = os
         ocrResult: {
           columns: {
             confidenceScore: true,
+            rejectionReason: true,
           },
         },
       },
@@ -49,6 +50,7 @@ export const listInvoiceFilesHandler = os
       size: file.size,
       status: file.status,
       confidenceScore: file.ocrResult?.confidenceScore ?? null,
+      rejectionReason: file.ocrResult?.rejectionReason ?? null,
       createdAt: file.createdAt,
       updatedAt: file.updatedAt,
     }));

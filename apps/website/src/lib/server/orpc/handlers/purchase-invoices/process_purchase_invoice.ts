@@ -32,10 +32,16 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
-    if (file.status !== "UPLOADED") {
+    if (file.status !== "UPLOADED" && file.status !== "REJECTED") {
       throw new ORPCError("BAD_REQUEST", {
-        message: `File status must be UPLOADED, current status: ${file.status}`,
+        message: `File status must be UPLOADED or REJECTED, current status: ${file.status}`,
       });
+    }
+
+    if (file.status === "REJECTED") {
+      await shopDb
+        .delete(purchaseInvoiceOcrResult)
+        .where(eq(purchaseInvoiceOcrResult.invoiceFileId, file.id));
     }
 
     await shopDb

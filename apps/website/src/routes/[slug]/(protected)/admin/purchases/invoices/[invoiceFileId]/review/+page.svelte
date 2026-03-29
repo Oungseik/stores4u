@@ -1,4 +1,5 @@
 <script lang="ts">
+  import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import CheckIcon from "@lucide/svelte/icons/check";
   import DownloadIcon from "@lucide/svelte/icons/download";
   import InfoIcon from "@lucide/svelte/icons/info";
@@ -7,6 +8,7 @@
   import PlayIcon from "@lucide/svelte/icons/play";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
+  import * as Alert from "@repo/ui/alert";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
@@ -92,7 +94,13 @@
 
   const fileStatus = $derived(invoiceFileQuery.data?.status);
 
-  const needsProcessing = $derived(fileStatus === "UPLOADED" || fileStatus === "FAILED");
+  const needsProcessing = $derived(
+    fileStatus === "UPLOADED" || fileStatus === "FAILED" || fileStatus === "REJECTED"
+  );
+
+  const isRejected = $derived(fileStatus === "REJECTED");
+
+  const rejectionReason = $derived(invoiceFileQuery.data?.ocrResult?.rejectionReason ?? null);
 
   const isCurrentlyProcessing = $derived(fileStatus === "PROCESSING" || isProcessing);
 
@@ -357,6 +365,20 @@
               <p class="text-muted-foreground text-sm">Extracted data will appear shortly.</p>
             </div>
           </div>
+        {:else if isRejected}
+          <Alert.Root variant="destructive">
+            <AlertTriangleIcon class="size-4" />
+            <Alert.Title>AI Rejected This File</Alert.Title>
+            <Alert.Description>
+              {#if rejectionReason}
+                <p class="mb-2">{rejectionReason}</p>
+              {/if}
+              <p class="text-sm">
+                You can retry processing, delete the file, or fill in the invoice details manually
+                below.
+              </p>
+            </Alert.Description>
+          </Alert.Root>
         {:else if needsProcessing}
           <div class="bg-info/10 border-info/20 flex items-start gap-3 rounded-lg border p-4">
             <InfoIcon class="text-info mt-0.5 size-5 shrink-0" />
