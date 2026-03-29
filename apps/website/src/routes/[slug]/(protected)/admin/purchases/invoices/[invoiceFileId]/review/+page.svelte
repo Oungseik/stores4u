@@ -2,11 +2,13 @@
   import CheckIcon from "@lucide/svelte/icons/check";
   import InfoIcon from "@lucide/svelte/icons/info";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PlayIcon from "@lucide/svelte/icons/play";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
+  import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
@@ -213,7 +215,7 @@
   >
     {#snippet actions()}
       {#if canShowActions}
-        <div class="flex gap-2">
+        <div class="hidden gap-2 md:flex">
           {#if isCurrentlyProcessing}
             <Button variant="outline" disabled>
               <Loader2Icon class="size-4 animate-spin" />
@@ -251,6 +253,51 @@
             {/if}
           </Button>
         </div>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger class="md:hidden">
+            <Button variant="outline" size="icon">
+              <MoreVerticalIcon class="size-4" />
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            {#if isCurrentlyProcessing}
+              <DropdownMenu.Item disabled>
+                <Loader2Icon class="size-4 animate-spin" />
+                Processing...
+              </DropdownMenu.Item>
+            {:else if needsProcessing}
+              <DropdownMenu.Item onclick={handleProcess}>
+                <PlayIcon class="size-4" />
+                {fileStatus === "FAILED" ? "Retry" : "Process"}
+              </DropdownMenu.Item>
+            {/if}
+            <DropdownMenu.Item
+              onclick={validateAndSave}
+              disabled={isSubmitting || !canSave || isCurrentlyProcessing}
+            >
+              {#if isSubmitting}
+                <Loader2Icon class="size-4 animate-spin" />
+                Saving...
+              {:else}
+                <CheckIcon class="size-4" />
+                Validate & Save
+              {/if}
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              onclick={handleReject}
+              disabled={isRejecting || isCurrentlyProcessing}
+              class="text-destructive focus:text-destructive"
+            >
+              {#if isRejecting}
+                <Loader2Icon class="size-4 animate-spin" />
+                Rejecting...
+              {:else}
+                <Trash2Icon class="size-4" />
+                Reject
+              {/if}
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       {/if}
     {/snippet}
   </AdminDashboardHeader>

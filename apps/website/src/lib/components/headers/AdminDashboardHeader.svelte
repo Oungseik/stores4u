@@ -16,17 +16,21 @@
 
 <div class="flex flex-col gap-4">
   <div class="flex h-9 items-center justify-between">
-    <div class="flex items-center gap-1 lg:gap-2">
-      <Sidebar.Trigger class="-ms-1" />
+    <div class="flex min-w-0 flex-1 items-center gap-1 lg:gap-2">
+      <Sidebar.Trigger class="-ms-1 shrink-0" />
       <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-      <Breadcrumb.Root>
-        <Breadcrumb.List>
+      <Breadcrumb.Root class="min-w-0 overflow-hidden">
+        <Breadcrumb.List class="flex-nowrap">
           {#each breadcrumbs as item, i}
             <Breadcrumb.Item>
               {#if item.href}
-                <Breadcrumb.Link href={item.href}>{item.label}</Breadcrumb.Link>
+                <Breadcrumb.Link class="max-w-[64px] truncate md:max-w-none" href={item.href}
+                  >{item.label}</Breadcrumb.Link
+                >
               {:else}
-                <Breadcrumb.Page>{item.label}</Breadcrumb.Page>
+                <Breadcrumb.Page class="max-w-[64px] truncate md:max-w-none"
+                  >{item.label}</Breadcrumb.Page
+                >
               {/if}
             </Breadcrumb.Item>
             {#if i < breadcrumbs.length - 1}
