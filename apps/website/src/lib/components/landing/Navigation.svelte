@@ -7,7 +7,7 @@
 
 <nav
   class={[
-    "fixed top-0 right-0 left-0 z-50 transition-all duration-300",
+    "fixed top-0 right-0 left-0 z-50 transition-all duration-300 xl:px-12",
     scrolled && "bg-background/80 border-border border-b py-3 backdrop-blur-xl",
     !scrolled && "py-4",
   ]}
