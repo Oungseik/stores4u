@@ -259,7 +259,7 @@
     <p class="text-muted-foreground text-sm">Upload, process, and review supplier invoices</p>
   </div>
 
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="hidden gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid">
     <StatsCard
       title="Pending"
       value={stats.pending}
