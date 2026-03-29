@@ -420,24 +420,6 @@
                       <Loader2Icon class="size-4 animate-spin" />
                       <span class="hidden text-sm sm:inline">Processing...</span>
                     </div>
-                  {:else if file.status === "UPLOADED"}
-                    <Button variant="outline" size="sm" onclick={() => handleProcessFile(file.id)}>
-                      <PlayIcon class="size-4 sm:mr-1" />
-                      <span class="hidden sm:inline">Process</span>
-                    </Button>
-                  {:else if file.status === "FAILED"}
-                    <Button variant="outline" size="sm" onclick={() => handleProcessFile(file.id)}>
-                      <PlayIcon class="size-4 sm:mr-1" />
-                      <span class="hidden sm:inline">Retry</span>
-                    </Button>
-                  {:else if file.status === "PROCESSED"}
-                    <a
-                      href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
-                      class={buttonVariants({ size: "sm" })}
-                    >
-                      <SearchIcon class="size-4 sm:mr-1" />
-                      <span class="hidden sm:inline">Review</span>
-                    </a>
                   {/if}
 
                   {#if file.status !== "PROCESSING" && processingFileId !== file.id}
@@ -459,10 +441,21 @@
                               })}
                             >
                               <SearchIcon class="text-muted-foreground size-4" />
-                              <span class="hidden sm:inline">Review</span>
+                              <span>Review</span>
                             </a>
                           {/snippet}
                         </DropdownMenu.Item>
+                        {#if file.status === "UPLOADED"}
+                          <DropdownMenu.Item onclick={() => handleProcessFile(file.id)}>
+                            <PlayIcon class="size-4" />
+                            Process
+                          </DropdownMenu.Item>
+                        {:else if file.status === "FAILED"}
+                          <DropdownMenu.Item onclick={() => handleProcessFile(file.id)}>
+                            <PlayIcon class="size-4" />
+                            Retry
+                          </DropdownMenu.Item>
+                        {/if}
                         <DropdownMenu.Item onclick={() => handleDownloadFile(file.id)}>
                           <DownloadIcon class="size-4" />
                           Download
