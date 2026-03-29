@@ -1,11 +1,13 @@
 <script lang="ts">
   import CheckIcon from "@lucide/svelte/icons/check";
+  import InfoIcon from "@lucide/svelte/icons/info";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import PlayIcon from "@lucide/svelte/icons/play";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
-  import { createMutation, createQuery } from "@tanstack/svelte-query";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
@@ -30,9 +32,15 @@
 
   const { params }: PageProps = $props();
 
+  const queryClient = useQueryClient();
+
   const invoiceFileQuery = createQuery(() =>
     orpc.purchaseInvoices.getFile.queryOptions({
       input: { slug: params.slug, invoiceFileId: params.invoiceFileId },
+      refetchInterval: (query) => {
+        if (query.state.data?.status === "PROCESSING") return 2000;
+        return false;
+      },
     })
   );
 
@@ -63,6 +71,7 @@
 
   const suppliers = $derived(suppliersQuery.data?.items ?? []);
 
+  let isProcessing = $state(false);
   let invoiceData: InvoiceData = $state({
     invoiceNumber: "",
     invoiceDate: "",
@@ -77,11 +86,36 @@
   let isSubmitting = $state(false);
   let selectedSupplier = $state<Supplier | null>(null);
 
+  const fileStatus = $derived(invoiceFileQuery.data?.status);
+
+  const needsProcessing = $derived(fileStatus === "UPLOADED" || fileStatus === "FAILED");
+
+  const isCurrentlyProcessing = $derived(fileStatus === "PROCESSING" || isProcessing);
+
   const canSave = $derived(selectedSupplier !== null);
 
   const canShowActions = $derived(
     !isLoading && !error && invoiceFileQuery.isSuccess && suppliersQuery.isSuccess
   );
+
+  const processMutation = createMutation(() =>
+    orpc.purchaseInvoices.processFile.mutationOptions({
+      onSuccess: () => {
+        toast.success("Processing started");
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
+        isProcessing = false;
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to process invoice");
+        isProcessing = false;
+      },
+    })
+  );
+
+  function handleProcess() {
+    isProcessing = true;
+    processMutation.mutateAsync({ slug: params.slug, fileId: params.invoiceFileId });
+  }
 
   const lineTotalsCents = $derived(
     invoiceData.items.map((item) => Math.round(item.qty * item.unitCost * 100))
@@ -180,22 +214,34 @@
     {#snippet actions()}
       {#if canShowActions}
         <div class="flex gap-2">
+          {#if isCurrentlyProcessing}
+            <Button variant="outline" disabled>
+              <Loader2Icon class="size-4 animate-spin" />
+              Processing...
+            </Button>
+          {:else if needsProcessing}
+            <Button variant="outline" onclick={handleProcess}>
+              <PlayIcon class="size-4" />
+              {fileStatus === "FAILED" ? "Retry" : "Process"}
+            </Button>
+          {/if}
           <Button
             variant="destructive"
             onclick={handleReject}
-            disabled={isRejecting || invoiceFileQuery.data?.status === "REJECTED"}
+            disabled={isRejecting || isCurrentlyProcessing}
           >
             {#if isRejecting}
               <Loader2Icon class="size-4 animate-spin" />
               Rejecting...
-            {:else if invoiceFileQuery.data?.status === "REJECTED"}
-              Rejected
             {:else}
               <Trash2Icon class="size-4" />
               Reject
             {/if}
           </Button>
-          <Button onclick={validateAndSave} disabled={isSubmitting || !canSave}>
+          <Button
+            onclick={validateAndSave}
+            disabled={isSubmitting || !canSave || isCurrentlyProcessing}
+          >
             {#if isSubmitting}
               <Loader2Icon class="size-4 animate-spin" />
               Saving...
@@ -231,25 +277,51 @@
       />
 
       <div class="flex flex-col gap-6 lg:col-start-1 lg:col-end-2 lg:row-start-1">
-        <SupplierCard
-          slug={params.slug}
-          {suppliers}
-          bind:selectedSupplier
-          bind:isExistingSupplier
-          initialSupplierData={extractedData?.supplier}
-        />
+        {#if isCurrentlyProcessing}
+          <div class="bg-primary/5 flex items-center gap-3 rounded-lg border p-4">
+            <Loader2Icon class="text-primary size-5 animate-spin" />
+            <div>
+              <p class="font-medium">AI is processing your invoice...</p>
+              <p class="text-muted-foreground text-sm">Extracted data will appear shortly.</p>
+            </div>
+          </div>
+        {:else if needsProcessing}
+          <div class="bg-info/10 border-info/20 flex items-start gap-3 rounded-lg border p-4">
+            <InfoIcon class="text-info mt-0.5 size-5 shrink-0" />
+            <div>
+              <p class="font-medium">Process with AI or fill manually</p>
+              <p class="text-muted-foreground text-sm">
+                Click "Process" to auto-fill items using AI, or fill in the details manually below.
+              </p>
+            </div>
+          </div>
+        {/if}
 
-        <ItemsCard bind:items={invoiceData.items} />
+        <div
+          class="flex flex-col gap-6 {isCurrentlyProcessing
+            ? 'pointer-events-none opacity-50'
+            : ''}"
+        >
+          <SupplierCard
+            slug={params.slug}
+            {suppliers}
+            bind:selectedSupplier
+            bind:isExistingSupplier
+            initialSupplierData={extractedData?.supplier}
+          />
 
-        <InvoiceDetailsCard
-          bind:invoiceNumber={invoiceData.invoiceNumber}
-          bind:invoiceDate={invoiceData.invoiceDate}
-          bind:vat={invoiceData.vat}
-          bind:discount={invoiceData.discount}
-          bind:freight={invoiceData.freight}
-          bind:notes={invoiceData.notes}
-          {subtotalCents}
-        />
+          <ItemsCard bind:items={invoiceData.items} />
+
+          <InvoiceDetailsCard
+            bind:invoiceNumber={invoiceData.invoiceNumber}
+            bind:invoiceDate={invoiceData.invoiceDate}
+            bind:vat={invoiceData.vat}
+            bind:discount={invoiceData.discount}
+            bind:freight={invoiceData.freight}
+            bind:notes={invoiceData.notes}
+            {subtotalCents}
+          />
+        </div>
       </div>
     </div>
   {/if}
