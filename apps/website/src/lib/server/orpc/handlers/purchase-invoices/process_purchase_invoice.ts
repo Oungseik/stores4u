@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import {
-  type ExtractedInvoiceData,
   eq,
+  type InvoiceExtractionResult,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
 } from "@repo/db";
@@ -43,7 +43,7 @@ export const processInvoiceFileHandler = os
       .set({ status: "PROCESSING", updatedAt: new Date() })
       .where(eq(purchaseInvoiceFile.id, file.id));
 
-    let extractedData: ExtractedInvoiceData;
+    let result: InvoiceExtractionResult;
     try {
       const objectKey = extractObjectKey(file.objectPath);
       if (!objectKey) {
@@ -52,7 +52,7 @@ export const processInvoiceFileHandler = os
       }
 
       const fileBuffer = await getObject(objectKey);
-      extractedData = await processInvoice(fileBuffer, file.fileType);
+      result = await processInvoice(fileBuffer, file.fileType);
     } catch (error) {
       await shopDb
         .update(purchaseInvoiceFile)
@@ -67,13 +67,45 @@ export const processInvoiceFileHandler = os
     const photoUrl = file.objectPath;
     const now = new Date();
 
+    if (result.status === "rejected") {
+      const ocrResultData = {
+        photoUrl,
+        invoiceFileId: file.id,
+        rawJson: result,
+        rejectionReason: result.rejectionReason,
+        status: "REJECTED" as const,
+        createdAt: now,
+      };
+
+      await shopDb.transaction(async (tx) => {
+        const ocrResult = await tx.insert(purchaseInvoiceOcrResult).values(ocrResultData);
+
+        if (!ocrResult.rowsAffected) {
+          throw new ORPCError("INTERNAL_SERVER_ERROR", {
+            message: "Failed to save OCR result",
+          });
+        }
+
+        await tx
+          .update(purchaseInvoiceFile)
+          .set({ status: "REJECTED", updatedAt: now })
+          .where(eq(purchaseInvoiceFile.id, file.id));
+      });
+
+      return {
+        success: true,
+        status: "REJECTED" as const,
+        rejectionReason: result.rejectionReason,
+      };
+    }
+
     const ocrResultData = {
       photoUrl,
       invoiceFileId: file.id,
-      rawJson: extractedData,
-      extractedText: extractedData.rawText ?? null,
-      extractedData,
-      confidenceScore: extractedData.confidence,
+      rawJson: result,
+      extractedText: result.rawText ?? null,
+      extractedData: result,
+      confidenceScore: result.confidence,
       status: "PROCESSED" as const,
       createdAt: now,
     };
@@ -93,5 +125,5 @@ export const processInvoiceFileHandler = os
         .where(eq(purchaseInvoiceFile.id, file.id));
     });
 
-    return { success: true };
+    return { success: true, status: "SUCCESS" as const };
   });

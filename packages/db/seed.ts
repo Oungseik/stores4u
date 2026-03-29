@@ -188,6 +188,7 @@ function generatePurchaseInvoiceOcrResultData(count: number) {
   const data = [];
   for (let i = 0; i < count; i++) {
     const extractedDataObj = {
+      status: "success" as const,
       supplier: {
         name: `Supplier ${i + 1}`,
         contactName: `Contact ${i + 1}`,

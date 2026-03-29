@@ -1,5 +1,5 @@
 import { OpenRouter } from "@openrouter/sdk";
-import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
+import { type InvoiceExtractionResult, InvoiceExtractionResultSchema } from "@repo/db";
 import { OPENROUTER_API_KEY } from "$env/static/private";
 import { logger } from "../logger";
 
@@ -9,7 +9,8 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const INVOICE_EXTRACTION_PROMPT = `You are an invoice data extraction assistant. Extract all relevant information from the provided invoice image(s).
 
-Extract the following information:
+## SUCCESS CASE (status: "success")
+If the image is a valid invoice, extract the following information:
 1. Supplier information: name (required), contact name, phone, email, address
 2. Invoice details: invoice number (required), invoice date (YYYY-MM-DD format), subtotal, VAT/tax, discount, freight/shipping, total, payment terms, notes
 3. Line items: product name/description, quantity, unit price, line total, SKU if available
@@ -20,11 +21,29 @@ Important rules:
 - Calculate confidence score (0-1) based on how clearly all information was readable
 - 1.0 = all fields clearly readable, 0.5 = some fields unclear or missing, 0.0 = completely unreadable
 - Invoice date should be in YYYY-MM-DD format
-- If there are multiple pages, combine all information into a single response`;
+- If there are multiple pages, combine all information into a single response
+
+## REJECTION CASE (status: "rejected")
+Reject the image and set status to "rejected" with a clear rejectionReason if:
+- The image is NOT an invoice (e.g., photo of a person, product, receipt, document, etc.)
+- The image is too blurry, dark, or unreadable to extract invoice data
+- The image is corrupted or doesn't contain any recognizable invoice elements
+
+Provide a helpful rejectionReason explaining why the image cannot be processed (e.g., "Image appears to be a photo of a product, not an invoice" or "Invoice image is too blurry to read").`;
 
 const INVOICE_SCHEMA = {
   type: "object",
   properties: {
+    status: {
+      type: "string",
+      enum: ["success", "rejected"],
+      description:
+        "Extraction status: 'success' for valid invoices, 'rejected' for non-invoice or unreadable images",
+    },
+    rejectionReason: {
+      type: "string",
+      description: "Reason for rejection (only when status is 'rejected')",
+    },
     supplier: {
       type: "object",
       properties: {
@@ -34,7 +53,6 @@ const INVOICE_SCHEMA = {
         email: { type: "string", description: "Email address" },
         address: { type: "string", description: "Full address" },
       },
-      required: ["name"],
     },
     invoice: {
       type: "object",
@@ -49,7 +67,6 @@ const INVOICE_SCHEMA = {
         paymentTerms: { type: "string", description: "Payment terms (e.g., Net 30)" },
         notes: { type: "string", description: "Any notes or comments on the invoice" },
       },
-      required: ["invoiceNumber", "totalCents"],
     },
     items: {
       type: "array",
@@ -63,7 +80,6 @@ const INVOICE_SCHEMA = {
           lineTotalCents: { type: "number", description: "Line total in cents" },
           sku: { type: "string", description: "Product SKU or code" },
         },
-        required: ["productName", "quantity", "unitCostCents", "lineTotalCents"],
       },
     },
     confidence: {
@@ -77,7 +93,7 @@ const INVOICE_SCHEMA = {
       description: "Raw OCR-like text extracted from the invoice",
     },
   },
-  required: ["supplier", "invoice", "items", "confidence"],
+  required: ["status"],
 };
 
 function imageToBase64(buffer: Buffer, mimeType: string): string {
@@ -108,7 +124,7 @@ async function pdfToImages(pdfBuffer: Buffer): Promise<string[]> {
   }
 }
 
-async function callOpenRouter(images: string[]): Promise<ExtractedInvoiceData> {
+async function callOpenRouter(images: string[]): Promise<InvoiceExtractionResult> {
   try {
     const imageParts = images.map((img) => ({
       type: "image_url" as const,
@@ -153,7 +169,7 @@ async function callOpenRouter(images: string[]): Promise<ExtractedInvoiceData> {
       }
 
       const parsed = JSON.parse(content);
-      return ExtractedInvoiceDataSchema.parse(parsed);
+      return InvoiceExtractionResultSchema.parse(parsed);
     }
 
     throw new Error("Unexpected response type from OpenRouter");
@@ -166,7 +182,7 @@ async function callOpenRouter(images: string[]): Promise<ExtractedInvoiceData> {
 export async function processInvoice(
   fileBuffer: Buffer,
   mimeType: string,
-): Promise<ExtractedInvoiceData> {
+): Promise<InvoiceExtractionResult> {
   if (fileBuffer.byteLength > MAX_FILE_SIZE_BYTES) {
     const error = new Error(
       `File size exceeds maximum allowed size of ${MAX_FILE_SIZE_BYTES} bytes`,
