@@ -2,6 +2,7 @@
   import CheckIcon from "@lucide/svelte/icons/check";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
@@ -10,7 +11,6 @@
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { NumberInput } from "@repo/ui/number-input";
-  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
   import { Textarea } from "@repo/ui/textarea";
   import { createQuery } from "@tanstack/svelte-query";
@@ -89,6 +89,7 @@
   let isExistingSupplier = $state(true);
   let isSubmitting = $state(false);
   let selectedSupplier = $state<Supplier | null>(null);
+  let editingItemId = $state<string | null>(null);
 
   const canSave = $derived(selectedSupplier !== null);
 
@@ -148,15 +149,17 @@
   });
 
   function addItem() {
+    const newItemId = `item-${Date.now()}`;
     invoiceData.items = [
       ...invoiceData.items,
       {
-        id: `item-${Date.now()}`,
+        id: newItemId,
         productName: "",
         qty: 1,
         unitCost: 0,
       },
     ];
+    editingItemId = newItemId;
   }
 
   function removeItem(itemId: string) {
@@ -243,7 +246,7 @@
           initialSupplierData={extractedData?.supplier}
         />
 
-        <Card.Root>
+        <Card.Root class="pb-0">
           <Card.Header class="flex flex-row items-center justify-between">
             <Card.Title class="flex items-center gap-2">
               <PackageIcon class="size-4" />
@@ -255,65 +258,102 @@
             </Button>
           </Card.Header>
           <Card.Content class="p-0">
-            <ScrollArea class="max-h-96">
-              <table class="w-full text-sm">
-                <thead class="bg-muted sticky top-0">
-                  <tr>
-                    <th class="px-4 py-3 text-left font-medium">Product</th>
-                    <th class="w-24 px-4 py-3 text-center font-medium">Qty</th>
-                    <th class="w-32 px-4 py-3 text-right font-medium">Unit Cost</th>
-                    <th class="w-32 px-4 py-3 text-right font-medium">Total</th>
-                    <th class="w-10 px-4 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each invoiceData.items as item, index (item.id)}
-                    <tr class="hover:bg-muted/50 border-b last:border-b-0">
-                      <td class="px-4 py-2">
+            {#if invoiceData.items.length === 0}
+              <div
+                class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12"
+              >
+                <PackageIcon class="size-10 opacity-50" />
+                <p class="text-sm">No items yet</p>
+                <Button variant="outline" size="sm" onclick={addItem}>
+                  <PlusIcon class="size-4" />
+                  Add first item
+                </Button>
+              </div>
+            {:else}
+              <div class="divide-y">
+                {#each invoiceData.items as item, index (item.id)}
+                  {@const isEditing = editingItemId === item.id}
+                  <div class="hover:bg-muted/30 transition-colors {isEditing ? 'bg-muted/50' : ''}">
+                    {#if isEditing}
+                      <div class="flex flex-wrap items-center gap-2 p-3">
                         <Input
                           bind:value={item.productName}
-                          placeholder="Product name"
-                          class="w-full"
+                          placeholder="Product"
+                          class="min-w-0 flex-1"
                         />
-                      </td>
-
-                      <td class="px-4 py-2">
                         <NumberInput
                           bind:value={item.qty}
-                          class="w-24 text-center"
+                          class="w-16 text-center"
                           fraction={0}
                           min={0}
                         />
-                      </td>
-
-                      <td class="px-4 py-2">
                         <NumberInput
                           bind:value={item.unitCost}
-                          class="w-32 text-right"
+                          class="w-24 text-right"
                           fraction={2}
                           min={0}
                         />
-                      </td>
-
-                      <td class="px-4 py-2 text-right font-medium">
-                        {formatPrice(lineTotalsCents[index])}
-                      </td>
-
-                      <td class="px-4 py-2">
+                        <span class="font-medium tabular-nums">
+                          {formatPrice(lineTotalsCents[index])}
+                        </span>
                         <Button
                           variant="ghost"
                           size="icon"
-                          class="size-8 text-red-500 hover:text-red-700"
+                          class="size-7 text-green-600 hover:bg-green-100 hover:text-green-700"
+                          onclick={() => (editingItemId = null)}
+                        >
+                          <CheckIcon class="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-7 text-red-500 hover:text-red-700"
+                          onclick={() => {
+                            removeItem(item.id);
+                            editingItemId = null;
+                          }}
+                        >
+                          <Trash2Icon class="size-3.5" />
+                        </Button>
+                      </div>
+                    {:else}
+                      <div class="flex items-center gap-2 p-3">
+                        <div class="min-w-0 flex-1 truncate font-medium">
+                          {#if item.productName}
+                            {item.productName}
+                          {:else}
+                            <span class="text-muted-foreground italic">Unnamed</span>
+                          {/if}
+                        </div>
+                        <span class="text-muted-foreground text-sm tabular-nums">
+                          {item.qty}×{formatPrice(Math.round(item.unitCost * 100))}
+                          =
+                        </span>
+                        <span class="font-medium tabular-nums">
+                          {formatPrice(lineTotalsCents[index])}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-7"
+                          onclick={() => (editingItemId = item.id)}
+                        >
+                          <PencilIcon class="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="size-7 text-red-500 hover:text-red-700"
                           onclick={() => removeItem(item.id)}
                         >
-                          <Trash2Icon class="size-4" />
+                          <Trash2Icon class="size-3.5" />
                         </Button>
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </ScrollArea>
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </Card.Content>
         </Card.Root>
 
