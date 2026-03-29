@@ -20,7 +20,7 @@
   import SupplierCard, { type Supplier } from "$lib/components/cards/SupplierCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { formatNumber, formatPrice } from "$lib/utils";
+  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -180,12 +180,12 @@
     ]}
   />
 
-  {#if isLoading}
+  {#if isLoading || !invoiceFileQuery.data}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <Loader2Icon class="text-muted-foreground size-8 animate-spin" />
       <p class="text-muted-foreground">Loading invoice data...</p>
     </div>
-  {:else if error || !invoiceFileQuery.data}
+  {:else if error}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <XIcon class="text-destructive size-12" />
       <div class="text-center">
@@ -337,12 +337,7 @@
             <div class="space-y-2 rounded-lg border p-4 text-sm">
               <div class="flex items-center justify-between">
                 <span class="text-muted-foreground">Subtotal</span>
-                <NumberInput
-                  value={subtotalCents / 100}
-                  class="w-32 text-right"
-                  fraction={2}
-                  disabled
-                />
+                <div class="px-3">{formatPrice(subtotalCents)}</div>
               </div>
 
               <div class="flex items-center justify-between">
@@ -379,12 +374,7 @@
 
               <div class="flex items-center justify-between">
                 <span class="font-semibold">Total</span>
-                <NumberInput
-                  value={totalCents / 100}
-                  class="w-32 text-right text-lg font-bold"
-                  fraction={2}
-                  disabled
-                />
+                <div class="px-3">{formatPrice(totalCents)}</div>
               </div>
             </div>
 
