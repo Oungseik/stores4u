@@ -46,7 +46,7 @@ export const createProductHandler = os
         input.categoryIds.map((categoryId) => ({
           productId: created.id,
           categoryId,
-        }))
+        })),
       );
     }
 

@@ -19,7 +19,7 @@ export type ProductItem = {
 export function createColumns(
   country: CountryCode | null,
   slug: string,
-  onDelete?: (id: string) => void
+  onDelete?: (id: string) => void,
 ): ColumnDef<ProductItem>[] {
   return [
     {

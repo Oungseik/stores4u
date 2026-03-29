@@ -1,8 +1,5 @@
 import { OpenRouter } from "@openrouter/sdk";
-import {
-  type ExtractedInvoiceData,
-  ExtractedInvoiceDataSchema,
-} from "@repo/db";
+import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
 import { OPENROUTER_API_KEY } from "$env/static/private";
 import { logger } from "../logger";
 

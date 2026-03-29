@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { and, eq, product, productCategory } from "@repo/db";
+import { eq, product, productCategory } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -59,16 +59,14 @@ export const updateProductHandler = os
       }
     }
 
-    await shopDb
-      .delete(productCategory)
-      .where(eq(productCategory.productId, input.id));
+    await shopDb.delete(productCategory).where(eq(productCategory.productId, input.id));
 
     if (input.categoryIds && input.categoryIds.length > 0) {
       await shopDb.insert(productCategory).values(
         input.categoryIds.map((categoryId) => ({
           productId: input.id,
           categoryId,
-        }))
+        })),
       );
     }
 

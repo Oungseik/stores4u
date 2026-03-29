@@ -71,7 +71,10 @@ export const invoiceFilesFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
   status: { type: "string", default: "" },
   view: { type: "string", default: "card" },
-}) as StandardSchemaV1<unknown, { search: string; status: InvoiceFileStatus | ""; view: InvoiceFilesView }>;
+}) as StandardSchemaV1<
+  unknown,
+  { search: string; status: InvoiceFileStatus | ""; view: InvoiceFilesView }
+>;
 
 type ProductDetailTab = {
   tab: "overview" | "inventory" | "history";
