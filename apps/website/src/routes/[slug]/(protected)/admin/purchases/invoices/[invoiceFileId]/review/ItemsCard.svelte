@@ -332,8 +332,7 @@
                 </div>
                 <div class="flex gap-1 text-sm">
                   <span class="text-muted-foreground tabular-nums">
-                    {item.qty}×{formatPrice(Math.round(item.unitCost * 100))}
-                    =
+                    {item.qty} × {formatPrice(Math.round(item.unitCost * 100))} =
                   </span>
                   <span class="font-medium tabular-nums">
                     {formatPrice(lineTotalsCents[index])}

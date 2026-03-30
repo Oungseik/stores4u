@@ -446,7 +446,7 @@
     </div>
   {:else}
     <div class="grid gap-6 lg:grid-cols-2">
-      <Card.Root class="h-fit md:hidden">
+      <Card.Root class="h-fit lg:hidden">
         <Card.Header>
           <Card.Title>Invoice Preview</Card.Title>
           <Card.Description>View original document on larger screen.</Card.Description>
@@ -469,7 +469,7 @@
       </Card.Root>
 
       <InvoicePreviewCard
-        class="hidden md:block"
+        class="hidden lg:block"
         imageUrl={invoiceFileQuery.data.imageUrl}
         fileType={invoiceFileQuery.data.fileType}
       />

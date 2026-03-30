@@ -24,11 +24,11 @@
           {#each breadcrumbs as item, i}
             <Breadcrumb.Item>
               {#if item.href}
-                <Breadcrumb.Link class="max-w-[64px] truncate md:max-w-none" href={item.href}
+                <Breadcrumb.Link class="max-w-[64px] truncate lg:max-w-none" href={item.href}
                   >{item.label}</Breadcrumb.Link
                 >
               {:else}
-                <Breadcrumb.Page class="max-w-[64px] truncate md:max-w-none"
+                <Breadcrumb.Page class="max-w-[64px] truncate lg:max-w-none"
                   >{item.label}</Breadcrumb.Page
                 >
               {/if}
