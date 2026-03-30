@@ -212,14 +212,14 @@
                   </div>
                   <!-- Product selector -->
                   <div class="flex items-center gap-2">
-                    <Popover.Root open={productSearchOpen === item.id}>
-                      <Popover.Trigger
-                        class="min-w-0 flex-1"
-                        onclick={() => {
-                          productSearchOpen = productSearchOpen === item.id ? null : item.id;
-                          productSearch = "";
-                        }}
-                      >
+                    <Popover.Root
+                      open={productSearchOpen === item.id}
+                      onOpenChange={(open) => {
+                        productSearchOpen = open ? item.id : null;
+                        if (open) productSearch = "";
+                      }}
+                    >
+                      <Popover.Trigger class="min-w-0 flex-1">
                         <div
                           class="flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm
                             {item.productId
