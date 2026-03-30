@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const purchaseInvoiceItemInput = z.object({
   productId: z.string().min(1),
+  invoiceItemName: z.string().min(1).max(500),
   qty: z.number().positive(),
   unitCostCents: z.number().int().min(0),
   lineSubtotalCents: z.number().int().min(0),
@@ -11,6 +12,7 @@ export const purchaseInvoiceItemInput = z.object({
   lineTotalCents: z.number().int().min(0),
   expiryDate: z.string().optional(),
   batchNumber: z.string().max(100).optional(),
+  saveAlias: z.boolean().optional(),
 });
 
 export const newSupplierInput = z.object({

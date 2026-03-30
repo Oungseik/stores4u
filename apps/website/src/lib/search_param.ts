@@ -41,8 +41,12 @@ export const ordersFilterSchema = createSearchParamsSchema({
 
 export const purchaseInvoicesFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
-  status: { type: "string", default: "" },
-}) as StandardSchemaV1<unknown, { search: string; status: PurchaseInvoiceStatus | "" }>;
+  statuses: {
+    type: "array",
+    arrayType: "",
+    default: [],
+  },
+}) as StandardSchemaV1<unknown, { search: string; statuses: PurchaseInvoiceStatus[] }>;
 
 export const suppliersFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
@@ -68,11 +72,15 @@ export type InvoiceFilesView = "card" | "table";
 
 export const invoiceFilesFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
-  status: { type: "string", default: "" },
+  statuses: {
+    type: "array",
+    arrayType: "",
+    default: [],
+  },
   view: { type: "string", default: "card" },
 }) as StandardSchemaV1<
   unknown,
-  { search: string; status: PurchaseInvoiceFileStatus | ""; view: InvoiceFilesView }
+  { search: string; statuses: PurchaseInvoiceFileStatus[]; view: InvoiceFilesView }
 >;
 
 type ProductDetailTab = {

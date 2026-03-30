@@ -20,6 +20,10 @@ const handleParaglide: Handle = ({ event, resolve }) =>
   });
 
 const rateLimitHandle: Handle = async ({ event, resolve }) => {
+  if (event.url.pathname.startsWith("/api/queue/")) {
+    return resolve(event);
+  }
+
   const clientIP = event.request.headers.get("X-Forwarded-For");
   if (clientIP === null) {
     return resolve(event);
@@ -41,6 +45,10 @@ const whitelistedEmails = ["mhemaungthuwin@gmail.com", "kweesai.saitama@gmail.co
 const authHandle: Handle = async ({ event, resolve }) => {
   if (event.url.pathname.startsWith("/api/auth")) {
     return svelteKitHandler({ event, resolve, auth, building });
+  }
+
+  if (event.url.pathname.startsWith("/api/queue/")) {
+    return resolve(event);
   }
 
   const session = await auth.api.getSession({ headers: event.request.headers });

@@ -1,3 +1,4 @@
+import { purchaseInvoiceFileStatus } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -6,9 +7,8 @@ const input = z.object({
   slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(20),
-  status: z
-    .enum(["UPLOADED", "PROCESSING", "PROCESSED", "FAILED", "REVIEWED", "REJECTED"])
-    .optional(),
+  statuses: z.array(z.enum(purchaseInvoiceFileStatus)).optional(),
+  search: z.string().optional(),
 });
 
 export const listInvoiceFilesHandler = os
@@ -22,7 +22,8 @@ export const listInvoiceFilesHandler = os
     const files = await shopDb.query.purchaseInvoiceFile.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
-        status: input.status,
+        status: input.statuses?.length ? { in: input.statuses } : undefined,
+        filename: input.search ? { like: `%${input.search}%` } : undefined,
       },
       with: {
         ocrResult: {

@@ -12,26 +12,20 @@ import { listOrdersHandler } from "./handlers/orders/list_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
-import { exportProductsCsvHandler } from "./handlers/products/export_products_csv";
 import { getInvoiceHistoryHandler } from "./handlers/products/get_invoice_history";
 import { getOrderHistoryHandler } from "./handlers/products/get_order_history";
 import { getProductHandler } from "./handlers/products/get_product";
 import { getSuppliersHandler } from "./handlers/products/get_suppliers";
-import { importProductsCsvHandler } from "./handlers/products/import_products_csv";
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
-import { createPurchaseInvoiceHandler } from "./handlers/purchase-invoices/create_purchase_invoice";
 import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_invoice_file";
-import { deletePurchaseInvoiceHandler } from "./handlers/purchase-invoices/delete_purchase_invoice";
 import { downloadInvoiceFileHandler } from "./handlers/purchase-invoices/download_invoice_file";
 import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
-import { getPurchaseInvoiceHandler } from "./handlers/purchase-invoices/get_purchase_invoice";
+import { getInvoiceFilesStatsHandler } from "./handlers/purchase-invoices/get_invoice_files_stats";
 import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
-import { listPurchaseInvoicesHandler } from "./handlers/purchase-invoices/list_purchase_invoices";
-import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice";
+import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice_file";
 import { rejectInvoiceFileHandler } from "./handlers/purchase-invoices/reject_invoice_file";
 import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
-import { updatePurchaseInvoiceHandler } from "./handlers/purchase-invoices/update_purchase_invoice";
 import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
@@ -62,30 +56,24 @@ export const router = os.router({
     listMovements: listMovementsHandler,
   },
   purchaseInvoices: {
-    create: createPurchaseInvoiceHandler,
-    delete: deletePurchaseInvoiceHandler,
     deleteFile: deleteInvoiceFileHandler,
     downloadFile: downloadInvoiceFileHandler,
-    get: getPurchaseInvoiceHandler,
-    list: listPurchaseInvoicesHandler,
     listFiles: listInvoiceFilesHandler,
     getFile: getInvoiceFileHandler,
+    getStats: getInvoiceFilesStatsHandler,
     uploadFile: uploadInvoiceFileHandler,
     processFile: processInvoiceFileHandler,
     rejectFile: rejectInvoiceFileHandler,
-    update: updatePurchaseInvoiceHandler,
     submitReview: submitInvoiceReviewHandler,
   },
   products: {
     checkout: checkoutHandler,
     create: createProductHandler,
     delete: deleteProductHandler,
-    exportCsv: exportProductsCsvHandler,
     get: getProductHandler,
     getInvoiceHistory: getInvoiceHistoryHandler,
     getOrderHistory: getOrderHistoryHandler,
     getSuppliers: getSuppliersHandler,
-    importCsv: importProductsCsvHandler,
     list: listProductsHandler,
     update: updateProductHandler,
   },

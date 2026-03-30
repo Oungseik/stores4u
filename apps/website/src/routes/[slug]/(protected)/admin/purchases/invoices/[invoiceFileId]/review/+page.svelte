@@ -21,10 +21,12 @@
   import SupplierCard, { type Supplier } from "$lib/components/cards/SupplierCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
+  import { calcLineTotalCents } from "$lib/utils";
+  import { matchItems } from "$lib/utils/product_matching";
 
   import type { PageProps } from "./$types";
   import InvoiceDetailsCard from "./InvoiceDetailsCard.svelte";
-  import ItemsCard, { type InvoiceItem } from "./ItemsCard.svelte";
+  import ItemsCard, { type InvoiceItem, type ProductOption } from "./ItemsCard.svelte";
 
   type InvoiceData = {
     invoiceNumber: string;
@@ -56,6 +58,30 @@
     })
   );
 
+  const productsQuery = createQuery(() =>
+    orpc.products.list.queryOptions({
+      input: { slug: params.slug, pageSize: 1000 },
+    })
+  );
+
+  const products = $derived(
+    (productsQuery.data?.items ?? []).map(
+      (p) => ({ id: p.id, name: p.name, sku: p.sku }) satisfies ProductOption
+    )
+  );
+
+  const aliasesByProductId = $derived(
+    (() => {
+      const map = new Map<string, string[]>();
+      for (const p of productsQuery.data?.items ?? []) {
+        if (p.aliases?.length) {
+          map.set(p.id, p.aliases);
+        }
+      }
+      return map;
+    })()
+  );
+
   const extractedData = $derived(invoiceFileQuery.data?.ocrResult?.extractedData ?? null);
 
   const supplierSearchName = $derived(extractedData?.supplier?.name ?? null);
@@ -70,10 +96,19 @@
   const isLoading = $derived(
     invoiceFileQuery.isLoading ||
       suppliersQuery.isLoading ||
+      productsQuery.isLoading ||
       (supplierSearchName !== null && searchSupplierQuery.isLoading)
   );
 
-  const error = $derived(invoiceFileQuery.error ?? suppliersQuery.error);
+  const error = $derived.by(() => {
+    return (
+      invoiceFileQuery.error ||
+      suppliersQuery.error ||
+      productsQuery.error ||
+      searchSupplierQuery.error ||
+      null
+    );
+  });
 
   const suppliers = $derived(suppliersQuery.data?.items ?? []);
 
@@ -88,6 +123,7 @@
     items: [],
   });
 
+  let hasBeenInitialized = $state(false);
   let isExistingSupplier = $state(true);
   let isSubmitting = $state(false);
   let selectedSupplier = $state<Supplier | null>(null);
@@ -104,40 +140,60 @@
 
   const isCurrentlyProcessing = $derived(fileStatus === "PROCESSING" || isProcessing);
 
-  const canSave = $derived(selectedSupplier !== null);
+  const canSave = $derived(
+    selectedSupplier !== null &&
+      invoiceData.items.length > 0 &&
+      invoiceData.items.every((i) => i.productId && i.invoiceItemName.trim())
+  );
 
   const canShowActions = $derived(
-    !isLoading && !error && invoiceFileQuery.isSuccess && suppliersQuery.isSuccess
+    !isLoading &&
+      !error &&
+      invoiceFileQuery.isSuccess &&
+      suppliersQuery.isSuccess &&
+      productsQuery.isSuccess
   );
 
-  const processMutation = createMutation(() =>
-    orpc.purchaseInvoices.processFile.mutationOptions({
-      onSuccess: () => {
-        toast.success("Processing started");
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
-        isProcessing = false;
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to process invoice");
-        isProcessing = false;
-      },
-    })
-  );
+  const processMutation = createMutation(() => orpc.purchaseInvoices.processFile.mutationOptions());
 
   function handleProcess() {
     isProcessing = true;
-    processMutation.mutateAsync({ slug: params.slug, fileId: params.invoiceFileId });
+    processMutation.mutate(
+      { slug: params.slug, fileId: params.invoiceFileId },
+      {
+        onSuccess: () => {
+          toast.success("Processing started");
+          queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
+          isProcessing = false;
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to process invoice");
+          isProcessing = false;
+        },
+      }
+    );
   }
 
   const lineTotalsCents = $derived(
-    invoiceData.items.map((item) => Math.round(item.qty * item.unitCost * 100))
+    invoiceData.items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
   );
 
   const subtotalCents = $derived(lineTotalsCents.reduce((sum, total) => sum + total, 0));
 
   $effect(() => {
+    if (hasBeenInitialized) return;
+
     const data = invoiceFileQuery.data?.ocrResult?.extractedData;
     if (!data) return;
+
+    if (productsQuery.isLoading) return;
+
+    const extractedItems = data.items ?? [];
+    const matches = matchItems(
+      extractedItems.map((i) => i.productName),
+      products,
+      aliasesByProductId
+    );
 
     invoiceData = {
       invoiceNumber: data.invoice?.invoiceNumber ?? "",
@@ -146,14 +202,21 @@
       discount: (data.invoice?.discountCents ?? 0) / 100,
       freight: (data.invoice?.freightCents ?? 0) / 100,
       notes: data.invoice?.notes ?? "",
-      items:
-        data.items?.map((item, idx) => ({
+      items: extractedItems.map((item, idx) => {
+        const match = matches.get(item.productName);
+        return {
           id: `item-${idx}`,
-          productName: item.productName,
+          invoiceItemName: item.productName,
+          productId: match?.productId,
+          matchedProductName: match?.productName,
           qty: item.quantity,
           unitCost: item.unitCostCents / 100,
-        })) ?? [],
+          saveAlias: !match,
+        } satisfies InvoiceItem;
+      }),
     };
+
+    hasBeenInitialized = true;
   });
 
   $effect(() => {
@@ -178,11 +241,68 @@
   });
 
   async function validateAndSave() {
+    if (!selectedSupplier || invoiceData.items.length === 0) return;
+
+    if (invoiceData.items.some((i) => !i.invoiceItemName.trim())) {
+      toast.error("Please fill in all item names before saving.");
+      return;
+    }
+
     isSubmitting = true;
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    isSubmitting = false;
-    toast.success("Invoice validated and inventory updated successfully!");
+
+    try {
+      const totalCents = Math.round(
+        subtotalCents +
+          invoiceData.vat * 100 -
+          invoiceData.discount * 100 +
+          invoiceData.freight * 100
+      );
+
+      await submitReviewMutation.mutateAsync({
+        slug: params.slug,
+        invoiceFileId: params.invoiceFileId,
+        invoiceNumber: invoiceData.invoiceNumber,
+        invoiceDate: invoiceData.invoiceDate,
+        supplierId: selectedSupplier.id,
+        subtotalCents,
+        vatCents: Math.round(invoiceData.vat * 100),
+        discountCents: Math.round(invoiceData.discount * 100),
+        freightCents: Math.round(invoiceData.freight * 100),
+        totalCents,
+        notes: invoiceData.notes || undefined,
+        items: invoiceData.items
+          .filter((item): item is typeof item & { productId: string } => !!item.productId)
+          .map((item) => ({
+            productId: item.productId,
+            invoiceItemName: item.invoiceItemName,
+            qty: item.qty,
+            unitCostCents: Math.round(item.unitCost * 100),
+            lineSubtotalCents: Math.round(item.qty * item.unitCost * 100),
+            lineTotalCents: Math.round(item.qty * item.unitCost * 100),
+            vatCents: 0,
+            discountCents: 0,
+            freightCents: 0,
+            saveAlias: item.saveAlias,
+          })),
+      });
+
+      toast.success("Invoice validated and saved successfully!");
+      goto(`/${params.slug}/admin/purchases/invoices`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to save invoice");
+    } finally {
+      isSubmitting = false;
+    }
   }
+
+  const submitReviewMutation = createMutation(() =>
+    orpc.purchaseInvoices.submitReview.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
+      },
+    })
+  );
 
   const rejectMutation = createMutation(() => orpc.purchaseInvoices.rejectFile.mutationOptions());
 
@@ -225,7 +345,7 @@
   >
     {#snippet actions()}
       {#if canShowActions}
-        <div class="hidden gap-2 md:flex">
+        <div class="hidden gap-2 lg:flex">
           {#if isCurrentlyProcessing}
             <Button variant="outline" disabled>
               <Loader2Icon class="size-4 animate-spin" />
@@ -264,7 +384,7 @@
           </Button>
         </div>
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger class="md:hidden">
+          <DropdownMenu.Trigger class="lg:hidden">
             <Button variant="outline" size="icon">
               <MoreVerticalIcon class="size-4" />
             </Button>
@@ -328,7 +448,7 @@
     </div>
   {:else}
     <div class="grid gap-6 lg:grid-cols-2">
-      <Card.Root class="h-fit md:hidden">
+      <Card.Root class="h-fit lg:hidden">
         <Card.Header>
           <Card.Title>Invoice Preview</Card.Title>
           <Card.Description>View original document on larger screen.</Card.Description>
@@ -351,7 +471,7 @@
       </Card.Root>
 
       <InvoicePreviewCard
-        class="hidden md:block"
+        class="hidden lg:block"
         imageUrl={invoiceFileQuery.data.imageUrl}
         fileType={invoiceFileQuery.data.fileType}
       />
@@ -404,7 +524,14 @@
             initialSupplierData={extractedData?.supplier}
           />
 
-          <ItemsCard bind:items={invoiceData.items} />
+          <ItemsCard
+            bind:items={invoiceData.items}
+            {products}
+            slug={params.slug}
+            onProductCreated={() => {
+              queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+            }}
+          />
 
           <InvoiceDetailsCard
             bind:invoiceNumber={invoiceData.invoiceNumber}

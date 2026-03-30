@@ -369,39 +369,38 @@
                   {#if categories.data?.items && categories.data.items.length > 0}
                     <div class="flex flex-col gap-3">
                       <Label>Categories</Label>
-                      <div class="flex flex-col gap-2">
-                        {#each categories.data.items as category (category.id)}
-                          <label
-                            class="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2"
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger
+                          class={buttonVariants({ variant: "outline", size: "sm" }) +
+                            " w-full justify-between"}
+                        >
+                          <span class="flex items-center gap-2">
+                            <FilterIcon class="size-4" />
+                            {searchParams.categories.length > 0
+                              ? `${searchParams.categories.length} categories`
+                              : "All Categories"}
+                          </span>
+                          <ChevronDownIcon class="size-3 opacity-50" />
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content align="start" class="w-72">
+                          <DropdownMenu.Label>Filter by Category</DropdownMenu.Label>
+                          <DropdownMenu.Separator />
+                          <DropdownMenu.CheckboxGroup
+                            value={searchParams.categories}
+                            onValueChange={(value: string[]) =>
+                              searchParams.update({ categories: value })}
                           >
-                            <span class="text-sm">{category.name}</span>
-                            <div class="flex items-center gap-2">
-                              <span class="text-muted-foreground text-xs"
-                                >{category.productCount}</span
-                              >
-                              <input
-                                type="checkbox"
-                                checked={searchParams.categories.includes(category.name)}
-                                onchange={() => {
-                                  const current = searchParams.categories;
-                                  if (current.includes(category.name)) {
-                                    searchParams.update({
-                                      categories: current.filter(
-                                        (name: string) => name !== category.name
-                                      ),
-                                    });
-                                  } else {
-                                    searchParams.update({
-                                      categories: [...current, category.name],
-                                    });
-                                  }
-                                }}
-                                class="size-4"
-                              />
-                            </div>
-                          </label>
-                        {/each}
-                      </div>
+                            {#each categories.data.items as category (category.id)}
+                              <DropdownMenu.CheckboxItem value={category.name}>
+                                <span class="flex-1">{category.name}</span>
+                                <span class="text-muted-foreground text-xs"
+                                  >{category.productCount}</span
+                                >
+                              </DropdownMenu.CheckboxItem>
+                            {/each}
+                          </DropdownMenu.CheckboxGroup>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
                     </div>
                   {/if}
 
