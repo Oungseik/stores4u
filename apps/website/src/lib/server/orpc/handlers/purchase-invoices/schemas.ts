@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const purchaseInvoiceItemInput = z.object({
-  productId: z.string().nullish(),
+  productId: z.string().min(1),
   invoiceItemName: z.string().min(1).max(500),
   qty: z.number().positive(),
   unitCostCents: z.number().int().min(0),

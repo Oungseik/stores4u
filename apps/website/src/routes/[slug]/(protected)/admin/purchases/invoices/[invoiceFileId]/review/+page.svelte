@@ -270,18 +270,20 @@
         freightCents: Math.round(invoiceData.freight * 100),
         totalCents,
         notes: invoiceData.notes || undefined,
-        items: invoiceData.items.map((item) => ({
-          productId: item.productId,
-          invoiceItemName: item.invoiceItemName,
-          qty: item.qty,
-          unitCostCents: Math.round(item.unitCost * 100),
-          lineSubtotalCents: Math.round(item.qty * item.unitCost * 100),
-          lineTotalCents: Math.round(item.qty * item.unitCost * 100),
-          vatCents: 0,
-          discountCents: 0,
-          freightCents: 0,
-          saveAlias: item.saveAlias,
-        })),
+        items: invoiceData.items
+          .filter((item): item is typeof item & { productId: string } => !!item.productId)
+          .map((item) => ({
+            productId: item.productId,
+            invoiceItemName: item.invoiceItemName,
+            qty: item.qty,
+            unitCostCents: Math.round(item.unitCost * 100),
+            lineSubtotalCents: Math.round(item.qty * item.unitCost * 100),
+            lineTotalCents: Math.round(item.qty * item.unitCost * 100),
+            vatCents: 0,
+            discountCents: 0,
+            freightCents: 0,
+            saveAlias: item.saveAlias,
+          })),
       });
 
       toast.success("Invoice validated and saved successfully!");

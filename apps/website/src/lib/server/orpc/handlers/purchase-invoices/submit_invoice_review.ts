@@ -8,7 +8,9 @@ import {
   purchaseInvoiceOcrResult,
 } from "@repo/db";
 import { z } from "zod";
+import { logger } from "$lib/server/logger";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { baseUrl, qstashClient } from "$lib/server/qstash";
 import { getShopDb } from "$lib/server/shop_db";
 import { invoiceAmountFields, purchaseInvoiceItemInput } from "./schemas";
 
@@ -51,92 +53,142 @@ export const submitInvoiceReviewHandler = os
       });
     }
 
-    const result = await shopDb.transaction(async (tx) => {
-      const supplierId = input.supplierId;
+    const productIds = [...new Set(input.items.map((item) => item.productId))];
+    const products = await shopDb.query.product.findMany({
+      where: { id: { in: productIds } },
+      columns: { id: true },
+    });
 
-      const existingSupplier = await tx.query.supplier.findFirst({
-        where: { id: supplierId },
-        columns: { id: true },
+    if (products.length !== productIds.length) {
+      const foundIds = new Set(products.map((p) => p.id));
+      const missingIds = productIds.filter((id) => !foundIds.has(id));
+      throw new ORPCError("NOT_FOUND", {
+        message: `Products not found: ${missingIds.join(", ")}`,
+      });
+    }
+
+    const existingInvoice = await shopDb.query.purchaseInvoice.findFirst({
+      where: { supplierId: input.supplierId, invoiceNumber: input.invoiceNumber },
+      columns: { id: true },
+    });
+
+    if (existingInvoice) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "An invoice with this number already exists for this supplier",
+      });
+    }
+
+    const result = await shopDb
+      .transaction(async (tx) => {
+        const supplierId = input.supplierId;
+
+        const existingSupplier = await tx.query.supplier.findFirst({
+          where: { id: supplierId },
+          columns: { id: true },
+        });
+
+        if (!existingSupplier) {
+          throw new ORPCError("NOT_FOUND", { message: "Supplier not found" });
+        }
+
+        const insertedInvoice = await tx
+          .insert(purchaseInvoice)
+          .values({
+            invoiceNumber: input.invoiceNumber,
+            supplierId,
+            ocrResultId: existingFile.ocrResult?.id ?? null,
+            invoiceDate: input.invoiceDate,
+            photoUrl: existingFile.objectPath,
+            subtotalCents: input.subtotalCents,
+            vatCents: input.vatCents,
+            discountCents: input.discountCents,
+            freightCents: input.freightCents,
+            totalCents: input.totalCents,
+            notes: input.notes,
+            status: "INVENTORY_PENDING",
+            validatedBy: context.session.user.id,
+            validatedAt: now,
+            createdAt: now,
+            updatedAt: now,
+          })
+          .returning();
+
+        const createdInvoice = insertedInvoice.at(0);
+        if (!createdInvoice) {
+          throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create invoice" });
+        }
+
+        await tx.insert(purchaseInvoiceItem).values(
+          input.items.map((item) => ({
+            purchaseInvoiceId: createdInvoice.id,
+            productId: item.productId,
+            invoiceItemName: item.invoiceItemName,
+            qty: item.qty,
+            unitCostCents: item.unitCostCents,
+            lineSubtotalCents: item.lineSubtotalCents,
+            vatCents: item.vatCents,
+            discountCents: item.discountCents,
+            freightCents: item.freightCents,
+            lineTotalCents: item.lineTotalCents,
+            expiryDate: item.expiryDate,
+            batchNumber: item.batchNumber,
+            createdAt: now,
+          })),
+        );
+
+        const aliasesToCreate = input.items
+          .filter(
+            (item): item is typeof item & { productId: string; invoiceItemName: string } =>
+              item.saveAlias === true && !!item.productId && !!item.invoiceItemName,
+          )
+          .map((item) => ({
+            productId: item.productId,
+            alias: item.invoiceItemName,
+            createdAt: now,
+          }));
+
+        if (aliasesToCreate.length > 0) {
+          await tx.insert(productAlias).values(aliasesToCreate).onConflictDoNothing();
+        }
+
+        if (existingFile.ocrResult) {
+          await tx
+            .update(purchaseInvoiceOcrResult)
+            .set({ status: "LINKED" })
+            .where(eq(purchaseInvoiceOcrResult.id, existingFile.ocrResult.id));
+        }
+
+        await tx
+          .update(purchaseInvoiceFile)
+          .set({ status: "REVIEWED", updatedAt: now })
+          .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
+
+        return createdInvoice;
+      })
+      .catch((error) => {
+        logger.error({ error }, "Failed to submit invoice review.");
+        throw error;
       });
 
-      if (!existingSupplier) {
-        throw new ORPCError("NOT_FOUND", { message: "Supplier not found" });
-      }
-
-      const insertedInvoice = await tx
-        .insert(purchaseInvoice)
-        .values({
-          invoiceNumber: input.invoiceNumber,
-          supplierId,
-          ocrResultId: existingFile.ocrResult?.id ?? null,
-          invoiceDate: input.invoiceDate,
-          photoUrl: existingFile.objectPath,
-          subtotalCents: input.subtotalCents,
-          vatCents: input.vatCents,
-          discountCents: input.discountCents,
-          freightCents: input.freightCents,
-          totalCents: input.totalCents,
-          notes: input.notes,
-          status: "VALIDATED",
-          validatedBy: context.session.user.id,
-          validatedAt: now,
-          createdAt: now,
-          updatedAt: now,
-        })
-        .returning();
-
-      const createdInvoice = insertedInvoice.at(0);
-      if (!createdInvoice) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create invoice" });
-      }
-
-      await tx.insert(purchaseInvoiceItem).values(
-        input.items.map((item) => ({
-          purchaseInvoiceId: createdInvoice.id,
-          productId: item.productId,
-          invoiceItemName: item.invoiceItemName,
-          qty: item.qty,
-          unitCostCents: item.unitCostCents,
-          lineSubtotalCents: item.lineSubtotalCents,
-          vatCents: item.vatCents,
-          discountCents: item.discountCents,
-          freightCents: item.freightCents,
-          lineTotalCents: item.lineTotalCents,
-          expiryDate: item.expiryDate,
-          batchNumber: item.batchNumber,
-          createdAt: now,
-        })),
-      );
-
-      const aliasesToCreate = input.items
-        .filter(
-          (item): item is typeof item & { productId: string; invoiceItemName: string } =>
-            item.saveAlias === true && !!item.productId && !!item.invoiceItemName,
-        )
-        .map((item) => ({
-          productId: item.productId,
-          alias: item.invoiceItemName,
-          createdAt: now,
-        }));
-
-      if (aliasesToCreate.length > 0) {
-        await tx.insert(productAlias).values(aliasesToCreate).onConflictDoNothing();
-      }
-
-      if (existingFile.ocrResult) {
-        await tx
-          .update(purchaseInvoiceOcrResult)
-          .set({ status: "LINKED" })
-          .where(eq(purchaseInvoiceOcrResult.id, existingFile.ocrResult.id));
-      }
-
-      await tx
-        .update(purchaseInvoiceFile)
-        .set({ status: "REVIEWED", updatedAt: now })
-        .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
-
-      return createdInvoice;
-    });
+    try {
+      await qstashClient.publishJSON({
+        url: `${baseUrl}/api/queue/inventory-sync`,
+        body: {
+          invoiceId: result.id,
+          shopSlug: context.shop.slug,
+        },
+        failureCallback: `${baseUrl}/api/queue/inventory-sync/failure`,
+      });
+    } catch (error) {
+      logger.error({ error, invoiceId: result.id }, "Failed to dispatch inventory sync to QStash");
+      await shopDb
+        .update(purchaseInvoice)
+        .set({ status: "PENDING", updatedAt: new Date() })
+        .where(eq(purchaseInvoice.id, result.id));
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Failed to queue inventory sync. Please retry.",
+      });
+    }
 
     return {
       id: result.id,
