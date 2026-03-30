@@ -1,12 +1,16 @@
 import { ORPCError } from "@orpc/server";
 import {
+  type ExtractedInvoiceData,
   eq,
-  type InvoiceExtractionResult,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
 } from "@repo/db";
 import { z } from "zod";
-import { processInvoice } from "$lib/server/ai/invoice-processor";
+import {
+  type InvoiceVerificationResult,
+  processInvoice,
+  verifyInvoice,
+} from "$lib/server/ai/invoice-processor";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -32,9 +36,9 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
-    if (file.status !== "UPLOADED" && file.status !== "REJECTED") {
+    if (file.status === "REVIEWED" || file.status === "PROCESSING") {
       throw new ORPCError("BAD_REQUEST", {
-        message: `File status must be UPLOADED or REJECTED, current status: ${file.status}`,
+        message: "Unable to process invoice under processing or already reviewed.",
       });
     }
 
@@ -49,16 +53,76 @@ export const processInvoiceFileHandler = os
       .set({ status: "PROCESSING", updatedAt: new Date() })
       .where(eq(purchaseInvoiceFile.id, file.id));
 
-    let result: InvoiceExtractionResult;
-    try {
-      const objectKey = extractObjectKey(file.objectPath);
-      if (!objectKey) {
-        logger.error("Could not extract object key from path");
-        throw new ORPCError("INTERNAL_SERVER_ERROR");
-      }
+    const objectKey = extractObjectKey(file.objectPath);
+    if (!objectKey) {
+      await shopDb
+        .update(purchaseInvoiceFile)
+        .set({ status: "FAILED", updatedAt: new Date() })
+        .where(eq(purchaseInvoiceFile.id, file.id));
+      logger.error("Could not extract object key from path");
+      throw new ORPCError("INTERNAL_SERVER_ERROR");
+    }
 
-      const fileBuffer = await getObject(objectKey);
-      result = await processInvoice(fileBuffer, file.fileType);
+    let fileBuffer: Buffer;
+    try {
+      fileBuffer = await getObject(objectKey);
+    } catch (error) {
+      await shopDb
+        .update(purchaseInvoiceFile)
+        .set({ status: "FAILED", updatedAt: new Date() })
+        .where(eq(purchaseInvoiceFile.id, file.id));
+
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Failed to retrieve file from storage",
+      });
+    }
+
+    let verificationResult: InvoiceVerificationResult;
+    try {
+      verificationResult = await verifyInvoice(fileBuffer, file.fileType);
+    } catch (error) {
+      await shopDb
+        .update(purchaseInvoiceFile)
+        .set({ status: "FAILED", updatedAt: new Date() })
+        .where(eq(purchaseInvoiceFile.id, file.id));
+
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Failed to verify invoice: Please upload clear and correctly formatted invoice",
+      });
+    }
+
+    const photoUrl = file.objectPath;
+    const now = new Date();
+
+    if (!verificationResult.isInvoice) {
+      const rejectionReason = verificationResult.rejectionReason ?? "Image is not an invoice";
+
+      await shopDb.transaction(async (tx) => {
+        await tx.insert(purchaseInvoiceOcrResult).values({
+          photoUrl,
+          invoiceFileId: file.id,
+          rawJson: verificationResult,
+          rejectionReason,
+          status: "REJECTED",
+          createdAt: now,
+        });
+
+        await tx
+          .update(purchaseInvoiceFile)
+          .set({ status: "REJECTED", updatedAt: now })
+          .where(eq(purchaseInvoiceFile.id, file.id));
+      });
+
+      return {
+        success: true,
+        status: "REJECTED" as const,
+        rejectionReason,
+      };
+    }
+
+    let extractedData: ExtractedInvoiceData;
+    try {
+      extractedData = await processInvoice(fileBuffer, file.fileType);
     } catch (error) {
       await shopDb
         .update(purchaseInvoiceFile)
@@ -70,60 +134,17 @@ export const processInvoiceFileHandler = os
       });
     }
 
-    const photoUrl = file.objectPath;
-    const now = new Date();
-
-    if (result.status === "rejected") {
-      const ocrResultData = {
+    await shopDb.transaction(async (tx) => {
+      await tx.insert(purchaseInvoiceOcrResult).values({
         photoUrl,
         invoiceFileId: file.id,
-        rawJson: result,
-        rejectionReason: result.rejectionReason,
-        status: "REJECTED" as const,
+        rawJson: extractedData,
+        extractedText: extractedData.rawText ?? null,
+        extractedData,
+        confidenceScore: extractedData.confidence,
+        status: "PROCESSED",
         createdAt: now,
-      };
-
-      await shopDb.transaction(async (tx) => {
-        const ocrResult = await tx.insert(purchaseInvoiceOcrResult).values(ocrResultData);
-
-        if (!ocrResult.rowsAffected) {
-          throw new ORPCError("INTERNAL_SERVER_ERROR", {
-            message: "Failed to save OCR result",
-          });
-        }
-
-        await tx
-          .update(purchaseInvoiceFile)
-          .set({ status: "REJECTED", updatedAt: now })
-          .where(eq(purchaseInvoiceFile.id, file.id));
       });
-
-      return {
-        success: true,
-        status: "REJECTED" as const,
-        rejectionReason: result.rejectionReason,
-      };
-    }
-
-    const ocrResultData = {
-      photoUrl,
-      invoiceFileId: file.id,
-      rawJson: result,
-      extractedText: result.rawText ?? null,
-      extractedData: result,
-      confidenceScore: result.confidence,
-      status: "PROCESSED" as const,
-      createdAt: now,
-    };
-
-    await shopDb.transaction(async (tx) => {
-      const ocrResult = await tx.insert(purchaseInvoiceOcrResult).values(ocrResultData);
-
-      if (!ocrResult.rowsAffected) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: "Failed to save OCR result",
-        });
-      }
 
       await tx
         .update(purchaseInvoiceFile)
