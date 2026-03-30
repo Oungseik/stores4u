@@ -1,7 +1,6 @@
 <script lang="ts">
   import CheckIcon from "@lucide/svelte/icons/check";
   import PackageIcon from "@lucide/svelte/icons/package";
-  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import PlusCircleIcon from "@lucide/svelte/icons/plus-circle";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -46,7 +45,6 @@
     onProductCreated?: (product: { id: string; name: string; sku: string }) => void;
   } = $props();
 
-  let isEditing = $state(false);
   let productSearchOpen = $state<string | null>(null);
   let productSearch = $state("");
   let createProductSheetOpen = $state(false);
@@ -61,8 +59,6 @@
       .filter((p) => p.name.toLowerCase().includes(search) || p.sku.toLowerCase().includes(search))
       .slice(0, 20);
   });
-
-  const unmatchedCount = $derived(items.filter((i) => !i.productId).length);
 
   const lineTotalsCents = $derived(
     items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
@@ -138,208 +134,156 @@
       Items ({items.length})
     </Card.Title>
     <div class="flex gap-2">
-      {#if isEditing}
-        <Button variant="outline" size="sm" onclick={() => (isEditing = false)}>
-          <CheckIcon class="size-4" />
-          Done
-        </Button>
-        <Button variant="outline" size="sm" onclick={addItem}>
-          <PlusIcon class="size-4" />
-          Add Item
-        </Button>
-      {:else}
-        <Button variant="outline" size="sm" onclick={() => (isEditing = true)}>
-          <PencilIcon class="size-4" />
-          Edit
-        </Button>
-      {/if}
+      <Button variant="outline" size="sm" onclick={addItem}>
+        <PlusIcon class="size-4" />
+        Add Item
+      </Button>
     </div>
   </Card.Header>
   <Card.Content class="p-0">
-    {#if unmatchedCount > 0}
-      <p class="px-3 py-1 text-sm text-amber-600 dark:text-amber-400">
-        {unmatchedCount} item{unmatchedCount > 1 ? "s" : ""} need{unmatchedCount === 1 ? "s" : ""} a product
-        match. Click Edit to select products.
-      </p>
-    {/if}
     {#if items.length === 0}
       <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12">
         <PackageIcon class="size-10 opacity-50" />
         <p class="text-sm">No items yet</p>
-        {#if isEditing}
-          <Button variant="outline" size="sm" onclick={addItem}>
-            <PlusIcon class="size-4" />
-            Add first item
-          </Button>
-        {/if}
+        <Button variant="outline" size="sm" onclick={addItem}>
+          <PlusIcon class="size-4" />
+          Add first item
+        </Button>
       </div>
     {:else}
       <div class="divide-y">
         {#each items as item, index (item.id)}
-          <div class="hover:bg-muted/30 transition-colors {isEditing ? 'bg-muted/50' : ''}">
-            {#if isEditing}
-              <!-- EDIT MODE -->
-              <div class="flex flex-col gap-3 p-3 lg:flex-row lg:items-end">
-                <div class="flex w-full flex-col gap-2">
-                  <div class="flex flex-col gap-4 lg:flex-row">
-                    <!-- Invoice item name (editable) -->
-                    <Input
-                      bind:value={item.invoiceItemName}
-                      placeholder="Item name"
-                      class="text-sm font-medium"
-                    />
+          <div class="hover:bg-muted/30 transition-colors">
+            <div class="flex flex-col gap-3 p-3 lg:flex-row lg:items-end">
+              <div class="flex w-full flex-col gap-2">
+                <div class="flex flex-col gap-4 lg:flex-row">
+                  <Input
+                    bind:value={item.invoiceItemName}
+                    placeholder="Item name"
+                    class="text-sm font-medium"
+                  />
 
-                    <!-- Qty, Cost, Total row -->
-                    <div class="flex items-center gap-2">
-                      <NumberInput
-                        bind:value={item.qty}
-                        class="w-16 text-center"
-                        fraction={0}
-                        min={0}
-                      />
-                      <span class="text-muted-foreground text-xs">×</span>
-                      <NumberInput
-                        bind:value={item.unitCost}
-                        class="w-24 text-right"
-                        fraction={2}
-                        min={0}
-                      />
-                      <span class="text-muted-foreground text-xs">=</span>
-                      <span class="min-w-[4rem] font-medium tabular-nums">
-                        {formatPrice(lineTotalsCents[index])}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-7 shrink-0 text-red-500 hover:text-red-700"
-                        onclick={() => removeItem(item.id)}
-                      >
-                        <Trash2Icon class="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                  <!-- Product selector -->
                   <div class="flex items-center gap-2">
-                    <Popover.Root
-                      open={productSearchOpen === item.id}
-                      onOpenChange={(open) => {
-                        productSearchOpen = open ? item.id : null;
-                        if (open) productSearch = "";
-                      }}
+                    <NumberInput
+                      bind:value={item.qty}
+                      class="w-16 text-center"
+                      fraction={0}
+                      min={0}
+                    />
+                    <span class="text-muted-foreground text-xs">×</span>
+                    <NumberInput
+                      bind:value={item.unitCost}
+                      class="w-24 text-right"
+                      fraction={2}
+                      min={0}
+                    />
+                    <span class="text-muted-foreground text-xs">=</span>
+                    <span class="min-w-[4rem] font-medium tabular-nums">
+                      {formatPrice(lineTotalsCents[index])}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="size-7 shrink-0 text-red-500 hover:text-red-700"
+                      onclick={() => removeItem(item.id)}
                     >
-                      <Popover.Trigger class="min-w-0 flex-1">
-                        <div
-                          class="flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm
-                            {item.productId
-                            ? 'border-input bg-background'
-                            : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950'}"
-                        >
-                          {#if item.productId && item.matchedProductName}
-                            <CheckIcon class="size-3.5 shrink-0 text-green-600" />
-                            <span class="truncate text-sm font-medium"
-                              >{item.matchedProductName}</span
-                            >
-                          {:else}
-                            <XIcon class="size-3.5 shrink-0 text-amber-600" />
-                            <span class="truncate text-amber-700 dark:text-amber-400"
-                              >Select product...</span
-                            >
-                          {/if}
-                        </div>
-                      </Popover.Trigger>
-                      <Popover.Content class="z-10 w-72 p-0" align="start">
-                        <Command.Root>
-                          <Command.Input
-                            placeholder="Search products..."
-                            value={productSearch}
-                            oninput={(e) => (productSearch = e.currentTarget.value)}
-                          />
-                          <Command.List>
-                            <Command.Empty>
-                              <div class="flex flex-col items-center gap-2 py-4">
-                                <p class="text-muted-foreground text-sm">No products found</p>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onclick={() => openCreateProductSheet(item.id)}
-                                >
-                                  <PlusCircleIcon class="mr-1 size-4" />
-                                  Create new product
-                                </Button>
-                              </div>
-                            </Command.Empty>
-                            {#each filteredProducts as product (product.id)}
-                              <Command.Item
-                                value={product.name}
-                                onSelect={() => selectProduct(item.id, product)}
-                              >
-                                <CheckIcon
-                                  class={[
-                                    "size-4",
-                                    item.productId !== product.id && "text-transparent",
-                                  ]}
-                                />
-                                <div class="flex flex-col">
-                                  <span>{product.name}</span>
-                                  <span class="text-muted-foreground text-xs">{product.sku}</span>
-                                </div>
-                              </Command.Item>
-                            {/each}
-                            {#if filteredProducts.length > 0}
-                              <Command.Separator />
-                              <Command.Item
-                                value="__create_new__"
-                                onSelect={() => openCreateProductSheet(item.id)}
-                              >
-                                <PlusCircleIcon class="size-4" />
-                                Create new product
-                              </Command.Item>
-                            {/if}
-                          </Command.List>
-                        </Command.Root>
-                      </Popover.Content>
-                    </Popover.Root>
-
-                    {#if item.productId}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="text-muted-foreground hover:text-foreground size-8 shrink-0"
-                        onclick={() => clearProduct(item.id)}
-                      >
-                        <XIcon class="size-3.5" />
-                      </Button>
-                    {/if}
+                      <Trash2Icon class="size-3.5" />
+                    </Button>
                   </div>
                 </div>
-              </div>
-            {:else}
-              <!-- REVIEW MODE -->
-              <div class="flex flex-col gap-0.5 p-3 sm:flex-row sm:items-center sm:gap-2">
-                <div class="min-w-0 flex-1">
-                  {#if item.productId && item.matchedProductName}
-                    <div class="truncate text-sm font-medium">{item.matchedProductName}</div>
-                    {#if item.invoiceItemName && item.invoiceItemName !== item.matchedProductName}
-                      <div class="text-muted-foreground truncate text-xs">
-                        Invoice: {item.invoiceItemName}
+                <div class="flex items-center gap-2">
+                  <Popover.Root
+                    open={productSearchOpen === item.id}
+                    onOpenChange={(open) => {
+                      productSearchOpen = open ? item.id : null;
+                      if (open) productSearch = "";
+                    }}
+                  >
+                    <Popover.Trigger class="min-w-0 flex-1">
+                      <div
+                        class="flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm
+                          {item.productId
+                          ? 'border-input bg-background'
+                          : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950'}"
+                      >
+                        {#if item.productId && item.matchedProductName}
+                          <CheckIcon class="size-3.5 shrink-0 text-green-600" />
+                          <span class="truncate text-sm font-medium">{item.matchedProductName}</span
+                          >
+                        {:else}
+                          <XIcon class="size-3.5 shrink-0 text-amber-600" />
+                          <span class="truncate text-amber-700 dark:text-amber-400"
+                            >Select product...</span
+                          >
+                        {/if}
                       </div>
-                    {/if}
-                  {:else if item.invoiceItemName}
-                    <div class="truncate text-sm font-medium">{item.invoiceItemName}</div>
-                  {:else}
-                    <span class="text-muted-foreground italic">Unnamed</span>
+                    </Popover.Trigger>
+                    <Popover.Content class="z-10 w-72 p-0" align="start">
+                      <Command.Root>
+                        <Command.Input
+                          placeholder="Search products..."
+                          value={productSearch}
+                          oninput={(e) => (productSearch = e.currentTarget.value)}
+                        />
+                        <Command.List>
+                          <Command.Empty>
+                            <div class="flex flex-col items-center gap-2 py-4">
+                              <p class="text-muted-foreground text-sm">No products found</p>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onclick={() => openCreateProductSheet(item.id)}
+                              >
+                                <PlusCircleIcon class="mr-1 size-4" />
+                                Create new product
+                              </Button>
+                            </div>
+                          </Command.Empty>
+                          {#each filteredProducts as product (product.id)}
+                            <Command.Item
+                              value={product.name}
+                              onSelect={() => selectProduct(item.id, product)}
+                            >
+                              <CheckIcon
+                                class={[
+                                  "size-4",
+                                  item.productId !== product.id && "text-transparent",
+                                ]}
+                              />
+                              <div class="flex flex-col">
+                                <span>{product.name}</span>
+                                <span class="text-muted-foreground text-xs">{product.sku}</span>
+                              </div>
+                            </Command.Item>
+                          {/each}
+                          {#if filteredProducts.length > 0}
+                            <Command.Separator />
+                            <Command.Item
+                              value="__create_new__"
+                              onSelect={() => openCreateProductSheet(item.id)}
+                            >
+                              <PlusCircleIcon class="size-4" />
+                              Create new product
+                            </Command.Item>
+                          {/if}
+                        </Command.List>
+                      </Command.Root>
+                    </Popover.Content>
+                  </Popover.Root>
+
+                  {#if item.productId}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="text-muted-foreground hover:text-foreground size-8 shrink-0"
+                      onclick={() => clearProduct(item.id)}
+                    >
+                      <XIcon class="size-3.5" />
+                    </Button>
                   {/if}
                 </div>
-                <div class="flex gap-1 text-sm">
-                  <span class="text-muted-foreground tabular-nums">
-                    {item.qty} × {formatPrice(Math.round(item.unitCost * 100))} =
-                  </span>
-                  <span class="font-medium tabular-nums">
-                    {formatPrice(lineTotalsCents[index])}
-                  </span>
-                </div>
               </div>
-            {/if}
+            </div>
           </div>
         {/each}
       </div>
