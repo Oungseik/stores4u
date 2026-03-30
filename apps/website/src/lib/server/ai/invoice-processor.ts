@@ -1,7 +1,7 @@
 import { OpenRouter } from "@openrouter/sdk";
 import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
-import { OPENROUTER_API_KEY } from "$env/static/private";
 import { z } from "zod";
+import { OPENROUTER_API_KEY } from "$env/static/private";
 import { logger } from "../logger";
 
 const openRouter = new OpenRouter({ apiKey: OPENROUTER_API_KEY });
@@ -58,7 +58,7 @@ const INVOICE_SCHEMA = {
         paymentTerms: { type: "string", description: "Payment terms (e.g., Net 30)" },
         notes: { type: "string", description: "Any notes or comments on the invoice" },
       },
-      required: ["invoiceNumber", "totalCents"],
+      required: ["invoiceDate", "totalCents"],
     },
     items: {
       type: "array",
