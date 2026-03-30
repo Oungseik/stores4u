@@ -37,7 +37,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to create product");
       },
-    }),
+    })
   );
 
   const form = createForm(() => ({
@@ -98,8 +98,7 @@
     name="sku"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "SKU is required").max(100).safeParse(value).error?.issues.at(0)
-          ?.message,
+        z.string().min(1, "SKU is required").max(100).safeParse(value).error?.issues.at(0)?.message,
     }}
   >
     {#snippet children(field)}
