@@ -20,18 +20,13 @@ import { getSuppliersHandler } from "./handlers/products/get_suppliers";
 import { importProductsCsvHandler } from "./handlers/products/import_products_csv";
 import { listProductsHandler } from "./handlers/products/list_products";
 import { updateProductHandler } from "./handlers/products/update_product";
-import { createPurchaseInvoiceHandler } from "./handlers/purchase-invoices/create_purchase_invoice";
 import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_invoice_file";
-import { deletePurchaseInvoiceHandler } from "./handlers/purchase-invoices/delete_purchase_invoice";
 import { downloadInvoiceFileHandler } from "./handlers/purchase-invoices/download_invoice_file";
 import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
-import { getPurchaseInvoiceHandler } from "./handlers/purchase-invoices/get_purchase_invoice";
 import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
-import { listPurchaseInvoicesHandler } from "./handlers/purchase-invoices/list_purchase_invoices";
 import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice";
 import { rejectInvoiceFileHandler } from "./handlers/purchase-invoices/reject_invoice_file";
 import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
-import { updatePurchaseInvoiceHandler } from "./handlers/purchase-invoices/update_purchase_invoice";
 import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
@@ -62,18 +57,13 @@ export const router = os.router({
     listMovements: listMovementsHandler,
   },
   purchaseInvoices: {
-    create: createPurchaseInvoiceHandler,
-    delete: deletePurchaseInvoiceHandler,
     deleteFile: deleteInvoiceFileHandler,
     downloadFile: downloadInvoiceFileHandler,
-    get: getPurchaseInvoiceHandler,
-    list: listPurchaseInvoicesHandler,
     listFiles: listInvoiceFilesHandler,
     getFile: getInvoiceFileHandler,
     uploadFile: uploadInvoiceFileHandler,
     processFile: processInvoiceFileHandler,
     rejectFile: rejectInvoiceFileHandler,
-    update: updatePurchaseInvoiceHandler,
     submitReview: submitInvoiceReviewHandler,
   },
   products: {
