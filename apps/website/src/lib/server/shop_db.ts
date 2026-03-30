@@ -8,12 +8,12 @@ import {
 import { turso } from "./turso";
 
 export function getShopDb(shop: { slug: string }) {
-  const url = `libsql://pos-${shop.slug}-${TURSO_ORGANIZATION}.turso.io`;
+  const url = `libsql://${TURSO_GROUP}-${shop.slug}-${TURSO_ORGANIZATION}.turso.io`;
   return connectRemote(url, TURSO_GROUP_AUTH_TOKEN);
 }
 
 export async function createShopDatabase(slug: string): Promise<string> {
-  const db = await turso.databases.create(`pos-${slug}`, {
+  const db = await turso.databases.create(`${TURSO_GROUP}-${slug}`, {
     group: TURSO_GROUP,
     seed: { type: "database", name: TURSO_PARENT_DB_NAME },
   });
@@ -22,5 +22,5 @@ export async function createShopDatabase(slug: string): Promise<string> {
 }
 
 export async function deleteShopDatabase(slug: string): Promise<void> {
-  await turso.databases.delete(`pos-${slug}`);
+  await turso.databases.delete(`${TURSO_GROUP}-${slug}`);
 }
