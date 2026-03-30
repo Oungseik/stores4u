@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-import { os, shopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import { os, shopDbMiddleware, shopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -21,9 +20,8 @@ export const listProductsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(shopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const products = await shopDb.query.product.findMany({
       where: {
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
@@ -45,7 +43,10 @@ export const listProductsHandler = os
         priceCents: { gte: input.minPriceCents, lte: input.maxPriceCents },
         uom: input.uoms?.length ? { in: input.uoms } : undefined,
       },
-      with: { productCategories: { with: { category: true } }, productAliases: { columns: { alias: true } } },
+      with: {
+        productCategories: { with: { category: true } },
+        productAliases: { columns: { alias: true } },
+      },
       limit: input.pageSize + 1,
       orderBy: { id: input.order },
     });

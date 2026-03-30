@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -14,9 +13,8 @@ export const listMovementsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const movements = await shopDb.query.inventoryMovement.findMany({
       where: {
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
