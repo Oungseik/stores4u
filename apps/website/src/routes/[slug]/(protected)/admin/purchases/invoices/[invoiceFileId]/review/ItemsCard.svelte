@@ -62,6 +62,8 @@
       .slice(0, 20);
   });
 
+  const unmatchedCount = $derived(items.filter((i) => !i.productId).length);
+
   const lineTotalsCents = $derived(
     items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
   );
@@ -154,6 +156,12 @@
     </div>
   </Card.Header>
   <Card.Content class="p-0">
+    {#if unmatchedCount > 0}
+      <p class="px-3 py-1 text-sm text-amber-600 dark:text-amber-400">
+        {unmatchedCount} item{unmatchedCount > 1 ? "s" : ""} need{unmatchedCount === 1 ? "s" : ""} a product
+        match. Click Edit to select products.
+      </p>
+    {/if}
     {#if items.length === 0}
       <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12">
         <PackageIcon class="size-10 opacity-50" />
@@ -178,7 +186,7 @@
                     <Input
                       bind:value={item.invoiceItemName}
                       placeholder="Item name"
-                      class="font-medium"
+                      class="text-sm font-medium"
                     />
 
                     <!-- Qty, Cost, Total row -->
@@ -228,7 +236,9 @@
                         >
                           {#if item.productId && item.matchedProductName}
                             <CheckIcon class="size-3.5 shrink-0 text-green-600" />
-                            <span class="truncate font-medium">{item.matchedProductName}</span>
+                            <span class="truncate text-sm font-medium"
+                              >{item.matchedProductName}</span
+                            >
                           {:else}
                             <XIcon class="size-3.5 shrink-0 text-amber-600" />
                             <span class="truncate text-amber-700 dark:text-amber-400"
@@ -308,14 +318,14 @@
               <div class="flex flex-col gap-0.5 p-3 sm:flex-row sm:items-center sm:gap-2">
                 <div class="min-w-0 flex-1">
                   {#if item.productId && item.matchedProductName}
-                    <div class="truncate font-medium">{item.matchedProductName}</div>
+                    <div class="truncate text-sm font-medium">{item.matchedProductName}</div>
                     {#if item.invoiceItemName && item.invoiceItemName !== item.matchedProductName}
                       <div class="text-muted-foreground truncate text-xs">
                         Invoice: {item.invoiceItemName}
                       </div>
                     {/if}
                   {:else if item.invoiceItemName}
-                    <div class="truncate font-medium">{item.invoiceItemName}</div>
+                    <div class="truncate text-sm font-medium">{item.invoiceItemName}</div>
                   {:else}
                     <span class="text-muted-foreground italic">Unnamed</span>
                   {/if}

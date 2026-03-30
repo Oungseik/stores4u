@@ -236,7 +236,7 @@
     }
   });
 
-  const unmatchedCount = $derived(invoiceData.items.filter((i) => !i.productId).length);
+
 
   async function validateAndSave() {
     if (!selectedSupplier || invoiceData.items.length === 0) return;
@@ -519,19 +519,6 @@
             bind:isExistingSupplier
             initialSupplierData={extractedData?.supplier}
           />
-
-          {#if unmatchedCount > 0}
-            <div
-              class="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-950"
-            >
-              <XIcon class="size-4 shrink-0 text-amber-600" />
-              <span class="text-amber-800 dark:text-amber-300">
-                {unmatchedCount} item{unmatchedCount > 1 ? "s" : ""} need{unmatchedCount === 1
-                  ? "s"
-                  : ""} a product match. Click Edit to select products.
-              </span>
-            </div>
-          {/if}
 
           <ItemsCard
             bind:items={invoiceData.items}
