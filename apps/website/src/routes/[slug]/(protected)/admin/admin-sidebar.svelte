@@ -3,7 +3,6 @@
   import BellIcon from "@lucide/svelte/icons/bell";
   import BotIcon from "@lucide/svelte/icons/bot";
   import Building2Icon from "@lucide/svelte/icons/building-2";
-  import ChartNoAxesCombinedIcon from "@lucide/svelte/icons/chart-no-axes-combined";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FolderIcon from "@lucide/svelte/icons/folder";
@@ -134,7 +133,7 @@
     <ScrollArea class="h-full">
       <!-- Main Navigation -->
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Main</Sidebar.GroupLabel>
+        <!-- <Sidebar.GroupLabel>Main</Sidebar.GroupLabel> -->
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {#each mainNavItems as item (item.title)}
