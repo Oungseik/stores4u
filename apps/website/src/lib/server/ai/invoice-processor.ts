@@ -1,6 +1,7 @@
 import { OpenRouter } from "@openrouter/sdk";
-import { type InvoiceExtractionResult, InvoiceExtractionResultSchema } from "@repo/db";
+import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
 import { OPENROUTER_API_KEY } from "$env/static/private";
+import { z } from "zod";
 import { logger } from "../logger";
 
 const openRouter = new OpenRouter({ apiKey: OPENROUTER_API_KEY });
@@ -9,8 +10,7 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const INVOICE_EXTRACTION_PROMPT = `You are an invoice data extraction assistant. Extract all relevant information from the provided invoice image(s).
 
-## SUCCESS CASE (status: "success")
-If the image is a valid invoice, extract the following information:
+Extract the following information:
 1. Supplier information: name (required), contact name, phone, email, address
 2. Invoice details: invoice number (required), invoice date (YYYY-MM-DD format), subtotal, VAT/tax, discount, freight/shipping, total, payment terms, notes
 3. Line items: product name/description, quantity, unit price, line total, SKU if available
@@ -21,29 +21,19 @@ Important rules:
 - Calculate confidence score (0-1) based on how clearly all information was readable
 - 1.0 = all fields clearly readable, 0.5 = some fields unclear or missing, 0.0 = completely unreadable
 - Invoice date should be in YYYY-MM-DD format
-- If there are multiple pages, combine all information into a single response
+- If there are multiple pages, combine all information into a single response`;
 
-## REJECTION CASE (status: "rejected")
-Reject the image and set status to "rejected" with a clear rejectionReason if:
-- The image is NOT an invoice (e.g., photo of a person, product, receipt, document, etc.)
-- The image is too blurry, dark, or unreadable to extract invoice data
-- The image is corrupted or doesn't contain any recognizable invoice elements
+const INVOICE_VERIFICATION_PROMPT = `You are an image verification assistant. Your task is to determine whether the provided image is an invoice or not.
 
-Provide a helpful rejectionReason explaining why the image cannot be processed (e.g., "Image appears to be a photo of a product, not an invoice" or "Invoice image is too blurry to read").`;
+An invoice is a commercial document issued by a seller to a buyer, relating to a sale transaction, and indicating the products, quantities, and agreed prices for products or services the seller had provided the buyer.
+
+Return:
+- isInvoice: true if the image is clearly an invoice, false otherwise
+- rejectionReason: if isInvoice is false, provide a brief explanation (e.g., "Image appears to be a photo of a person, not an invoice", "Image is too blurry to identify", "Image is a receipt, not an invoice")`;
 
 const INVOICE_SCHEMA = {
   type: "object",
   properties: {
-    status: {
-      type: "string",
-      enum: ["success", "rejected"],
-      description:
-        "Extraction status: 'success' for valid invoices, 'rejected' for non-invoice or unreadable images",
-    },
-    rejectionReason: {
-      type: "string",
-      description: "Reason for rejection (only when status is 'rejected')",
-    },
     supplier: {
       type: "object",
       properties: {
@@ -53,6 +43,7 @@ const INVOICE_SCHEMA = {
         email: { type: "string", description: "Email address" },
         address: { type: "string", description: "Full address" },
       },
+      required: ["name"],
     },
     invoice: {
       type: "object",
@@ -67,6 +58,7 @@ const INVOICE_SCHEMA = {
         paymentTerms: { type: "string", description: "Payment terms (e.g., Net 30)" },
         notes: { type: "string", description: "Any notes or comments on the invoice" },
       },
+      required: ["invoiceNumber", "totalCents"],
     },
     items: {
       type: "array",
@@ -80,6 +72,7 @@ const INVOICE_SCHEMA = {
           lineTotalCents: { type: "number", description: "Line total in cents" },
           sku: { type: "string", description: "Product SKU or code" },
         },
+        required: ["productName", "quantity", "unitCostCents", "lineTotalCents"],
       },
     },
     confidence: {
@@ -93,8 +86,29 @@ const INVOICE_SCHEMA = {
       description: "Raw OCR-like text extracted from the invoice",
     },
   },
-  required: ["status"],
+  required: ["supplier", "invoice", "items", "confidence"],
 };
+
+const VERIFICATION_SCHEMA = {
+  type: "object",
+  properties: {
+    isInvoice: {
+      type: "boolean",
+      description: "Whether the image is an invoice or not",
+    },
+    rejectionReason: {
+      type: "string",
+      description: "Reason for rejection if the image is not an invoice",
+    },
+  },
+  required: ["isInvoice"],
+};
+
+export const InvoiceVerificationResultSchema = z.object({
+  isInvoice: z.boolean(),
+  rejectionReason: z.string().optional(),
+});
+export type InvoiceVerificationResult = z.infer<typeof InvoiceVerificationResultSchema>;
 
 function imageToBase64(buffer: Buffer, mimeType: string): string {
   const base64 = buffer.toString("base64");
@@ -124,65 +138,62 @@ async function pdfToImages(pdfBuffer: Buffer): Promise<string[]> {
   }
 }
 
-async function callOpenRouter(images: string[]): Promise<InvoiceExtractionResult> {
-  try {
-    const imageParts = images.map((img) => ({
-      type: "image_url" as const,
-      imageUrl: { url: img },
-    }));
+async function callOpenRouter(
+  images: string[],
+  systemPrompt: string,
+  userMessage: string,
+  schema: Record<string, unknown>,
+  schemaName: string,
+): Promise<unknown> {
+  const imageParts = images.map((img) => ({
+    type: "image_url" as const,
+    imageUrl: { url: img },
+  }));
 
-    const response = await openRouter.chat.send({
-      chatGenerationParams: {
-        model: "moonshotai/kimi-k2.5",
-        messages: [
-          {
-            role: "system",
-            content: INVOICE_EXTRACTION_PROMPT,
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text" as const,
-                text: "Please extract the invoice data from the following image(s).",
-              },
-              ...imageParts,
-            ],
-          },
-        ],
-        responseFormat: {
-          type: "json_schema",
-          jsonSchema: {
-            name: "invoice_extraction",
-            strict: true,
-            schema: INVOICE_SCHEMA,
-          },
+  const response = await openRouter.chat.send({
+    chatGenerationParams: {
+      model: "moonshotai/kimi-k2.5",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text" as const,
+              text: userMessage,
+            },
+            ...imageParts,
+          ],
+        },
+      ],
+      responseFormat: {
+        type: "json_schema",
+        jsonSchema: {
+          name: schemaName,
+          strict: true,
+          schema,
         },
       },
-    });
+    },
+  });
 
-    if ("choices" in response) {
-      const content = response.choices[0]?.message?.content;
+  if ("choices" in response) {
+    const content = response.choices[0]?.message?.content;
 
-      if (!content) {
-        throw new Error("No response content from OpenRouter");
-      }
-
-      const parsed = JSON.parse(content);
-      return InvoiceExtractionResultSchema.parse(parsed);
+    if (!content) {
+      throw new Error("No response content from OpenRouter");
     }
 
-    throw new Error("Unexpected response type from OpenRouter");
-  } catch (error) {
-    logger.error({ error }, "OpenRouter API call failed");
-    throw error;
+    return JSON.parse(content);
   }
+
+  throw new Error("Unexpected response type from OpenRouter");
 }
 
-export async function processInvoice(
-  fileBuffer: Buffer,
-  mimeType: string,
-): Promise<InvoiceExtractionResult> {
+async function prepareImages(fileBuffer: Buffer, mimeType: string): Promise<string[]> {
   if (fileBuffer.byteLength > MAX_FILE_SIZE_BYTES) {
     const error = new Error(
       `File size exceeds maximum allowed size of ${MAX_FILE_SIZE_BYTES} bytes`,
@@ -207,5 +218,47 @@ export async function processInvoice(
     throw new Error("No images could be extracted from the file");
   }
 
-  return callOpenRouter(images);
+  return images;
+}
+
+export async function verifyInvoice(
+  fileBuffer: Buffer,
+  mimeType: string,
+): Promise<InvoiceVerificationResult> {
+  const images = await prepareImages(fileBuffer, mimeType);
+
+  try {
+    const raw = await callOpenRouter(
+      images,
+      INVOICE_VERIFICATION_PROMPT,
+      "Please verify if the following image(s) contain an invoice.",
+      VERIFICATION_SCHEMA,
+      "invoice_verification",
+    );
+    return InvoiceVerificationResultSchema.parse(raw);
+  } catch (error) {
+    logger.error({ error }, "OpenRouter verification call failed");
+    throw error;
+  }
+}
+
+export async function processInvoice(
+  fileBuffer: Buffer,
+  mimeType: string,
+): Promise<ExtractedInvoiceData> {
+  const images = await prepareImages(fileBuffer, mimeType);
+
+  try {
+    const raw = await callOpenRouter(
+      images,
+      INVOICE_EXTRACTION_PROMPT,
+      "Please extract the invoice data from the following image(s).",
+      INVOICE_SCHEMA,
+      "invoice_extraction",
+    );
+    return ExtractedInvoiceDataSchema.parse(raw);
+  } catch (error) {
+    logger.error({ error }, "OpenRouter extraction call failed");
+    throw error;
+  }
 }

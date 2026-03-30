@@ -42,32 +42,10 @@ export const ExtractedInvoiceDataSchema = z.object({
   rawText: z.string().optional(),
 });
 
-export const InvoiceExtractionSuccessSchema = z.object({
-  status: z.literal("success"),
-  supplier: ExtractedSupplierSchema,
-  invoice: ExtractedInvoiceSchema,
-  items: z.array(ExtractedItemSchema),
-  confidence: z.number(),
-  rawText: z.string().optional(),
-});
-
-export const InvoiceExtractionRejectedSchema = z.object({
-  status: z.literal("rejected"),
-  rejectionReason: z.string(),
-});
-
-export const InvoiceExtractionResultSchema = z.discriminatedUnion("status", [
-  InvoiceExtractionSuccessSchema,
-  InvoiceExtractionRejectedSchema,
-]);
-
 export type ExtractedSupplier = z.infer<typeof ExtractedSupplierSchema>;
 export type ExtractedInvoice = z.infer<typeof ExtractedInvoiceSchema>;
 export type ExtractedItem = z.infer<typeof ExtractedItemSchema>;
 export type ExtractedInvoiceData = z.infer<typeof ExtractedInvoiceDataSchema>;
-export type InvoiceExtractionSuccess = z.infer<typeof InvoiceExtractionSuccessSchema>;
-export type InvoiceExtractionRejected = z.infer<typeof InvoiceExtractionRejectedSchema>;
-export type InvoiceExtractionResult = z.infer<typeof InvoiceExtractionResultSchema>;
 
 /**
  * This purchaseInvoice is only related to the invoices when we refill stock and got the invoices
@@ -130,7 +108,7 @@ export const purchaseInvoiceOcrResult = sqliteTable(
       .$defaultFn(() => randomUUIDv7()),
     photoUrl: text("photo_url").notNull(),
     invoiceFileId: text("invoice_file_id").references(() => purchaseInvoiceFile.id),
-    rawJson: text("raw_json", { mode: "json" }).$type<InvoiceExtractionResult>().notNull(),
+    rawJson: text("raw_json", { mode: "json" }).$type<unknown>().notNull(),
     extractedText: text("extracted_text"),
     extractedData: text("extracted_data", { mode: "json" }).$type<ExtractedInvoiceData>(),
     confidenceScore: real("confidence_score"),
