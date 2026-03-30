@@ -91,9 +91,11 @@ export const purchaseInvoiceFile = sqliteTable(
 
 export const purchaseInvoiceStatuses = [
   "PENDING",
+  "INVENTORY_PENDING",
   "VALIDATED",
   "REJECTED",
   "AUTO_ACCEPTED",
+  "INVENTORY_FAILED",
 ] as const;
 export type PurchaseInvoiceStatus = (typeof purchaseInvoiceStatuses)[number];
 
@@ -177,7 +179,9 @@ export const purchaseInvoiceItem = sqliteTable(
     purchaseInvoiceId: text("purchase_invoice_id")
       .notNull()
       .references(() => purchaseInvoice.id, { onDelete: "cascade" }),
-    productId: text("product_id").references(() => product.id),
+    productId: text("product_id")
+      .notNull()
+      .references(() => product.id),
     invoiceItemName: text("invoice_item_name"),
     qty: real("qty").notNull(),
     unitCostCents: integer("unit_cost_cents").notNull(),
