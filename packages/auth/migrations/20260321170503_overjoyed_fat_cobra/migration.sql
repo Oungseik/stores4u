@@ -1,1 +1,0 @@
-ALTER TABLE `shop` ADD `tax_id` text;

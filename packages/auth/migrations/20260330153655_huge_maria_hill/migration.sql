@@ -31,12 +31,42 @@ CREATE TABLE `shop` (
 	`id` text PRIMARY KEY,
 	`name` text NOT NULL,
 	`slug` text NOT NULL,
+	`logo` text,
+	`hero_image` text,
+	`title` text NOT NULL,
+	`description` text NOT NULL,
+	`address` text NOT NULL,
+	`city` text NOT NULL,
+	`state` text,
+	`zip_code` text,
+	`country` text,
+	`phone` text NOT NULL,
+	`email` text,
+	`tax_id` text,
 	`turso_db_url` text,
 	`is_active` integer DEFAULT true NOT NULL,
 	`user_id` text NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	CONSTRAINT `fk_shop_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
+);
+--> statement-breakpoint
+CREATE TABLE `social_connection` (
+	`id` text PRIMARY KEY,
+	`shop_id` text NOT NULL,
+	`platform` text NOT NULL,
+	`provider_account_id` text NOT NULL,
+	`page_id` text NOT NULL,
+	`page_name` text NOT NULL,
+	`page_access_token` text NOT NULL,
+	`page_access_token_expires_at` integer,
+	`user_access_token` text,
+	`user_refresh_token` text,
+	`permissions` text NOT NULL,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	CONSTRAINT `fk_social_connection_shop_id_shop_id_fk` FOREIGN KEY (`shop_id`) REFERENCES `shop`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `social_connection_shop_id_platform_unique` UNIQUE(`shop_id`,`platform`)
 );
 --> statement-breakpoint
 CREATE TABLE `two_factor` (
@@ -72,5 +102,7 @@ CREATE INDEX `session_user_id_idx` ON `session` (`user_id`);--> statement-breakp
 CREATE INDEX `token_idx` ON `session` (`token`);--> statement-breakpoint
 CREATE INDEX `shop_slug_idx` ON `shop` (`slug`);--> statement-breakpoint
 CREATE INDEX `shop_user_id_idx` ON `shop` (`user_id`);--> statement-breakpoint
+CREATE INDEX `social_connection_shop_id_idx` ON `social_connection` (`shop_id`);--> statement-breakpoint
+CREATE INDEX `social_connection_platform_idx` ON `social_connection` (`platform`);--> statement-breakpoint
 CREATE INDEX `two_factor_secret_idx` ON `two_factor` (`secret`);--> statement-breakpoint
 CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);

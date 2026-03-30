@@ -1,9 +1,9 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "0697f062-fde7-4e60-85a5-cfd91968fa18",
+  "id": "39870357-8b32-4fba-ae31-3271b5a4a2bd",
   "prevIds": [
-    "fcc1cfa7-fe74-4588-b215-7c3a5ac7b3f6"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -16,6 +16,10 @@
     },
     {
       "name": "shop",
+      "entityType": "tables"
+    },
+    {
+      "name": "social_connection",
       "entityType": "tables"
     },
     {
@@ -448,6 +452,136 @@
       "generated": null,
       "name": "id",
       "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "shop_id",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "platform",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "provider_account_id",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "page_id",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "page_name",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "page_access_token",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "page_access_token_expires_at",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "user_access_token",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "user_refresh_token",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "permissions",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "social_connection"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
       "table": "two_factor"
     },
     {
@@ -667,6 +801,21 @@
     },
     {
       "columns": [
+        "shop_id"
+      ],
+      "tableTo": "shop",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "fk_social_connection_shop_id_shop_id_fk",
+      "entityType": "fks",
+      "table": "social_connection"
+    },
+    {
+      "columns": [
         "user_id"
       ],
       "tableTo": "user",
@@ -705,6 +854,15 @@
       "nameExplicit": false,
       "name": "shop_pk",
       "table": "shop",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "social_connection_pk",
+      "table": "social_connection",
       "entityType": "pks"
     },
     {
@@ -807,6 +965,34 @@
     {
       "columns": [
         {
+          "value": "shop_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "social_connection_shop_id_idx",
+      "entityType": "indexes",
+      "table": "social_connection"
+    },
+    {
+      "columns": [
+        {
+          "value": "platform",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "social_connection_platform_idx",
+      "entityType": "indexes",
+      "table": "social_connection"
+    },
+    {
+      "columns": [
+        {
           "value": "secret",
           "isExpression": false
         }
@@ -831,6 +1017,16 @@
       "name": "verification_identifier_idx",
       "entityType": "indexes",
       "table": "verification"
+    },
+    {
+      "columns": [
+        "shop_id",
+        "platform"
+      ],
+      "nameExplicit": false,
+      "name": "social_connection_shop_id_platform_unique",
+      "entityType": "uniques",
+      "table": "social_connection"
     },
     {
       "columns": [

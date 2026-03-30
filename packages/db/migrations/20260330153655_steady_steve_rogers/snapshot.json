@@ -1,9 +1,9 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "d870ad18-0be4-437e-ab5e-beaf67c14197",
+  "id": "699c163f-f0d0-401e-9f28-f067dd35087a",
   "prevIds": [
-    "26692ba7-139d-4049-bc54-8f3b8485c352"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -1435,7 +1435,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "fk_invoice_supplier_id_supplier_id_fk",
+      "name": "fk_purchase_invoice_supplier_id_supplier_id_fk",
       "entityType": "fks",
       "table": "purchase_invoice"
     },
@@ -1450,7 +1450,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "fk_invoice_ocr_result_id_invoice_ocr_result_id_fk",
+      "name": "fk_purchase_invoice_ocr_result_id_purchase_invoice_ocr_result_id_fk",
       "entityType": "fks",
       "table": "purchase_invoice"
     },
@@ -1465,7 +1465,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_invoice_item_invoice_id_invoice_id_fk",
+      "name": "fk_purchase_invoice_item_purchase_invoice_id_purchase_invoice_id_fk",
       "entityType": "fks",
       "table": "purchase_invoice_item"
     },
@@ -1480,7 +1480,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "fk_invoice_item_product_id_product_id_fk",
+      "name": "fk_purchase_invoice_item_product_id_product_id_fk",
       "entityType": "fks",
       "table": "purchase_invoice_item"
     },
@@ -1555,7 +1555,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "fk_inventory_movement_invoice_item_id_invoice_item_id_fk",
+      "name": "fk_inventory_movement_purchase_invoice_item_id_purchase_invoice_item_id_fk",
       "entityType": "fks",
       "table": "inventory_movement"
     },
@@ -1713,7 +1713,7 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "invoice_pk",
+      "name": "purchase_invoice_pk",
       "table": "purchase_invoice",
       "entityType": "pks"
     },
@@ -1731,7 +1731,7 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "invoice_item_pk",
+      "name": "purchase_invoice_item_pk",
       "table": "purchase_invoice_item",
       "entityType": "pks"
     },
@@ -1740,7 +1740,7 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "invoice_ocr_result_pk",
+      "name": "purchase_invoice_ocr_result_pk",
       "table": "purchase_invoice_ocr_result",
       "entityType": "pks"
     },
@@ -2155,7 +2155,7 @@
         "ocr_result_id"
       ],
       "nameExplicit": false,
-      "name": "invoice_ocr_result_id_unique",
+      "name": "purchase_invoice_ocr_result_id_unique",
       "entityType": "uniques",
       "table": "purchase_invoice"
     },
@@ -2178,7 +2178,7 @@
       "table": "product"
     },
     {
-      "value": "\"status\" IN ('UPLOADED', 'PROCESSING', 'PROCESSED', 'FAILED', 'REJECTED', 'REVIEWED')",
+      "value": "\"status\" IN ('UPLOADED', 'PROCESSING', 'PROCESSED', 'FAILED', 'REJECTED', 'REVIEWING', 'REVIEWED')",
       "name": "invoice_file_status_check",
       "entityType": "checks",
       "table": "purchase_invoice_file"
