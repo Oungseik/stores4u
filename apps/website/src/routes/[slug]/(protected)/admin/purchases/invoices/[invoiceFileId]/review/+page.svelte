@@ -123,6 +123,7 @@
     items: [],
   });
 
+  let hasBeenInitialized = $state(false);
   let isExistingSupplier = $state(true);
   let isSubmitting = $state(false);
   let selectedSupplier = $state<Supplier | null>(null);
@@ -180,11 +181,12 @@
   const subtotalCents = $derived(lineTotalsCents.reduce((sum, total) => sum + total, 0));
 
   $effect(() => {
+    if (hasBeenInitialized) return;
+
     const data = invoiceFileQuery.data?.ocrResult?.extractedData;
     if (!data) return;
 
-    // Don't re-populate if user already has items (prevents overwriting manual edits)
-    if (invoiceData.items.length > 0) return;
+    if (productsQuery.isLoading) return;
 
     const extractedItems = data.items ?? [];
     const matches = matchItems(
@@ -213,6 +215,8 @@
         } satisfies InvoiceItem;
       }),
     };
+
+    hasBeenInitialized = true;
   });
 
   $effect(() => {
@@ -235,8 +239,6 @@
       isExistingSupplier = false;
     }
   });
-
-
 
   async function validateAndSave() {
     if (!selectedSupplier || invoiceData.items.length === 0) return;
