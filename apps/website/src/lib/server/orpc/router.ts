@@ -24,7 +24,7 @@ import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_in
 import { downloadInvoiceFileHandler } from "./handlers/purchase-invoices/download_invoice_file";
 import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
 import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
-import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice";
+import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice_file";
 import { rejectInvoiceFileHandler } from "./handlers/purchase-invoices/reject_invoice_file";
 import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
 import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
