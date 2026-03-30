@@ -64,6 +64,7 @@
         cursor,
         slug: params.slug,
         status: searchParams.status || undefined,
+        search: debouncedSearch.current || undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!params.slug,
@@ -71,12 +72,6 @@
   );
 
   const allFiles = $derived(invoiceFiles.data?.pages.flatMap((page) => page.items) ?? []);
-
-  const filteredFiles = $derived.by(() => {
-    const search = debouncedSearch.current?.toLowerCase();
-    if (!search) return allFiles;
-    return allFiles.filter((file) => file.filename.toLowerCase().includes(search));
-  });
 
   const stats = $derived.by(() => {
     const files = allFiles;
@@ -296,7 +291,7 @@
       <div class="flex items-center justify-center py-12">
         <p class="text-red-500">Failed to load invoice files</p>
       </div>
-    {:else if filteredFiles.length === 0}
+    {:else if allFiles.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-3 flex size-12 items-center justify-center rounded-full">
           <FileTextIcon class="text-muted-foreground size-6" />
@@ -304,7 +299,7 @@
         <p class="text-muted-foreground">No invoice files found</p>
       </div>
     {:else if searchParams.view === "table"}
-      <DataTable {columns} data={filteredFiles} loading={false} />
+      <DataTable {columns} data={allFiles} loading={false} />
 
       {#if invoiceFiles.hasNextPage}
         <div class="mt-4 flex justify-center">
@@ -324,7 +319,7 @@
       {/if}
     {:else}
       <div class="space-y-2">
-        {#each filteredFiles as file (file.id)}
+        {#each allFiles as file (file.id)}
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
               <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
