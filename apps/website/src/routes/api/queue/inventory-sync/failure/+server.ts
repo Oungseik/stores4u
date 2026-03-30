@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { eq, purchaseInvoice } from "@repo/db";
+import { and, eq, purchaseInvoice, purchaseInvoiceFile, purchaseInvoiceOcrResult } from "@repo/db";
 import { z } from "zod";
 import { qstashReceiver } from "$lib/server/qstash";
 import { getShopDb } from "$lib/server/shop_db";
@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const invoice = await shopDb.query.purchaseInvoice.findFirst({
     where: { id: invoiceId },
-    columns: { id: true, status: true },
+    columns: { id: true, status: true, ocrResultId: true },
   });
 
   if (!invoice) {
@@ -63,6 +63,20 @@ export const POST: RequestHandler = async ({ request }) => {
     .update(purchaseInvoice)
     .set({ status: "INVENTORY_FAILED", updatedAt: new Date() })
     .where(eq(purchaseInvoice.id, invoiceId));
+
+  if (invoice.ocrResultId) {
+    await shopDb
+      .update(purchaseInvoiceFile)
+      .set({ status: "PROCESSED", updatedAt: new Date() })
+      .from(purchaseInvoiceOcrResult)
+      .where(
+        and(
+          eq(purchaseInvoiceOcrResult.id, invoice.ocrResultId),
+          eq(purchaseInvoiceFile.id, purchaseInvoiceOcrResult.invoiceFileId),
+          eq(purchaseInvoiceFile.status, "REVIEWING"),
+        ),
+      );
+  }
 
   return json({ message: "Invoice marked as INVENTORY_FAILED", invoiceId });
 };

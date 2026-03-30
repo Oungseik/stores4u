@@ -1,6 +1,4 @@
 <script lang="ts">
-  import CheckCircleIcon from "@lucide/svelte/icons/check-circle";
-  import ClockIcon from "@lucide/svelte/icons/clock";
   import DownloadIcon from "@lucide/svelte/icons/download";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import ImageIcon from "@lucide/svelte/icons/image";
@@ -12,7 +10,6 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UploadIcon from "@lucide/svelte/icons/upload";
-  import XCircleIcon from "@lucide/svelte/icons/x-circle";
   import type { PurchaseInvoiceFileStatus } from "@repo/db";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
@@ -22,12 +19,16 @@
   import * as FileDropZone from "@repo/ui/file-drop-zone";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
-  import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
+  import {
+    createInfiniteQuery,
+    createMutation,
+    createQuery,
+    useQueryClient,
+  } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
-  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import StatusCell from "$lib/components/tables/purchase-invoice-files/cells/StatusCell.svelte";
@@ -46,15 +47,41 @@
 
   const searchParams = useSearchParams(invoiceFilesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
+  const debouncedStatuses = new Debounced(() => searchParams.statuses, 500);
 
-  const statusOptions = [
-    { value: "UPLOADED", label: "Uploaded" },
-    { value: "PROCESSING", label: "Processing" },
-    { value: "PROCESSED", label: "Ready to Review" },
-    { value: "FAILED", label: "Failed" },
-    { value: "REVIEWED", label: "Reviewed" },
-    { value: "REJECTED", label: "Rejected" },
-  ] satisfies { value: PurchaseInvoiceFileStatus; label: string }[];
+  const statusKeys: PurchaseInvoiceFileStatus[] = [
+    "UPLOADED",
+    "PROCESSING",
+    "PROCESSED",
+    "FAILED",
+    "REVIEWED",
+    "REJECTED",
+  ];
+
+  const statusLabels: Record<PurchaseInvoiceFileStatus, string> = {
+    UPLOADED: "Uploaded",
+    PROCESSING: "Processing",
+    PROCESSED: "Ready to Review",
+    FAILED: "Failed",
+    REVIEWED: "Reviewed",
+    REJECTED: "Rejected",
+    REVIEWING: "Reviewing",
+  };
+
+  const invoiceFilesStats = createQuery(() =>
+    orpc.purchaseInvoices.getStats.queryOptions({
+      input: { slug: params.slug },
+      enabled: !!params.slug,
+    })
+  );
+
+  const statusOptions = $derived(
+    statusKeys.map((key) => ({
+      value: key satisfies string,
+      label: statusLabels[key],
+      count: invoiceFilesStats.data?.[key] ?? 0,
+    }))
+  );
 
   const invoiceFiles = createInfiniteQuery(() =>
     orpc.purchaseInvoices.listFiles.infiniteOptions({
@@ -63,7 +90,7 @@
         pageSize: 20,
         cursor,
         slug: params.slug,
-        status: searchParams.status || undefined,
+        statuses: debouncedStatuses.current.length > 0 ? debouncedStatuses.current : undefined,
         search: debouncedSearch.current || undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -73,22 +100,10 @@
 
   const allFiles = $derived(invoiceFiles.data?.pages.flatMap((page) => page.items) ?? []);
 
-  const stats = $derived.by(() => {
-    const files = allFiles;
-    return {
-      total: files.length,
-      pending: files.filter((f) => f.status === "UPLOADED").length,
-      processing: files.filter((f) => f.status === "PROCESSING").length,
-      readyToReview: files.filter((f) => f.status === "PROCESSED").length,
-      reviewed: files.filter((f) => f.status === "REVIEWED").length,
-      rejected: files.filter((f) => f.status === "REJECTED").length,
-    };
-  });
-
-  const hasFilters = $derived(searchParams.search.length > 0 || searchParams.status.length > 0);
+  const hasFilters = $derived(searchParams.search.length > 0 || searchParams.statuses.length > 0);
 
   function resetFilters() {
-    searchParams.update({ search: "", status: "" });
+    searchParams.update({ search: "", statuses: [] });
   }
 
   const processMutation = createMutation(() =>
@@ -96,6 +111,7 @@
       onSuccess: () => {
         toast.success("Invoice processed successfully");
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
         processingFileId = null;
       },
       onError: (error) => {
@@ -110,6 +126,7 @@
       onSuccess: () => {
         toast.success("File uploaded successfully");
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
         isUploadDialogOpen = false;
       },
       onError: (error) => {
@@ -123,6 +140,7 @@
       onSuccess: () => {
         toast.success("File deleted successfully");
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
       },
       onError: (error) => {
         toast.error(error.message || "Failed to delete file");
@@ -205,46 +223,7 @@
     <p class="text-muted-foreground text-sm">Upload, process, and review supplier invoices</p>
   </div>
 
-  <div class="hidden gap-4 sm:grid-cols-2 lg:grid lg:grid-cols-4">
-    <StatsCard
-      title="Pending"
-      value={stats.pending}
-      description="Awaiting processing"
-      icon={ClockIcon}
-      iconBgClass="bg-amber-500/10"
-      iconTextClass="text-amber-600"
-      borderClass="from-amber-500/20 to-amber-500/5"
-    />
-    <StatsCard
-      title="Ready to Review"
-      value={stats.readyToReview}
-      description="Processed files"
-      icon={SearchIcon}
-      iconBgClass="bg-emerald-500/10"
-      iconTextClass="text-emerald-600"
-      borderClass="from-emerald-500/20 to-emerald-500/5"
-    />
-    <StatsCard
-      title="Reviewed"
-      value={stats.reviewed}
-      description="Completed"
-      icon={CheckCircleIcon}
-      iconBgClass="bg-blue-500/10"
-      iconTextClass="text-blue-600"
-      borderClass="from-blue-500/20 to-blue-500/5"
-    />
-    <StatsCard
-      title="Rejected"
-      value={stats.rejected}
-      description="Declined"
-      icon={XCircleIcon}
-      iconBgClass="bg-red-500/10"
-      iconTextClass="text-red-600"
-      borderClass="from-red-500/20 to-red-500/5"
-    />
-  </div>
-
-  <section class="mt-4 space-y-6">
+  <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex items-center justify-start gap-4">
         <FilterBar.Search
@@ -252,11 +231,11 @@
           value={searchParams.search}
           oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
         />
-        <FilterBar.Dropdown
+        <FilterBar.CheckboxGroup
           items={statusOptions}
-          value={searchParams.status === "" ? null : searchParams.status}
-          onValueChange={(status: PurchaseInvoiceFileStatus | null) =>
-            status ? searchParams.update({ status }) : undefined}
+          value={searchParams.statuses}
+          onValueChange={(value) =>
+            searchParams.update({ statuses: value as PurchaseInvoiceFileStatus[] })}
           placeholder="All Statuses"
           label="Filter by Status"
         />

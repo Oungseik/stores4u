@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { and, eq, inArray, inventoryMovement, product, purchaseInvoice, sql } from "@repo/db";
+import { and, eq, inArray, inventoryMovement, product, purchaseInvoice, purchaseInvoiceFile, purchaseInvoiceOcrResult, sql } from "@repo/db";
 import { z } from "zod";
 import { qstashReceiver } from "$lib/server/qstash";
 import { getShopDb } from "$lib/server/shop_db";
@@ -99,9 +99,23 @@ export const POST: RequestHandler = async ({ request }) => {
       })),
     );
 
+    const aggregatedByProduct = invoice.items.reduce(
+      (acc, item) => {
+        const existing = acc.find((e) => e.productId === item.productId);
+        if (existing) {
+          existing.totalQty += item.qty;
+        } else {
+          acc.push({ productId: item.productId, totalQty: item.qty });
+        }
+        return acc;
+      },
+      [] as { productId: string; totalQty: number }[],
+    );
+
     const productCases = sql.join(
-      invoice.items.map(
-        (item) => sql`when ${product.id} = ${item.productId} then ${product.stock} + ${item.qty}`,
+      aggregatedByProduct.map(
+        (entry) =>
+          sql`when ${product.id} = ${entry.productId} then ${product.stock} + ${entry.totalQty}`,
       ),
       sql.raw(" "),
     );
@@ -118,6 +132,19 @@ export const POST: RequestHandler = async ({ request }) => {
       .update(purchaseInvoice)
       .set({ status: "VALIDATED", updatedAt: now })
       .where(eq(purchaseInvoice.id, invoiceId));
+
+    if (invoice.ocrResultId) {
+      await tx
+        .update(purchaseInvoiceFile)
+        .set({ status: "REVIEWED", updatedAt: now })
+        .from(purchaseInvoiceOcrResult)
+        .where(
+          and(
+            eq(purchaseInvoiceOcrResult.id, invoice.ocrResultId),
+            eq(purchaseInvoiceFile.id, purchaseInvoiceOcrResult.invoiceFileId),
+          ),
+        );
+    }
   });
 
   return json({ message: "Inventory synced", invoiceId });

@@ -58,6 +58,7 @@ export const purchaseInvoiceFileStatus = [
   "PROCESSED",
   "FAILED",
   "REJECTED",
+  "REVIEWING",
   "REVIEWED",
 ] as const;
 export type PurchaseInvoiceFileStatus = (typeof purchaseInvoiceFileStatus)[number];
@@ -83,7 +84,7 @@ export const purchaseInvoiceFile = sqliteTable(
   (t) => [
     check(
       "invoice_file_status_check",
-      sql`${t.status} IN ('UPLOADED', 'PROCESSING', 'PROCESSED', 'FAILED', 'REJECTED', 'REVIEWED')`,
+      sql`${t.status} IN ('UPLOADED', 'PROCESSING', 'PROCESSED', 'FAILED', 'REJECTED', 'REVIEWING', 'REVIEWED')`,
     ),
     index("invoice_file_status_created_at_idx").on(t.status, t.createdAt),
   ],

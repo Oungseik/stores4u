@@ -7,7 +7,7 @@ const input = z.object({
   slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(20),
-  status: z.enum(purchaseInvoiceFileStatus).optional(),
+  statuses: z.array(z.enum(purchaseInvoiceFileStatus)).optional(),
   search: z.string().optional(),
 });
 
@@ -22,7 +22,7 @@ export const listInvoiceFilesHandler = os
     const files = await shopDb.query.purchaseInvoiceFile.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
-        status: input.status,
+        status: input.statuses?.length ? { in: input.statuses } : undefined,
         filename: input.search ? { like: `%${input.search}%` } : undefined,
       },
       with: {

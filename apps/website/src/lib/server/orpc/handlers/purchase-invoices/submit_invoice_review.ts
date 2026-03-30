@@ -53,6 +53,12 @@ export const submitInvoiceReviewHandler = os
       });
     }
 
+    if (existingFile.status === "REVIEWING") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Invoice review is in progress. Inventory sync has not completed yet.",
+      });
+    }
+
     const productIds = [...new Set(input.items.map((item) => item.productId))];
     const products = await shopDb.query.product.findMany({
       where: { id: { in: productIds } },
@@ -160,7 +166,7 @@ export const submitInvoiceReviewHandler = os
 
         await tx
           .update(purchaseInvoiceFile)
-          .set({ status: "REVIEWED", updatedAt: now })
+          .set({ status: "REVIEWING", updatedAt: now })
           .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
 
         return createdInvoice;
@@ -185,6 +191,10 @@ export const submitInvoiceReviewHandler = os
         .update(purchaseInvoice)
         .set({ status: "PENDING", updatedAt: new Date() })
         .where(eq(purchaseInvoice.id, result.id));
+      await shopDb
+        .update(purchaseInvoiceFile)
+        .set({ status: "PROCESSED", updatedAt: new Date() })
+        .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to queue inventory sync. Please retry.",
       });
