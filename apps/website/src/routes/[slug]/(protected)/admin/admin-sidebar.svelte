@@ -23,6 +23,8 @@
   import { useSidebar } from "@repo/ui/sidebar";
   import type { Component, ComponentProps } from "svelte";
 
+  import { authClient } from "$lib/auth_client";
+
   interface NavItem {
     title: string;
     href: string;
@@ -370,8 +372,12 @@
               </DropdownMenu.Item>
             </DropdownMenu.Group>
             <DropdownMenu.Separator />
-            <DropdownMenu.Item>
-              <LogOutIcon class="mr-2 size-4" />
+            <DropdownMenu.Item
+              onclick={() => {
+                authClient.signOut().then(() => (window.location.href = "/"));
+              }}
+            >
+              <LogOutIcon class="mr size-4" />
               Log out
             </DropdownMenu.Item>
           </DropdownMenu.Content>
