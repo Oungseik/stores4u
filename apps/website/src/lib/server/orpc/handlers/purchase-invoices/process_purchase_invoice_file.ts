@@ -130,7 +130,7 @@ export const processInvoiceFileHandler = os
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
 
-      logger.error({ error }, "Failed to process invoice");
+      logger.error({ error }, "Failed to  extract data from invoice");
       throw new ORPCError("BAD_REQUEST", {
         message: "Failed to process invoice: Please upload clear and correctly formatted invoice",
       });

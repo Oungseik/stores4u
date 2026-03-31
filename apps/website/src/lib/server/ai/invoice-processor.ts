@@ -227,19 +227,14 @@ export async function verifyInvoice(
 ): Promise<InvoiceVerificationResult> {
   const images = await prepareImages(fileBuffer, mimeType);
 
-  try {
-    const raw = await callOpenRouter(
-      images,
-      INVOICE_VERIFICATION_PROMPT,
-      "Please verify if the following image(s) contain an invoice.",
-      VERIFICATION_SCHEMA,
-      "invoice_verification",
-    );
-    return InvoiceVerificationResultSchema.parse(raw);
-  } catch (error) {
-    logger.error({ error }, "OpenRouter verification call failed");
-    throw error;
-  }
+  const raw = await callOpenRouter(
+    images,
+    INVOICE_VERIFICATION_PROMPT,
+    "Please verify if the following image(s) contain an invoice.",
+    VERIFICATION_SCHEMA,
+    "invoice_verification",
+  );
+  return InvoiceVerificationResultSchema.parse(raw);
 }
 
 export async function processInvoice(
@@ -248,17 +243,12 @@ export async function processInvoice(
 ): Promise<ExtractedInvoiceData> {
   const images = await prepareImages(fileBuffer, mimeType);
 
-  try {
-    const raw = await callOpenRouter(
-      images,
-      INVOICE_EXTRACTION_PROMPT,
-      "Please extract the invoice data from the following image(s).",
-      INVOICE_SCHEMA,
-      "invoice_extraction",
-    );
-    return ExtractedInvoiceDataSchema.parse(raw);
-  } catch (error) {
-    logger.error({ error }, "OpenRouter extraction call failed");
-    throw error;
-  }
+  const raw = await callOpenRouter(
+    images,
+    INVOICE_EXTRACTION_PROMPT,
+    "Please extract the invoice data from the following image(s).",
+    INVOICE_SCHEMA,
+    "invoice_extraction",
+  );
+  return ExtractedInvoiceDataSchema.parse(raw);
 }
