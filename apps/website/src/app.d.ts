@@ -24,6 +24,7 @@ declare global {
           createdAt: Date;
           updatedAt: Date;
           image?: string | null | undefined | undefined;
+          twoFactorEnabled?: boolean | null | undefined;
         };
       } | null;
     }

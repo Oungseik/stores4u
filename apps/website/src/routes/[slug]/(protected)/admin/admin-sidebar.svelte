@@ -363,12 +363,12 @@
             <DropdownMenu.Separator />
             <DropdownMenu.Group>
               <DropdownMenu.Item>
-                <UserIcon class="mr-2 size-4" />
-                Account
-              </DropdownMenu.Item>
-              <DropdownMenu.Item>
-                <SettingsIcon class="mr-2 size-4" />
-                Settings
+                {#snippet child({ props })}
+                  <a href={"/accounts"} {...props}>
+                    <UserIcon class="size-4" />
+                    Account
+                  </a>
+                {/snippet}
               </DropdownMenu.Item>
             </DropdownMenu.Group>
             <DropdownMenu.Separator />
@@ -377,7 +377,7 @@
                 authClient.signOut().then(() => (window.location.href = "/"));
               }}
             >
-              <LogOutIcon class="mr size-4" />
+              <LogOutIcon class="size-4" />
               Log out
             </DropdownMenu.Item>
           </DropdownMenu.Content>

@@ -90,3 +90,11 @@ type ProductDetailTab = {
 export const productDetailTabSchema = createSearchParamsSchema({
   tab: { type: "string", default: "overview" },
 }) as StandardSchemaV1<unknown, ProductDetailTab>;
+
+type AccountsTab = {
+  tab: "profile" | "security" | "sessions" | "connections" | "danger";
+};
+
+export const accountsTabSchema = createSearchParamsSchema({
+  tab: { type: "string", default: "profile" },
+}) as StandardSchemaV1<unknown, AccountsTab>;
