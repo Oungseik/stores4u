@@ -86,6 +86,7 @@ export const processInvoiceFileHandler = os
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
 
+      logger.error({ error }, "Invoice verification failed");
       throw new ORPCError("BAD_REQUEST", {
         message: "Failed to verify invoice: Please upload clear and correctly formatted invoice",
       });
