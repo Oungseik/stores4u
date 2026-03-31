@@ -1,9 +1,10 @@
 <script lang="ts">
+  import CheckIcon from "@lucide/svelte/icons/check";
   import { onMount } from "svelte";
 
-  let scanningLineY = 0;
-  let scanningUp = true;
-  let scanned = false;
+  let scanningLineY = $state(0);
+  let scanningUp = $state(true);
+  let scanned = $state(false);
 
   onMount(() => {
     const interval = setInterval(() => {
@@ -29,7 +30,7 @@
 </script>
 
 <div class="relative mx-auto w-full max-w-[240px]">
-  <div class="relative aspect-[2/1] overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-900">
+  <div class="bg-muted relative aspect-[2/1] overflow-hidden rounded-xl">
     <!-- Corner brackets -->
     <div class="absolute inset-4">
       <div
@@ -47,9 +48,10 @@
 
       <!-- Barcode -->
       <div
-        class="absolute inset-x-2 top-1/2 flex -translate-y-1/2 items-center justify-center gap-[2px]"
-        class:opacity-100={!scanned}
-        class:opacity-60={scanned}
+        class={[
+          "absolute inset-x-2 top-1/2 flex -translate-y-1/2 items-center justify-center gap-[2px]",
+          scanned ? "opacity-60" : "opacity-100",
+        ]}
       >
         <div class="bg-foreground/80 h-16 w-[3px]"></div>
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
@@ -84,24 +86,18 @@
 
       <!-- Scanning line -->
       <div
-        class="pointer-events-none absolute right-1 left-1 h-[2px] bg-emerald-400/70 shadow-[0_0_6px_1px_rgba(52,211,153,0.3)]"
+        class={[
+          "pointer-events-none absolute right-1 left-1 h-[2px] bg-emerald-400/70 shadow-[0_0_6px_1px_rgba(52,211,153,0.3)]",
+          scanned ? "opacity-0" : "opacity-100",
+        ]}
         style="top: {scanningLineY}%"
-        class:opacity-100={!scanned}
-        class:opacity-0={scanned}
       ></div>
 
       <!-- Success overlay -->
       {#if scanned}
         <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/10">
           <div class="flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5">
-            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            <CheckIcon class="size-4 text-white" stroke-width={3} />
             <span class="text-xs font-medium text-white">Scanned!</span>
           </div>
         </div>

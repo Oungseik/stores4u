@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { IconProps } from "@lucide/svelte";
   import BellIcon from "@lucide/svelte/icons/bell";
-  import BotIcon from "@lucide/svelte/icons/bot";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
@@ -10,6 +9,7 @@
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LinkIcon from "@lucide/svelte/icons/link";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
+  import MessageSquareIcon from "@lucide/svelte/icons/message-square";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
@@ -77,14 +77,17 @@
       icon: LinkIcon,
     },
     {
-      title: "AI Agents",
-      href: `/${shop.slug}/admin/agents`,
-      icon: BotIcon,
-    },
-    {
       title: "Notifications",
       href: `/${shop.slug}/admin/notifications`,
       icon: BellIcon,
+    },
+  ]);
+
+  const aiAssistantNavItems: NavItem[] = $derived([
+    {
+      title: "Chats",
+      href: `/${shop.slug}/chats`,
+      icon: MessageSquareIcon,
     },
   ]);
 
@@ -263,6 +266,31 @@
                 {/snippet}
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+
+      <!-- AI Assistant Group -->
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>AI Assistant</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            {#each aiAssistantNavItems as item (item.title)}
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
+                  {#snippet child({ props })}
+                    <a
+                      href={item.href}
+                      {...props}
+                      onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                    >
+                      <item.icon class="size-4" />
+                      <span>{item.title}</span>
+                    </a>
+                  {/snippet}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            {/each}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
