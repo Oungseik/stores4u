@@ -41,6 +41,7 @@ import { listSuppliersHandler } from "./handlers/suppliers/list_suppliers";
 import { updateSupplierHandler } from "./handlers/suppliers/update_supplier";
 import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
+import { listAccountsHandler } from "./handlers/user/list_accounts";
 import { uploadAvatarHandler } from "./handlers/user/upload-avatar";
 
 export const router = os.router({
@@ -105,6 +106,7 @@ export const router = os.router({
     update: updateTaxSettingsHandler,
   },
   user: {
+    listAccounts: listAccountsHandler,
     uploadAvatar: uploadAvatarHandler,
   },
 });
