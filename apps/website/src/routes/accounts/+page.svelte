@@ -15,7 +15,6 @@
   import UserIcon from "@lucide/svelte/icons/user";
   import XIcon from "@lucide/svelte/icons/x";
   import * as Avatar from "@repo/ui/avatar";
-  import { siGoogle } from "simple-icons";
   import { Badge } from "@repo/ui/badge";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
@@ -26,6 +25,7 @@
   import * as Tabs from "@repo/ui/tabs";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
   import { useSearchParams } from "runed/kit";
+  import { siGoogle } from "simple-icons";
   import { toast } from "svelte-sonner";
 
   import { invalidateAll } from "$app/navigation";
@@ -430,7 +430,10 @@
               <div class="flex gap-2">
                 <Input
                   id="account-name"
-                  bind:value={user.name}
+                  value={user.name}
+                  onchange={(e) => {
+                    user.name = e.currentTarget.value;
+                  }}
                   placeholder="Your name"
                   class="flex-1"
                 />
