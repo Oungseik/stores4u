@@ -123,7 +123,6 @@
           value={searchParams.categories}
           onValueChange={(value) => searchParams.update({ categories: value })}
           placeholder="All Categories"
-          label="Filter by Category"
         />
 
         <FilterBar.Reset />
@@ -219,7 +218,7 @@
                       country={shop.country}
                       priceClass="text-sm font-semibold"
                     />
-                    <p class="text-muted-foreground text-xs text-right">{product.stock} left</p>
+                    <p class="text-muted-foreground text-right text-xs">{product.stock} left</p>
                   </div>
                 </a>
 

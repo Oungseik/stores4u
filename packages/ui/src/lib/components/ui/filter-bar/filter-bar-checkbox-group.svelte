@@ -13,7 +13,6 @@
 		onValueChange,
 		items = [],
 		placeholder = 'All',
-		label = 'Filter',
 		class: className
 	}: FilterBarCheckboxGroupProps = $props();
 
@@ -45,8 +44,6 @@
 		<ChevronDownIcon class="size-3 opacity-50" />
 	</Popover.Trigger>
 	<Popover.Content class="w-56 p-0" align="start">
-		<div class="px-2 py-1.5 text-sm font-semibold">{label}</div>
-		<div class="bg-border -mx-1 my-1 h-px"></div>
 		<div class="p-1">
 			{#each items as item (item.value)}
 				{@const checked = value.includes(item.value)}

@@ -42,6 +42,7 @@
 
   const queryClient = useQueryClient();
 
+  let disabledFileDropZone = $state(false);
   let processingFileId = $state<string | null>(null);
   let isUploadDialogOpen = $state(false);
 
@@ -99,7 +100,6 @@
   );
 
   const allFiles = $derived(invoiceFiles.data?.pages.flatMap((page) => page.items) ?? []);
-
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.statuses.length > 0);
 
   function resetFilters() {
@@ -131,6 +131,9 @@
       },
       onError: (error) => {
         toast.error(error.message || "Failed to upload file");
+      },
+      onSettled: () => {
+        disabledFileDropZone = false;
       },
     })
   );
@@ -165,7 +168,8 @@
   }
 
   async function handleUpload(files: File[]) {
-    await uploadMutation.mutateAsync({ slug: params.slug, file: files[0] });
+    disabledFileDropZone = true;
+    uploadMutation.mutate({ slug: params.slug, file: files[0] });
   }
 
   function handleDeleteFile(id: string) {
@@ -237,7 +241,6 @@
           onValueChange={(value) =>
             searchParams.update({ statuses: value as PurchaseInvoiceFileStatus[] })}
           placeholder="All Statuses"
-          label="Filter by Status"
         />
         <FilterBar.Reset />
       </div>
@@ -442,10 +445,12 @@
     <div class="space-x-4">
       <FileDropZone.Root
         accept=".jpg,.jpeg,.png,.pdf"
+        disabled={disabledFileDropZone}
         maxFileSize={10 * 1024 * 1024}
         maxFiles={1}
         onUpload={handleUpload}
         onFileRejected={({ reason, file }) => {
+          disabledFileDropZone = false;
           toast.error(`${file.name}: ${reason}`);
         }}
       >

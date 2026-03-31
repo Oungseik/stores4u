@@ -24,7 +24,7 @@
           email: value.email,
           password: value.password,
           rememberMe: true,
-          callbackURL: page.url.searchParams.get("return_url") ?? "/setup",
+          callbackURL: page.url.searchParams.get("return_url") || "/setup",
         },
         {
           onError: ({ error }) => {
