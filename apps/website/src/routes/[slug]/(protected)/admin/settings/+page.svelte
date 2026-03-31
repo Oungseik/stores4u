@@ -34,8 +34,9 @@
   <Tabs.Root bind:value={searchParams.tab} class="w-full max-w-2xl">
     <div class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
       <Tabs.List
-        class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-4 lg:grid-cols-7"
+        class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-3 lg:grid-cols-3"
       >
+        <!-- TODO: Re-enable payment, receipt, alerts, and team tabs once implemented -->
         <Tabs.Trigger value="profile" class="data-[state=active]:bg-background gap-2">
           <StoreIcon class="size-4" />
           <span class="hidden sm:inline">Profile</span>
@@ -44,26 +45,26 @@
           <BuildingIcon class="size-4" />
           <span class="hidden sm:inline">Business</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="payment" class="data-[state=active]:bg-background gap-2">
+        <!-- <Tabs.Trigger value="payment" class="data-[state=active]:bg-background gap-2">
           <CreditCardIcon class="size-4" />
           <span class="hidden sm:inline">Payment</span>
         </Tabs.Trigger>
         <Tabs.Trigger value="receipt" class="data-[state=active]:bg-background gap-2">
           <ReceiptIcon class="size-4" />
           <span class="hidden sm:inline">Receipt</span>
-        </Tabs.Trigger>
+        </Tabs.Trigger> -->
         <Tabs.Trigger value="tax" class="data-[state=active]:bg-background gap-2">
           <PercentIcon class="size-4" />
           <span class="hidden sm:inline">Tax</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value="notifications" class="data-[state=active]:bg-background gap-2">
+        <!-- <Tabs.Trigger value="notifications" class="data-[state=active]:bg-background gap-2">
           <MailIcon class="size-4" />
           <span class="hidden sm:inline">Alerts</span>
         </Tabs.Trigger>
         <Tabs.Trigger value="team" class="data-[state=active]:bg-background gap-2">
           <UsersIcon class="size-4" />
           <span class="hidden sm:inline">Team</span>
-        </Tabs.Trigger>
+        </Tabs.Trigger> -->
       </Tabs.List>
     </div>
 
@@ -75,24 +76,24 @@
       <Business {shop} />
     </Tabs.Content>
 
-    <Tabs.Content value="payment" class="mt-6">
+    <!-- <Tabs.Content value="payment" class="mt-6">
       <Payment />
     </Tabs.Content>
 
     <Tabs.Content value="receipt" class="mt-6">
       <Receipt />
-    </Tabs.Content>
+    </Tabs.Content> -->
 
     <Tabs.Content value="tax" class="mt-6">
       <Tax {shop} />
     </Tabs.Content>
 
-    <Tabs.Content value="notifications" class="mt-6">
+    <!-- <Tabs.Content value="notifications" class="mt-6">
       <Notifications />
     </Tabs.Content>
 
     <Tabs.Content value="team" class="mt-6">
       <Team />
-    </Tabs.Content>
+    </Tabs.Content> -->
   </Tabs.Root>
 </section>
