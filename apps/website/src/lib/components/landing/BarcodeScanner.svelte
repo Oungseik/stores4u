@@ -29,7 +29,7 @@
 </script>
 
 <div class="relative mx-auto w-full max-w-[240px]">
-  <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-zinc-900">
+  <div class="relative aspect-[2/1] overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-900">
     <!-- Corner brackets -->
     <div class="absolute inset-4">
       <div
@@ -47,33 +47,26 @@
 
       <!-- Barcode -->
       <div
-        class="absolute inset-x-2 top-1/2 flex -translate-y-1/2 items-center justify-center gap-[1px]"
+        class="absolute inset-x-2 top-1/2 flex -translate-y-1/2 items-center justify-center gap-[2px]"
         class:opacity-100={!scanned}
         class:opacity-60={scanned}
       >
+        <div class="bg-foreground/80 h-16 w-[3px]"></div>
+        <div class="bg-foreground/80 h-16 w-[2px]"></div>
+        <div class="bg-foreground/80 h-16 w-[4px]"></div>
+        <div class="bg-foreground/80 h-16 w-[2px]"></div>
+        <div class="bg-foreground/80 h-16 w-[3px]"></div>
+        <div class="bg-foreground/80 h-16 w-[2px]"></div>
+        <div class="bg-foreground/80 h-16 w-[2px]"></div>
+        <div class="bg-foreground/80 h-16 w-[4px]"></div>
+        <div class="bg-foreground/80 h-16 w-[3px]"></div>
+        <div class="bg-foreground/80 h-16 w-[2px]"></div>
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[3px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[3px]"></div>
-        <div class="bg-foreground/80 h-16 w-[2px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[3px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[3px]"></div>
-        <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
-        <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[3px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
@@ -82,12 +75,10 @@
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[3px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[2px]"></div>
-        <div class="bg-foreground/80 h-16 w-[1px]"></div>
         <div class="bg-foreground/80 h-16 w-[3px]"></div>
       </div>
 
@@ -102,7 +93,7 @@
       <!-- Success overlay -->
       {#if scanned}
         <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/10">
-          <div class="flex items-center gap-1.5 rounded-full bg-emerald-600/80 px-3 py-1.5">
+          <div class="flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5">
             <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
