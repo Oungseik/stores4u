@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "neverthrow-return-types": {
+      "source": "code-sherpas/agent-skills",
+      "sourceType": "github",
+      "computedHash": "f5f2565710300bf4770d6fd745024e8a788e419ca6aff5cabc0ca7f9abbbd31a"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
