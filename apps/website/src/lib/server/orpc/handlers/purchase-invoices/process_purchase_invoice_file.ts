@@ -12,8 +12,12 @@ import {
   verifyInvoice,
 } from "$lib/server/ai/invoice-processor";
 import { logger } from "$lib/server/logger";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { extractObjectKey, getObject } from "$lib/server/storage";
 
 const input = z.object({
@@ -25,9 +29,8 @@ export const processInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const file = await shopDb.query.purchaseInvoiceFile.findFirst({
       where: { id: input.fileId },
     });
@@ -72,9 +75,8 @@ export const processInvoiceFileHandler = os
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
 
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Failed to retrieve file from storage",
-      });
+      logger.error({ error }, "Failed to retrieve file from storage");
+      throw new ORPCError("INTERNAL_SERVER_ERROR");
     }
 
     let verificationResult: InvoiceVerificationResult;

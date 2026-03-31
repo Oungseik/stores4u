@@ -9,9 +9,13 @@ import {
 } from "@repo/db";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { baseUrl, qstashClient } from "$lib/server/qstash";
-import { getShopDb } from "$lib/server/shop_db";
 import { invoiceAmountFields, purchaseInvoiceItemInput } from "./schemas";
 
 const input = z.object({
@@ -28,8 +32,8 @@ export const submitInvoiceReviewHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb, ...context } }) => {
     const now = new Date();
 
     const existingFile = await shopDb.query.purchaseInvoiceFile.findFirst({
@@ -59,17 +63,17 @@ export const submitInvoiceReviewHandler = os
       });
     }
 
-    const productIds = [...new Set(input.items.map((item) => item.productId))];
+    const productIds = new Set(input.items.map((item) => item.productId));
     const products = await shopDb.query.product.findMany({
-      where: { id: { in: productIds } },
+      where: { id: { in: [...productIds] } },
       columns: { id: true },
     });
 
-    if (products.length !== productIds.length) {
+    if (products.length !== productIds.size) {
       const foundIds = new Set(products.map((p) => p.id));
-      const missingIds = productIds.filter((id) => !foundIds.has(id));
+      const missingIds = productIds.difference(foundIds);
       throw new ORPCError("NOT_FOUND", {
-        message: `Products not found: ${missingIds.join(", ")}`,
+        message: `Products not found: ${[...missingIds].join(", ")}`,
       });
     }
 
