@@ -4,6 +4,7 @@
   import SendIcon from "@lucide/svelte/icons/send";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
+  import { Textarea } from "@repo/ui/textarea";
   import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
   import { quintOut } from "svelte/easing";
   import { scale } from "svelte/transition";
@@ -21,7 +22,8 @@
 
   let isOpen = $state(false);
   let inputText = $state("");
-  let messagesContainer: HTMLDivElement | undefined = $state();
+  let messagesContainer: HTMLDivElement | null = $state(null);
+  let textareaRef: HTMLTextAreaElement | null = $state(null);
 
   const chat = new Chat({
     transport: new DefaultChatTransport({ api: "/api/ai/shop-setup" }),
@@ -51,6 +53,14 @@
     if (!inputText.trim() || isChatBusy) return;
     chat.sendMessage({ text: inputText.trim() });
     inputText = "";
+    requestAnimationFrame(() => adjustTextareaHeight());
+  }
+
+  function adjustTextareaHeight() {
+    if (textareaRef) {
+      textareaRef.style.height = "auto";
+      textareaRef.style.height = `${Math.min(textareaRef.scrollHeight, 120)}px`;
+    }
   }
 
   function scrollToBottom() {
@@ -167,21 +177,28 @@
       </div>
 
       <form class="border-t p-3" onsubmit={handleSubmit}>
-        <div class="flex gap-2">
-          <input
-            type="text"
+        <div class="flex items-end gap-2">
+          <Textarea
             bind:value={inputText}
+            bind:ref={textareaRef}
+            placeholder="Tell me about your shop..."
+            rows={1}
+            class="bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+            disabled={isChatBusy}
             onkeydown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSubmit(e);
               }
             }}
-            placeholder="Tell me about your shop..."
-            class="bg-muted flex-1 rounded-lg border px-3 py-2 text-sm outline-none"
-            disabled={isChatBusy}
+            oninput={adjustTextareaHeight}
           />
-          <Button type="submit" size="icon" disabled={isChatBusy || !inputText.trim()}>
+          <Button
+            type="submit"
+            size="icon"
+            class="shrink-0"
+            disabled={isChatBusy || !inputText.trim()}
+          >
             <SendIcon class="size-4" />
           </Button>
         </div>
