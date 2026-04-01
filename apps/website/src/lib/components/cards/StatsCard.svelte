@@ -7,7 +7,7 @@
 
   interface Props {
     title: string;
-    value: string | number;
+    value?: string | number;
     description: string;
     icon: Component<{ class?: string }>;
     iconBgClass?: string;

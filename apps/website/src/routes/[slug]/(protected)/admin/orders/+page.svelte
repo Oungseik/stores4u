@@ -72,12 +72,12 @@
     })
   );
 
-  const stats = $derived(() => {
-    const total = allOrders.length;
-    const revenue = allOrders.reduce((sum, o) => sum + o.totalCents, 0);
-
-    return { total, revenue };
-  });
+  const orderStats = createQuery(() =>
+    orpc.orders.stats.queryOptions({
+      input: { slug: params.slug },
+      enabled: !!params.slug,
+    })
+  );
 
   const hasFilters = $derived(
     searchParams.search.length > 0 ||
@@ -142,34 +142,66 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div class="hidden gap-4 sm:grid-cols-2 lg:grid lg:grid-cols-4">
-    <StatsCard
-      title="Total Orders"
-      value={stats().total}
-      description="All time orders"
-      icon={ShoppingBagIcon}
-      iconBgClass="bg-primary/10"
-      iconTextClass="text-primary"
-      borderClass="from-primary/20 to-primary/5"
-    />
-    <StatsCard
-      title="Today"
-      value={0}
-      description="Orders today"
-      icon={ReceiptIcon}
-      iconBgClass="bg-amber-500/10"
-      iconTextClass="text-amber-600"
-      borderClass="from-amber-500/20 to-amber-500/5"
-    />
-    <StatsCard
-      title="This Week"
-      value={0}
-      description="Orders this week"
-      icon={PackageIcon}
-      iconBgClass="bg-blue-500/10"
-      iconTextClass="text-blue-600"
-      borderClass="from-blue-500/20 to-blue-500/5"
-    />
+  <div
+    class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
+  >
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="Today"
+        price={orderStats.data?.today.totalCents ?? 0}
+        country={shop.country}
+        priceClass="text-2xl font-bold"
+        description="Today's revenue"
+        icon={ReceiptIcon}
+        iconBgClass="bg-amber-500/10"
+        iconTextClass="text-amber-600"
+        borderClass="from-amber-500/20 to-amber-500/5"
+      >
+        {#snippet footer()}
+          <span class="text-muted-foreground text-xs">
+            ~ {orderStats.data?.today.count ?? 0} orders
+          </span>
+        {/snippet}
+      </StatsCard>
+    </div>
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="This Week"
+        price={orderStats.data?.thisWeek.totalCents ?? 0}
+        country={shop.country}
+        priceClass="text-2xl font-bold"
+        description="This week's revenue"
+        icon={PackageIcon}
+        iconBgClass="bg-blue-500/10"
+        iconTextClass="text-blue-600"
+        borderClass="from-blue-500/20 to-blue-500/5"
+      >
+        {#snippet footer()}
+          <span class="text-muted-foreground text-xs">
+            ~ {orderStats.data?.thisWeek.count ?? 0} orders
+          </span>
+        {/snippet}
+      </StatsCard>
+    </div>
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="This Month"
+        price={orderStats.data?.thisMonth.totalCents ?? 0}
+        country={shop.country}
+        priceClass="text-2xl font-bold"
+        description="This month's revenue"
+        icon={CalendarIcon}
+        iconBgClass="bg-emerald-500/10"
+        iconTextClass="text-emerald-600"
+        borderClass="from-emerald-500/20 to-emerald-500/5"
+      >
+        {#snippet footer()}
+          <span class="text-muted-foreground text-xs">
+            ~ {orderStats.data?.thisMonth.count ?? 0} orders
+          </span>
+        {/snippet}
+      </StatsCard>
+    </div>
   </div>
 
   <section class="space-y-6">

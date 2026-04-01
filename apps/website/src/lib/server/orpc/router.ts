@@ -9,6 +9,7 @@ import { uploadHandler } from "./handlers/images/upload";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
+import { statsOrdersHandler } from "./handlers/orders/stats_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
@@ -82,6 +83,7 @@ export const router = os.router({
   orders: {
     get: getOrderHandler,
     list: listOrdersHandler,
+    stats: statsOrdersHandler,
   },
   shops: {
     create: createShopHandler,
