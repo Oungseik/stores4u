@@ -104,7 +104,7 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <section class="mt-4 space-y-6">
+  <section class="space-y-6">
     <!-- Filters and Search -->
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex items-center justify-start gap-4">

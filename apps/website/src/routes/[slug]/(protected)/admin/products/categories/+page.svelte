@@ -129,16 +129,7 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div>
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight">Categories</h1>
-        <p class="text-muted-foreground text-sm">Organize your products into categories</p>
-      </div>
-    </div>
-  </div>
-
-  <section class="mt-4 space-y-6">
+  <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex items-center justify-start gap-4">
         <FilterBar.Search

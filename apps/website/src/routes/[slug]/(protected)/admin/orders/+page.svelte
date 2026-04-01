@@ -1,7 +1,6 @@
 <script lang="ts">
   import { CalendarDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -143,13 +142,6 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div>
-    <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
-      <p class="text-muted-foreground text-sm">Manage and track all your shop orders</p>
-    </div>
-  </div>
-
   <div class="hidden gap-4 sm:grid-cols-2 lg:grid lg:grid-cols-4">
     <StatsCard
       title="Total Orders"
@@ -178,20 +170,9 @@
       iconTextClass="text-blue-600"
       borderClass="from-blue-500/20 to-blue-500/5"
     />
-    <StatsCard
-      title="Revenue"
-      value=""
-      description="Total revenue"
-      icon={CreditCardIcon}
-      iconBgClass="bg-emerald-500/10"
-      iconTextClass="text-emerald-600"
-      borderClass="from-emerald-500/20 to-emerald-500/5"
-      price={stats().revenue}
-      country={shop.country}
-    />
   </div>
 
-  <section class="mt-4 space-y-6">
+  <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search
         placeholder="Search orders, customers..."
