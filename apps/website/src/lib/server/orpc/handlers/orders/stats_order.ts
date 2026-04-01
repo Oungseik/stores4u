@@ -6,7 +6,6 @@ import {
   protectedShopMiddleware,
   shopDbMiddleware,
 } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
