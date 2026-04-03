@@ -6,8 +6,6 @@
   import { Button } from "@repo/ui/button";
   import { Textarea } from "@repo/ui/textarea";
   import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
-  import { quintOut } from "svelte/easing";
-  import { scale } from "svelte/transition";
 
   import type { ShopFormFields } from "$lib/types/shop-form";
   import { fillFormOutputSchema } from "$lib/types/shop-form";
@@ -87,125 +85,124 @@
 {/snippet}
 
 <div class="fixed right-6 bottom-6 z-50 flex flex-col items-start gap-3">
-  {#if isOpen}
-    <div
-      transition:scale={{ start: 0.9, duration: 200, easing: quintOut }}
-      class="bg-background flex h-130 w-80 flex-col rounded-2xl border shadow-2xl sm:w-95"
-    >
-      <div class="flex items-center justify-between border-b px-4 py-3">
-        <div class="flex items-center gap-2">
-          <div class="bg-primary/10 flex size-8 items-center justify-center rounded-full">
-            <MessageCircleIcon class="text-primary size-4" />
+  <div
+    class={[
+      "bg-background flex h-150 w-80 flex-col rounded-2xl border shadow-2xl sm:w-95",
+      !isOpen && "hidden",
+    ]}
+  >
+    <div class="flex items-center justify-between border-b px-4 py-3">
+      <div class="flex items-center gap-2">
+        <div class="bg-primary/10 flex size-8 items-center justify-center rounded-full">
+          <MessageCircleIcon class="text-primary size-4" />
+        </div>
+        <div>
+          <p class="text-sm font-medium">AI Setup Assistant</p>
+          <p class="text-muted-foreground text-xs">Helps you set up your store</p>
+        </div>
+      </div>
+      <Button variant="ghost" size="icon" class="size-8" onclick={toggleChat}>
+        <XIcon class="size-4" />
+      </Button>
+    </div>
+
+    <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-4 py-3">
+      {#if chat.messages.length === 0}
+        <div class="flex h-full flex-col items-center justify-center gap-3 text-center">
+          <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+            <MessageCircleIcon class="text-primary size-6" />
           </div>
           <div>
-            <p class="text-sm font-medium">AI Setup Assistant</p>
-            <p class="text-muted-foreground text-xs">Helps you set up your store</p>
+            <p class="text-sm font-medium">Welcome!</p>
+            <p class="text-muted-foreground mt-1 text-xs">
+              I'll help you set up your store.<br />Tell me about your shop!
+            </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" class="size-8" onclick={toggleChat}>
-          <XIcon class="size-4" />
-        </Button>
-      </div>
-
-      <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-4 py-3">
-        {#if chat.messages.length === 0}
-          <div class="flex h-full flex-col items-center justify-center gap-3 text-center">
-            <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-              <MessageCircleIcon class="text-primary size-6" />
+      {:else}
+        {#each chat.messages as message (message.id)}
+          {#if message.role === "user"}
+            <div class="mb-3 flex justify-end">
+              <div
+                class="bg-primary text-primary-foreground max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
+              >
+                {#each message.parts as part}
+                  {#if isTextUIPart(part)}
+                    {part.text}
+                  {/if}
+                {/each}
+              </div>
             </div>
-            <div>
-              <p class="text-sm font-medium">Welcome!</p>
-              <p class="text-muted-foreground mt-1 text-xs">
-                I'll help you set up your store.<br />Tell me about your shop!
-              </p>
-            </div>
-          </div>
-        {:else}
-          {#each chat.messages as message (message.id)}
-            {#if message.role === "user"}
-              <div class="mb-3 flex justify-end">
-                <div
-                  class="bg-primary text-primary-foreground max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
-                >
-                  {#each message.parts as part}
-                    {#if isTextUIPart(part)}
-                      {part.text}
-                    {/if}
+          {:else if message.role === "assistant"}
+            {@const textParts = message.parts.filter((p) => isTextUIPart(p))}
+            {@const completedToolParts = message.parts.filter(
+              (p) =>
+                isToolUIPart(p) &&
+                getToolName(p) === "fillShopForm" &&
+                p.state === "output-available"
+            )}
+            {#if textParts.length > 0}
+              <div class="mb-3 flex justify-start">
+                <div class="bg-muted max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm">
+                  {#each textParts as part}
+                    {part.text}
                   {/each}
                 </div>
               </div>
-            {:else if message.role === "assistant"}
-              {@const textParts = message.parts.filter((p) => isTextUIPart(p))}
-              {@const completedToolParts = message.parts.filter(
-                (p) =>
-                  isToolUIPart(p) &&
-                  getToolName(p) === "fillShopForm" &&
-                  p.state === "output-available"
-              )}
-              {#if textParts.length > 0}
-                <div class="mb-3 flex justify-start">
-                  <div class="bg-muted max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm">
-                    {#each textParts as part}
-                      {part.text}
-                    {/each}
-                  </div>
-                </div>
-              {:else}
-                {@render Generating()}
-              {/if}
-              {#each completedToolParts as _part}
-                <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
-                  <svg
-                    class="size-3.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                  >
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                  <span class="text-xs">Form filled! Review and submit when ready.</span>
-                </div>
-              {/each}
+            {:else}
+              {@render Generating()}
             {/if}
-          {/each}
-
-          {#if chat.status === "submitted"}
-            {@render Generating()}
+            {#each completedToolParts as _part}
+              <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
+                <svg
+                  class="size-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span class="text-xs">Form filled! Review and submit when ready.</span>
+              </div>
+            {/each}
           {/if}
+        {/each}
+
+        {#if chat.status === "submitted"}
+          {@render Generating()}
         {/if}
-      </div>
-
-      <form class="border-t p-3" onsubmit={handleSubmit}>
-        <div class="flex items-end gap-2">
-          <Textarea
-            bind:value={inputText}
-            bind:ref={textareaRef}
-            placeholder="Tell me about your shop..."
-            rows={1}
-            class="bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-            disabled={isChatBusy}
-            onkeydown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            oninput={adjustTextareaHeight}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            class="shrink-0"
-            disabled={isChatBusy || !inputText.trim()}
-          >
-            <SendIcon class="size-4" />
-          </Button>
-        </div>
-      </form>
+      {/if}
     </div>
-  {/if}
 
+    <form class="border-t p-3" onsubmit={handleSubmit}>
+      <div class="flex items-end gap-2">
+        <Textarea
+          bind:value={inputText}
+          bind:ref={textareaRef}
+          placeholder="Tell me about your shop..."
+          rows={1}
+          class="bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+          disabled={isChatBusy}
+          onkeydown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
+          oninput={adjustTextareaHeight}
+        />
+        <Button
+          type="submit"
+          size="icon"
+          class="shrink-0"
+          disabled={isChatBusy || !inputText.trim()}
+        >
+          <SendIcon class="size-4" />
+        </Button>
+      </div>
+    </form>
+  </div>
   <Button
     onclick={toggleChat}
     size="icon-xs"
