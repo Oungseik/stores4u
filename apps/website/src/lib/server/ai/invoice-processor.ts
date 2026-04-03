@@ -1,3 +1,10 @@
+/**
+ * @deprecated Use agents from $lib/server/mastra/ instead.
+ * - verifyInvoice → $lib/server/mastra/invoice-verification-agent
+ * - processInvoice → $lib/server/mastra/invoice-extraction-agent
+ * - Image utilities → $lib/server/mastra/_lib/image-utils
+ */
+
 import { OpenRouter } from "@openrouter/sdk";
 import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
 import { z } from "zod";

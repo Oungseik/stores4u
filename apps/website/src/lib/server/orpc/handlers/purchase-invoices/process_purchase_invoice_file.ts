@@ -6,12 +6,10 @@ import {
   purchaseInvoiceOcrResult,
 } from "@repo/db";
 import { z } from "zod";
-import {
-  type InvoiceVerificationResult,
-  processInvoice,
-  verifyInvoice,
-} from "$lib/server/ai/invoice-processor";
 import { logger } from "$lib/server/logger";
+import type { InvoiceVerificationResult } from "$lib/server/mastra/_lib/image-utils";
+import { processInvoice } from "$lib/server/mastra/invoice-extraction-agent";
+import { verifyInvoice } from "$lib/server/mastra/invoice-verification-agent";
 import {
   authMiddleware,
   os,
