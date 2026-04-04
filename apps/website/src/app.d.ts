@@ -13,8 +13,8 @@ declare global {
           createdAt: Date;
           updatedAt: Date;
           token: string;
-          ipAddress?: string | null | undefined | undefined;
-          userAgent?: string | null | undefined | undefined;
+          ipAddress?: string | null;
+          userAgent?: string | null;
         };
         user: {
           id: string;
@@ -23,8 +23,8 @@ declare global {
           name: string;
           createdAt: Date;
           updatedAt: Date;
-          image?: string | null | undefined | undefined;
-          twoFactorEnabled?: boolean | null | undefined;
+          image?: string | null;
+          twoFactorEnabled?: boolean | null;
         };
       } | null;
     }

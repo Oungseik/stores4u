@@ -20,6 +20,8 @@
 
   import { goto } from "$app/navigation";
   import { PUBLIC_DOMAIN } from "$env/static/public";
+  import AiChat from "$lib/components/AiChat.svelte";
+  import type { ShopFormFields } from "$lib/types/shop-form";
   import { orpc } from "$lib/orpc_client";
   import { getCountryName } from "$lib/utils";
 
@@ -162,6 +164,21 @@
 
   const currentStepConfig = $derived(stepConfig[currentStep - 1]);
   const CurrentStepIcon = $derived(currentStepConfig.icon);
+
+  function handleAiFill(fields: ShopFormFields) {
+    form.setFieldValue("name", fields.name);
+    form.setFieldValue("slug", fields.slug || generateSlug(fields.name));
+    form.setFieldValue("title", fields.title);
+    form.setFieldValue("description", fields.description);
+    form.setFieldValue("address", fields.address);
+    form.setFieldValue("city", fields.city);
+    form.setFieldValue("phone", fields.phone);
+    if (fields.email) form.setFieldValue("email", fields.email);
+    if (fields.state) form.setFieldValue("state", fields.state);
+    if (fields.zipCode) form.setFieldValue("zipCode", fields.zipCode);
+    if (fields.country) form.setFieldValue("country", fields.country);
+    currentStep = 2;
+  }
 </script>
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -577,4 +594,6 @@
       Step {currentStep} of {totalSteps}
     </p>
   </div>
+
+  <AiChat onFillForm={handleAiFill} />
 </div>
