@@ -1,9 +1,19 @@
+import {
+  and,
+  eq,
+  inArray,
+  inventoryMovement,
+  product,
+  purchaseInvoice,
+  purchaseInvoiceFile,
+  purchaseInvoiceOcrResult,
+  sql,
+} from "@repo/db";
 import { json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
-import { and, eq, inArray, inventoryMovement, product, purchaseInvoice, purchaseInvoiceFile, purchaseInvoiceOcrResult, sql } from "@repo/db";
 import { z } from "zod";
 import { qstashReceiver } from "$lib/server/qstash";
 import { getShopDb } from "$lib/server/shop_db";
+import type { RequestHandler } from "./$types";
 
 const payloadSchema = z.object({
   invoiceId: z.string().min(1),
@@ -29,7 +39,10 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const parsed = payloadSchema.safeParse(JSON.parse(body));
   if (!parsed.success) {
-    return json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
+    return json(
+      { error: "Invalid payload", details: z.treeifyError(parsed.error) },
+      { status: 400 },
+    );
   }
 
   const { invoiceId, shopSlug } = parsed.data;

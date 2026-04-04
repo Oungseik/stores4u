@@ -20,4 +20,3 @@ export const listAccountsHandler = os
 
     return accounts;
   });
-
