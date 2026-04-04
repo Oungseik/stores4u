@@ -318,9 +318,9 @@
       </Card.Header>
       <Card.Content>
         {#if revenueTrendQuery.isLoading}
-          <Skeleton class="h-[250px] w-full" />
+          <Skeleton class="aspect-[32/9] w-full" />
         {:else if revenueTrendQuery.data}
-          <Chart.Container config={revenueChartConfig} class="!aspect-[32/9] min-h-[250px] w-full">
+          <Chart.Container config={revenueChartConfig} class="!aspect-[32/9] w-full">
             <AreaChart
               data={revenueTrendQuery.data.days}
               x="date"
