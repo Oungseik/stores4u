@@ -5,6 +5,7 @@
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
   import { Textarea } from "@repo/ui/textarea";
+  import { ThinkingDots } from "@repo/ui/thinking-dots";
   import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
 
   import type { ShopFormFields } from "$lib/types/shop-form";
@@ -77,9 +78,7 @@
 {#snippet Generating()}
   <div class="mb-3 flex justify-start">
     <div class="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
-      <span class="thinking-dots text-muted-foreground text-xs">
-        <span class="dot">•</span><span class="dot">•</span><span class="dot">•</span>
-      </span>
+      <ThinkingDots class="text-xs" />
     </div>
   </div>
 {/snippet}
@@ -214,33 +213,3 @@
     {/if}
   </Button>
 </div>
-
-<style>
-  .thinking-dots .dot {
-    display: inline-block;
-    animation: bounce 1.4s infinite ease-in-out both;
-  }
-
-  .thinking-dots .dot:nth-child(1) {
-    animation-delay: 0s;
-  }
-
-  .thinking-dots .dot:nth-child(2) {
-    animation-delay: 0.16s;
-  }
-
-  .thinking-dots .dot:nth-child(3) {
-    animation-delay: 0.32s;
-  }
-
-  @keyframes bounce {
-    0%,
-    80%,
-    100% {
-      opacity: 0.3;
-    }
-    40% {
-      opacity: 1;
-    }
-  }
-</style>
