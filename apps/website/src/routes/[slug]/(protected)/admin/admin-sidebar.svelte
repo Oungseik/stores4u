@@ -1,9 +1,7 @@
 <script lang="ts">
   import type { IconProps } from "@lucide/svelte";
   import BellIcon from "@lucide/svelte/icons/bell";
-  import Building2Icon from "@lucide/svelte/icons/building-2";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
-  import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FolderIcon from "@lucide/svelte/icons/folder";
   import HelpIcon from "@lucide/svelte/icons/help-circle";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
@@ -197,71 +195,6 @@
                   >
                     <FolderIcon class="size-4" />
                     <span>Categories</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-
-      <!-- Purchases Group -->
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>Purchases</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            <!-- Overview -->
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Overview"
-                isActive={isActive(`/${shop.slug}/admin/purchases`)}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href={`/${shop.slug}/admin/purchases`}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <LayoutDashboard class="size-4" />
-                    <span>Overview</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-
-            <!-- Invoices -->
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Invoices"
-                isActive={isActive(`/${shop.slug}/admin/purchases/invoices`)}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href={`/${shop.slug}/admin/purchases/invoices`}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <FileTextIcon class="size-4" />
-                    <span>Invoices</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-
-            <!-- Suppliers -->
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Suppliers"
-                isActive={isActive(`/${shop.slug}/admin/purchases/suppliers`)}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href={`/${shop.slug}/admin/purchases/suppliers`}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <Building2Icon class="size-4" />
-                    <span>Suppliers</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>
