@@ -1,6 +1,12 @@
 import { createRouterClient } from "@orpc/server";
 
 import { os } from "./base";
+import { dashboardCategoryBreakdownHandler } from "./handlers/dashboard/category_breakdown";
+import { dashboardCustomerInsightsHandler } from "./handlers/dashboard/customer_insights";
+import { dashboardInventorySummaryHandler } from "./handlers/dashboard/inventory_summary";
+import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
+import { dashboardStatsHandler } from "./handlers/dashboard/stats";
+import { dashboardTopProductsHandler } from "./handlers/dashboard/top_products";
 import { createCategoryHandler } from "./handlers/categories/create_category";
 import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
@@ -51,6 +57,14 @@ export const router = os.router({
     delete: deleteCategoryHandler,
     list: listCategoriesHandler,
     update: updateCategoryHandler,
+  },
+  dashboard: {
+    categoryBreakdown: dashboardCategoryBreakdownHandler,
+    customerInsights: dashboardCustomerInsightsHandler,
+    inventorySummary: dashboardInventorySummaryHandler,
+    revenueTrend: dashboardRevenueTrendHandler,
+    stats: dashboardStatsHandler,
+    topProducts: dashboardTopProductsHandler,
   },
   images: {
     upload: uploadHandler,
