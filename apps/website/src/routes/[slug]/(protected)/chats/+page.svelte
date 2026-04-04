@@ -127,6 +127,9 @@
   }
 
   async function createNewChat() {
+    if (chat && chat.messages.length === 0 && currentChatId) {
+      return currentChatId;
+    }
     try {
       const newChat = await createChatMut.mutateAsync({ slug: data.slug });
       currentChatId = newChat.id;
@@ -252,7 +255,7 @@
   <Sidebar.Inset>
     <div class="flex h-screen flex-1 flex-col overflow-hidden">
       <header class="flex h-14 items-center gap-2 border-b px-4">
-        <Sidebar.Trigger class="-ms-1 lg:hidden" />
+        <Sidebar.Trigger class="-ms-1" />
         {#if currentChatId}
           <div class="flex flex-1 items-center justify-between">
             <h1 class="font-medium">

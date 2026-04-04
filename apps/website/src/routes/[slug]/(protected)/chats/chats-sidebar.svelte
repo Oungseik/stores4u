@@ -66,7 +66,7 @@
   const isActive = (href: string) => currentPath === href;
 </script>
 
-<Sidebar.Root collapsible="icon" {...restProps}>
+<Sidebar.Root collapsible="offcanvas" {...restProps}>
   <Sidebar.Header>
     <Sidebar.Menu>
       <Sidebar.MenuItem>
@@ -160,31 +160,29 @@
           </div>
           <Sidebar.Menu>
             {#each filteredChats as chat (chat.id)}
-              <Sidebar.MenuItem>
+              <Sidebar.MenuItem class="flex items-center gap-2">
                 <Sidebar.MenuButton
+                  class="min-w-0 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                   tooltipContent={chat.title}
                   isActive={chat.id === currentChatId}
+                  onclick={() => onSelectChat?.(chat.id)}
                 >
-                  {#snippet child({ props })}
-                    <button
-                      {...props}
-                      onclick={() => onSelectChat?.(chat.id)}
-                      class="flex flex-1 items-center gap-2 overflow-hidden"
-                    >
-                      <MessageSquareIcon class="size-4 shrink-0" />
-                      <span class="truncate">{chat.title}</span>
-                    </button>
-                  {/snippet}
+                  <MessageSquareIcon class="size-4 shrink-0" />
+                  <span class="truncate">{chat.title}</span>
                 </Sidebar.MenuButton>
+
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
                     {#snippet child({ props })}
-                      <Sidebar.MenuAction showOnHover {...props}>
-                        <Button variant="ghost" size="icon" class="size-6">
-                          <span class="sr-only">More</span>
-                          <MoreHorizontalIcon class="size-3" />
-                        </Button>
-                      </Sidebar.MenuAction>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        class="size-6 shrink-0 group-data-[collapsible=icon]:hidden"
+                        {...props}
+                      >
+                        <span class="sr-only">More</span>
+                        <MoreHorizontalIcon class="size-3" />
+                      </Button>
                     {/snippet}
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content align="end">
