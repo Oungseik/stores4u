@@ -482,7 +482,7 @@
 <!-- AI Chat Sheet -->
 <ResizableSheet.Root bind:open={isChatOpen} defaultWidth={448} minWidth={340} maxWidth={800}>
   {#snippet header()}
-    <ResizableSheet.SheetHeader class="border-b pb-4 pt-0">
+    <ResizableSheet.SheetHeader class="border-b pt-0 pb-4">
       <div class="flex items-center gap-3">
         <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
           <BotIcon class="text-primary size-6" />

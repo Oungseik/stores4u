@@ -145,35 +145,7 @@
   <div
     class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
   >
-    {#each [
-      {
-        title: "Today",
-        stats: orderStats.data?.today,
-        description: "Today's revenue",
-        icon: ReceiptIcon,
-        iconBgClass: "bg-amber-500/10",
-        iconTextClass: "text-amber-600",
-        borderClass: "from-amber-500/20 to-amber-500/5",
-      },
-      {
-        title: "This Week",
-        stats: orderStats.data?.thisWeek,
-        description: "This week's revenue",
-        icon: PackageIcon,
-        iconBgClass: "bg-blue-500/10",
-        iconTextClass: "text-blue-600",
-        borderClass: "from-blue-500/20 to-blue-500/5",
-      },
-      {
-        title: "This Month",
-        stats: orderStats.data?.thisMonth,
-        description: "This month's revenue",
-        icon: CalendarIcon,
-        iconBgClass: "bg-emerald-500/10",
-        iconTextClass: "text-emerald-600",
-        borderClass: "from-emerald-500/20 to-emerald-500/5",
-      },
-    ] as card}
+    {#each [{ title: "Today", stats: orderStats.data?.today, description: "Today's revenue", icon: ReceiptIcon, iconBgClass: "bg-amber-500/10", iconTextClass: "text-amber-600", borderClass: "from-amber-500/20 to-amber-500/5" }, { title: "This Week", stats: orderStats.data?.thisWeek, description: "This week's revenue", icon: PackageIcon, iconBgClass: "bg-blue-500/10", iconTextClass: "text-blue-600", borderClass: "from-blue-500/20 to-blue-500/5" }, { title: "This Month", stats: orderStats.data?.thisMonth, description: "This month's revenue", icon: CalendarIcon, iconBgClass: "bg-emerald-500/10", iconTextClass: "text-emerald-600", borderClass: "from-emerald-500/20 to-emerald-500/5" }] as card}
       <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
         <StatsCard
           title={card.title}

@@ -84,7 +84,7 @@
               </div>
               <div class="grid flex-1 text-left text-sm leading-tight">
                 <span class="truncate font-semibold">{shop.name}</span>
-                <span class="truncate text-xs text-muted-foreground">AI Assistant</span>
+                <span class="text-muted-foreground truncate text-xs">AI Assistant</span>
               </div>
             </a>
           {/snippet}
@@ -226,7 +226,7 @@
                 </Avatar.Root>
                 <div class="grid flex-1 text-left text-sm leading-tight">
                   <span class="truncate font-medium">{user.name}</span>
-                  <span class="truncate text-xs text-muted-foreground">{user.email}</span>
+                  <span class="text-muted-foreground truncate text-xs">{user.email}</span>
                 </div>
               </Sidebar.MenuButton>
             {/snippet}

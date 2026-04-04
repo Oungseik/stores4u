@@ -21,8 +21,8 @@
   import { goto } from "$app/navigation";
   import { PUBLIC_DOMAIN } from "$env/static/public";
   import AiChat from "$lib/components/AiChat.svelte";
-  import type { ShopFormFields } from "$lib/types/shop-form";
   import { orpc } from "$lib/orpc_client";
+  import type { ShopFormFields } from "$lib/types/shop-form";
   import { getCountryName } from "$lib/utils";
 
   let currentStep = $state(1);
