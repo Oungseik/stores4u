@@ -8,7 +8,6 @@
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import TrendingDownIcon from "@lucide/svelte/icons/trending-down";
   import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
-
   import * as Card from "@repo/ui/card";
   import * as Chart from "@repo/ui/chart";
   import { Separator } from "@repo/ui/separator";
@@ -25,7 +24,34 @@
 
   const { params, data: shop }: PageProps = $props();
 
-  let trendDays = $state(7);
+  type TrendPeriod = { days: number; months?: never } | { days?: never; months: number };
+
+  let trendPeriod = $state<TrendPeriod>({ days: 7 });
+
+  const trendToggleValue = $derived(
+    "days" in trendPeriod && trendPeriod.days !== undefined
+      ? String(trendPeriod.days)
+      : "months" in trendPeriod
+        ? String(trendPeriod.months) + "M"
+        : "7"
+  );
+
+  function onTrendChange(v: string) {
+    if (v.endsWith("M")) {
+      trendPeriod = { months: parseInt(v) };
+    } else {
+      trendPeriod = { days: parseInt(v) };
+    }
+  }
+
+  function formatTrendDate(dateStr: string): string {
+    if (dateStr.length === 7) {
+      const d = new Date(dateStr + "-01T00:00:00");
+      return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+    }
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
 
   const statsQuery = createQuery(() =>
     orpc.dashboard.stats.queryOptions({
@@ -36,7 +62,7 @@
 
   const revenueTrendQuery = createQuery(() =>
     orpc.dashboard.revenueTrend.queryOptions({
-      input: { slug: params.slug, days: trendDays },
+      input: { slug: params.slug, ...trendPeriod },
       enabled: !!params.slug,
     })
   );
@@ -135,8 +161,6 @@
     return map[type] ?? type;
   }
 
-
-
   const categoryChartData = $derived(
     (categoryQuery.data?.categories ?? []).map((c, i) => ({
       name: c.name,
@@ -205,7 +229,10 @@
           </Card.Header>
           <Card.Content>
             <div class="text-2xl font-bold">
-              <Pricing cents={statsQuery.data.revenue.thisMonth.totalCents} country={shop.country} />
+              <Pricing
+                cents={statsQuery.data.revenue.thisMonth.totalCents}
+                country={shop.country}
+              />
             </div>
             <div class="text-muted-foreground flex items-center gap-1 text-xs">
               {#if statsQuery.data.revenue.vsLastWeek >= 0}
@@ -233,7 +260,10 @@
               <Pricing cents={statsQuery.data.grossProfit.todayCents} country={shop.country} />
             </div>
             <p class="text-muted-foreground text-xs">
-              Month: <Pricing cents={statsQuery.data.grossProfit.thisMonthCents} country={shop.country} />
+              Month: <Pricing
+                cents={statsQuery.data.grossProfit.thisMonthCents}
+                country={shop.country}
+              />
             </p>
           </Card.Content>
         </Card.Root>
@@ -248,7 +278,10 @@
           </Card.Header>
           <Card.Content>
             <div class="text-2xl font-bold">
-              <Pricing cents={statsQuery.data.products.inventoryValueRetailCents} country={shop.country} />
+              <Pricing
+                cents={statsQuery.data.products.inventoryValueRetailCents}
+                country={shop.country}
+              />
             </div>
             <p class="text-muted-foreground text-xs">
               {statsQuery.data.products.total} products
@@ -272,14 +305,15 @@
         </div>
         <ToggleGroup
           type="single"
-          value={trendDays.toString()}
+          value={trendToggleValue}
           onValueChange={(v) => {
-            if (v) trendDays = parseInt(v);
+            if (v) onTrendChange(v);
           }}
         >
           <ToggleGroupItem value="7">7D</ToggleGroupItem>
           <ToggleGroupItem value="30">30D</ToggleGroupItem>
-          <ToggleGroupItem value="90">90D</ToggleGroupItem>
+          <ToggleGroupItem value="4M">4M</ToggleGroupItem>
+          <ToggleGroupItem value="12M">1Y</ToggleGroupItem>
         </ToggleGroup>
       </Card.Header>
       <Card.Content>
@@ -300,7 +334,7 @@
               tooltipContext
               props={{
                 xAxis: {
-                  format: (d: string) => formatDate(d),
+                  format: (d: string) => formatTrendDate(d),
                 },
                 yAxis: {
                   format: (d: number) => formatCents(d),
@@ -308,7 +342,7 @@
               }}
             >
               {#snippet tooltip()}
-                <Chart.Tooltip labelFormatter={(d: string) => formatDate(d)} />
+                <Chart.Tooltip labelFormatter={(d: string) => formatTrendDate(d)} />
               {/snippet}
             </AreaChart>
           </Chart.Container>
@@ -409,16 +443,21 @@
                   <Pricing cents={inventoryQuery.data.wastage.totalCents} country={shop.country} />
                 </p>
                 <p class="text-muted-foreground text-xs">
-                  {inventoryQuery.data.wastage.count} events &middot; {inventoryQuery.data.wastage.totalUnits} units
+                  {inventoryQuery.data.wastage.count} events &middot; {inventoryQuery.data.wastage
+                    .totalUnits} units
                 </p>
               </div>
               <div class="bg-muted/50 rounded-lg p-3">
                 <p class="text-muted-foreground text-xs font-medium">Adjustments</p>
                 <p class="text-lg font-semibold">
-                  <Pricing cents={inventoryQuery.data.adjustments.totalCents} country={shop.country} />
+                  <Pricing
+                    cents={inventoryQuery.data.adjustments.totalCents}
+                    country={shop.country}
+                  />
                 </p>
                 <p class="text-muted-foreground text-xs">
-                  {inventoryQuery.data.adjustments.count} events &middot; {inventoryQuery.data.adjustments.totalUnits} units
+                  {inventoryQuery.data.adjustments.count} events &middot; {inventoryQuery.data
+                    .adjustments.totalUnits} units
                 </p>
               </div>
             </div>
@@ -468,11 +507,15 @@
             <div class="mb-4 grid grid-cols-3 gap-4">
               <div class="bg-muted/50 rounded-lg p-3">
                 <p class="text-muted-foreground text-xs font-medium">Unique</p>
-                <p class="text-lg font-semibold">{formatNumber(customerQuery.data.totalCustomers)}</p>
+                <p class="text-lg font-semibold">
+                  {formatNumber(customerQuery.data.totalCustomers)}
+                </p>
               </div>
               <div class="bg-muted/50 rounded-lg p-3">
                 <p class="text-muted-foreground text-xs font-medium">Returning</p>
-                <p class="text-lg font-semibold">{formatNumber(customerQuery.data.returningCustomers)}</p>
+                <p class="text-lg font-semibold">
+                  {formatNumber(customerQuery.data.returningCustomers)}
+                </p>
               </div>
               <div class="bg-muted/50 rounded-lg p-3">
                 <p class="text-muted-foreground text-xs font-medium">Avg Order</p>
