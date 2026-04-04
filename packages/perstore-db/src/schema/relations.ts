@@ -1,4 +1,5 @@
 import { defineRelations } from "drizzle-orm";
+import { chat, message } from "./chat";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
 import { category, product, productAlias, productCategory } from "./product";
@@ -14,6 +15,8 @@ import { taxSettings } from "./tax";
 
 export const relations = defineRelations(
   {
+    chat,
+    message,
     category,
     product,
     productAlias,
@@ -32,6 +35,12 @@ export const relations = defineRelations(
     taxSettings,
   },
   (r) => ({
+    chat: {
+      messages: r.many.message(),
+    },
+    message: {
+      chat: r.one.chat({ from: r.message.chatId, to: r.chat.id }),
+    },
     category: {
       productCategories: r.many.productCategory(),
     },
