@@ -236,6 +236,7 @@
 
 <Sidebar.Provider
   style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
+  class="h-dvh min-h-0 overflow-hidden"
 >
   <ChatsSidebar
     variant="inset"
@@ -253,7 +254,7 @@
     onDeleteChat={handleDeleteChat}
   />
   <Sidebar.Inset>
-    <div class="flex h-screen flex-1 flex-col overflow-hidden">
+    <div class="flex h-full flex-1 flex-col overflow-hidden">
       <header class="flex h-14 items-center gap-2 border-b px-4">
         <Sidebar.Trigger class="-ms-1" />
         {#if currentChatId}
