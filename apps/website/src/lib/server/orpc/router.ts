@@ -1,16 +1,22 @@
 import { createRouterClient } from "@orpc/server";
 
 import { os } from "./base";
+import { createCategoryHandler } from "./handlers/categories/create_category";
+import { deleteCategoryHandler } from "./handlers/categories/delete_category";
+import { listCategoriesHandler } from "./handlers/categories/list_categories";
+import { updateCategoryHandler } from "./handlers/categories/update_category";
+import { createChatHandler } from "./handlers/chats/create_chat";
+import { deleteChatHandler } from "./handlers/chats/delete_chat";
+import { getChatHandler } from "./handlers/chats/get_chat";
+import { listChatsHandler } from "./handlers/chats/list_chats";
+import { saveMessageHandler } from "./handlers/chats/save_message";
+import { updateChatHandler } from "./handlers/chats/update_chat";
 import { dashboardCategoryBreakdownHandler } from "./handlers/dashboard/category_breakdown";
 import { dashboardCustomerInsightsHandler } from "./handlers/dashboard/customer_insights";
 import { dashboardInventorySummaryHandler } from "./handlers/dashboard/inventory_summary";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { dashboardTopProductsHandler } from "./handlers/dashboard/top_products";
-import { createCategoryHandler } from "./handlers/categories/create_category";
-import { deleteCategoryHandler } from "./handlers/categories/delete_category";
-import { listCategoriesHandler } from "./handlers/categories/list_categories";
-import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { uploadHandler } from "./handlers/images/upload";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
@@ -57,6 +63,14 @@ export const router = os.router({
     delete: deleteCategoryHandler,
     list: listCategoriesHandler,
     update: updateCategoryHandler,
+  },
+  chats: {
+    create: createChatHandler,
+    delete: deleteChatHandler,
+    get: getChatHandler,
+    list: listChatsHandler,
+    saveMessage: saveMessageHandler,
+    update: updateChatHandler,
   },
   dashboard: {
     categoryBreakdown: dashboardCategoryBreakdownHandler,
