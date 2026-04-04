@@ -1,4 +1,4 @@
-import { and, eq, socialConnection } from "@repo/auth";
+import { and, eq, socialConnection } from "@repo/website-auth";
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";

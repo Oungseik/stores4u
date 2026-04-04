@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { socialConnection } from "@repo/auth";
+import { socialConnection } from "@repo/website-auth";
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";

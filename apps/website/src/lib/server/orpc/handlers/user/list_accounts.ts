@@ -1,4 +1,4 @@
-import { account, eq } from "@repo/auth";
+import { account, eq } from "@repo/website-auth";
 import { db } from "$lib/server/auth_db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 

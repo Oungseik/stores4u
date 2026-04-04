@@ -14,6 +14,8 @@
     "types": ["bun"],
     "composite": true
   },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/server/**/*.ts", "src/client/**/*.ts"],
   "tsc-alias": {
     "resolveFullPaths": true
   }

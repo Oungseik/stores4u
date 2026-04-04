@@ -3,7 +3,6 @@
   import LinkIcon from "@lucide/svelte/icons/link";
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import UnlinkIcon from "@lucide/svelte/icons/unlink";
-  import type { SocialConnectionSelect } from "@repo/auth";
   import { PLATFORM_CONFIG, type SocialPlatform } from "@repo/config";
   import * as Avatar from "@repo/ui/avatar";
   import { Badge } from "@repo/ui/badge";
@@ -11,6 +10,7 @@
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
   import { Switch } from "@repo/ui/switch";
+  import type { SocialConnectionSelect } from "@repo/website-auth";
   import { siFacebook, siTelegram, siTiktok, siViber } from "simple-icons";
 
   export interface Integration {

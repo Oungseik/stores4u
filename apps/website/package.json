@@ -77,7 +77,7 @@
     "@orpc/otel": "^1.13.13",
     "@orpc/server": "^1.13.13",
     "@orpc/tanstack-query": "^1.13.13",
-    "@repo/auth": "workspace:*",
+    "@repo/website-auth": "workspace:*",
     "@repo/config": "workspace:*",
     "@repo/db": "workspace:*",
     "@repo/ui": "workspace:*",

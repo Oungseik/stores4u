@@ -1,4 +1,4 @@
-import { eq, user } from "@repo/auth";
+import { eq, user } from "@repo/website-auth";
 import sharp from "sharp";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";

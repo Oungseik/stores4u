@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { eq, shop } from "@repo/auth";
+import { eq, shop } from "@repo/website-auth";
 import { COUNTRIES } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";

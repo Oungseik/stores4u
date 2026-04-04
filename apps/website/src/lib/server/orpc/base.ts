@@ -1,5 +1,5 @@
 import { os as base, ORPCError } from "@orpc/server";
-import type { ShopSelect } from "@repo/auth";
+import type { ShopSelect } from "@repo/website-auth";
 import { db as authDb } from "$lib/server/auth_db";
 import { getShopDb } from "$lib/server/shop_db";
 

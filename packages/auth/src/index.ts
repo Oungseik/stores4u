@@ -11,7 +11,7 @@ import {
 } from "./schema/auth";
 import { relations } from "./schema/relations";
 
-const schema = {
+const schemaObj = {
   account,
   session,
   shop,
@@ -21,11 +21,14 @@ const schema = {
   verification,
 };
 
+export { schemaObj };
+
 export const connectDbRemote = (url: string, authToken: string) => {
   const client = createClient({ url, authToken });
-  return drizzle({ client, schema, relations });
+  return drizzle({ client, schema: schemaObj, relations });
 };
 
 export * from "drizzle-orm";
+export * from "./email";
 export * from "./schema/auth";
 export * from "./schema/relations";

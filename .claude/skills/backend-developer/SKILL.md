@@ -7,12 +7,12 @@ description: Implement and update oRPC backend APIs in this POS SvelteKit monore
 
 ## Overview
 
-Implement backend API handlers with oRPC in `apps/website`, backed by Drizzle in `@repo/auth` and `@repo/db`. Follow existing project conventions for authentication, authorization, pagination, and router registration.
+Implement backend API handlers with oRPC in `apps/website`, backed by Drizzle in `@repo/website-auth` and `@repo/db`. Follow existing project conventions for authentication, authorization, pagination, and router registration.
 
 ## Workflow
 
 1. Identify which database owns the feature.
-   - Use auth database (`@repo/auth`) for authentication and shop ownership tables.
+   - Use auth database (`@repo/website-auth`) for authentication and shop ownership tables.
    - Use shop database (`@repo/db`) for POS domain tables like product, inventory, invoices, categories, and suppliers.
 2. Read entry points and relations before writing queries.
    - Read `packages/auth/src/index.ts` and `packages/auth/src/schema/relations.ts`.
