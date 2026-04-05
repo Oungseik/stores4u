@@ -1,6 +1,12 @@
 import { handleChatStream } from "@mastra/ai-sdk";
+import { Mastra } from "@mastra/core";
 import { createUIMessageStreamResponse } from "ai";
-import { mastra } from "$lib/server/mastra";
+
+import { shopSetupAgent } from "$lib/server/mastra/shop-setup-agent";
+
+const setupMastra = new Mastra({
+  agents: { shopSetupAgent },
+});
 
 export async function POST({ request, locals }: { request: Request; locals: App.Locals }) {
   if (!locals.session) {
@@ -16,7 +22,7 @@ export async function POST({ request, locals }: { request: Request; locals: App.
 
   try {
     const stream = await handleChatStream({
-      mastra,
+      mastra: setupMastra,
       agentId: "shopSetupAgent",
       params,
       version: "v6",
