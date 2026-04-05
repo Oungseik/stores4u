@@ -8,6 +8,7 @@
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
+  import { Spinner } from "@repo/ui/spinner";
   import { Textarea } from "@repo/ui/textarea";
   import { ThinkingDots } from "@repo/ui/thinking-dots";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
@@ -27,9 +28,12 @@
   let currentChatId = $state<string | null>(null);
   let chat = $state<Chat<UIMessage> | null>(null);
   let inputValue = $state("");
+  let scrollAreaRef: HTMLElement | null = $state(null);
   let messagesEndRef: HTMLDivElement | null = $state(null);
   let textareaRef: HTMLTextAreaElement | null = $state(null);
   let hasInitialized = $state(false);
+  let isLoadingChat = $state(false);
+  let isUserAtBottom = $state(true);
 
   const chatsQuery = createQuery(() =>
     orpc.chats.list.queryOptions({ input: { slug: data.slug } })
@@ -53,10 +57,22 @@
     });
   }
 
-  function scrollToBottom() {
+  function scrollToBottom(behavior: ScrollBehavior = "smooth") {
     tick().then(() => {
-      messagesEndRef?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef?.scrollIntoView({ behavior });
     });
+  }
+
+  function getScrollViewport(): HTMLElement | null {
+    if (!scrollAreaRef) return null;
+    const viewport = scrollAreaRef.querySelector('[data-slot="scroll-area-viewport"]');
+    return viewport instanceof HTMLElement ? viewport : null;
+  }
+
+  function handleViewportScroll() {
+    const viewport = getScrollViewport();
+    if (!viewport) return;
+    isUserAtBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 100;
   }
 
   function adjustTextareaHeight() {
@@ -112,17 +128,22 @@
 
   async function selectChat(chatId: string) {
     currentChatId = chatId;
+    isLoadingChat = true;
+    isUserAtBottom = true;
+    chat = null;
     try {
       const chatData = await queryClient.fetchQuery(
         orpc.chats.get.queryOptions({ input: { slug: data.slug, chatId } })
       );
       if (chatData) {
         chat = createChatInstance(chatId, chatData.messages);
-        scrollToBottom();
+        scrollToBottom("instant");
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
       toast.error("Failed to load chat");
+    } finally {
+      isLoadingChat = false;
     }
   }
 
@@ -183,6 +204,7 @@
 
     chat?.sendMessage({ text: content });
     inputValue = "";
+    isUserAtBottom = true;
     await tick();
     adjustTextareaHeight();
     scrollToBottom();
@@ -220,10 +242,19 @@
     adjustTextareaHeight();
   }
 
-  $effect(() => {
+  $effect.pre(() => {
     chat?.messages;
     chat?.status;
-    scrollToBottom();
+    if (isUserAtBottom) scrollToBottom();
+  });
+
+  $effect(() => {
+    const viewport = getScrollViewport();
+    if (!viewport) return;
+    viewport.addEventListener("scroll", handleViewportScroll, { passive: true });
+    return () => {
+      viewport.removeEventListener("scroll", handleViewportScroll);
+    };
   });
 
   onMount(() => {
@@ -284,7 +315,11 @@
       </header>
 
       <div class="flex-1 overflow-hidden">
-        {#if !chat || chat.messages.length === 0}
+        {#if isLoadingChat}
+          <div class="flex h-full items-center justify-center">
+            <Spinner class="text-muted-foreground size-8" />
+          </div>
+        {:else if !chat || chat.messages.length === 0}
           <div class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
             <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
               <BotIcon class="text-primary size-6" />
@@ -298,7 +333,7 @@
             </div>
           </div>
         {:else}
-          <ScrollArea class="h-full px-4 py-4">
+          <ScrollArea bind:ref={scrollAreaRef} class="h-full px-4 py-4">
             <div class="mx-auto flex max-w-3xl flex-col gap-6">
               {#each chat.messages as message (message.id)}
                 <div class="flex gap-3">
@@ -376,7 +411,7 @@
               bind:value={inputValue}
               bind:ref={textareaRef}
               placeholder="Type a message... (Shift + Enter for new line)"
-              class="min-h-[44px] resize-none border-0 bg-transparent py-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+              class="min-h-[44px] resize-none border-0 bg-transparent py-3 [scrollbar-width:none] focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
               rows={1}
               onkeydown={handleKeydown}
               oninput={handleInput}
@@ -384,7 +419,7 @@
             <Button
               size="icon"
               class="shrink-0"
-              disabled={!inputValue.trim() || isChatBusy}
+              disabled={!inputValue.trim() || isChatBusy || isLoadingChat}
               onclick={handleSend}
             >
               <SendIcon class="size-4" />

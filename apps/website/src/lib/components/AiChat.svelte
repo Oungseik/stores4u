@@ -181,7 +181,7 @@
           bind:ref={textareaRef}
           placeholder="Tell me about your shop..."
           rows={1}
-          class="bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+          class="bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm [scrollbar-width:none] focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
           onkeydown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
