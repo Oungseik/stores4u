@@ -24,10 +24,10 @@
   "dependencies": {
     "@libsql/client": "^0.17.0",
     "@tursodatabase/api": "^1.9.2",
-    "@tursodatabase/database": "^0.5.1",
-    "dotenv": "^17.3.1",
+    "@tursodatabase/database": "^0.5.3",
+    "dotenv": "^17.4.0",
     "drizzle-orm": "1.0.0-beta.17-67b1795",
-    "zod": "^3.24.2"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
@@ -35,7 +35,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "1.0.0-beta.17-67b1795",
     "drizzle-seed": "^0.3.1",
-    "tsdown": "0.21.6",
+    "tsdown": "0.21.7",
     "typescript": "^6.0.2"
   }
 }

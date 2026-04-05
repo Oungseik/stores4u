@@ -95,6 +95,7 @@
               pkg-config
               pnpm
               python3
+              turso-cli
             ]
             ++ websiteLibs;
 
