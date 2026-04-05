@@ -26,5 +26,8 @@
     "@biomejs/biome": "^2.4.10",
     "turbo": "^2.9.3"
   },
-  "packageManager": "bun@1.2.8"
+  "packageManager": "bun@1.2.8",
+  "resolutions": {
+    "@tanstack/query-core": "5.96.2"
+  }
 }
