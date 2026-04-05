@@ -20,8 +20,9 @@
 
   import { goto } from "$app/navigation";
   import { PUBLIC_DOMAIN } from "$env/static/public";
-  import AiChat from "$lib/components/AiChat.svelte";
+  import * as AiChat from "$lib/components/ai-chat";
   import { orpc } from "$lib/orpc_client";
+  import { fillFormOutputSchema } from "$lib/types/shop-form";
   import type { ShopFormFields } from "$lib/types/shop-form";
   import { getCountryName } from "$lib/utils";
 
@@ -178,6 +179,15 @@
     if (fields.zipCode) form.setFieldValue("zipCode", fields.zipCode);
     if (fields.country) form.setFieldValue("country", fields.country);
     currentStep = 2;
+  }
+
+  function handleToolResult(toolName: string, output: unknown) {
+    if (toolName === "fillShopForm") {
+      const parsed = fillFormOutputSchema.safeParse(output);
+      if (parsed.success && parsed.data.success) {
+        handleAiFill(parsed.data.fields);
+      }
+    }
   }
 </script>
 
@@ -595,5 +605,11 @@
     </p>
   </div>
 
-  <AiChat onFillForm={handleAiFill} />
+  <AiChat.Widget
+    api="/api/ai/shop-setup"
+    onToolResult={handleToolResult}
+    title="AI Setup Assistant"
+    subtitle="Helps you set up your store"
+    placeholder="Tell me about your shop..."
+  />
 </div>
