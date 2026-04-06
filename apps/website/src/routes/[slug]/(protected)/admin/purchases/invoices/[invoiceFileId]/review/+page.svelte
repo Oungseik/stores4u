@@ -46,7 +46,7 @@
     orpc.purchaseInvoices.getFile.queryOptions({
       input: { slug: params.slug, invoiceFileId: params.invoiceFileId },
       refetchInterval: (query) => {
-        if (query.state.data?.status === "PROCESSING") return 2000;
+        if (query.state.data?.status === "PROCESSING") return 5000;
         return false;
       },
     })
