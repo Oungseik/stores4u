@@ -11,12 +11,10 @@ import { getChatHandler } from "./handlers/chats/get_chat";
 import { listChatsHandler } from "./handlers/chats/list_chats";
 import { saveMessageHandler } from "./handlers/chats/save_message";
 import { updateChatHandler } from "./handlers/chats/update_chat";
-import { dashboardCategoryBreakdownHandler } from "./handlers/dashboard/category_breakdown";
 import { dashboardCustomerInsightsHandler } from "./handlers/dashboard/customer_insights";
 import { dashboardInventorySummaryHandler } from "./handlers/dashboard/inventory_summary";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
-import { dashboardTopProductsHandler } from "./handlers/dashboard/top_products";
 import { uploadHandler } from "./handlers/images/upload";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
@@ -73,12 +71,10 @@ export const router = os.router({
     update: updateChatHandler,
   },
   dashboard: {
-    categoryBreakdown: dashboardCategoryBreakdownHandler,
     customerInsights: dashboardCustomerInsightsHandler,
     inventorySummary: dashboardInventorySummaryHandler,
     revenueTrend: dashboardRevenueTrendHandler,
     stats: dashboardStatsHandler,
-    topProducts: dashboardTopProductsHandler,
   },
   images: {
     upload: uploadHandler,

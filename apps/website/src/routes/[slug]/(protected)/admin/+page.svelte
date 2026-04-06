@@ -14,7 +14,7 @@
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
-  import { AreaChart, BarChart, PieChart } from "layerchart";
+  import { AreaChart } from "layerchart";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -67,20 +67,6 @@
     })
   );
 
-  const topProductsQuery = createQuery(() =>
-    orpc.dashboard.topProducts.queryOptions({
-      input: { slug: params.slug, period: "week", limit: 8 },
-      enabled: !!params.slug,
-    })
-  );
-
-  const categoryQuery = createQuery(() =>
-    orpc.dashboard.categoryBreakdown.queryOptions({
-      input: { slug: params.slug },
-      enabled: !!params.slug,
-    })
-  );
-
   const inventoryQuery = createQuery(() =>
     orpc.dashboard.inventorySummary.queryOptions({
       input: { slug: params.slug, period: "month" },
@@ -98,8 +84,6 @@
   const isLoading = $derived(
     statsQuery.isLoading ||
       revenueTrendQuery.isLoading ||
-      topProductsQuery.isLoading ||
-      categoryQuery.isLoading ||
       inventoryQuery.isLoading ||
       customerQuery.isLoading
   );
@@ -108,22 +92,6 @@
     revenue: { label: "Revenue", color: "var(--chart-1)" },
     cost: { label: "Cost", color: "var(--chart-3)" },
   } satisfies Chart.ChartConfig;
-
-  const topProductsChartConfig = {
-    revenue: { label: "Revenue", color: "var(--chart-1)" },
-  } satisfies Chart.ChartConfig;
-
-  const categoryChartConfig = {
-    revenue: { label: "Revenue", color: "var(--chart-1)" },
-  } satisfies Chart.ChartConfig;
-
-  const categoryColors = [
-    "var(--chart-1)",
-    "var(--chart-2)",
-    "var(--chart-3)",
-    "var(--chart-4)",
-    "var(--chart-5)",
-  ];
 
   function formatCents(cents: number): string {
     if (!shop?.country) return (cents / 100).toFixed(2);
@@ -144,11 +112,6 @@
     return n.toLocaleString();
   }
 
-  function formatDate(dateStr: string): string {
-    const d = new Date(dateStr + "T00:00:00");
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  }
-
   function formatMovementType(type: string): string {
     const map: Record<string, string> = {
       PURCHASE: "Purchase",
@@ -160,25 +123,6 @@
     };
     return map[type] ?? type;
   }
-
-  const categoryChartData = $derived(
-    (categoryQuery.data?.categories ?? []).map((c, i) => ({
-      name: c.name,
-      value: c.revenueCents,
-      fill: categoryColors[i % categoryColors.length],
-    }))
-  );
-
-  const categoryConfig = $derived.by(() => {
-    const cfg: Record<string, { label: string; color: string }> = {};
-    for (const [i, cat] of (categoryQuery.data?.categories ?? []).entries()) {
-      cfg[cat.name] = {
-        label: cat.name,
-        color: categoryColors[i % categoryColors.length],
-      };
-    }
-    return cfg satisfies Chart.ChartConfig;
-  });
 </script>
 
 <div class="@container/main flex flex-1 flex-col gap-4 p-4 md:p-6">
@@ -349,76 +293,6 @@
         {/if}
       </Card.Content>
     </Card.Root>
-
-    <!-- Top Products + Category Breakdown -->
-    <div class="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
-      <!-- Top Products -->
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Top Products</Card.Title>
-          <Card.Description>Best sellers this week by revenue</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          {#if topProductsQuery.isLoading}
-            <Skeleton class="h-[250px] w-full" />
-          {:else if topProductsQuery.data && topProductsQuery.data.items.length > 0}
-            <Chart.Container config={topProductsChartConfig} class="min-h-[250px] w-full">
-              <BarChart
-                data={topProductsQuery.data.items}
-                x="totalRevenueCents"
-                y="name"
-                orientation="horizontal"
-                series={[{ key: "totalRevenueCents", label: "Revenue", color: "var(--chart-1)" }]}
-                axis="y"
-                tooltipContext
-                props={{
-                  xAxis: {
-                    format: (d: number) => formatCents(d),
-                  },
-                }}
-              >
-                {#snippet tooltip()}
-                  <Chart.Tooltip hideLabel />
-                {/snippet}
-              </BarChart>
-            </Chart.Container>
-          {:else}
-            <p class="text-muted-foreground py-8 text-center text-sm">No sales data yet</p>
-          {/if}
-        </Card.Content>
-      </Card.Root>
-
-      <!-- Category Breakdown -->
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Category Breakdown</Card.Title>
-          <Card.Description>Revenue by product category</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          {#if categoryQuery.isLoading}
-            <Skeleton class="h-[250px] w-full" />
-          {:else if categoryChartData.length > 0}
-            <Chart.Container config={categoryConfig} class="min-h-[250px] w-full">
-              <PieChart
-                data={categoryChartData}
-                key="name"
-                value="value"
-                label="name"
-                innerRadius={0.55}
-                tooltipContext
-                legend
-              >
-                {#snippet tooltip()}
-                  <Chart.Tooltip hideLabel />
-                {/snippet}
-              </PieChart>
-            </Chart.Container>
-          {:else}
-            <p class="text-muted-foreground py-8 text-center text-sm">No category data yet</p>
-          {/if}
-        </Card.Content>
-      </Card.Root>
-    </div>
 
     <!-- Inventory Summary + Customer Insights -->
     <div class="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
