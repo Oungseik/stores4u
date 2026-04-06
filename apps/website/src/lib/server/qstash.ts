@@ -1,12 +1,13 @@
 import { Client, Receiver } from "@upstash/qstash";
 import {
+  BETTER_AUTH_URL,
   QSTASH_CURRENT_SIGNING_KEY,
   QSTASH_NEXT_SIGNING_KEY,
   QSTASH_TOKEN,
+  QSTASH_URL,
 } from "$env/static/private";
-import { BETTER_AUTH_URL } from "$env/static/private";
 
-export const qstashClient = new Client({ token: QSTASH_TOKEN });
+export const qstashClient = new Client({ baseUrl: QSTASH_URL, token: QSTASH_TOKEN });
 
 export const qstashReceiver = new Receiver({
   currentSigningKey: QSTASH_CURRENT_SIGNING_KEY,
