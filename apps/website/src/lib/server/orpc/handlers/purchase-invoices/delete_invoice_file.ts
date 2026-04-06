@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   eq,
   inArray,
@@ -5,8 +6,8 @@ import {
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
 } from "@repo/db";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { logger } from "$lib/server/logger";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
 import { deleteObject, extractObjectKey } from "$lib/server/storage";
@@ -73,8 +74,9 @@ export const deleteInvoiceFileHandler = os
     if (objectKey) {
       try {
         await deleteObject(objectKey);
-      } catch {
+      } catch (error) {
         // Best effort - orphan files are acceptable
+        logger.error({ error }, "Failed to delete invoice file on cloud storage");
       }
     }
 
