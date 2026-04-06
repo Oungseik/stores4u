@@ -76,11 +76,11 @@
       href: `/${shop.slug}/admin/integrations`,
       icon: LinkIcon,
     },
-    {
-      title: "Notifications",
-      href: `/${shop.slug}/admin/notifications`,
-      icon: BellIcon,
-    },
+    // {
+    //   title: "Notifications",
+    //   href: `/${shop.slug}/admin/notifications`,
+    //   icon: BellIcon,
+    // },
   ]);
 
   const aiAssistantNavItems: NavItem[] = $derived([
