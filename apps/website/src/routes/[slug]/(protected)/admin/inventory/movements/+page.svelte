@@ -15,7 +15,6 @@
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
-
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
@@ -63,7 +62,6 @@
                 ["ORDER", "PURCHASE_INVOICE", "MANUAL"].includes(t)
               )
             : undefined,
-        includeNullReferenceType: debouncedReferenceTypes.current.includes("NONE") || undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!params.slug,
@@ -125,7 +123,6 @@
     { value: "ORDER", label: "Order" },
     { value: "PURCHASE_INVOICE", label: "Purchase Invoice" },
     { value: "MANUAL", label: "Manual" },
-    { value: "NONE", label: "None" },
   ];
 </script>
 
@@ -232,9 +229,7 @@
         {#each allMovements as movement (movement.id)}
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
-              <div
-                class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
-              >
+              <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
                 <div
                   class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
                 >
