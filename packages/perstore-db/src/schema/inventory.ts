@@ -13,6 +13,9 @@ export const movementTypes = [
 ] as const;
 export type MovementType = (typeof movementTypes)[number];
 
+export const referenceTypes = ["ORDER", "PURCHASE_INVOICE", "MANUAL"] as const;
+export type ReferenceType = (typeof referenceTypes)[number];
+
 export const inventoryMovement = sqliteTable(
   "inventory_movement",
   {
@@ -28,7 +31,7 @@ export const inventoryMovement = sqliteTable(
     movementType: text("movement_type", { enum: movementTypes }).notNull(),
     qty: real("qty").notNull(),
     unitCostCents: integer("unit_cost_cents"),
-    referenceType: text("reference_type"),
+    referenceType: text("reference_type", { enum: referenceTypes }).notNull(),
     referenceId: text("reference_id"),
     reason: text("reason"),
     occurredAt: integer("occurred_at", { mode: "timestamp" })

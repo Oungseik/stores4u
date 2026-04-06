@@ -105,7 +105,7 @@ export const POST: RequestHandler = async ({ request }) => {
         movementType: "PURCHASE" as const,
         qty: item.qty,
         unitCostCents: item.unitCostCents,
-        referenceType: "INVOICE",
+        referenceType: "PURCHASE_INVOICE" as const,
         referenceId: invoiceId,
         occurredAt,
         createdAt: now,

@@ -154,7 +154,7 @@ export const checkoutHandler = os
           productId: item.productId,
           movementType: "SALE" as const,
           qty: -item.qty,
-          referenceType: "ORDER",
+          referenceType: "ORDER" as const,
           referenceId: orderItems[index].id,
           occurredAt: now,
           createdAt: now,

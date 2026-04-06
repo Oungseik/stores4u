@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { IconProps } from "@lucide/svelte";
-  import BellIcon from "@lucide/svelte/icons/bell";
+  import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
+  // import BellIcon from "@lucide/svelte/icons/bell";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
@@ -241,6 +242,32 @@
                   >
                     <Building2Icon class="size-4" />
                     <span>Suppliers</span>
+                  </a>
+                {/snippet}
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+
+      <!-- Inventory Group -->
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>Inventory</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                tooltipContent="Movements"
+                isActive={isActive(`/${shop.slug}/admin/inventory/movements`)}
+              >
+                {#snippet child({ props })}
+                  <a
+                    href={`/${shop.slug}/admin/inventory/movements`}
+                    {...props}
+                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                  >
+                    <ArrowLeftRightIcon class="size-4" />
+                    <span>Movements</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>

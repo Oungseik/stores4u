@@ -1,12 +1,19 @@
+import { movementTypes, referenceTypes } from "@repo/db";
 import { z } from "zod";
+
 import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
-  order: z.enum(["asc", "desc"]).default("desc"),
-  productId: z.uuidv7(),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(20),
+  order: z.enum(["asc", "desc"]).default("desc"),
+  productId: z.string().optional(),
+  search: z.string().optional(),
+  movementTypes: z.array(z.enum(movementTypes)).optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  referenceTypes: z.array(z.enum(referenceTypes)).optional(),
 });
 
 export const listMovementsHandler = os
@@ -18,7 +25,20 @@ export const listMovementsHandler = os
     const movements = await shopDb.query.inventoryMovement.findMany({
       where: {
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
-        productId: input.productId,
+        productId: input.productId || undefined,
+        movementType: input.movementTypes?.length ? { in: input.movementTypes } : undefined,
+        referenceType: input.referenceTypes?.length ? { in: input.referenceTypes } : undefined,
+        occurredAt: {
+          gte: input.dateFrom ? new Date(input.dateFrom) : undefined,
+          lte: input.dateTo ? new Date(input.dateTo) : undefined,
+        },
+        OR: input.search
+          ? [
+              { product: { name: { like: `%${input.search}%` } } },
+              { product: { sku: { like: `%${input.search}%` } } },
+              { referenceId: { like: `%${input.search}%` } },
+            ]
+          : undefined,
       },
       limit: input.pageSize + 1,
       orderBy: { id: input.order },
@@ -42,17 +62,42 @@ export const listMovementsHandler = os
       nextCursor = next?.id;
     }
 
-    const items = movements.map((m) => ({
-      id: m.id,
-      movementType: m.movementType,
-      qty: m.qty,
-      unitCostCents: m.unitCostCents,
-      reason: m.reason,
-      occurredAt: m.occurredAt,
-      referenceId: m.referenceId,
-      purchaseInvoiceId: m.purchaseInvoiceItem?.purchaseInvoiceId,
-      purchaseInvoiceNumber: m.purchaseInvoiceItem?.purchaseInvoice?.invoiceNumber,
-    }));
+    if (movements.length === 0) {
+      return { items: [], pageSize: input.pageSize, nextCursor };
+    }
+
+    const productIds = [...new Set(movements.map((m) => m.productId))];
+    const products = await shopDb.query.product.findMany({
+      where: { id: { in: productIds } },
+      columns: {
+        id: true,
+        name: true,
+        sku: true,
+        image: true,
+        uom: true,
+      },
+    });
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    const items = movements.map((m) => {
+      const product = productMap.get(m.productId);
+      return {
+        id: m.id,
+        productId: m.productId,
+        productName: product?.name ?? "Unknown",
+        productSku: product?.sku ?? null,
+        productImage: product?.image ?? null,
+        productUom: product?.uom ?? null,
+        movementType: m.movementType,
+        qty: m.qty,
+        unitCostCents: m.unitCostCents,
+        reason: m.reason,
+        occurredAt: m.occurredAt,
+        referenceType: m.referenceType,
+        referenceId: m.referenceId,
+        purchaseInvoiceNumber: m.purchaseInvoiceItem?.purchaseInvoice?.invoiceNumber ?? null,
+      };
+    });
 
     return { items, pageSize: input.pageSize, nextCursor };
   });

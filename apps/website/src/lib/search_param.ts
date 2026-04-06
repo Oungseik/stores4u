@@ -98,3 +98,23 @@ type AccountsTab = {
 export const accountsTabSchema = createSearchParamsSchema({
   tab: { type: "string", default: "profile" },
 }) as StandardSchemaV1<unknown, AccountsTab>;
+
+export type InventoryMovementsView = "card" | "table";
+
+type InventoryMovementsFilterSchema = {
+  search: string;
+  movementTypes: string[];
+  dateFrom: string;
+  dateTo: string;
+  referenceTypes: string[];
+  view: InventoryMovementsView;
+};
+
+export const inventoryMovementsFilterSchema = createSearchParamsSchema({
+  search: { type: "string", default: "" },
+  movementTypes: { type: "array", arrayType: "" satisfies string, default: [] },
+  dateFrom: { type: "string", default: "" },
+  dateTo: { type: "string", default: "" },
+  referenceTypes: { type: "array", arrayType: "" satisfies string, default: [] },
+  view: { type: "string", default: "card" },
+}) as StandardSchemaV1<unknown, InventoryMovementsFilterSchema>;

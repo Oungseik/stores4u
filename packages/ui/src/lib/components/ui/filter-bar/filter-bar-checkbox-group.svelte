@@ -20,7 +20,6 @@
 
 	function triggerLabel(): string {
 		if (value.length === 0) return placeholder;
-		if (value.length === 1) return value[0];
 		return `${value.length} selected`;
 	}
 

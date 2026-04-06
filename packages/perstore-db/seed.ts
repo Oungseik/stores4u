@@ -44,7 +44,7 @@ const arrays = {
   invoiceStatuses: ["PENDING", "VALIDATED", "REJECTED", "AUTO_ACCEPTED"] as const,
   ocrStatuses: ["PENDING", "PROCESSED", "FAILED", "LINKED"] as const,
   movementTypes: ["PURCHASE", "SALE", "RETURN", "WASTAGE", "ADJUSTMENT", "CORRECTION"] as const,
-  referenceTypes: ["INVOICE", "ORDER", null] as const,
+  referenceTypes: ["PURCHASE_INVOICE", "ORDER"] as const,
   invoiceNumbers: ["INV-2024-001", "INV-2024-002", "INV-2024-003", "INV-2024-004", "INV-2024-005"],
 };
 
