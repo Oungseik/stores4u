@@ -218,7 +218,7 @@
                   </div>
 
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium">
+                    <p class="truncate text-left text-sm font-medium">
                       {order.customerName ?? "In-store Purchase"}
                     </p>
                     <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
