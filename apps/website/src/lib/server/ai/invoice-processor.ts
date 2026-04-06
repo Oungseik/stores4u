@@ -158,7 +158,7 @@ async function callOpenRouter(
   }));
 
   const response = await openRouter.chat.send({
-    chatGenerationParams: {
+    chatRequest: {
       model: "moonshotai/kimi-k2.5",
       messages: [
         {
