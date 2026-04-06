@@ -203,44 +203,41 @@
           </p>
         </div>
       {:else}
-        <div class="flex flex-col gap-3">
+        <div class="space-y-2">
           {#each allOrders as order (order.id)}
-            <Card.Root
-              class="group hover:border-primary/30 cursor-pointer overflow-hidden py-0 transition-all duration-200 hover:shadow-md"
-              onclick={() => openOrderDetails(order)}
-            >
-              <div class="flex items-center gap-4 p-4">
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm font-semibold">
-                      {formatOrderId(order.id)}
-                    </span>
+            <Card.Root class="overflow-hidden p-0">
+              <Card.Content class="p-0">
+                <button
+                  class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
+                  onclick={() => openOrderDetails(order)}
+                >
+                  <div
+                    class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
+                  >
+                    <ReceiptIcon class="text-primary size-5" />
                   </div>
-                  <div class="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-                    <CalendarIcon class="size-3" />
-                    {formatDate(order.createdAt, true)}
+
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-medium">
+                      {order.customerName ?? "In-store Purchase"}
+                    </p>
+                    <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
+                      <span class="font-semibold">#{formatOrderId(order.id)}</span>
+                      <span>•</span>
+                      <span>{formatDate(order.createdAt, true)}</span>
+                      <span class="hidden sm:inline">•</span>
+                      <span class="hidden sm:inline">{order.itemsCount} items</span>
+                    </div>
                   </div>
-                </div>
 
-                <div class="hidden min-w-0 flex-1 md:block">
-                  <p class="truncate text-sm font-medium">
-                    {order.customerName ?? "In-store Purchase"}
-                  </p>
-                  <p class="text-muted-foreground truncate text-xs">{order.customerPhone ?? "—"}</p>
-                </div>
-
-                <div class="hidden text-center md:block">
-                  <p class="text-sm font-medium">{order.itemsCount}</p>
-                  <p class="text-muted-foreground text-xs">items</p>
-                </div>
-
-                <div class="text-right">
-                  <p class="text-sm font-semibold">
-                    <Pricing cents={order.totalCents} country={shop.country} />
-                  </p>
-                  <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
-                </div>
-              </div>
+                  <div class="shrink-0 text-right">
+                    <p class="text-sm font-semibold">
+                      <Pricing cents={order.totalCents} country={shop.country} />
+                    </p>
+                    <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
+                  </div>
+                </button>
+              </Card.Content>
             </Card.Root>
           {/each}
         </div>

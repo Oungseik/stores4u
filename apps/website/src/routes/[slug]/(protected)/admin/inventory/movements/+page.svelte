@@ -233,41 +233,43 @@
         </div>
       {/if}
     {:else}
-      <div class="flex flex-col gap-3">
+      <div class="space-y-2">
         {#each allMovements as movement (movement.id)}
-          <Card.Root
-            class="group hover:border-primary/30 cursor-pointer overflow-hidden py-0 transition-all duration-200 hover:shadow-md"
-            onclick={() => goto(`/${params.slug}/admin/products/${movement.productId}`)}
-          >
-            <div class="flex items-center gap-4 p-4">
-              <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
-                <PackageIcon class="text-muted-foreground size-4" />
-              </div>
+          <Card.Root class="overflow-hidden p-0">
+            <Card.Content class="p-0">
+              <a
+                href={`/${params.slug}/admin/products/${movement.productId}`}
+                class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
+              >
+                <div
+                  class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
+                >
+                  <PackageIcon class="text-primary size-5" />
+                </div>
 
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">{movement.productName}</span>
-                  {#if movement.productSku}
-                    <span class="text-muted-foreground text-xs">{movement.productSku}</span>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium">{movement.productName}</p>
+                  <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
+                    {#if movement.productSku}
+                      <span>{movement.productSku}</span>
+                      <span>•</span>
+                    {/if}
+                    <MovementTypeCell movementType={movement.movementType} />
+                    <span>•</span>
+                    <span>{formatDate(movement.occurredAt, true)}</span>
+                  </div>
+                </div>
+
+                <div class="shrink-0 text-right">
+                  <QuantityCell qty={movement.qty} />
+                  {#if movement.unitCostCents !== null}
+                    <p class="text-muted-foreground text-xs">
+                      <Pricing cents={movement.unitCostCents} country={shop.country} />
+                    </p>
                   {/if}
                 </div>
-                <div class="mt-1 flex items-center gap-2">
-                  <MovementTypeCell movementType={movement.movementType} />
-                  <span class="text-muted-foreground text-xs">
-                    {formatDate(movement.occurredAt, true)}
-                  </span>
-                </div>
-              </div>
-
-              <div class="text-right">
-                <QuantityCell qty={movement.qty} />
-                {#if movement.unitCostCents !== null}
-                  <p class="text-muted-foreground text-xs">
-                    <Pricing cents={movement.unitCostCents} country={shop.country} />
-                  </p>
-                {/if}
-              </div>
-            </div>
+              </a>
+            </Card.Content>
           </Card.Root>
         {/each}
       </div>

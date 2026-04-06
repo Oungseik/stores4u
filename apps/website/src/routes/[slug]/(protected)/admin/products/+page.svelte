@@ -192,27 +192,28 @@
         {#each allProducts as product (product.id)}
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
-              <div class="hover:bg-muted/50 flex w-full items-center gap-2.5 px-3 py-2">
+              <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
                 <a
                   href={`/${params.slug}/admin/products/${product.id}`}
-                  class="flex min-w-0 flex-1 items-center gap-2.5"
+                  class="flex min-w-0 flex-1 items-center gap-3"
                 >
-                  <div class="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
-                    <PackageIcon class="text-muted-foreground size-4" />
+                  <div
+                    class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
+                  >
+                    <PackageIcon class="text-primary size-5" />
                   </div>
                   <div class="min-w-0 flex-1">
-                    <div>
-                      <p class="truncate text-sm font-medium">{product.name}</p>
-
-                      <div class="text-muted-foreground text-xs">
-                        {product.sku}{product.categories?.length > 0
-                          ? ` • ${product.categories[0]}`
-                          : ""}
-                      </div>
+                    <p class="truncate text-sm font-medium">{product.name}</p>
+                    <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
+                      <span>{product.sku}</span>
+                      {#if product.categories?.length > 0}
+                        <span>•</span>
+                        <span>{product.categories[0]}</span>
+                      {/if}
                     </div>
                   </div>
 
-                  <div>
+                  <div class="shrink-0">
                     <Pricing
                       cents={product.priceCents}
                       country={shop.country}
