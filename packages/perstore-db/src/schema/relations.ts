@@ -72,6 +72,10 @@ export const relations = defineRelations(
         from: r.purchaseInvoiceFile.id,
         to: r.purchaseInvoiceOcrResult.invoiceFileId,
       }),
+      purchaseInvoice: r.one.purchaseInvoice({
+        from: r.purchaseInvoiceFile.id,
+        to: r.purchaseInvoice.invoiceFileId,
+      }),
     },
     purchaseInvoiceOcrResult: {
       invoiceFile: r.one.purchaseInvoiceFile({
@@ -84,6 +88,10 @@ export const relations = defineRelations(
       }),
     },
     purchaseInvoice: {
+      invoiceFile: r.one.purchaseInvoiceFile({
+        from: r.purchaseInvoice.invoiceFileId,
+        to: r.purchaseInvoiceFile.id,
+      }),
       supplier: r.one.supplier({
         from: r.purchaseInvoice.supplierId,
         to: r.supplier.id,

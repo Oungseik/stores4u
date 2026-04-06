@@ -143,6 +143,9 @@ export const purchaseInvoice = sqliteTable(
     supplierId: text("supplier_id")
       .notNull()
       .references(() => supplier.id),
+    invoiceFileId: text("invoice_file_id")
+      .references(() => purchaseInvoiceFile.id)
+      .unique(),
     ocrResultId: text("ocr_result_id")
       .references(() => purchaseInvoiceOcrResult.id)
       .unique(),
