@@ -134,7 +134,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Price *</Label>
+          <Label for={field.name}>Retail Price ($) *</Label>
           <Input
             id={field.name}
             name={field.name}
