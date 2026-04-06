@@ -1,8 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import {
-  and,
   eq,
-  type InventoryMovementInsert,
   inArray,
   inventoryMovement,
   product,
@@ -10,7 +8,6 @@ import {
   purchaseInvoice,
   purchaseInvoiceFile,
   purchaseInvoiceItem,
-  purchaseInvoiceOcrResult,
   sql,
 } from "@repo/db";
 import { z } from "zod";
@@ -33,6 +30,28 @@ const input = z.object({
   items: z.array(purchaseInvoiceItemInput).min(1),
 });
 
+function getInvoiceFileStateError(status: string) {
+  if (status === "PROCESSING") {
+    return new ORPCError("BAD_REQUEST", {
+      message: "Invoice is under processing. Please wait until processing finish",
+    });
+  }
+
+  if (status === "REVIEWED") {
+    return new ORPCError("BAD_REQUEST", {
+      message: "Invoice is already review. Please upload again if you missed to add some items.",
+    });
+  }
+
+  if (status === "REVIEWING") {
+    return new ORPCError("BAD_REQUEST", {
+      message: "Invoice review is in progress. Inventory sync has not completed yet.",
+    });
+  }
+
+  return null;
+}
+
 export const submitInvoiceReviewHandler = os
   .input(input)
   .use(authMiddleware)
@@ -40,31 +59,11 @@ export const submitInvoiceReviewHandler = os
   .use(shopDbMiddleware)
   .handler(async ({ input, context: { shopDb, ...context } }) => {
     const now = new Date();
+    const occurredAt = new Date(input.invoiceDate);
 
-    const existingFile = await shopDb.query.purchaseInvoiceFile.findFirst({
-      where: { id: input.invoiceFileId },
-      with: { ocrResult: true },
-    });
-
-    if (!existingFile) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
-    }
-
-    if (existingFile.status === "PROCESSING") {
+    if (Number.isNaN(occurredAt.getTime())) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Invoice is under processing. Please wait until processing finish",
-      });
-    }
-
-    if (existingFile.status === "REVIEWED") {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Invoice is already review. Please upload again if you missed to add some items.",
-      });
-    }
-
-    if (existingFile.status === "REVIEWING") {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Invoice review is in progress. Inventory sync has not completed yet.",
+        message: `Invalid invoice date: ${input.invoiceDate}`,
       });
     }
 
@@ -82,36 +81,23 @@ export const submitInvoiceReviewHandler = os
       });
     }
 
-    const existingInvoice = await shopDb.query.purchaseInvoice.findFirst({
-      where: { supplierId: input.supplierId, invoiceNumber: input.invoiceNumber },
-      columns: { id: true, status: true, ocrResultId: true },
-    });
-
-    if (existingInvoice) {
-      if (existingInvoice.status === "PENDING") {
-        await shopDb.transaction(async (tx) => {
-          await tx.delete(purchaseInvoice).where(eq(purchaseInvoice.id, existingInvoice.id));
-          if (existingInvoice.ocrResultId) {
-            await tx
-              .update(purchaseInvoiceOcrResult)
-              .set({ status: "PROCESSED" })
-              .where(eq(purchaseInvoiceOcrResult.id, existingInvoice.ocrResultId));
-          }
-        });
-      } else {
-        throw new ORPCError("BAD_REQUEST", {
-          message: "An invoice with this number already exists for this supplier",
-        });
-      }
-    }
-
-    const previousFileStatus = existingFile.status;
-    const previousOcrStatus = existingFile.ocrResult?.status ?? null;
-
-    const result = await shopDb
+    await shopDb
       .transaction(async (tx) => {
-        const supplierId = input.supplierId;
+        const existingFile = await tx.query.purchaseInvoiceFile.findFirst({
+          where: { id: input.invoiceFileId },
+          with: { ocrResult: true },
+        });
 
+        if (!existingFile) {
+          throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
+        }
+
+        const fileStateError = getInvoiceFileStateError(existingFile.status);
+        if (fileStateError) {
+          throw fileStateError;
+        }
+
+        const supplierId = input.supplierId;
         const existingSupplier = await tx.query.supplier.findFirst({
           where: { id: supplierId },
           columns: { id: true },
@@ -121,11 +107,23 @@ export const submitInvoiceReviewHandler = os
           throw new ORPCError("NOT_FOUND", { message: "Supplier not found" });
         }
 
-        const insertedInvoice = await tx
+        const invoiceForFile = await tx.query.purchaseInvoice.findFirst({
+          where: { invoiceFileId: input.invoiceFileId, supplierId },
+          columns: { id: true },
+        });
+
+        if (invoiceForFile) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: "Invoice file already has a purchase invoice",
+          });
+        }
+
+        const insertInvoice = await tx
           .insert(purchaseInvoice)
           .values({
             invoiceNumber: input.invoiceNumber,
             supplierId,
+            invoiceFileId: existingFile.id,
             ocrResultId: existingFile.ocrResult?.id ?? null,
             invoiceDate: input.invoiceDate,
             photoUrl: existingFile.objectPath,
@@ -135,39 +133,39 @@ export const submitInvoiceReviewHandler = os
             freightCents: input.freightCents,
             totalCents: input.totalCents,
             notes: input.notes,
-            status: "INVENTORY_PENDING",
+            status: "VALIDATED",
             validatedBy: context.session.user.id,
             validatedAt: now,
             createdAt: now,
             updatedAt: now,
           })
-          .returning();
+          .returning({ id: purchaseInvoice.id });
 
-        const createdInvoice = insertedInvoice.at(0);
+        const createdInvoice = insertInvoice.at(0);
         if (!createdInvoice) {
           throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create invoice" });
         }
 
+        const items = input.items.map((item) => ({
+          purchaseInvoiceId: createdInvoice.id,
+          productId: item.productId,
+          invoiceItemName: item.invoiceItemName,
+          qty: item.qty,
+          unitCostCents: item.unitCostCents,
+          lineSubtotalCents: item.lineSubtotalCents,
+          vatCents: item.vatCents,
+          discountCents: item.discountCents,
+          freightCents: item.freightCents,
+          lineTotalCents: item.lineTotalCents,
+          expiryDate: item.expiryDate,
+          batchNumber: item.batchNumber,
+          createdAt: now,
+        }));
+
         const insertedItems = await tx
           .insert(purchaseInvoiceItem)
-          .values(
-            input.items.map((item) => ({
-              purchaseInvoiceId: createdInvoice.id,
-              productId: item.productId,
-              invoiceItemName: item.invoiceItemName,
-              qty: item.qty,
-              unitCostCents: item.unitCostCents,
-              lineSubtotalCents: item.lineSubtotalCents,
-              vatCents: item.vatCents,
-              discountCents: item.discountCents,
-              freightCents: item.freightCents,
-              lineTotalCents: item.lineTotalCents,
-              expiryDate: item.expiryDate,
-              batchNumber: item.batchNumber,
-              createdAt: now,
-            })),
-          )
-          .returning();
+          .values(items)
+          .returning({ id: purchaseInvoiceItem.id });
 
         const aliasesToCreate = input.items
           .filter(
@@ -184,66 +182,28 @@ export const submitInvoiceReviewHandler = os
           await tx.insert(productAlias).values(aliasesToCreate).onConflictDoNothing();
         }
 
-        if (existingFile.ocrResult) {
-          await tx
-            .update(purchaseInvoiceOcrResult)
-            .set({ status: "LINKED" })
-            .where(eq(purchaseInvoiceOcrResult.id, existingFile.ocrResult.id));
-        }
-
-        await tx
-          .update(purchaseInvoiceFile)
-          .set({ status: "REVIEWING", updatedAt: now })
-          .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
-
-        return { invoice: createdInvoice, items: insertedItems };
-      })
-      .catch((error) => {
-        logger.error({ error }, "Failed to submit invoice review.");
-        throw error;
-      });
-
-    const { invoice: createdInvoice, items: insertedItems } = result;
-    const invoiceId = createdInvoice.id;
-    const invoiceOcrResultId = existingFile.ocrResult?.id ?? null;
-
-    const occurredAt = new Date(input.invoiceDate);
-
-    const productQtyById = insertedItems.reduce((acc, item) => {
-      acc.set(item.productId, (acc.get(item.productId) ?? 0) + item.qty);
-      return acc;
-    }, new Map<string, number>());
-
-    const aggregatedByProduct = Array.from(productQtyById, ([productId, totalQty]) => ({
-      productId,
-      totalQty,
-    }));
-
-    const uniqueProductIds = [...productQtyById.keys()];
-
-    const syncTransaction = async () => {
-      await shopDb.transaction(async (tx) => {
-        const movementValues = insertedItems.map(
-          (item) =>
-            ({
-              productId: item.productId,
-              purchaseInvoiceItemId: item.id,
-              movementType: "PURCHASE",
-              qty: item.qty,
-              unitCostCents: item.unitCostCents,
-              referenceType: "PURCHASE_INVOICE",
-              referenceId: invoiceId,
-              occurredAt,
-              createdAt: now,
-            }) satisfies InventoryMovementInsert,
+        await tx.insert(inventoryMovement).values(
+          input.items.map((item, index) => ({
+            productId: item.productId,
+            purchaseInvoiceItemId: insertedItems[index].id,
+            movementType: "PURCHASE" as const,
+            qty: item.qty,
+            unitCostCents: item.unitCostCents,
+            referenceType: "PURCHASE_INVOICE" as const,
+            referenceId: createdInvoice.id,
+            occurredAt: occurredAt,
+            createdAt: now,
+          })),
         );
 
-        await tx.insert(inventoryMovement).values(movementValues);
+        const qtyByProduct = new Map<string, number>();
+        for (const item of input.items) {
+          qtyByProduct.set(item.productId, (qtyByProduct.get(item.productId) ?? 0) + item.qty);
+        }
 
         const productCases = sql.join(
-          aggregatedByProduct.map(
-            (entry) =>
-              sql`when ${product.id} = ${entry.productId} then ${product.stock} + ${entry.totalQty}`,
+          [...qtyByProduct.entries()].map(
+            ([productId, qty]) => sql`when ${productId} then ${product.stock} + ${qty}`,
           ),
           sql.raw(" "),
         );
@@ -254,61 +214,18 @@ export const submitInvoiceReviewHandler = os
             stock: sql`case ${product.id} ${productCases} else ${product.stock} end`,
             updatedAt: now,
           })
-          .where(inArray(product.id, uniqueProductIds));
+          .where(inArray(product.id, [...qtyByProduct.keys()]));
 
-        await tx
-          .update(purchaseInvoice)
-          .set({ status: "VALIDATED", updatedAt: now })
-          .where(eq(purchaseInvoice.id, invoiceId));
-
-        if (invoiceOcrResultId) {
-          await tx
-            .update(purchaseInvoiceFile)
-            .set({ status: "REVIEWED", updatedAt: now })
-            .from(purchaseInvoiceOcrResult)
-            .where(
-              and(
-                eq(purchaseInvoiceOcrResult.id, invoiceOcrResultId),
-                eq(purchaseInvoiceFile.id, purchaseInvoiceOcrResult.invoiceFileId),
-              ),
-            );
-        } else {
-          await tx
-            .update(purchaseInvoiceFile)
-            .set({ status: "REVIEWED", updatedAt: now })
-            .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
-        }
-      });
-    };
-
-    const rollbackInvoice = async () => {
-      await shopDb.transaction(async (tx) => {
-        await tx.delete(purchaseInvoice).where(eq(purchaseInvoice.id, invoiceId));
-        if (existingFile.ocrResult && previousOcrStatus) {
-          await tx
-            .update(purchaseInvoiceOcrResult)
-            .set({ status: previousOcrStatus })
-            .where(eq(purchaseInvoiceOcrResult.id, existingFile.ocrResult.id));
-        }
         await tx
           .update(purchaseInvoiceFile)
-          .set({ status: previousFileStatus, updatedAt: new Date() })
-          .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
+          .set({ status: "REVIEWED", updatedAt: now })
+          .where(eq(purchaseInvoiceFile.id, existingFile.id));
+      })
+      .catch((error) => {
+        if (error instanceof ORPCError) {
+          throw error;
+        }
+        logger.error({ error }, "Failed to sync inventory for invoice");
+        throw new ORPCError("INTERNAL_SERVER_ERROR");
       });
-    };
-
-    await syncTransaction().catch(async (error) => {
-      logger.error({ error, invoiceId }, "Failed to sync inventory for invoice");
-      await rollbackInvoice();
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to sync inventory. Please retry.",
-      });
-    });
-
-    return {
-      id: invoiceId,
-      invoiceNumber: createdInvoice.invoiceNumber,
-      status: "VALIDATED" as const,
-      createdAt: createdInvoice.createdAt,
-    };
   });
