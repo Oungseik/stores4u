@@ -104,7 +104,6 @@ export const processInvoiceFileHandler = os
           invoiceFileId: file.id,
           rawJson: verificationResult,
           rejectionReason,
-          status: "REJECTED",
           createdAt: now,
         });
 
@@ -144,7 +143,6 @@ export const processInvoiceFileHandler = os
         extractedText: extractedData.rawText ?? null,
         extractedData,
         confidenceScore: extractedData.confidence,
-        status: "PROCESSED",
         createdAt: now,
       });
 

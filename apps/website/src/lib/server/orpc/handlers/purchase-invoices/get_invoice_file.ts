@@ -50,7 +50,6 @@ export const getInvoiceFileHandler = os
             extractedData: file.ocrResult.extractedData,
             confidenceScore: file.ocrResult.confidenceScore,
             rejectionReason: file.ocrResult.rejectionReason,
-            status: file.ocrResult.status,
             createdAt: file.ocrResult.createdAt,
           }
         : null,

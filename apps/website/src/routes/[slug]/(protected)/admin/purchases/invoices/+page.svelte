@@ -66,7 +66,6 @@
     FAILED: "Failed",
     REVIEWED: "Reviewed",
     REJECTED: "Rejected",
-    REVIEWING: "Reviewing",
   };
 
   const invoiceFilesStats = createQuery(() =>
