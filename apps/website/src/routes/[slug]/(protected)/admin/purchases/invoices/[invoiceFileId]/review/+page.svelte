@@ -360,7 +360,7 @@
           {:else if needsProcessing}
             <Button variant="outline" onclick={handleProcess}>
               <PlayIcon class="size-4" />
-              {fileStatus === "FAILED" ? "Retry" : "Process"}
+              Process
             </Button>
           {/if}
           <Button
@@ -404,7 +404,7 @@
             {:else if needsProcessing}
               <DropdownMenu.Item onclick={handleProcess}>
                 <PlayIcon class="size-4" />
-                {fileStatus === "FAILED" ? "Retry" : "Process"}
+                Process
               </DropdownMenu.Item>
             {/if}
             <DropdownMenu.Item
