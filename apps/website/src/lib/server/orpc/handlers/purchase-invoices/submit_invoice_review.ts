@@ -1,11 +1,17 @@
 import { ORPCError } from "@orpc/server";
 import {
+  and,
   eq,
+  type InventoryMovementInsert,
+  inArray,
+  inventoryMovement,
+  product,
   productAlias,
   purchaseInvoice,
   purchaseInvoiceFile,
   purchaseInvoiceItem,
   purchaseInvoiceOcrResult,
+  sql,
 } from "@repo/db";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
@@ -15,7 +21,6 @@ import {
   protectedShopMiddleware,
   shopDbMiddleware,
 } from "$lib/server/orpc/base";
-import { baseUrl, qstashClient } from "$lib/server/qstash";
 import { invoiceAmountFields, purchaseInvoiceItemInput } from "./schemas";
 
 const input = z.object({
@@ -143,23 +148,26 @@ export const submitInvoiceReviewHandler = os
           throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create invoice" });
         }
 
-        await tx.insert(purchaseInvoiceItem).values(
-          input.items.map((item) => ({
-            purchaseInvoiceId: createdInvoice.id,
-            productId: item.productId,
-            invoiceItemName: item.invoiceItemName,
-            qty: item.qty,
-            unitCostCents: item.unitCostCents,
-            lineSubtotalCents: item.lineSubtotalCents,
-            vatCents: item.vatCents,
-            discountCents: item.discountCents,
-            freightCents: item.freightCents,
-            lineTotalCents: item.lineTotalCents,
-            expiryDate: item.expiryDate,
-            batchNumber: item.batchNumber,
-            createdAt: now,
-          })),
-        );
+        const insertedItems = await tx
+          .insert(purchaseInvoiceItem)
+          .values(
+            input.items.map((item) => ({
+              purchaseInvoiceId: createdInvoice.id,
+              productId: item.productId,
+              invoiceItemName: item.invoiceItemName,
+              qty: item.qty,
+              unitCostCents: item.unitCostCents,
+              lineSubtotalCents: item.lineSubtotalCents,
+              vatCents: item.vatCents,
+              discountCents: item.discountCents,
+              freightCents: item.freightCents,
+              lineTotalCents: item.lineTotalCents,
+              expiryDate: item.expiryDate,
+              batchNumber: item.batchNumber,
+              createdAt: now,
+            })),
+          )
+          .returning();
 
         const aliasesToCreate = input.items
           .filter(
@@ -188,26 +196,94 @@ export const submitInvoiceReviewHandler = os
           .set({ status: "REVIEWING", updatedAt: now })
           .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
 
-        return createdInvoice;
+        return { invoice: createdInvoice, items: insertedItems };
       })
       .catch((error) => {
         logger.error({ error }, "Failed to submit invoice review.");
         throw error;
       });
 
-    try {
-      await qstashClient.publishJSON({
-        url: `${baseUrl}/api/queue/inventory-sync`,
-        body: {
-          invoiceId: result.id,
-          shopSlug: context.shop.slug,
-        },
-        failureCallback: `${baseUrl}/api/queue/inventory-sync/failure`,
-      });
-    } catch (error) {
-      logger.error({ error, invoiceId: result.id }, "Failed to dispatch inventory sync to QStash");
+    const { invoice: createdInvoice, items: insertedItems } = result;
+    const invoiceId = createdInvoice.id;
+    const invoiceOcrResultId = existingFile.ocrResult?.id ?? null;
+
+    const occurredAt = new Date(input.invoiceDate);
+
+    const productQtyById = insertedItems.reduce((acc, item) => {
+      acc.set(item.productId, (acc.get(item.productId) ?? 0) + item.qty);
+      return acc;
+    }, new Map<string, number>());
+
+    const aggregatedByProduct = Array.from(productQtyById, ([productId, totalQty]) => ({
+      productId,
+      totalQty,
+    }));
+
+    const uniqueProductIds = [...productQtyById.keys()];
+
+    const syncTransaction = async () => {
       await shopDb.transaction(async (tx) => {
-        await tx.delete(purchaseInvoice).where(eq(purchaseInvoice.id, result.id));
+        const movementValues = insertedItems.map(
+          (item) =>
+            ({
+              productId: item.productId,
+              purchaseInvoiceItemId: item.id,
+              movementType: "PURCHASE",
+              qty: item.qty,
+              unitCostCents: item.unitCostCents,
+              referenceType: "PURCHASE_INVOICE",
+              referenceId: invoiceId,
+              occurredAt,
+              createdAt: now,
+            }) satisfies InventoryMovementInsert,
+        );
+
+        await tx.insert(inventoryMovement).values(movementValues);
+
+        const productCases = sql.join(
+          aggregatedByProduct.map(
+            (entry) =>
+              sql`when ${product.id} = ${entry.productId} then ${product.stock} + ${entry.totalQty}`,
+          ),
+          sql.raw(" "),
+        );
+
+        await tx
+          .update(product)
+          .set({
+            stock: sql`case ${product.id} ${productCases} else ${product.stock} end`,
+            updatedAt: now,
+          })
+          .where(inArray(product.id, uniqueProductIds));
+
+        await tx
+          .update(purchaseInvoice)
+          .set({ status: "VALIDATED", updatedAt: now })
+          .where(eq(purchaseInvoice.id, invoiceId));
+
+        if (invoiceOcrResultId) {
+          await tx
+            .update(purchaseInvoiceFile)
+            .set({ status: "REVIEWED", updatedAt: now })
+            .from(purchaseInvoiceOcrResult)
+            .where(
+              and(
+                eq(purchaseInvoiceOcrResult.id, invoiceOcrResultId),
+                eq(purchaseInvoiceFile.id, purchaseInvoiceOcrResult.invoiceFileId),
+              ),
+            );
+        } else {
+          await tx
+            .update(purchaseInvoiceFile)
+            .set({ status: "REVIEWED", updatedAt: now })
+            .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
+        }
+      });
+    };
+
+    const rollbackInvoice = async () => {
+      await shopDb.transaction(async (tx) => {
+        await tx.delete(purchaseInvoice).where(eq(purchaseInvoice.id, invoiceId));
         if (existingFile.ocrResult && previousOcrStatus) {
           await tx
             .update(purchaseInvoiceOcrResult)
@@ -219,15 +295,20 @@ export const submitInvoiceReviewHandler = os
           .set({ status: previousFileStatus, updatedAt: new Date() })
           .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
       });
+    };
+
+    await syncTransaction().catch(async (error) => {
+      logger.error({ error, invoiceId }, "Failed to sync inventory for invoice");
+      await rollbackInvoice();
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to queue inventory sync. Please retry.",
+        message: "Failed to sync inventory. Please retry.",
       });
-    }
+    });
 
     return {
-      id: result.id,
-      invoiceNumber: result.invoiceNumber,
-      status: result.status,
-      createdAt: result.createdAt,
+      id: invoiceId,
+      invoiceNumber: createdInvoice.invoiceNumber,
+      status: "VALIDATED" as const,
+      createdAt: createdInvoice.createdAt,
     };
   });
