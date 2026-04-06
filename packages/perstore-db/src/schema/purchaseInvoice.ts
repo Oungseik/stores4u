@@ -58,7 +58,6 @@ export const purchaseInvoiceFileStatus = [
   "PROCESSED",
   "FAILED",
   "REJECTED",
-  "REVIEWING",
   "REVIEWED",
 ] as const;
 export type PurchaseInvoiceFileStatus = (typeof purchaseInvoiceFileStatus)[number];
@@ -92,16 +91,12 @@ export const purchaseInvoiceFile = sqliteTable(
 
 export const purchaseInvoiceStatuses = [
   "PENDING",
-  "INVENTORY_PENDING",
   "VALIDATED",
   "REJECTED",
   "AUTO_ACCEPTED",
   "INVENTORY_FAILED",
 ] as const;
 export type PurchaseInvoiceStatus = (typeof purchaseInvoiceStatuses)[number];
-
-export const ocrStatuses = ["PENDING", "PROCESSED", "FAILED", "REJECTED", "LINKED"] as const;
-export type OcrStatus = (typeof ocrStatuses)[number];
 
 export const purchaseInvoiceOcrResult = sqliteTable(
   "purchase_invoice_ocr_result",
@@ -116,7 +111,6 @@ export const purchaseInvoiceOcrResult = sqliteTable(
     extractedData: text("extracted_data", { mode: "json" }).$type<ExtractedInvoiceData>(),
     confidenceScore: real("confidence_score"),
     rejectionReason: text("rejection_reason"),
-    status: text("status", { enum: ocrStatuses }).default("PENDING").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),
@@ -125,10 +119,6 @@ export const purchaseInvoiceOcrResult = sqliteTable(
     check(
       "purchase_invoice_ocr_result_confidence_score_check",
       sql`${t.confidenceScore} IS NULL OR (${t.confidenceScore} >= 0 AND ${t.confidenceScore} <= 1)`,
-    ),
-    check(
-      "purchase_invoice_ocr_result_status_check",
-      sql`${t.status} IN ('PENDING', 'PROCESSED', 'FAILED', 'REJECTED', 'LINKED')`,
     ),
   ],
 );
