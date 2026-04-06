@@ -66,7 +66,7 @@ export const POST: RequestHandler = async ({ request }) => {
     .from(inventoryMovement)
     .where(
       and(
-        eq(inventoryMovement.referenceType, "INVOICE"),
+        eq(inventoryMovement.referenceType, "PURCHASE_INVOICE"),
         eq(inventoryMovement.referenceId, invoiceId),
       ),
     )
