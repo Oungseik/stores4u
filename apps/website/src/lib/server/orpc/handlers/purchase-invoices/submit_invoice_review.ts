@@ -79,14 +79,29 @@ export const submitInvoiceReviewHandler = os
 
     const existingInvoice = await shopDb.query.purchaseInvoice.findFirst({
       where: { supplierId: input.supplierId, invoiceNumber: input.invoiceNumber },
-      columns: { id: true },
+      columns: { id: true, status: true, ocrResultId: true },
     });
 
     if (existingInvoice) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "An invoice with this number already exists for this supplier",
-      });
+      if (existingInvoice.status === "PENDING") {
+        await shopDb.transaction(async (tx) => {
+          await tx.delete(purchaseInvoice).where(eq(purchaseInvoice.id, existingInvoice.id));
+          if (existingInvoice.ocrResultId) {
+            await tx
+              .update(purchaseInvoiceOcrResult)
+              .set({ status: "PROCESSED" })
+              .where(eq(purchaseInvoiceOcrResult.id, existingInvoice.ocrResultId));
+          }
+        });
+      } else {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "An invoice with this number already exists for this supplier",
+        });
+      }
     }
+
+    const previousFileStatus = existingFile.status;
+    const previousOcrStatus = existingFile.ocrResult?.status ?? null;
 
     const result = await shopDb
       .transaction(async (tx) => {
@@ -191,14 +206,19 @@ export const submitInvoiceReviewHandler = os
       });
     } catch (error) {
       logger.error({ error, invoiceId: result.id }, "Failed to dispatch inventory sync to QStash");
-      await shopDb
-        .update(purchaseInvoice)
-        .set({ status: "PENDING", updatedAt: new Date() })
-        .where(eq(purchaseInvoice.id, result.id));
-      await shopDb
-        .update(purchaseInvoiceFile)
-        .set({ status: "PROCESSED", updatedAt: new Date() })
-        .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
+      await shopDb.transaction(async (tx) => {
+        await tx.delete(purchaseInvoice).where(eq(purchaseInvoice.id, result.id));
+        if (existingFile.ocrResult && previousOcrStatus) {
+          await tx
+            .update(purchaseInvoiceOcrResult)
+            .set({ status: previousOcrStatus })
+            .where(eq(purchaseInvoiceOcrResult.id, existingFile.ocrResult.id));
+        }
+        await tx
+          .update(purchaseInvoiceFile)
+          .set({ status: previousFileStatus, updatedAt: new Date() })
+          .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));
+      });
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to queue inventory sync. Please retry.",
       });
