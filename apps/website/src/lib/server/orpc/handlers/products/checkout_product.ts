@@ -156,7 +156,7 @@ export const checkoutHandler = os
           qty: -item.qty,
           unitCostCents: orderItems[index].unitPriceCents,
           referenceType: "ORDER" as const,
-          referenceId: orderItems[index].id,
+          referenceId: createdOrder.id,
           occurredAt: now,
           createdAt: now,
         })),
