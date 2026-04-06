@@ -95,6 +95,7 @@
     "import-in-the-middle": "^3.0.0",
     "layerchart": "2.0.0-next.48",
     "libphonenumber-js": "^1.12.41",
+    "lru-cache": "^11.3.0",
     "maska": "^3.2.0",
     "mastra": "^1.3.20",
     "mode-watcher": "^1.1.0",
