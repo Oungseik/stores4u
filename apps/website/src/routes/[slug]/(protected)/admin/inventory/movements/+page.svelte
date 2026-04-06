@@ -15,7 +15,7 @@
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
-  import { goto } from "$app/navigation";
+
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
@@ -209,12 +209,7 @@
         </p>
       </div>
     {:else if searchParams.view === "table"}
-      <DataTable
-        {columns}
-        data={allMovements}
-        loading={false}
-        onRowClick={(movement) => goto(`/${params.slug}/admin/products/${movement.productId}`)}
-      />
+      <DataTable {columns} data={allMovements} loading={false} />
 
       {#if movements.hasNextPage}
         <div class="mt-4 flex justify-center">
@@ -237,8 +232,7 @@
         {#each allMovements as movement (movement.id)}
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
-              <a
-                href={`/${params.slug}/admin/products/${movement.productId}`}
+              <div
                 class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
               >
                 <div
@@ -268,7 +262,7 @@
                     </p>
                   {/if}
                 </div>
-              </a>
+              </div>
             </Card.Content>
           </Card.Root>
         {/each}
