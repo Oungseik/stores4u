@@ -101,7 +101,7 @@
       id: chatId,
       messages,
       transport: new DefaultChatTransport({
-        api: "/api/ai/shop-assistant",
+        api: `/api/ai/${data.slug}/shop-assistant`,
       }),
       onFinish: async ({ message }) => {
         const text = message.parts
