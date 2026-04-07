@@ -1,5 +1,16 @@
 import { ORPCError } from "@orpc/server";
-import { and, gte, inArray, inventoryMovement, order, orderItem, product, sql } from "@repo/db";
+import {
+  and,
+  desc,
+  gte,
+  inArray,
+  inventoryMovement,
+  order,
+  orderItem,
+  product,
+  purchaseInvoiceItem,
+  sql,
+} from "@repo/db";
 import { z } from "zod";
 
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
@@ -68,6 +79,20 @@ export const checkoutHandler = os
     }
 
     const totalCents = subtotalCents - input.discountCents + vatCents;
+
+    const latestCostByProduct = new Map(
+      await Promise.all(
+        productIds.map(async (pid) => {
+          const rows = await shopDb
+            .select({ unitCostCents: purchaseInvoiceItem.unitCostCents })
+            .from(purchaseInvoiceItem)
+            .where(sql`${purchaseInvoiceItem.productId} = ${pid}`)
+            .orderBy(desc(purchaseInvoiceItem.createdAt))
+            .limit(1);
+          return [pid, rows[0]?.unitCostCents ?? 0] as const;
+        }),
+      ),
+    );
 
     const result = await shopDb.transaction(async (tx) => {
       const orderRecord = await tx
@@ -150,11 +175,11 @@ export const checkoutHandler = os
       }
 
       await tx.insert(inventoryMovement).values(
-        input.items.map((item, index) => ({
+        input.items.map((item) => ({
           productId: item.productId,
           movementType: "SALE" as const,
           qty: -item.qty,
-          unitCostCents: orderItems[index].unitPriceCents,
+          unitCostCents: latestCostByProduct.get(item.productId) ?? 0,
           referenceType: "ORDER" as const,
           referenceId: createdOrder.id,
           occurredAt: now,
