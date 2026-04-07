@@ -1,4 +1,9 @@
-import type { PurchaseInvoiceFileStatus, PurchaseInvoiceStatus } from "@repo/db";
+import type {
+  MovementType,
+  PurchaseInvoiceFileStatus,
+  PurchaseInvoiceStatus,
+  ReferenceType,
+} from "@repo/db";
 import { createSearchParamsSchema, type StandardSchemaV1 } from "runed/kit";
 
 type CheckoutMode = {
@@ -103,18 +108,18 @@ export type InventoryMovementsView = "card" | "table";
 
 type InventoryMovementsFilterSchema = {
   search: string;
-  movementTypes: string[];
   dateFrom: string;
   dateTo: string;
-  referenceTypes: string[];
   view: InventoryMovementsView;
+  movementTypes: MovementType[];
+  referenceTypes: ReferenceType[];
 };
 
 export const inventoryMovementsFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
-  movementTypes: { type: "array", arrayType: "" satisfies string, default: [] },
   dateFrom: { type: "string", default: "" },
   dateTo: { type: "string", default: "" },
-  referenceTypes: { type: "array", arrayType: "" satisfies string, default: [] },
+  movementTypes: { type: "array", arrayType: "", default: [] },
+  referenceTypes: { type: "array", arrayType: "", default: [] },
   view: { type: "string", default: "card" },
 }) as StandardSchemaV1<unknown, InventoryMovementsFilterSchema>;

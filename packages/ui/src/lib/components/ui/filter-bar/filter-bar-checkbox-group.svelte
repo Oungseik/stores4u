@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="T">
 	import { buttonVariants } from '@lib/components/ui/button';
 	import { Checkbox } from '@lib/components/ui/checkbox';
 	import * as Popover from '@lib/components/ui/popover';
@@ -14,7 +14,7 @@
 		items = [],
 		placeholder = 'All',
 		class: className
-	}: FilterBarCheckboxGroupProps = $props();
+	}: FilterBarCheckboxGroupProps<T> = $props();
 
 	let open = $state(false);
 
@@ -23,7 +23,7 @@
 		return `${value.length} selected`;
 	}
 
-	function toggle(itemValue: string) {
+	function toggle(itemValue: T) {
 		if (value.includes(itemValue)) {
 			value = value.filter((v) => v !== itemValue);
 		} else {

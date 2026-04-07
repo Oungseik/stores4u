@@ -48,17 +48,17 @@ export type FilterBarDatePickerProps = {
   class?: string;
 };
 
-export type FilterBarCheckboxGroupItem = {
-  value: string;
+export type FilterBarCheckboxGroupItem<T> = {
+  value: T;
   label: string;
   count?: number;
 };
 
-export type FilterBarCheckboxGroupProps = {
+export type FilterBarCheckboxGroupProps<T> = {
   ref?: HTMLButtonElement | null;
-  value?: string[];
-  onValueChange?: (value: string[]) => void;
-  items?: FilterBarCheckboxGroupItem[];
+  value?: T[];
+  onValueChange?: (value: T[]) => void;
+  items?: FilterBarCheckboxGroupItem<T>[];
   placeholder?: string;
   label?: string;
   class?: string;

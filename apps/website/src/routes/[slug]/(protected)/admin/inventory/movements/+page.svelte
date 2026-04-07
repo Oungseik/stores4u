@@ -34,10 +34,10 @@
 
   const searchParams = useSearchParams(inventoryMovementsFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
-  const debouncedMovementTypes = new Debounced(() => searchParams.movementTypes, 300);
   const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
   const debouncedDateTo = new Debounced(() => searchParams.dateTo, 300);
-  const debouncedReferenceTypes = new Debounced(() => searchParams.referenceTypes, 300);
+  const debouncedMovementTypes = new Debounced(() => searchParams.movementTypes ?? [], 300);
+  const debouncedReferenceTypes = new Debounced(() => searchParams.referenceTypes ?? [], 300);
 
   const movements = createInfiniteQuery(() =>
     orpc.inventory.listMovements.infiniteOptions({
@@ -46,22 +46,10 @@
         cursor,
         slug: params.slug,
         search: debouncedSearch.current || undefined,
-        movementTypes:
-          debouncedMovementTypes.current.length > 0
-            ? debouncedMovementTypes.current.filter((t): t is MovementType =>
-                ["PURCHASE", "SALE", "RETURN", "WASTAGE", "ADJUSTMENT", "CORRECTION"].includes(t)
-              )
-            : undefined,
         dateFrom: debouncedDateFrom.current || undefined,
         dateTo: debouncedDateTo.current || undefined,
-        referenceTypes:
-          debouncedReferenceTypes.current.filter((t): t is ReferenceType =>
-            ["ORDER", "PURCHASE_INVOICE", "MANUAL"].includes(t)
-          ).length > 0
-            ? debouncedReferenceTypes.current.filter((t): t is ReferenceType =>
-                ["ORDER", "PURCHASE_INVOICE", "MANUAL"].includes(t)
-              )
-            : undefined,
+        movementTypes: debouncedMovementTypes.current,
+        referenceTypes: debouncedReferenceTypes.current,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!params.slug,
@@ -76,10 +64,10 @@
 
   const hasFilters = $derived(
     searchParams.search.length > 0 ||
-      searchParams.movementTypes.length > 0 ||
       searchParams.dateFrom.length > 0 ||
       searchParams.dateTo.length > 0 ||
-      searchParams.referenceTypes.length > 0
+      searchParams.movementTypes?.length > 0 ||
+      searchParams.referenceTypes?.length > 0
   );
 
   function resetFilters() {
@@ -110,7 +98,7 @@
     });
   }
 
-  const movementTypeOptions = [
+  const movementTypeOptions: { value: MovementType; label: string }[] = [
     { value: "PURCHASE", label: "Purchase" },
     { value: "SALE", label: "Sale" },
     { value: "RETURN", label: "Return" },
@@ -119,7 +107,7 @@
     { value: "CORRECTION", label: "Correction" },
   ];
 
-  const referenceTypeOptions = [
+  const referenceTypeOptions: { value: ReferenceType; label: string }[] = [
     { value: "ORDER", label: "Order" },
     { value: "PURCHASE_INVOICE", label: "Purchase Invoice" },
     { value: "MANUAL", label: "Manual" },
