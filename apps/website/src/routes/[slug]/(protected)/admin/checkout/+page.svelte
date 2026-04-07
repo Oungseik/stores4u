@@ -63,6 +63,8 @@
 
   let lastScannedBarcode = $state<string | null>(null);
 
+  const isDebouncing = $derived(searchQuery !== debouncedSearch.current);
+
   const productSearch = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { slug: params.slug, search: debouncedSearch.current, pageSize: 10 },
@@ -70,6 +72,8 @@
         !!params.slug && debouncedSearch.current.length > 0 && searchParams.mode === "search",
     })
   );
+
+  const isSearching = $derived(isDebouncing || productSearch.isFetching);
 
   const productByBarcode = createQuery(() =>
     orpc.products.get.queryOptions({
@@ -225,9 +229,9 @@
       {#if searchQuery.length > 0}
         <ProductResults
           products={productSearch.data?.items ?? []}
-          isLoading={productSearch.isLoading}
+          isLoading={isSearching}
           country={shop.country}
-          searchQuery={debouncedSearch.current}
+          searchQuery={searchQuery}
           onSelect={handleProductSelect}
         />
       {/if}
