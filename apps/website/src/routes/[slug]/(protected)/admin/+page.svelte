@@ -15,7 +15,8 @@
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
   import { curveNatural } from "d3-shape";
-  import { AreaChart } from "layerchart";
+  import { Area, AreaChart, ChartClipPath } from "layerchart";
+  import { cubicInOut } from "svelte/easing";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -223,11 +224,6 @@
               axis="x"
               tooltipContext
               props={{
-                area: {
-                  curve: curveNatural,
-                  fillOpacity: 0.4,
-                  line: { class: "stroke-1" },
-                },
                 xAxis: {
                   format: (d: string) => formatTrendDate(d),
                 },
@@ -236,6 +232,38 @@
                 },
               }}
             >
+              {#snippet marks({ context })}
+                <defs>
+                  <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stop-color="var(--chart-1)" stop-opacity={1.0} />
+                    <stop offset="95%" stop-color="var(--chart-1)" stop-opacity={0.1} />
+                  </linearGradient>
+                  <linearGradient id="fillCost" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stop-color="var(--chart-3)" stop-opacity={0.8} />
+                    <stop offset="95%" stop-color="var(--chart-3)" stop-opacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <ChartClipPath
+                  initialWidth={0}
+                  motion={{
+                    width: { type: "tween", duration: 1000, easing: cubicInOut },
+                  }}
+                >
+                  {#each context.series.visibleSeries as s (s.key)}
+                    <Area
+                      seriesKey={s.key}
+                      curve={curveNatural}
+                      fillOpacity={0.4}
+                      line={{ class: "stroke-1" }}
+                      motion="tween"
+                      {...s.props}
+                      fill={s.key === "revenueCents"
+                        ? "url(#fillRevenue)"
+                        : "url(#fillCost)"}
+                    />
+                  {/each}
+                </ChartClipPath>
+              {/snippet}
               {#snippet tooltip()}
                 <Chart.Tooltip labelFormatter={(d: string) => formatTrendDate(d)}>
                   {#snippet formatter({ value, name, item })}
