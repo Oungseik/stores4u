@@ -14,7 +14,7 @@
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
-  import { curveNatural } from "d3-shape";
+  import { curveMonotoneX } from "d3-shape";
   import { Area, AreaChart, ChartClipPath } from "layerchart";
   import { cubicInOut } from "svelte/easing";
 
@@ -216,6 +216,7 @@
               data={revenueTrendQuery.data.days}
               x="date"
               y="revenueCents"
+              yDomain={[0, null]}
               series={[
                 { key: "revenueCents", label: "Revenue", color: "var(--chart-1)" },
                 { key: "costCents", label: "Cost", color: "var(--chart-3)" },
@@ -252,7 +253,7 @@
                   {#each context.series.visibleSeries as s (s.key)}
                     <Area
                       seriesKey={s.key}
-                      curve={curveNatural}
+                      curve={curveMonotoneX}
                       fillOpacity={0.4}
                       line={{ class: "stroke-1" }}
                       motion="tween"
