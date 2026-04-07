@@ -87,7 +87,9 @@
     })
   );
 
-  const columns = $derived(createColumns(shop.country, params.slug, handleDeleteProduct, handleAdjustProduct));
+  const columns = $derived(
+    createColumns(shop.country, params.slug, handleDeleteProduct, handleAdjustProduct)
+  );
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
   function resetFilters() {

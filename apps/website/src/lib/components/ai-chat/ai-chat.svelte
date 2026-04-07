@@ -5,8 +5,12 @@
   let { api, onToolResult, children }: AiChatRootProps = $props();
 
   useAiChat({
-    get api() { return api; },
-    get onToolResult() { return onToolResult; },
+    get api() {
+      return api;
+    },
+    get onToolResult() {
+      return onToolResult;
+    },
   });
 </script>
 

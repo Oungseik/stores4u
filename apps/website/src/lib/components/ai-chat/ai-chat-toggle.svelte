@@ -2,6 +2,7 @@
   import MessageCircleIcon from "@lucide/svelte/icons/message-circle";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
+
   import { useAiChatChild } from "./ai-chat.svelte.js";
   import type { AiChatToggleProps } from "./types.js";
 

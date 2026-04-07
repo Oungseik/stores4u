@@ -2,10 +2,15 @@
   import MessageCircleIcon from "@lucide/svelte/icons/message-circle";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
+
   import { useAiChatChild } from "./ai-chat.svelte.js";
   import type { AiChatHeaderProps } from "./types.js";
 
-  let { title = "AI Assistant", subtitle = "How can I help?", class: className }: AiChatHeaderProps = $props();
+  let {
+    title = "AI Assistant",
+    subtitle = "How can I help?",
+    class: className,
+  }: AiChatHeaderProps = $props();
 
   const ctx = useAiChatChild();
 </script>

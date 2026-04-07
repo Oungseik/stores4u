@@ -18,7 +18,10 @@
 </script>
 
 <span
-  class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize {badgeStyles[movementType]}"
+  class={[
+    "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ",
+    badgeStyles[movementType],
+  ]}
 >
   {movementType.toLowerCase()}
 </span>

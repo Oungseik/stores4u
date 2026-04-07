@@ -11,7 +11,10 @@
   <div
     bind:this={ref}
     data-slot="ai-chat-panel"
-    class={["bg-background flex h-150 w-80 flex-col rounded-2xl border shadow-2xl sm:w-95", className]}
+    class={[
+      "bg-background flex h-150 w-80 flex-col rounded-2xl border shadow-2xl sm:w-95",
+      className,
+    ]}
   >
     {@render children()}
   </div>

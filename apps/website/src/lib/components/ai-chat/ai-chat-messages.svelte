@@ -2,6 +2,7 @@
   import MessageCircleIcon from "@lucide/svelte/icons/message-circle";
   import { ThinkingDots } from "@repo/ui/thinking-dots";
   import { isTextUIPart, isToolUIPart } from "ai";
+
   import { useAiChatChild } from "./ai-chat.svelte.js";
   import type { AiChatMessagesProps } from "./types.js";
 
@@ -50,12 +51,17 @@
   {:else}
     {#each ctx.chat.messages as message (message.id)}
       {#if message.role === "user"}
-        {@const text = message.parts.filter((p) => isTextUIPart(p)).map((p) => p.text).join("")}
+        {@const text = message.parts
+          .filter((p) => isTextUIPart(p))
+          .map((p) => p.text)
+          .join("")}
         {#if userMessage}
           {@render userMessage({ text })}
         {:else}
           <div class="mb-3 flex justify-end">
-            <div class="bg-primary text-primary-foreground max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm">
+            <div
+              class="bg-primary text-primary-foreground max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
+            >
               {text}
             </div>
           </div>
@@ -80,19 +86,23 @@
               </div>
             </div>
           {/if}
+        {:else if generating}
+          {@render generating()}
         {:else}
-          {#if generating}
-            {@render generating()}
-          {:else}
-            {@render DefaultGenerating()}
-          {/if}
+          {@render DefaultGenerating()}
         {/if}
         {#each completedToolParts as _part}
           {#if toolResult}
             {@render toolResult()}
           {:else}
             <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
-              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <svg
+                class="size-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <span class="text-xs">Done!</span>

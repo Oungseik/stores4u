@@ -258,9 +258,7 @@
                       line={{ class: "stroke-1" }}
                       motion="tween"
                       {...s.props}
-                      fill={s.key === "revenueCents"
-                        ? "url(#fillRevenue)"
-                        : "url(#fillCost)"}
+                      fill={s.key === "revenueCents" ? "url(#fillRevenue)" : "url(#fillCost)"}
                     />
                   {/each}
                 </ChartClipPath>

@@ -162,7 +162,7 @@
             {#each filteredChats as chat (chat.id)}
               <Sidebar.MenuItem class="flex items-center gap-2">
                 <Sidebar.MenuButton
-                  class="min-w-0 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+                  class="data-[active=true]:bg-primary/10 data-[active=true]:text-primary min-w-0"
                   tooltipContent={chat.title}
                   isActive={chat.id === currentChatId}
                   onclick={() => onSelectChat?.(chat.id)}

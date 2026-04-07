@@ -70,7 +70,6 @@ export const router = os.router({
     update: updateChatHandler,
   },
   dashboard: {
-
     revenueTrend: dashboardRevenueTrendHandler,
     stats: dashboardStatsHandler,
   },

@@ -43,9 +43,7 @@
     return new Date().toISOString().split("T")[0];
   }
 
-  const projectedStock = $derived(
-    direction === "ADD" ? currentStock + qty : currentStock - qty
-  );
+  const projectedStock = $derived(direction === "ADD" ? currentStock + qty : currentStock - qty);
 
   const canSubmit = $derived(
     qty > 0 && unitCost > 0 && date.length > 0 && (direction !== "SUBTRACT" || currentStock >= qty)
@@ -148,7 +146,12 @@
           type="single"
           value={movementType}
           onValueChange={(value) => {
-            if (value === "ADJUSTMENT" || value === "CORRECTION" || value === "WASTAGE" || value === "RETURN") {
+            if (
+              value === "ADJUSTMENT" ||
+              value === "CORRECTION" ||
+              value === "WASTAGE" ||
+              value === "RETURN"
+            ) {
               movementType = value;
             }
           }}
@@ -191,17 +194,15 @@
         </div>
         <div class="flex items-center justify-between">
           <span>{direction === "ADD" ? "Adding" : "Subtracting"}</span>
-          <span class={direction === "ADD" ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
+          <span
+            class={direction === "ADD" ? "font-medium text-green-600" : "font-medium text-red-600"}
+          >
             {direction === "ADD" ? "+" : "-"}{qty}
           </span>
         </div>
         <div class="flex items-center justify-between border-t pt-2">
           <span class="font-medium">Projected stock</span>
-          <span
-            class={projectedStock < 0
-              ? "text-destructive font-semibold"
-              : "font-semibold"}
-          >
+          <span class={projectedStock < 0 ? "text-destructive font-semibold" : "font-semibold"}>
             {projectedStock}
           </span>
         </div>

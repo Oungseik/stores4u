@@ -2,6 +2,7 @@
   import SendIcon from "@lucide/svelte/icons/send";
   import { Button } from "@repo/ui/button";
   import { Textarea } from "@repo/ui/textarea";
+
   import { useAiChatChild } from "./ai-chat.svelte.js";
   import type { AiChatInputProps } from "./types.js";
 

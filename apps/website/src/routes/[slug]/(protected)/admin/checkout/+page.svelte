@@ -231,7 +231,7 @@
           products={productSearch.data?.items ?? []}
           isLoading={isSearching}
           country={shop.country}
-          searchQuery={searchQuery}
+          {searchQuery}
           onSelect={handleProductSelect}
         />
       {/if}

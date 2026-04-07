@@ -24,8 +24,8 @@ export type AiChatMessagesProps = {
   ref?: HTMLDivElement | null;
   class?: string;
   empty?: Snippet;
-  userMessage?: Snippet<[{text: string}]>;
-  assistantMessage?: Snippet<[{textParts: string[]; toolParts: unknown[]}]>;
+  userMessage?: Snippet<[{ text: string }]>;
+  assistantMessage?: Snippet<[{ textParts: string[]; toolParts: unknown[] }]>;
   generating?: Snippet;
   toolResult?: Snippet;
 };

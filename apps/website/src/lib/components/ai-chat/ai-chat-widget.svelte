@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { useAiChat } from "./ai-chat.svelte.js";
   import Header from "./ai-chat-header.svelte";
   import Input from "./ai-chat-input.svelte";
   import Messages from "./ai-chat-messages.svelte";
   import Panel from "./ai-chat-panel.svelte";
   import Toggle from "./ai-chat-toggle.svelte";
+  import { useAiChat } from "./ai-chat.svelte.js";
   import type { AiChatWidgetProps } from "./types.js";
 
   let {
@@ -17,8 +17,12 @@
   }: AiChatWidgetProps = $props();
 
   useAiChat({
-    get api() { return api; },
-    get onToolResult() { return onToolResult; },
+    get api() {
+      return api;
+    },
+    get onToolResult() {
+      return onToolResult;
+    },
   });
 </script>
 
