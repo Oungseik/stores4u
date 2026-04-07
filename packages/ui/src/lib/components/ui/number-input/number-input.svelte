@@ -27,6 +27,7 @@
 	}: Props = $props();
 
 	let displayValue = $state("");
+	let focused = $state(false);
 
 	function handleMaska(detail: { masked: string; unmasked: string }) {
 		const unmasked = detail.unmasked;
@@ -41,14 +42,25 @@
 		}
 	}
 
-	$effect(() => {
-		if (value !== undefined && !disabled) {
+	function formatDisplay() {
+		if (value !== undefined) {
 			displayValue = new Intl.NumberFormat("en-US", {
 				minimumFractionDigits: fraction,
 				maximumFractionDigits: fraction,
 			}).format(value);
 		}
+	}
+
+	$effect(() => {
+		if (value !== undefined && !disabled && !focused) {
+			formatDisplay();
+		}
 	});
+
+	function handleBlur() {
+		focused = false;
+		formatDisplay();
+	}
 </script>
 
 {#if disabled}
@@ -79,6 +91,8 @@
 		bind:value={displayValue}
 		{placeholder}
 		{disabled}
+		onfocus={() => (focused = true)}
+		onblur={handleBlur}
 		use:maska={{
 			number: {
 				locale: "en-US",
