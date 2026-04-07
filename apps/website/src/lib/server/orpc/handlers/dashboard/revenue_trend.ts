@@ -47,17 +47,17 @@ export const dashboardRevenueTrendHandler = os
       const [revenueRows, costRows] = await Promise.all([
         shopDb
           .select({
-            month: sql<string>`strftime('%Y-%m', ${order.createdAt})`,
+            month: sql<string>`strftime('%Y-%m', ${order.createdAt}, 'unixepoch')`,
             orderCount: sql<number>`COUNT(*)`,
             revenueCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
           })
           .from(order)
           .where(gte(order.createdAt, startDate))
-          .groupBy(sql`strftime('%Y-%m', ${order.createdAt})`)
-          .orderBy(sql`strftime('%Y-%m', ${order.createdAt})`),
+          .groupBy(sql`strftime('%Y-%m', ${order.createdAt}, 'unixepoch')`)
+          .orderBy(sql`strftime('%Y-%m', ${order.createdAt}, 'unixepoch')`),
         shopDb
           .select({
-            month: sql<string>`strftime('%Y-%m', ${inventoryMovement.occurredAt})`,
+            month: sql<string>`strftime('%Y-%m', ${inventoryMovement.occurredAt}, 'unixepoch')`,
             costCents: sql<number>`COALESCE(SUM(ABS(${inventoryMovement.qty}) * ${inventoryMovement.unitCostCents}), 0)`,
           })
           .from(inventoryMovement)
@@ -67,7 +67,7 @@ export const dashboardRevenueTrendHandler = os
               gte(inventoryMovement.occurredAt, startDate),
             ),
           )
-          .groupBy(sql`strftime('%Y-%m', ${inventoryMovement.occurredAt})`),
+          .groupBy(sql`strftime('%Y-%m', ${inventoryMovement.occurredAt}, 'unixepoch')`),
       ]);
 
       const costByMonth = new Map<string, number>();
@@ -97,17 +97,17 @@ export const dashboardRevenueTrendHandler = os
     const [revenueRows, costRows] = await Promise.all([
       shopDb
         .select({
-          date: sql<string>`date(${order.createdAt})`,
+          date: sql<string>`date(${order.createdAt}, 'unixepoch')`,
           orderCount: sql<number>`COUNT(*)`,
           revenueCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
         .where(gte(order.createdAt, startDate))
-        .groupBy(sql`date(${order.createdAt})`)
-        .orderBy(sql`date(${order.createdAt})`),
+        .groupBy(sql`date(${order.createdAt}, 'unixepoch')`)
+        .orderBy(sql`date(${order.createdAt}, 'unixepoch')`),
       shopDb
         .select({
-          date: sql<string>`date(${inventoryMovement.occurredAt})`,
+          date: sql<string>`date(${inventoryMovement.occurredAt}, 'unixepoch')`,
           costCents: sql<number>`COALESCE(SUM(ABS(${inventoryMovement.qty}) * ${inventoryMovement.unitCostCents}), 0)`,
         })
         .from(inventoryMovement)
@@ -117,7 +117,7 @@ export const dashboardRevenueTrendHandler = os
             gte(inventoryMovement.occurredAt, startDate),
           ),
         )
-        .groupBy(sql`date(${inventoryMovement.occurredAt})`),
+        .groupBy(sql`date(${inventoryMovement.occurredAt}, 'unixepoch')`),
     ]);
 
     const costByDate = new Map<string, number>();
