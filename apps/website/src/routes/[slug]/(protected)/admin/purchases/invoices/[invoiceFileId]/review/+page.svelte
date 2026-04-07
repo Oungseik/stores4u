@@ -304,7 +304,6 @@
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.dashboard.inventorySummary.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
       },
     })

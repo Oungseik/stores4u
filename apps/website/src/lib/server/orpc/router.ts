@@ -11,8 +11,6 @@ import { getChatHandler } from "./handlers/chats/get_chat";
 import { listChatsHandler } from "./handlers/chats/list_chats";
 import { saveMessageHandler } from "./handlers/chats/save_message";
 import { updateChatHandler } from "./handlers/chats/update_chat";
-import { dashboardCustomerInsightsHandler } from "./handlers/dashboard/customer_insights";
-import { dashboardInventorySummaryHandler } from "./handlers/dashboard/inventory_summary";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { uploadHandler } from "./handlers/images/upload";
@@ -71,8 +69,7 @@ export const router = os.router({
     update: updateChatHandler,
   },
   dashboard: {
-    customerInsights: dashboardCustomerInsightsHandler,
-    inventorySummary: dashboardInventorySummaryHandler,
+
     revenueTrend: dashboardRevenueTrendHandler,
     stats: dashboardStatsHandler,
   },

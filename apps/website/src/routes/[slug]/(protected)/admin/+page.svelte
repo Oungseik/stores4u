@@ -68,25 +68,9 @@
     })
   );
 
-  const inventoryQuery = createQuery(() =>
-    orpc.dashboard.inventorySummary.queryOptions({
-      input: { slug: params.slug, period: "month" },
-      enabled: !!params.slug,
-    })
-  );
-
-  const customerQuery = createQuery(() =>
-    orpc.dashboard.customerInsights.queryOptions({
-      input: { slug: params.slug, topLimit: 5 },
-      enabled: !!params.slug,
-    })
-  );
-
   const isLoading = $derived(
     statsQuery.isLoading ||
-      revenueTrendQuery.isLoading ||
-      inventoryQuery.isLoading ||
-      customerQuery.isLoading
+      revenueTrendQuery.isLoading
   );
 
   const revenueChartConfig = {
@@ -113,17 +97,7 @@
     return n.toLocaleString();
   }
 
-  function formatMovementType(type: string): string {
-    const map: Record<string, string> = {
-      PURCHASE: "Purchase",
-      SALE: "Sale",
-      RETURN: "Return",
-      WASTAGE: "Wastage",
-      ADJUSTMENT: "Adjustment",
-      CORRECTION: "Correction",
-    };
-    return map[type] ?? type;
-  }
+
 </script>
 
 <div class="@container/main flex flex-1 flex-col gap-4 p-4 md:p-6">
@@ -316,145 +290,6 @@
         {/if}
       </Card.Content>
     </Card.Root>
-
-    <!-- Inventory Summary + Customer Insights -->
-    <div class="grid grid-cols-1 gap-4 @xl/main:grid-cols-2">
-      <!-- Inventory Summary -->
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Inventory Summary</Card.Title>
-          <Card.Description>Wastage, adjustments & recent movements this month</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          {#if inventoryQuery.isLoading}
-            <div class="flex flex-col gap-3">
-              <Skeleton class="h-12 w-full" />
-              <Skeleton class="h-12 w-full" />
-              <Skeleton class="h-32 w-full" />
-            </div>
-          {:else if inventoryQuery.data}
-            <div class="mb-4 grid grid-cols-2 gap-4">
-              <div class="bg-muted/50 rounded-lg p-3">
-                <p class="text-muted-foreground text-xs font-medium">Wastage</p>
-                <p class="text-destructive text-lg font-semibold">
-                  <Pricing cents={inventoryQuery.data.wastage.totalCents} country={shop.country} />
-                </p>
-                <p class="text-muted-foreground text-xs">
-                  {inventoryQuery.data.wastage.count} events &middot; {inventoryQuery.data.wastage
-                    .totalUnits} units
-                </p>
-              </div>
-              <div class="bg-muted/50 rounded-lg p-3">
-                <p class="text-muted-foreground text-xs font-medium">Adjustments</p>
-                <p class="text-lg font-semibold">
-                  <Pricing
-                    cents={inventoryQuery.data.adjustments.totalCents}
-                    country={shop.country}
-                  />
-                </p>
-                <p class="text-muted-foreground text-xs">
-                  {inventoryQuery.data.adjustments.count} events &middot; {inventoryQuery.data
-                    .adjustments.totalUnits} units
-                </p>
-              </div>
-            </div>
-
-            {#if inventoryQuery.data.recentMovements.length > 0}
-              <div class="border-border divide-border divide-y overflow-hidden rounded-lg border">
-                {#each inventoryQuery.data.recentMovements as movement (movement.id)}
-                  <div class="flex items-center justify-between px-3 py-2">
-                    <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm">{movement.productName}</p>
-                      <p class="text-muted-foreground text-xs">
-                        {formatMovementType(movement.movementType)}
-                        &middot;
-                        {new Date(movement.occurredAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <span
-                      class={movement.qty >= 0
-                        ? "text-sm font-medium text-emerald-600"
-                        : "text-destructive text-sm font-medium"}
-                    >
-                      {movement.qty >= 0 ? "+" : ""}{movement.qty}
-                    </span>
-                  </div>
-                {/each}
-              </div>
-            {:else}
-              <p class="text-muted-foreground text-center text-sm">No recent movements</p>
-            {/if}
-          {/if}
-        </Card.Content>
-      </Card.Root>
-
-      <!-- Customer Insights -->
-      <Card.Root>
-        <Card.Header>
-          <Card.Title>Customer Insights</Card.Title>
-          <Card.Description>Customer behavior and top spenders</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          {#if customerQuery.isLoading}
-            <div class="flex flex-col gap-3">
-              <Skeleton class="h-12 w-full" />
-              <Skeleton class="h-32 w-full" />
-            </div>
-          {:else if customerQuery.data}
-            <div class="mb-4 grid grid-cols-3 gap-4">
-              <div class="bg-muted/50 rounded-lg p-3">
-                <p class="text-muted-foreground text-xs font-medium">Unique</p>
-                <p class="text-lg font-semibold">
-                  {formatNumber(customerQuery.data.totalCustomers)}
-                </p>
-              </div>
-              <div class="bg-muted/50 rounded-lg p-3">
-                <p class="text-muted-foreground text-xs font-medium">Returning</p>
-                <p class="text-lg font-semibold">
-                  {formatNumber(customerQuery.data.returningCustomers)}
-                </p>
-              </div>
-              <div class="bg-muted/50 rounded-lg p-3">
-                <p class="text-muted-foreground text-xs font-medium">Avg Order</p>
-                <p class="text-lg font-semibold">
-                  <Pricing cents={customerQuery.data.avgOrderValueCents} country={shop.country} />
-                </p>
-              </div>
-            </div>
-
-            {#if customerQuery.data.topCustomers.length > 0}
-              <p class="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
-                Top Customers
-              </p>
-              <div class="border-border divide-border divide-y overflow-hidden rounded-lg border">
-                {#each customerQuery.data.topCustomers as customer (customer.phone ?? customer.name ?? customer.totalSpentCents)}
-                  <div class="flex items-center justify-between px-3 py-2">
-                    <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-medium">
-                        {customer.name ?? customer.phone ?? "Unknown"}
-                      </p>
-                      {#if customer.name && customer.phone}
-                        <p class="text-muted-foreground text-xs">{customer.phone}</p>
-                      {/if}
-                    </div>
-                    <div class="text-right">
-                      <p class="text-sm font-medium">
-                        <Pricing cents={customer.totalSpentCents} country={shop.country} />
-                      </p>
-                      <p class="text-muted-foreground text-xs">
-                        {customer.orderCount} order{customer.orderCount !== 1 ? "s" : ""}
-                      </p>
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            {:else}
-              <p class="text-muted-foreground text-center text-sm">No customer data yet</p>
-            {/if}
-          {/if}
-        </Card.Content>
-      </Card.Root>
-    </div>
 
     <Separator />
 
