@@ -36,8 +36,10 @@
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
   const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
   const debouncedDateTo = new Debounced(() => searchParams.dateTo, 300);
-  const debouncedMovementTypes = new Debounced(() => searchParams.movementTypes ?? [], 300);
-  const debouncedReferenceTypes = new Debounced(() => searchParams.referenceTypes ?? [], 300);
+  const movementTypesKey = $derived(JSON.stringify(searchParams.movementTypes ?? []));
+  const referenceTypesKey = $derived(JSON.stringify(searchParams.referenceTypes ?? []));
+  const debouncedMovementTypes = new Debounced(() => movementTypesKey, 300);
+  const debouncedReferenceTypes = new Debounced(() => referenceTypesKey, 300);
 
   const movements = createInfiniteQuery(() =>
     orpc.inventory.listMovements.infiniteOptions({
@@ -48,8 +50,8 @@
         search: debouncedSearch.current || undefined,
         dateFrom: debouncedDateFrom.current || undefined,
         dateTo: debouncedDateTo.current || undefined,
-        movementTypes: debouncedMovementTypes.current,
-        referenceTypes: debouncedReferenceTypes.current,
+        movementTypes: JSON.parse(debouncedMovementTypes.current) as MovementType[],
+        referenceTypes: JSON.parse(debouncedReferenceTypes.current) as ReferenceType[],
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!params.slug,

@@ -37,7 +37,12 @@
 
   const searchParams = useSearchParams(shopProductsFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
-  const debouncedCategories = new Debounced(() => searchParams.categories, 500);
+  // JSON.stringify via $derived prevents false reactive triggers:
+  // useSearchParams re-parses arrays from URL on every read (new reference each time),
+  // and update() writes #localCache twice (direct + URL sync). $derived with string
+  // comparison deduplicates these, so Debounced only fires when the value actually changes.
+  const categoriesKey = $derived(JSON.stringify(searchParams.categories ?? []));
+  const debouncedCategories = new Debounced(() => categoriesKey, 500);
 
   let isFilterSheetOpen = $state(false);
 
@@ -55,8 +60,10 @@
         cursor,
         slug: params.slug,
         search: debouncedSearch.current || undefined,
-        categories:
-          debouncedCategories.current.length > 0 ? debouncedCategories.current : undefined,
+        categories: (() => {
+          const c = JSON.parse(debouncedCategories.current) as string[];
+          return c.length > 0 ? c : undefined;
+        })(),
         inStockOnly: searchParams.inStockOnly || undefined,
         minPriceCents: searchParams.minPrice ? searchParams.minPrice * 100 : undefined,
         maxPriceCents: searchParams.maxPrice ? searchParams.maxPrice * 100 : undefined,

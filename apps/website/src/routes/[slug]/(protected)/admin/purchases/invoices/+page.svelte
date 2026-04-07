@@ -48,7 +48,12 @@
 
   const searchParams = useSearchParams(invoiceFilesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
-  const debouncedStatuses = new Debounced(() => searchParams.statuses, 500);
+  // JSON.stringify via $derived prevents false reactive triggers:
+  // useSearchParams re-parses arrays from URL on every read (new reference each time),
+  // and update() writes #localCache twice (direct + URL sync). $derived with string
+  // comparison deduplicates these, so Debounced only fires when the value actually changes.
+  const statusesKey = $derived(JSON.stringify(searchParams.statuses ?? []));
+  const debouncedStatuses = new Debounced(() => statusesKey, 500);
 
   const statusKeys: PurchaseInvoiceFileStatus[] = [
     "UPLOADED",
@@ -90,7 +95,10 @@
         pageSize: 20,
         cursor,
         slug: params.slug,
-        statuses: debouncedStatuses.current.length > 0 ? debouncedStatuses.current : undefined,
+        statuses: (() => {
+          const s = JSON.parse(debouncedStatuses.current) as PurchaseInvoiceFileStatus[];
+          return s.length > 0 ? s : undefined;
+        })(),
         search: debouncedSearch.current || undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
