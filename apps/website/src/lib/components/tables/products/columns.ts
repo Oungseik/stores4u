@@ -20,6 +20,7 @@ export function createColumns(
   country: CountryCode | null,
   slug: string,
   onDelete?: (id: string) => void,
+  onAdjustStock?: (id: string, name: string, stock: number) => void,
 ): ColumnDef<ProductItem>[] {
   return [
     {
@@ -61,7 +62,14 @@ export function createColumns(
       id: "actions",
       header: "",
       cell: ({ row }) => {
-        return renderComponent(ActionsCell, { id: row.original.id, slug, onDelete });
+        return renderComponent(ActionsCell, {
+          id: row.original.id,
+          slug,
+          productName: row.original.name,
+          currentStock: row.original.stock,
+          onDelete,
+          onAdjustStock,
+        });
       },
     },
   ];

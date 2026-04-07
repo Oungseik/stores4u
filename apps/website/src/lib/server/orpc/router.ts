@@ -14,6 +14,7 @@ import { updateChatHandler } from "./handlers/chats/update_chat";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { uploadHandler } from "./handlers/images/upload";
+import { adjustStockHandler } from "./handlers/inventory/adjust_stock";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
 import { listOrdersHandler } from "./handlers/orders/list_order";
@@ -77,6 +78,7 @@ export const router = os.router({
     upload: uploadHandler,
   },
   inventory: {
+    adjustStock: adjustStockHandler,
     listMovements: listMovementsHandler,
   },
   purchaseInvoices: {

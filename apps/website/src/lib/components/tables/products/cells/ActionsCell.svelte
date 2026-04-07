@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -9,10 +10,13 @@
   type Props = {
     id: string;
     slug: string;
+    productName: string;
+    currentStock: number;
     onDelete?: (id: string) => void;
+    onAdjustStock?: (id: string, name: string, stock: number) => void;
   };
 
-  const { id, slug, onDelete }: Props = $props();
+  const { id, slug, productName, currentStock, onDelete, onAdjustStock }: Props = $props();
 
   function handleDelete() {
     confirmDelete({
@@ -43,6 +47,13 @@
           Edit
         </a>
       {/snippet}
+    </DropdownMenu.Item>
+    <DropdownMenu.Item
+      onclick={() => onAdjustStock?.(id, productName, currentStock)}
+      disabled={!onAdjustStock}
+    >
+      <ArrowUpDownIcon class="size-4" />
+      Adjust Stock
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
     <DropdownMenu.Item class="text-red-600" onclick={handleDelete} disabled={!onDelete}>

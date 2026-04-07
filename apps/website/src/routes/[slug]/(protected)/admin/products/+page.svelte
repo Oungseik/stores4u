@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -25,6 +26,7 @@
 
   import { goto } from "$app/navigation";
   import Pricing from "$lib/components/Pricing.svelte";
+  import StockAdjustmentDialog from "$lib/components/StockAdjustmentDialog.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import { createColumns } from "$lib/components/tables/products/columns";
@@ -85,11 +87,17 @@
     })
   );
 
-  const columns = $derived(createColumns(shop.country, params.slug, handleDeleteProduct));
+  const columns = $derived(createColumns(shop.country, params.slug, handleDeleteProduct, handleAdjustProduct));
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
   function resetFilters() {
     searchParams.update({ search: "", categories: [] });
+  }
+
+  let adjustProduct = $state<{ id: string; name: string; stock: number } | null>(null);
+
+  function handleAdjustProduct(id: string, name: string, stock: number) {
+    adjustProduct = { id, name, stock };
   }
 </script>
 
@@ -244,6 +252,12 @@
                         </a>
                       {/snippet}
                     </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onclick={() => handleAdjustProduct(product.id, product.name, product.stock)}
+                    >
+                      <ArrowUpDownIcon class="size-4" />
+                      Adjust Stock
+                    </DropdownMenu.Item>
                     <DropdownMenu.Separator />
                     <DropdownMenu.Item
                       class="text-destructive"
@@ -278,4 +292,15 @@
       {/if}
     {/if}
   </section>
+
+  {#if adjustProduct}
+    <StockAdjustmentDialog
+      open={true}
+      onClose={() => (adjustProduct = null)}
+      slug={params.slug}
+      productId={adjustProduct.id}
+      productName={adjustProduct.name}
+      currentStock={adjustProduct.stock}
+    />
+  {/if}
 </div>

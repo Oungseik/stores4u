@@ -1,5 +1,6 @@
 <script lang="ts">
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
+  import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import BarcodeIcon from "@lucide/svelte/icons/barcode";
   import BoxIcon from "@lucide/svelte/icons/box";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
@@ -24,6 +25,7 @@
   import { useSearchParams } from "runed/kit";
 
   import Pricing from "$lib/components/Pricing.svelte";
+  import StockAdjustmentDialog from "$lib/components/StockAdjustmentDialog.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { productDetailTabSchema } from "$lib/search_param";
@@ -101,6 +103,8 @@
   const totalRevenue = $derived(orderHistoryQuery.data?.pages[0]?.totalRevenue ?? 0);
   const totalUnitsSold = $derived(orderHistoryQuery.data?.pages[0]?.totalUnitsSold ?? 0);
 
+  let showAdjustDialog = $state(false);
+
   type MovementType = "PURCHASE" | "SALE" | "RETURN" | "ADJUSTMENT" | "WASTAGE" | "CORRECTION";
 
   function getMovementBadgeVariant(
@@ -133,6 +137,10 @@
   >
     {#snippet actions()}
       {#if product}
+        <Button variant="outline" size="sm" onclick={() => (showAdjustDialog = true)}>
+          <ArrowUpDownIcon data-icon="inline-start" />
+          Adjust Stock
+        </Button>
         <a
           href={`/${params.slug}/admin/products/${params.id}/edit`}
           class={buttonVariants({ size: "sm" })}
@@ -532,5 +540,16 @@
         {/if}
       </Tabs.Content>
     </Tabs.Root>
+  {/if}
+
+  {#if product}
+    <StockAdjustmentDialog
+      open={showAdjustDialog}
+      onClose={() => (showAdjustDialog = false)}
+      slug={params.slug}
+      productId={params.id}
+      productName={product.name}
+      currentStock={product.stock}
+    />
   {/if}
 </div>
