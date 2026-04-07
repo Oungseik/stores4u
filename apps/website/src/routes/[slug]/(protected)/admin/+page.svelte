@@ -14,8 +14,8 @@
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
-  import { AreaChart } from "layerchart";
   import { curveNatural } from "d3-shape";
+  import { AreaChart } from "layerchart";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -25,31 +25,9 @@
 
   const { params, data: shop }: PageProps = $props();
 
-  type TrendPeriod = { days: number; months?: never } | { days?: never; months: number };
-
-  let trendPeriod = $state<TrendPeriod>({ days: 7 });
-
-  const trendToggleValue = $derived(
-    "days" in trendPeriod && trendPeriod.days !== undefined
-      ? String(trendPeriod.days)
-      : "months" in trendPeriod
-        ? String(trendPeriod.months) + "M"
-        : "7"
-  );
-
-  function onTrendChange(v: string) {
-    if (v.endsWith("M")) {
-      trendPeriod = { months: parseInt(v) };
-    } else {
-      trendPeriod = { days: parseInt(v) };
-    }
-  }
+  let trendDays = $state(7);
 
   function formatTrendDate(dateStr: string): string {
-    if (dateStr.length === 7) {
-      const d = new Date(dateStr + "-01T00:00:00");
-      return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
-    }
     const d = new Date(dateStr + "T00:00:00");
     return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
@@ -63,15 +41,12 @@
 
   const revenueTrendQuery = createQuery(() =>
     orpc.dashboard.revenueTrend.queryOptions({
-      input: { slug: params.slug, ...trendPeriod },
+      input: { slug: params.slug, days: trendDays },
       enabled: !!params.slug,
     })
   );
 
-  const isLoading = $derived(
-    statsQuery.isLoading ||
-      revenueTrendQuery.isLoading
-  );
+  const isLoading = $derived(statsQuery.isLoading || revenueTrendQuery.isLoading);
 
   const revenueChartConfig = {
     revenue: { label: "Revenue", color: "var(--chart-1)" },
@@ -96,8 +71,6 @@
   function formatNumber(n: number): string {
     return n.toLocaleString();
   }
-
-
 </script>
 
 <div class="@container/main flex flex-1 flex-col gap-4 p-4 md:p-6">
@@ -224,15 +197,13 @@
         </div>
         <ToggleGroup
           type="single"
-          value={trendToggleValue}
+          value={String(trendDays)}
           onValueChange={(v) => {
-            if (v) onTrendChange(v);
+            if (v) trendDays = parseInt(v);
           }}
         >
           <ToggleGroupItem value="7">7D</ToggleGroupItem>
           <ToggleGroupItem value="30">30D</ToggleGroupItem>
-          <ToggleGroupItem value="4M">4M</ToggleGroupItem>
-          <ToggleGroupItem value="12M">1Y</ToggleGroupItem>
         </ToggleGroup>
       </Card.Header>
       <Card.Content>
