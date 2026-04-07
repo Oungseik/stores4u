@@ -15,6 +15,7 @@
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
   import { AreaChart } from "layerchart";
+  import { curveNatural } from "d3-shape";
 
   import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -277,6 +278,11 @@
               axis="x"
               tooltipContext
               props={{
+                area: {
+                  curve: curveNatural,
+                  fillOpacity: 0.4,
+                  line: { class: "stroke-1" },
+                },
                 xAxis: {
                   format: (d: string) => formatTrendDate(d),
                 },
@@ -286,7 +292,24 @@
               }}
             >
               {#snippet tooltip()}
-                <Chart.Tooltip labelFormatter={(d: string) => formatTrendDate(d)} />
+                <Chart.Tooltip labelFormatter={(d: string) => formatTrendDate(d)}>
+                  {#snippet formatter({ value, name, item })}
+                    <div
+                      style="--color-bg: {item.color}; --color-border: {item.color};"
+                      class="flex w-full items-center gap-2"
+                    >
+                      <div
+                        class="size-2.5 shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)"
+                      ></div>
+                      <div class="flex flex-1 justify-between leading-none">
+                        <span class="text-muted-foreground">{name}</span>
+                        <span class="text-foreground font-mono font-medium tabular-nums">
+                          {formatCents(value as number)}
+                        </span>
+                      </div>
+                    </div>
+                  {/snippet}
+                </Chart.Tooltip>
               {/snippet}
             </AreaChart>
           </Chart.Container>
