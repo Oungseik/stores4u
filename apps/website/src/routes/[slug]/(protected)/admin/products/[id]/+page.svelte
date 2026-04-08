@@ -424,7 +424,13 @@
                       <CalendarIcon class="size-3" />
                       <span>{formatDate(movement.occurredAt, true)}</span>
                     </div>
-                    {#if movement.unitCostCents}
+                    {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
+                      {#if movement.unitPriceCents}
+                        <p class="text-muted-foreground mt-1 text-xs">
+                          Price: <Pricing cents={movement.unitPriceCents} />
+                        </p>
+                      {/if}
+                    {:else if movement.unitCostCents}
                       <p class="text-muted-foreground mt-1 text-xs">
                         Cost: <Pricing cents={movement.unitCostCents} />
                       </p>

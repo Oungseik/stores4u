@@ -1,0 +1,1 @@
+ALTER TABLE `inventory_movement` ADD `unit_price_cents` integer;

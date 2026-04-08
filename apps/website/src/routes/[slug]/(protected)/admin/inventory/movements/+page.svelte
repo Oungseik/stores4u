@@ -241,9 +241,15 @@
 
                 <div class="shrink-0 text-right">
                   <QuantityCell qty={movement.qty} />
-                  {#if movement.unitCostCents !== null}
+                  {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
+                    {#if movement.unitPriceCents !== null}
+                      <p class="text-muted-foreground text-xs">
+                        Price: <Pricing cents={movement.unitPriceCents} country={shop.country} />
+                      </p>
+                    {/if}
+                  {:else if movement.unitCostCents !== null}
                     <p class="text-muted-foreground text-xs">
-                      <Pricing cents={movement.unitCostCents} country={shop.country} />
+                      Cost: <Pricing cents={movement.unitCostCents} country={shop.country} />
                     </p>
                   {/if}
                 </div>

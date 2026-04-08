@@ -31,6 +31,7 @@ export const inventoryMovement = sqliteTable(
     movementType: text("movement_type", { enum: movementTypes }).notNull(),
     qty: real("qty").notNull(),
     unitCostCents: integer("unit_cost_cents"),
+    unitPriceCents: integer("unit_price_cents"),
     referenceType: text("reference_type", { enum: referenceTypes }).notNull(),
     referenceId: text("reference_id"),
     reason: text("reason"),

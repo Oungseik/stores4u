@@ -14,7 +14,5 @@
   {:else if referenceType && referenceId}
     <span class="text-muted-foreground text-xs">{referenceType}</span>
     <span class="font-mono text-xs">{referenceId.slice(-8).toUpperCase()}</span>
-  {:else}
-    <span class="text-muted-foreground">—</span>
-  {/if}
+  {:else}{/if}
 </div>

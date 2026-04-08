@@ -15,6 +15,4 @@
   <span class="font-medium">
     <Pricing {cents} {country} />
   </span>
-{:else}
-  <span class="text-muted-foreground">—</span>
 {/if}

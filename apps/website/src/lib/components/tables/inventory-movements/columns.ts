@@ -7,6 +7,7 @@ import DateCell from "./cells/DateCell.svelte";
 import MovementTypeCell from "./cells/MovementTypeCell.svelte";
 import ProductCell from "./cells/ProductCell.svelte";
 import QuantityCell from "./cells/QuantityCell.svelte";
+import ReasonCell from "./cells/ReasonCell.svelte";
 import ReferenceCell from "./cells/ReferenceCell.svelte";
 
 export type MovementItem = {
@@ -19,6 +20,7 @@ export type MovementItem = {
   movementType: "PURCHASE" | "SALE" | "RETURN" | "WASTAGE" | "ADJUSTMENT" | "CORRECTION";
   qty: number;
   unitCostCents: number | null;
+  unitPriceCents: number | null;
   reason: string | null;
   occurredAt: Date;
   referenceType: string | null;
@@ -63,10 +65,20 @@ export function createColumns(country: CountryCode | null): ColumnDef<MovementIt
       },
     },
     {
+      accessorKey: "unitPriceCents",
+      header: "Unit Price",
+      cell: ({ row }) => {
+        return renderComponent(CostCell, {
+          cents: row.original.unitPriceCents,
+          country,
+        });
+      },
+    },
+    {
       accessorKey: "reason",
       header: "Reason",
       cell: ({ row }) => {
-        return row.original.reason ?? "—";
+        return renderComponent(ReasonCell, { reason: row.original.reason });
       },
     },
     {

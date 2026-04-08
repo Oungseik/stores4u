@@ -164,6 +164,7 @@ export const checkoutHandler = os
           movementType: "SALE" as const,
           qty: -item.qty,
           unitCostCents: latestCostByProduct.get(item.productId) ?? 0,
+          unitPriceCents: getProduct(item.productId).priceCents,
           referenceType: "ORDER" as const,
           referenceId: createdOrder.id,
           occurredAt: now,

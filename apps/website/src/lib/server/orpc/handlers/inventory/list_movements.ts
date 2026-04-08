@@ -91,6 +91,7 @@ export const listMovementsHandler = os
         movementType: m.movementType,
         qty: m.qty,
         unitCostCents: m.unitCostCents,
+        unitPriceCents: m.unitPriceCents,
         reason: m.reason,
         occurredAt: m.occurredAt,
         referenceType: m.referenceType,
