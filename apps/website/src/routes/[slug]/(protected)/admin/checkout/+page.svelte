@@ -40,6 +40,9 @@
         );
         cart = [];
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.revenueTrend.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
       },
       onError: (error) => {
         toast.error(error.message || "Checkout failed");
