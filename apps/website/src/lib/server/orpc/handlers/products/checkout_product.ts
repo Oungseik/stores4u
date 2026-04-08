@@ -1,16 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import {
-  and,
-  desc,
-  gte,
-  inArray,
-  inventoryMovement,
-  order,
-  orderItem,
-  product,
-  purchaseInvoiceItem,
-  sql,
-} from "@repo/db";
+import { and, gte, inArray, inventoryMovement, order, orderItem, product, sql } from "@repo/db";
 import { z } from "zod";
 
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
@@ -58,8 +47,6 @@ export const checkoutHandler = os
     }
 
     const productMap = new Map(products.map((p) => [p.id, p]));
-    const stockQtyByProduct = new Map(products.map((p) => [p.id, p.stock]));
-
     const getProduct = (id: string) => {
       const p = productMap.get(id);
       if (!p) {
@@ -83,13 +70,11 @@ export const checkoutHandler = os
     const latestCostByProduct = new Map(
       await Promise.all(
         productIds.map(async (pid) => {
-          const rows = await shopDb
-            .select({ unitCostCents: purchaseInvoiceItem.unitCostCents })
-            .from(purchaseInvoiceItem)
-            .where(sql`${purchaseInvoiceItem.productId} = ${pid}`)
-            .orderBy(desc(purchaseInvoiceItem.createdAt))
-            .limit(1);
-          return [pid, rows[0]?.unitCostCents ?? 0] as const;
+          const row = await shopDb.query.inventoryMovement.findFirst({
+            where: { productId: pid, movementType: { in: ["ADJUSTMENT", "PURCHASE"] } },
+            orderBy: { createdAt: "desc" },
+          });
+          return [pid, row?.unitCostCents ?? 0] as const;
         }),
       ),
     );
@@ -108,7 +93,7 @@ export const checkoutHandler = os
           createdAt: now,
           updatedAt: now,
         })
-        .returning();
+        .returning({ id: order.id });
       const createdOrder = orderRecord[0];
 
       if (!createdOrder) {
@@ -118,8 +103,7 @@ export const checkoutHandler = os
       }
 
       const orderItems = input.items.map((item) => {
-        const dbProduct = getProduct(item.productId);
-        const unitPriceCents = dbProduct.priceCents;
+        const unitPriceCents = getProduct(item.productId).priceCents;
         return {
           id: Bun.randomUUIDv7(),
           orderId: createdOrder.id,
@@ -163,10 +147,10 @@ export const checkoutHandler = os
 
       if (updateResult.rowsAffected !== productIds.length) {
         const insufficient = [...requestedQtyByProduct.entries()]
-          .filter(([id, requested]) => (stockQtyByProduct.get(id) ?? 0) < requested)
+          .filter(([id, requested]) => getProduct(id).stock < requested)
           .map(([id, requested]) => {
             const p = getProduct(id);
-            return `"${p.name}" (available: ${stockQtyByProduct.get(id)}, requested: ${requested})`;
+            return `"${p.name}" (available: ${getProduct(id)}, requested: ${requested})`;
           });
 
         throw new ORPCError("BAD_REQUEST", {
