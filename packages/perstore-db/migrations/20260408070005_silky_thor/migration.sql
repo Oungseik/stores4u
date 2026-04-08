@@ -26,6 +26,7 @@ CREATE TABLE `purchase_invoice` (
 	`id` text PRIMARY KEY,
 	`invoice_number` text NOT NULL,
 	`supplier_id` text NOT NULL,
+	`invoice_file_id` text UNIQUE,
 	`ocr_result_id` text UNIQUE,
 	`invoice_date` text NOT NULL,
 	`photo_url` text NOT NULL,
@@ -41,6 +42,7 @@ CREATE TABLE `purchase_invoice` (
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	CONSTRAINT `fk_purchase_invoice_supplier_id_supplier_id_fk` FOREIGN KEY (`supplier_id`) REFERENCES `supplier`(`id`),
+	CONSTRAINT `fk_purchase_invoice_invoice_file_id_purchase_invoice_file_id_fk` FOREIGN KEY (`invoice_file_id`) REFERENCES `purchase_invoice_file`(`id`),
 	CONSTRAINT `fk_purchase_invoice_ocr_result_id_purchase_invoice_ocr_result_id_fk` FOREIGN KEY (`ocr_result_id`) REFERENCES `purchase_invoice_ocr_result`(`id`),
 	CONSTRAINT `purchase_invoice_supplier_invoice_number_unique` UNIQUE(`supplier_id`,`invoice_number`)
 );
@@ -85,11 +87,9 @@ CREATE TABLE `purchase_invoice_ocr_result` (
 	`extracted_data` text,
 	`confidence_score` real,
 	`rejection_reason` text,
-	`status` text DEFAULT 'PENDING' NOT NULL,
 	`created_at` integer NOT NULL,
 	CONSTRAINT `fk_purchase_invoice_ocr_result_invoice_file_id_purchase_invoice_file_id_fk` FOREIGN KEY (`invoice_file_id`) REFERENCES `purchase_invoice_file`(`id`),
-	CONSTRAINT "purchase_invoice_ocr_result_confidence_score_check" CHECK("confidence_score" IS NULL OR ("confidence_score" >= 0 AND "confidence_score" <= 1)),
-	CONSTRAINT "purchase_invoice_ocr_result_status_check" CHECK("status" IN ('PENDING', 'PROCESSED', 'FAILED', 'REJECTED', 'LINKED'))
+	CONSTRAINT "purchase_invoice_ocr_result_confidence_score_check" CHECK("confidence_score" IS NULL OR ("confidence_score" >= 0 AND "confidence_score" <= 1))
 );
 --> statement-breakpoint
 CREATE TABLE `order` (
@@ -132,7 +132,7 @@ CREATE TABLE `inventory_movement` (
 	`movement_type` text NOT NULL,
 	`qty` real NOT NULL,
 	`unit_cost_cents` integer,
-	`reference_type` text,
+	`reference_type` text NOT NULL,
 	`reference_id` text,
 	`reason` text,
 	`occurred_at` integer NOT NULL,

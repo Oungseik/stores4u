@@ -1,7 +1,7 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "5e0df290-42f0-4f5e-8974-2553a212a614",
+  "id": "ffc074ed-0d8d-4457-b435-5162457fe37e",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -249,6 +249,16 @@
       "default": null,
       "generated": null,
       "name": "supplier_id",
+      "entityType": "columns",
+      "table": "purchase_invoice"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "invoice_file_id",
       "entityType": "columns",
       "table": "purchase_invoice"
     },
@@ -693,16 +703,6 @@
       "table": "purchase_invoice_ocr_result"
     },
     {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": "'PENDING'",
-      "generated": null,
-      "name": "status",
-      "entityType": "columns",
-      "table": "purchase_invoice_ocr_result"
-    },
-    {
       "type": "integer",
       "notNull": true,
       "autoincrement": false,
@@ -994,7 +994,7 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
@@ -1549,6 +1549,21 @@
       "onDelete": "NO ACTION",
       "nameExplicit": false,
       "name": "fk_purchase_invoice_supplier_id_supplier_id_fk",
+      "entityType": "fks",
+      "table": "purchase_invoice"
+    },
+    {
+      "columns": [
+        "invoice_file_id"
+      ],
+      "tableTo": "purchase_invoice_file",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_purchase_invoice_invoice_file_id_purchase_invoice_file_id_fk",
       "entityType": "fks",
       "table": "purchase_invoice"
     },
@@ -2297,6 +2312,15 @@
     },
     {
       "columns": [
+        "invoice_file_id"
+      ],
+      "nameExplicit": false,
+      "name": "purchase_invoice_invoice_file_id_unique",
+      "entityType": "uniques",
+      "table": "purchase_invoice"
+    },
+    {
+      "columns": [
         "ocr_result_id"
       ],
       "nameExplicit": false,
@@ -2331,12 +2355,6 @@
     {
       "value": "\"confidence_score\" IS NULL OR (\"confidence_score\" >= 0 AND \"confidence_score\" <= 1)",
       "name": "purchase_invoice_ocr_result_confidence_score_check",
-      "entityType": "checks",
-      "table": "purchase_invoice_ocr_result"
-    },
-    {
-      "value": "\"status\" IN ('PENDING', 'PROCESSED', 'FAILED', 'REJECTED', 'LINKED')",
-      "name": "purchase_invoice_ocr_result_status_check",
       "entityType": "checks",
       "table": "purchase_invoice_ocr_result"
     }
