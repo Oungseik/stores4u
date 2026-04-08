@@ -44,6 +44,7 @@
 	</Popover.Trigger>
 	<Popover.Content class="w-56 p-0" align="start">
 		<div class="p-1">
+			{#if items.length > 0}
 			{#each items as item (item.value)}
 				{@const checked = value.includes(item.value)}
 				<button
@@ -60,6 +61,9 @@
 					{/if}
 				</button>
 			{/each}
+			{:else}
+				<p class="text-muted-foreground px-2 py-2 text-center text-sm">No items</p>
+			{/if}
 		</div>
 	</Popover.Content>
 </Popover.Root>
