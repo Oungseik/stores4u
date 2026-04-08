@@ -413,22 +413,22 @@
           <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
             Purchase History
           </h4>
-          <div class="grid grid-cols-3 gap-4">
-            <div class="rounded-md border p-3 text-center">
-              <p class="text-lg font-bold">
+          <div class="space-y-2 rounded-md border p-3 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-muted-foreground">Total Purchases</span>
+              <span class="font-medium">
                 <Pricing cents={displaySupplier.totalPurchases} country={shop.country} />
-              </p>
-              <p class="text-muted-foreground text-xs">Total Purchases</p>
+              </span>
             </div>
-            <div class="rounded-md border p-3 text-center">
-              <p class="text-lg font-bold">{displaySupplier.purchaseInvoicesCount}</p>
-              <p class="text-muted-foreground text-xs">Invoices</p>
+            <div class="flex items-center justify-between">
+              <span class="text-muted-foreground">Total Invoices</span>
+              <span class="font-medium">{displaySupplier.purchaseInvoicesCount}</span>
             </div>
-            <div class="rounded-md border p-3 text-center">
-              <p class="text-lg font-bold">
+            <div class="flex items-center justify-between">
+              <span class="text-muted-foreground">Last Purchase</span>
+              <span class="font-medium">
                 {displaySupplier.lastPurchase ? formatDate(displaySupplier.lastPurchase) : "—"}
-              </p>
-              <p class="text-muted-foreground text-xs">Last Purchase</p>
+              </span>
             </div>
           </div>
         </div>
