@@ -140,6 +140,35 @@ pnpm check  # Check all files
 pnpm format # Format all files
 ```
 
+## Turso Database Management
+
+### List databases in the stores4u group
+
+```bash
+turso db list --group stores4u
+```
+
+### Delete and recreate all databases (e.g. after cleaning migrations)
+
+```bash
+# Destroy each database
+yes | turso db destroy stores4u-auth
+yes | turso db destroy stores4u-gakom
+yes | turso db destroy stores4u-parent
+
+# Recreate in the stores4u group (only auth and parent)
+turso db create stores4u-auth --group stores4u
+turso db create stores4u-parent --group stores4u
+```
+
+### Run migrations on all databases
+
+```bash
+bun run db:generate   # Generate migration files from schema changes
+bun run db:migrate    # Apply migrations to all databases
+bun run db:seed       # Seed databases with initial data
+```
+
 ## Environment Variables
 
 The website application may use environment variables. Check the `.env.example` file in the `apps/website` directory for required environment variables.
