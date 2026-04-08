@@ -46,6 +46,7 @@
       onSuccess: () => {
         toast.success("Supplier deleted successfully");
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.get.key() });
       },
       onError: (error) => {
         toast.error(error.message || "Failed to delete supplier");
@@ -520,7 +521,7 @@
           }}
           onSuccess={() => {
             isEditOpen = false;
-            selectedSupplier = null;
+            isViewOpen = true;
             editFormRef?.resetForm();
           }}
           onCancel={() => {

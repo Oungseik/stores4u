@@ -62,6 +62,7 @@
       onSuccess: () => {
         toast.success("Supplier updated successfully");
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.get.key() });
         onSuccess?.();
       },
       onError: (error) => {
