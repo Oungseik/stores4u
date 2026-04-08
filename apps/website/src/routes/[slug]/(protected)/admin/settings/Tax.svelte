@@ -6,6 +6,7 @@
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { NumberInput } from "@repo/ui/number-input";
   import { Switch } from "@repo/ui/switch";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
@@ -119,17 +120,13 @@
               {#snippet children(field)}
                 <div class="space-y-2">
                   <Label for={field.name}>VAT Rate (%)</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
+                  <NumberInput
                     value={field.state.value}
+                    onValueChange={(v) => field.handleChange(v)}
                     onblur={field.handleBlur}
-                    onchange={(e) =>
-                      field.handleChange(Number.parseFloat(e.currentTarget.value) || 0)}
-                    type="number"
-                    step="0.001"
-                    min="0"
-                    max="100"
+                    fraction={3}
+                    min={0}
+                    max={100}
                     placeholder="8.875"
                   />
                 </div>

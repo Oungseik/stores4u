@@ -14,6 +14,7 @@
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { NumberInput } from "@repo/ui/number-input";
   import { Separator } from "@repo/ui/separator";
   import * as Sheet from "@repo/ui/sheet";
   import { Switch } from "@repo/ui/switch";
@@ -282,13 +283,12 @@
                     class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm"
                     >$</span
                   >
-                  <Input
-                    type="number"
+                  <NumberInput
                     placeholder="Min"
-                    value={searchParams.minPrice}
-                    oninput={(e) =>
-                      searchParams.update({ minPrice: e.currentTarget.valueAsNumber })}
-                    min="0"
+                    value={searchParams.minPrice ?? 0}
+                    onValueChange={(v) => searchParams.update({ minPrice: v || undefined })}
+                    min={0}
+                    fraction={2}
                     class="h-10 pl-7"
                   />
                 </div>
@@ -297,13 +297,12 @@
                     class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-sm"
                     >$</span
                   >
-                  <Input
-                    type="number"
+                  <NumberInput
                     placeholder="Max"
-                    value={searchParams.maxPrice}
-                    oninput={(e) =>
-                      searchParams.update({ maxPrice: e.currentTarget.valueAsNumber })}
-                    min="0"
+                    value={searchParams.maxPrice ?? 0}
+                    onValueChange={(v) => searchParams.update({ maxPrice: v || undefined })}
+                    min={0}
+                    fraction={2}
                     class="h-10 pl-7"
                   />
                 </div>
@@ -429,31 +428,23 @@
                     <Label>Price Range</Label>
                     <div class="flex items-center gap-3">
                       <div class="relative flex-1">
-                        <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
-                          >$</span
-                        >
-                        <Input
-                          type="number"
+                        <NumberInput
                           placeholder="Min"
-                          value={searchParams.minPrice}
-                          oninput={(e) =>
-                            searchParams.update({ minPrice: e.currentTarget.valueAsNumber })}
-                          min="0"
+                          value={searchParams.minPrice ?? 0}
+                          onValueChange={(v) => searchParams.update({ minPrice: v || undefined })}
+                          min={0}
+                          fraction={2}
                           class="pl-7"
                         />
                       </div>
                       <span class="text-muted-foreground">-</span>
                       <div class="relative flex-1">
-                        <span class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
-                          >$</span
-                        >
-                        <Input
-                          type="number"
+                        <NumberInput
                           placeholder="Max"
-                          value={searchParams.maxPrice}
-                          oninput={(e) =>
-                            searchParams.update({ maxPrice: e.currentTarget.valueAsNumber })}
-                          min="0"
+                          value={searchParams.maxPrice ?? 0}
+                          onValueChange={(v) => searchParams.update({ maxPrice: v || undefined })}
+                          min={0}
+                          fraction={2}
                           class="pl-7"
                         />
                       </div>

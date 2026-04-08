@@ -3,6 +3,7 @@
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import { NumberInput } from "@repo/ui/number-input";
   import * as Select from "@repo/ui/select";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
@@ -44,10 +45,10 @@
     defaultValues: {
       name: initialName,
       sku: "",
-      price: initialPriceCents > 0 ? (initialPriceCents / 100).toFixed(2) : "",
+      price: initialPriceCents > 0 ? initialPriceCents / 100 : 0,
     },
     onSubmit: async ({ value }) => {
-      const priceCents = Math.round(Number.parseFloat(value.price || "0") * 100);
+      const priceCents = Math.round((value.price || 0) * 100);
       createProduct.mutate({
         slug,
         name: value.name,
@@ -125,9 +126,7 @@
       name="price"
       validators={{
         onChange: ({ value }) => {
-          if (!value) return "Price is required";
-          const num = parseFloat(value);
-          if (isNaN(num) || num <= 0) return "Must be > 0";
+          if (!value || value <= 0) return "Must be > 0";
           return undefined;
         },
       }}
@@ -135,15 +134,12 @@
       {#snippet children(field)}
         <div class="space-y-2">
           <Label for={field.name}>Retail Price ($) *</Label>
-          <Input
-            id={field.name}
-            name={field.name}
+          <NumberInput
             value={field.state.value}
-            type="number"
-            step="0.01"
-            min="0.01"
+            onValueChange={(v) => field.handleChange(v)}
             onblur={field.handleBlur}
-            onchange={(e) => field.handleChange(e.currentTarget.value)}
+            fraction={2}
+            min={0.01}
             placeholder="0.00"
           />
           {#if field.state.meta.errors.length}

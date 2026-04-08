@@ -11,6 +11,8 @@
 		class?: string;
 		placeholder?: string;
 		unsigned?: boolean;
+		onValueChange?: (value: number) => void;
+		onblur?: () => void;
 	}>;
 
 	let {
@@ -23,11 +25,21 @@
 		class: className,
 		placeholder,
 		unsigned = true,
+		onValueChange,
+		onblur,
 		...restProps
 	}: Props = $props();
 
 	let displayValue = $state("");
 	let focused = $state(false);
+	let lastInternalValue = $state(value);
+
+	function formatDisplay(val: number) {
+		displayValue = new Intl.NumberFormat("en-US", {
+			minimumFractionDigits: fraction,
+			maximumFractionDigits: fraction,
+		}).format(val);
+	}
 
 	function handleMaska(detail: { masked: string; unmasked: string }) {
 		const unmasked = detail.unmasked;
@@ -37,29 +49,30 @@
 			if (min !== undefined) newValue = Math.max(min, newValue);
 			if (max !== undefined) newValue = Math.min(max, newValue);
 			value = newValue;
+			lastInternalValue = newValue;
+			onValueChange?.(newValue);
 		} else if (unmasked === "" || unmasked === "-") {
 			value = 0;
-		}
-	}
-
-	function formatDisplay() {
-		if (value !== undefined) {
-			displayValue = new Intl.NumberFormat("en-US", {
-				minimumFractionDigits: fraction,
-				maximumFractionDigits: fraction,
-			}).format(value);
+			lastInternalValue = 0;
+			onValueChange?.(0);
 		}
 	}
 
 	$effect(() => {
-		if (value !== undefined && !disabled && !focused) {
-			formatDisplay();
+		if (value !== undefined && !focused) {
+			if (value !== lastInternalValue || !disabled) {
+				formatDisplay(value);
+			}
+			lastInternalValue = value;
 		}
 	});
 
 	function handleBlur() {
 		focused = false;
-		formatDisplay();
+		if (value !== undefined) {
+			formatDisplay(value);
+		}
+		onblur?.();
 	}
 </script>
 

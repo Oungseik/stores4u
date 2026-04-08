@@ -10,6 +10,7 @@
   import * as Select from "@repo/ui/select";
   import { Textarea } from "@repo/ui/textarea";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
+  import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
@@ -31,71 +32,8 @@
 
   const queryClient = useQueryClient();
 
-  let direction = $state<Direction>("ADD");
-  let movementType = $state<MovementType>("ADJUSTMENT");
-  let qty = $state<number>(1);
-  let unitCost = $state<number>(0);
-  let date = $state(getTodayString());
-  let reason = $state("");
-  let isSubmitting = $state(false);
-
   function getTodayString() {
     return new Date().toISOString().split("T")[0];
-  }
-
-  const projectedStock = $derived(direction === "ADD" ? currentStock + qty : currentStock - qty);
-
-  const canSubmit = $derived(
-    qty > 0 && unitCost > 0 && date.length > 0 && (direction !== "SUBTRACT" || currentStock >= qty)
-  );
-
-  const adjustMutation = createMutation(() => orpc.inventory.adjustStock.mutationOptions());
-
-  function resetForm() {
-    direction = "ADD";
-    movementType = "ADJUSTMENT";
-    qty = 1;
-    unitCost = 0;
-    date = getTodayString();
-    reason = "";
-    isSubmitting = false;
-  }
-
-  async function handleSubmit() {
-    if (!canSubmit || isSubmitting) return;
-
-    isSubmitting = true;
-
-    try {
-      await adjustMutation.mutateAsync({
-        slug,
-        productId,
-        direction,
-        movementType,
-        qty,
-        unitCostCents: Math.round(unitCost * 100),
-        date,
-        reason: reason.trim() || undefined,
-      });
-
-      toast.success("Stock adjusted successfully");
-      queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
-      queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
-      queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-      resetForm();
-      onClose();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to adjust stock");
-    } finally {
-      isSubmitting = false;
-    }
-  }
-
-  function handleOpenChange(value: boolean) {
-    if (!value) {
-      resetForm();
-      onClose();
-    }
   }
 
   const movementTypeOptions: { value: MovementType; label: string }[] = [
@@ -104,6 +42,60 @@
     { value: "WASTAGE", label: "Wastage" },
     { value: "RETURN", label: "Return" },
   ];
+
+  const adjustMutation = createMutation(() =>
+    orpc.inventory.adjustStock.mutationOptions({
+      onSuccess: () => {
+        toast.success("Stock adjusted successfully");
+        queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        form.reset();
+        form.setFieldValue("date", getTodayString());
+        onClose();
+      },
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : "Failed to adjust stock");
+      },
+    })
+  );
+
+  const form = createForm(() => ({
+    defaultValues: {
+      direction: "ADD" as Direction,
+      movementType: "ADJUSTMENT" as MovementType,
+      qty: 1,
+      unitCost: 0,
+      date: getTodayString(),
+      reason: "",
+    },
+    onSubmit: async ({ value }) => {
+      adjustMutation.mutate({
+        slug,
+        productId,
+        direction: value.direction,
+        movementType: value.movementType,
+        qty: value.qty,
+        unitCostCents: Math.round(value.unitCost * 100),
+        date: value.date,
+        reason: value.reason.trim() || undefined,
+      });
+    },
+  }));
+
+  const projectedStock = $derived(
+    form.state.values.direction === "ADD"
+      ? currentStock + form.state.values.qty
+      : currentStock - form.state.values.qty
+  );
+
+  function handleOpenChange(value: boolean) {
+    if (!value) {
+      form.reset();
+      form.setFieldValue("date", getTodayString());
+      onClose();
+    }
+  }
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
@@ -115,77 +107,164 @@
       </Dialog.Description>
     </Dialog.Header>
 
-    <div class="space-y-4 py-4">
-      <div class="space-y-2">
-        <Label>Direction</Label>
-        <ToggleGroup
-          type="single"
-          value={direction}
-          onValueChange={(value) => {
-            if (value === "ADD" || value === "SUBTRACT") {
-              direction = value;
-            }
-          }}
-          variant="outline"
-          class="w-full"
-        >
-          <ToggleGroupItem value="ADD" class="flex-1">
-            <PlusIcon class="size-4" />
-            Add
-          </ToggleGroupItem>
-          <ToggleGroupItem value="SUBTRACT" class="flex-1">
-            <MinusIcon class="size-4" />
-            Subtract
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+    <form
+      class="space-y-4 py-4"
+      onsubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
+      <form.Field name="direction">
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label>Direction</Label>
+            <ToggleGroup
+              type="single"
+              value={field.state.value}
+              onValueChange={(value) => {
+                if (value === "ADD" || value === "SUBTRACT") {
+                  field.handleChange(value);
+                }
+              }}
+              variant="outline"
+              class="w-full"
+            >
+              <ToggleGroupItem value="ADD" class="flex-1">
+                <PlusIcon class="size-4" />
+                Add
+              </ToggleGroupItem>
+              <ToggleGroupItem value="SUBTRACT" class="flex-1">
+                <MinusIcon class="size-4" />
+                Subtract
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        {/snippet}
+      </form.Field>
 
-      <div class="space-y-2">
-        <Label>Type</Label>
-        <Select.Root
-          type="single"
-          value={movementType}
-          onValueChange={(value) => {
-            if (
-              value === "ADJUSTMENT" ||
-              value === "CORRECTION" ||
-              value === "WASTAGE" ||
-              value === "RETURN"
-            ) {
-              movementType = value;
-            }
-          }}
-        >
-          <Select.Trigger class="w-full">
-            {movementTypeOptions.find((o) => o.value === movementType)?.label ?? "Select type"}
-          </Select.Trigger>
-          <Select.Content>
-            {#each movementTypeOptions as option}
-              <Select.Item value={option.value}>{option.label}</Select.Item>
-            {/each}
-          </Select.Content>
-        </Select.Root>
-      </div>
+      <form.Field name="movementType">
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label>Type</Label>
+            <Select.Root
+              type="single"
+              value={field.state.value}
+              onValueChange={(value) => {
+                if (
+                  value === "ADJUSTMENT" ||
+                  value === "CORRECTION" ||
+                  value === "WASTAGE" ||
+                  value === "RETURN"
+                ) {
+                  field.handleChange(value);
+                }
+              }}
+            >
+              <Select.Trigger class="w-full">
+                {movementTypeOptions.find((o) => o.value === field.state.value)?.label ??
+                  "Select type"}
+              </Select.Trigger>
+              <Select.Content>
+                {#each movementTypeOptions as option}
+                  <Select.Item value={option.value}>{option.label}</Select.Item>
+                {/each}
+              </Select.Content>
+            </Select.Root>
+          </div>
+        {/snippet}
+      </form.Field>
 
-      <div class="space-y-2">
-        <Label>Quantity</Label>
-        <NumberInput bind:value={qty} class="w-full" min={1} fraction={0} />
-      </div>
+      <form.Field
+        name="qty"
+        validators={{
+          onChange: ({ value }) => {
+            if (!value || value <= 0) return "Quantity must be greater than 0";
+            return undefined;
+          },
+        }}
+      >
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label>Quantity</Label>
+            <NumberInput
+              value={field.state.value}
+              onValueChange={(v) => field.handleChange(v)}
+              class="w-full"
+              min={1}
+              fraction={0}
+            />
+            {#if field.state.meta.errors.length}
+              <p class="text-sm text-red-500">{field.state.meta.errors}</p>
+            {/if}
+          </div>
+        {/snippet}
+      </form.Field>
 
-      <div class="space-y-2">
-        <Label>Unit Cost</Label>
-        <NumberInput bind:value={unitCost} class="w-full" min={0} fraction={2} />
-      </div>
+      <form.Field
+        name="unitCost"
+        validators={{
+          onChange: ({ value }) => {
+            if (!value || value <= 0) return "Unit cost must be greater than 0";
+            return undefined;
+          },
+        }}
+      >
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label>Unit Cost</Label>
+            <NumberInput
+              value={field.state.value}
+              onValueChange={(v) => field.handleChange(v)}
+              class="w-full"
+              min={0}
+              fraction={2}
+            />
+            {#if field.state.meta.errors.length}
+              <p class="text-sm text-red-500">{field.state.meta.errors}</p>
+            {/if}
+          </div>
+        {/snippet}
+      </form.Field>
 
-      <div class="space-y-2">
-        <Label>Date</Label>
-        <Input type="date" bind:value={date} />
-      </div>
+      <form.Field
+        name="date"
+        validators={{
+          onChange: ({ value }) => {
+            if (!value || value.length === 0) return "Date is required";
+            return undefined;
+          },
+        }}
+      >
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label>Date</Label>
+            <Input
+              type="date"
+              value={field.state.value}
+              onblur={field.handleBlur}
+              onchange={(e) => field.handleChange(e.currentTarget.value)}
+            />
+            {#if field.state.meta.errors.length}
+              <p class="text-sm text-red-500">{field.state.meta.errors}</p>
+            {/if}
+          </div>
+        {/snippet}
+      </form.Field>
 
-      <div class="space-y-2">
-        <Label>Reason (optional)</Label>
-        <Textarea bind:value={reason} placeholder="Why is this adjustment being made?" rows={2} />
-      </div>
+      <form.Field name="reason">
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label>Reason (optional)</Label>
+            <Textarea
+              value={field.state.value}
+              onchange={(e) => field.handleChange(e.currentTarget.value)}
+              placeholder="Why is this adjustment being made?"
+              rows={2}
+            />
+          </div>
+        {/snippet}
+      </form.Field>
 
       <div class="text-muted-foreground rounded-lg border p-3 text-sm">
         <div class="flex items-center justify-between">
@@ -193,11 +272,13 @@
           <span class="font-medium">{currentStock}</span>
         </div>
         <div class="flex items-center justify-between">
-          <span>{direction === "ADD" ? "Adding" : "Subtracting"}</span>
+          <span>{form.state.values.direction === "ADD" ? "Adding" : "Subtracting"}</span>
           <span
-            class={direction === "ADD" ? "font-medium text-green-600" : "font-medium text-red-600"}
+            class={form.state.values.direction === "ADD"
+              ? "font-medium text-green-600"
+              : "font-medium text-red-600"}
           >
-            {direction === "ADD" ? "+" : "-"}{qty}
+            {form.state.values.direction === "ADD" ? "+" : "-"}{form.state.values.qty}
           </span>
         </div>
         <div class="flex items-center justify-between border-t pt-2">
@@ -207,14 +288,18 @@
           </span>
         </div>
       </div>
-    </div>
+    </form>
 
     <Dialog.Footer>
-      <Button variant="outline" onclick={() => handleOpenChange(false)} disabled={isSubmitting}>
+      <Button
+        variant="outline"
+        onclick={() => handleOpenChange(false)}
+        disabled={adjustMutation.isPending}
+      >
         Cancel
       </Button>
-      <Button onclick={handleSubmit} disabled={!canSubmit || isSubmitting}>
-        {#if isSubmitting}
+      <Button onclick={() => form.handleSubmit()} disabled={adjustMutation.isPending}>
+        {#if adjustMutation.isPending}
           <Loader2Icon class="size-4 animate-spin" />
           Adjusting...
         {:else}
