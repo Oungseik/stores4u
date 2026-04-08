@@ -60,15 +60,27 @@
           <PlayIcon class="size-4" />
           Retry
         </DropdownMenu.Item>
-      {:else if status === "PROCESSED" || status === "REVIEWED" || status === "REJECTED"}
+      {:else if status === "PROCESSED"}
         <DropdownMenu.Item>
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/admin/purchases/invoices/${id}/review`}
+              href={`/${slug}/admin/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
               Review
+            </a>
+          {/snippet}
+        </DropdownMenu.Item>
+      {:else if status === "REVIEWED" || status === "REJECTED"}
+        <DropdownMenu.Item>
+          {#snippet child()}
+            <a
+              class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
+              href={`/${slug}/admin/purchases/invoices/${id}`}
+            >
+              <SearchIcon class="size-4" />
+              View Details
             </a>
           {/snippet}
         </DropdownMenu.Item>

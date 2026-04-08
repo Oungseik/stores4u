@@ -313,7 +313,7 @@
             <Card.Content class="p-0">
               <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
                 <a
-                  href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
+                  href={`/${params.slug}/admin/purchases/invoices/${file.id}`}
                   class="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div
@@ -376,14 +376,14 @@
                         <DropdownMenu.Item>
                           {#snippet child()}
                             <a
-                              href={`/${params.slug}/admin/purchases/invoices/${file.id}/review`}
+                              href={`/${params.slug}/admin/purchases/invoices/${file.id}`}
                               class={buttonVariants({
                                 variant: "ghost",
                                 class: "w-full justify-start px-2!",
                               })}
                             >
                               <SearchIcon class="text-muted-foreground size-4" />
-                              <span>Review</span>
+                              <span>{file.status === "REVIEWED" || file.status === "REJECTED" ? "View Details" : "Review"}</span>
                             </a>
                           {/snippet}
                         </DropdownMenu.Item>
