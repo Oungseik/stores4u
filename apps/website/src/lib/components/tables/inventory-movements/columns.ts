@@ -2,9 +2,9 @@ import type { CountryCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
-import CostCell from "./cells/CostCell.svelte";
 import DateCell from "./cells/DateCell.svelte";
 import MovementTypeCell from "./cells/MovementTypeCell.svelte";
+import PriceCell from "./cells/PriceCell.svelte";
 import ProductCell from "./cells/ProductCell.svelte";
 import QuantityCell from "./cells/QuantityCell.svelte";
 import ReasonCell from "./cells/ReasonCell.svelte";
@@ -55,21 +55,13 @@ export function createColumns(country: CountryCode | null): ColumnDef<MovementIt
       },
     },
     {
-      accessorKey: "unitCostCents",
-      header: "Unit Cost",
-      cell: ({ row }) => {
-        return renderComponent(CostCell, {
-          cents: row.original.unitCostCents,
-          country,
-        });
-      },
-    },
-    {
       accessorKey: "unitPriceCents",
-      header: "Unit Price",
+      header: "Price",
       cell: ({ row }) => {
-        return renderComponent(CostCell, {
-          cents: row.original.unitPriceCents,
+        return renderComponent(PriceCell, {
+          movementType: row.original.movementType,
+          unitCostCents: row.original.unitCostCents,
+          unitPriceCents: row.original.unitPriceCents,
           country,
         });
       },

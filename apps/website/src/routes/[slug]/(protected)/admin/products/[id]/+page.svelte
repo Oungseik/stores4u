@@ -427,12 +427,12 @@
                     {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
                       {#if movement.unitPriceCents}
                         <p class="text-muted-foreground mt-1 text-xs">
-                          Price: <Pricing cents={movement.unitPriceCents} />
+                          <Pricing cents={movement.unitPriceCents} />
                         </p>
                       {/if}
                     {:else if movement.unitCostCents}
                       <p class="text-muted-foreground mt-1 text-xs">
-                        Cost: <Pricing cents={movement.unitCostCents} />
+                        <Pricing cents={movement.unitCostCents} />
                       </p>
                     {/if}
                   </div>
