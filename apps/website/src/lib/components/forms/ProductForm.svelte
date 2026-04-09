@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
+  import ChevronUpIcon from "@lucide/svelte/icons/chevron-up";
   import KeyboardIcon from "@lucide/svelte/icons/keyboard";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import QrCodeIcon from "@lucide/svelte/icons/qr-code";
@@ -26,6 +28,7 @@
     uom: string;
     description: string | null;
     image: string | null;
+    images?: string[];
     barcode: string | null;
     categoryIds?: string[];
   }
@@ -82,35 +85,32 @@
   );
 
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
-  // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
 
-  // svelte-ignore state_referenced_locally
   const isEditMode = !!initialData;
 
-  // svelte-ignore state_referenced_locally
   const categoryNames = $derived(
     initialData?.categoryIds
       ?.map((id) => categoriesQuery.data?.items.find((c) => c.id === id)?.name)
       .filter((name): name is string => name !== undefined) ?? []
   );
 
-  // svelte-ignore state_referenced_locally
+  const initialImages = initialData?.images ?? (initialData?.image ? [initialData.image] : []);
+
+  let nextImageId = 0;
+  const initialImageEntries = initialImages.map((url) => ({ id: nextImageId++, url }));
+
   const defaultValues = {
     name: initialData?.name ?? "",
     sku: initialData?.sku ?? "",
-    // svelte-ignore state_referenced_locally
     price: initialData ? initialData.priceCents / 100 : 0,
     uom: initialData?.uom ?? "piece",
     description: initialData?.description ?? "",
-    image: null as File | null,
-    imageUrl: initialData?.image ?? "",
     barcode: initialData?.barcode ?? "",
     categoryNames,
   };
 
-  // svelte-ignore state_referenced_locally
-  let imagePreview = $state<string | null>(initialData?.image ?? null);
+  let imageEntries = $state<{ id: number; url: string }[]>([...initialImageEntries]);
   let isUploadingImage = $state(false);
 
   const form = createForm(() => ({
@@ -131,7 +131,8 @@
           priceCents,
           uom: value.uom,
           description: value.description || null,
-          image: value.imageUrl || null,
+          image: imageEntries[0]?.url ?? null,
+          images: imageEntries.length > 0 ? imageEntries.map((e) => e.url) : null,
           barcode: value.barcode || null,
           categoryIds: categoryIds.length > 0 ? categoryIds : null,
         });
@@ -143,7 +144,8 @@
           priceCents,
           uom: value.uom,
           description: value.description || undefined,
-          image: value.imageUrl || undefined,
+          image: imageEntries[0]?.url ?? undefined,
+          images: imageEntries.length > 0 ? imageEntries.map((e) => e.url) : undefined,
           barcode: value.barcode || undefined,
           categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
         });
@@ -160,34 +162,53 @@
     return ACCEPTED_IMAGE_TYPES.includes(type as AcceptedImageType);
   }
 
-  async function handleImageUpload(file: File) {
-    if (!isValidImageType(file.type)) {
-      toast.error("Invalid image type");
-      return;
-    }
+  async function handleImageUpload(files: File[]) {
+    const validFiles = files.filter((f) => {
+      if (!isValidImageType(f.type)) {
+        toast.error(`Invalid image type: ${f.name}`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
 
     isUploadingImage = true;
     try {
-      const result = await uploadMutation.mutateAsync({ slug, file });
-      form.setFieldValue("imageUrl", result.objectPath);
-      imagePreview = result.objectPath;
+      const results = await Promise.all(
+        validFiles.map((file) => uploadMutation.mutateAsync({ slug, file })),
+      );
+      imageEntries = [
+        ...imageEntries,
+        ...results.map((r) => ({ id: nextImageId++, url: r.objectPath })),
+      ];
     } catch {
-      toast.error("Failed to upload image");
+      toast.error("Failed to upload one or more images");
     } finally {
       isUploadingImage = false;
     }
   }
 
-  function handleImageRemove() {
-    form.setFieldValue("image", null);
-    form.setFieldValue("imageUrl", "");
-    imagePreview = null;
+  function handleImageRemove(id: number) {
+    imageEntries = imageEntries.filter((entry) => entry.id !== id);
+  }
+
+  function handleImageMove(id: number, direction: "up" | "down") {
+    const index = imageEntries.findIndex((entry) => entry.id === id);
+    if (index === -1) return;
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= imageEntries.length) return;
+    const updated = [...imageEntries];
+    const temp = updated[index];
+    updated[index] = updated[newIndex];
+    updated[newIndex] = temp;
+    imageEntries = updated;
   }
 
   export function resetForm() {
     form.reset();
     barcodeMode = "skip";
-    imagePreview = null;
+    imageEntries = [...initialImageEntries];
     isUploadingImage = false;
     scannerRef?.stop();
   }
@@ -373,48 +394,92 @@
   </form.Field>
 
   <div class="space-y-2">
-    <Label>Product Image</Label>
-    {#if imagePreview}
-      <div class="relative">
-        <img
-          src={imagePreview}
-          alt="Product preview"
-          class="w-full rounded-lg border object-cover"
-        />
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          class="absolute top-2 right-2"
-          onclick={handleImageRemove}
-        >
-          <XIcon class="size-4" />
-        </Button>
-      </div>
-    {:else}
-      <div class="relative">
-        <Input
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/svg+xml"
-          onchange={(e) => {
-            const file = e.currentTarget.files?.[0];
-            if (file) {
-              form.setFieldValue("image", file);
-              handleImageUpload(file);
-            }
-          }}
-          disabled={isUploadingImage}
-        />
-        {#if isUploadingImage}
-          <div class="absolute inset-0 flex items-center justify-center bg-white/80">
-            <Loader2Icon class="size-5 animate-spin" />
+    <Label>Product Images</Label>
+
+    {#if imageEntries.length > 0}
+      <div class="space-y-2">
+        {#each imageEntries as entry, i (entry.id)}
+          <div class="bg-muted/50 group relative flex items-center gap-3 rounded-lg border p-2">
+            {#if i === 0}
+              <span class="bg-primary text-primary-foreground ml-1 flex size-5 shrink-0 items-center justify-center rounded text-xs font-medium">
+                {i + 1}
+              </span>
+            {:else}
+              <span class="text-muted-foreground ml-1 flex size-5 shrink-0 items-center justify-center rounded text-xs font-medium">
+                {i + 1}
+              </span>
+            {/if}
+            <img
+              src={entry.url}
+              alt="Product image {i + 1}"
+              class="size-16 shrink-0 rounded-md object-cover"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="text-muted-foreground truncate text-xs">
+                Image {i + 1}{i === 0 ? " (primary)" : ""}
+              </p>
+            </div>
+            <div class="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="size-7"
+                disabled={i === 0}
+                onclick={() => handleImageMove(entry.id, "up")}
+              >
+                <ChevronUpIcon class="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="size-7"
+                disabled={i === imageEntries.length - 1}
+                onclick={() => handleImageMove(entry.id, "down")}
+              >
+                <ChevronDownIcon class="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="text-destructive hover:text-destructive size-7"
+                onclick={() => handleImageRemove(entry.id)}
+              >
+                <XIcon class="size-4" />
+              </Button>
+            </div>
           </div>
-        {/if}
+        {/each}
       </div>
-      <p class="text-muted-foreground text-xs">
-        Max file size: 2MB. Accepted formats: JPEG, PNG, WebP, SVG
-      </p>
     {/if}
+
+    <div class="relative">
+      <Input
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/svg+xml"
+        multiple
+        onchange={(e) => {
+          const files = e.currentTarget.files
+            ? Array.from(e.currentTarget.files)
+            : [];
+          if (files.length > 0) {
+            handleImageUpload(files);
+            e.currentTarget.value = "";
+          }
+        }}
+        disabled={isUploadingImage}
+      />
+      {#if isUploadingImage}
+        <div class="absolute inset-0 flex items-center justify-center bg-white/80">
+          <Loader2Icon class="size-5 animate-spin" />
+        </div>
+      {/if}
+    </div>
+    <p class="text-muted-foreground text-xs">
+      Max file size: 2MB per image. Accepted formats: JPEG, PNG, WebP, SVG. First image is the primary image. Select multiple images to upload at once.
+    </p>
   </div>
 
   <div class="space-y-3 rounded-lg border p-4">

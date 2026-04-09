@@ -13,6 +13,10 @@ export const load: LayoutServerLoad = async ({ params }) => {
           category: { columns: { id: true, name: true } },
         },
       },
+      productImages: {
+        orderBy: { position: "asc" },
+        columns: { id: true, objectPath: true, position: true },
+      },
     },
   });
 
@@ -29,6 +33,7 @@ export const load: LayoutServerLoad = async ({ params }) => {
       uom: result.uom,
       description: result.description,
       image: result.image,
+      images: result.productImages.map((img) => img.objectPath),
       barcode: result.barcode,
       categoryIds: result.productCategories
         .map((pc) => pc.category?.id)

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { eq, product, productCategory } from "@repo/db";
+import { eq, product, productCategory, productImage } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -11,6 +11,7 @@ const input = z.object({
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(255),
   image: z.string().max(500).nullable(),
+  images: z.array(z.string().max(500)).nullable(),
   uom: z.string().min(1).max(50),
   barcode: z.string().max(100).nullable(),
   description: z.string().max(1000).nullable(),
@@ -33,12 +34,14 @@ export const updateProductHandler = os
 
     const oldImage = existing.at(0)?.image;
 
+    const allImages = input.images ?? (input.image ? [input.image] : []);
+
     const updated = await shopDb
       .update(product)
       .set({
         sku: input.sku,
         name: input.name,
-        image: input.image,
+        image: allImages[0] ?? null,
         uom: input.uom,
         barcode: input.barcode,
         description: input.description,
@@ -52,10 +55,44 @@ export const updateProductHandler = os
       throw new ORPCError("NOT_FOUND");
     }
 
-    if (oldImage && oldImage !== input.image) {
+    if (oldImage && oldImage !== result.image) {
       const oldImageKey = extractObjectKey(oldImage);
       if (oldImageKey) {
         await removeImage(oldImageKey).catch(() => {});
+      }
+    }
+
+    const existingImages = await shopDb
+      .select({ id: productImage.id, objectPath: productImage.objectPath })
+      .from(productImage)
+      .where(eq(productImage.productId, input.id));
+
+    const existingPaths = existingImages.map((img) => img.objectPath);
+    const remainingPaths = new Set(allImages);
+    const removedImages = existingImages.filter((img) => !remainingPaths.has(img.objectPath));
+    const imagesChanged =
+      removedImages.length > 0 ||
+      existingPaths.length !== allImages.length ||
+      existingPaths.some((path, i) => path !== allImages[i]);
+
+    if (imagesChanged) {
+      for (const img of removedImages) {
+        const key = extractObjectKey(img.objectPath);
+        if (key) {
+          await removeImage(key).catch(() => {});
+        }
+      }
+
+      await shopDb.delete(productImage).where(eq(productImage.productId, input.id));
+
+      if (allImages.length > 0) {
+        await shopDb.insert(productImage).values(
+          allImages.map((objectPath, index) => ({
+            productId: input.id,
+            objectPath,
+            position: index,
+          })),
+        );
       }
     }
 

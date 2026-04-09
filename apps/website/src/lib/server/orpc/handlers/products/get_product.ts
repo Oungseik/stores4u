@@ -29,6 +29,10 @@ export const getProductHandler = os
             category: { columns: { id: true, name: true } },
           },
         },
+        productImages: {
+          orderBy: { position: "asc" },
+          columns: { id: true, objectPath: true, position: true },
+        },
       },
     });
 
@@ -43,6 +47,7 @@ export const getProductHandler = os
       barcode: product.barcode,
       description: product.description,
       image: product.image,
+      images: product.productImages.map((img) => img.objectPath),
       uom: product.uom,
       priceCents: product.priceCents,
       stock: product.stock,
