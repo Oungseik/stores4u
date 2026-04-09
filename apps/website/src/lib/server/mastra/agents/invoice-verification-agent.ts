@@ -3,11 +3,13 @@ import {
   type InvoiceVerificationResult,
   InvoiceVerificationResultSchema,
   prepareImages,
-} from "./_lib/image-utils";
+} from "../_lib/image-utils";
 
 export const invoiceVerificationAgent = new Agent({
   id: "invoice-verification",
   name: "Invoice Verification Agent",
+  description:
+    "Verifies whether an uploaded image or document is a valid invoice. Returns { isInvoice: boolean, rejectionReason?: string }. Use this agent first before extracting invoice data to avoid processing non-invoice images.",
   model: "openrouter/moonshotai/kimi-k2.5",
   instructions: `You are an image verification assistant. Your task is to determine whether the provided image is an invoice or not.
 

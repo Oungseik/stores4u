@@ -8,8 +8,8 @@ import {
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
 import type { InvoiceVerificationResult } from "$lib/server/mastra/_lib/image-utils";
-import { processInvoice } from "$lib/server/mastra/invoice-extraction-agent";
-import { verifyInvoice } from "$lib/server/mastra/invoice-verification-agent";
+import { processInvoice } from "$lib/server/mastra/agents/invoice-extraction-agent";
+import { verifyInvoice } from "$lib/server/mastra/agents/invoice-verification-agent";
 import {
   authMiddleware,
   os,

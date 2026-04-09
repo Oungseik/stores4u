@@ -2,7 +2,7 @@ import { handleChatStream } from "@mastra/ai-sdk";
 import { Mastra } from "@mastra/core";
 import { createUIMessageStreamResponse } from "ai";
 
-import { shopSetupAgent } from "$lib/server/mastra/shop-setup-agent";
+import { shopSetupAgent } from "$lib/server/mastra/agents/shop-setup-agent";
 
 const setupMastra = new Mastra({
   agents: { shopSetupAgent },
