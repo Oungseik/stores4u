@@ -22,7 +22,20 @@
   $effect(() => {
     ctx.chat.messages;
     ctx.chat.status;
-    setTimeout(() => ctx.scrollToBottom(), 50);
+
+    const msgs = ctx.chat.messages;
+    const last = msgs.length > 0 ? msgs[msgs.length - 1] : undefined;
+    if (last?.role === "assistant") {
+      for (const part of last.parts) {
+        if (isTextUIPart(part)) {
+          part.text;
+        }
+      }
+    }
+
+    if (ctx.isNearBottom) {
+      requestAnimationFrame(() => ctx.scrollToBottom());
+    }
   });
 </script>
 
@@ -34,7 +47,7 @@
   </div>
 {/snippet}
 
-<div bind:this={ref} class={["flex-1 overflow-y-auto px-4 py-3", className]}>
+<div bind:this={ctx.messagesContainer} class={["flex-1 overflow-y-auto px-4 py-3", className]}>
   {#if ctx.chat.messages.length === 0}
     {#if empty}
       {@render empty()}

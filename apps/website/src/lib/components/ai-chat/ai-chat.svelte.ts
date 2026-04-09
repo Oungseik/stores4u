@@ -37,6 +37,12 @@ class AiChatState {
     return this.chat.status === "submitted" || this.chat.status === "streaming";
   }
 
+  get isNearBottom() {
+    if (!this.messagesContainer) return true;
+    const { scrollTop, scrollHeight, clientHeight } = this.messagesContainer;
+    return scrollHeight - scrollTop - clientHeight < 150;
+  }
+
   toggleChat() {
     this.isOpen = !this.isOpen;
     if (this.isOpen) setTimeout(() => this.scrollToBottom(), 100);
