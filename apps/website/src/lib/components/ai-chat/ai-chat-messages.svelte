@@ -4,6 +4,7 @@
   import { isTextUIPart, isToolUIPart } from "ai";
 
   import { useAiChatChild } from "./ai-chat.svelte.js";
+  import { renderMarkdown } from "./render-markdown.js";
   import type { AiChatMessagesProps } from "./types.js";
 
   let {
@@ -60,9 +61,9 @@
         {:else}
           <div class="mb-3 flex justify-end">
             <div
-              class="bg-primary text-primary-foreground max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
+              class="bg-primary text-primary-foreground prose prose-invert prose-sm max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
             >
-              {text}
+              {@html renderMarkdown(text)}
             </div>
           </div>
         {/if}
@@ -79,9 +80,11 @@
             })}
           {:else}
             <div class="mb-3 flex justify-start">
-              <div class="bg-muted max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm">
+              <div
+                class="bg-muted prose prose-sm max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm"
+              >
                 {#each textParts as part}
-                  {part.text}
+                  {@html renderMarkdown(part.text)}
                 {/each}
               </div>
             </div>
