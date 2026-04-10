@@ -79,113 +79,119 @@
     <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard" }]} />
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-1 gap-4 @lg/main:grid-cols-2 @xl/main:grid-cols-4">
+    <div class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
       {#if isLoading}
         {#each { length: 4 } as _}
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton class="h-4 w-24" />
-              <Skeleton class="size-8 rounded-md" />
-            </Card.Header>
-            <Card.Content class="flex flex-col gap-2">
-              <Skeleton class="h-7 w-28" />
-              <Skeleton class="h-3 w-20" />
-            </Card.Content>
-          </Card.Root>
+          <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+            <Card.Root>
+              <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton class="h-4 w-24" />
+                <Skeleton class="size-8 rounded-md" />
+              </Card.Header>
+              <Card.Content class="flex flex-col gap-2">
+                <Skeleton class="h-7 w-28" />
+                <Skeleton class="h-3 w-20" />
+              </Card.Content>
+            </Card.Root>
+          </div>
         {/each}
       {:else if statsQuery.data}
-        <!-- Revenue Today -->
-        <Card.Root>
-          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Card.Title class="text-sm font-medium">Revenue Today</Card.Title>
-            <div class="bg-primary/10 rounded-md p-2">
-              <DollarSignIcon class="text-primary size-5" />
-            </div>
-          </Card.Header>
-          <Card.Content>
-            <div class="text-2xl font-bold">
-              <Pricing cents={statsQuery.data.revenue.today.totalCents} country={shop.country} />
-            </div>
-            <p class="text-muted-foreground text-xs">
-              {formatNumber(statsQuery.data.revenue.today.count)} orders
-            </p>
-          </Card.Content>
-        </Card.Root>
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Card.Title class="text-sm font-medium">Revenue Today</Card.Title>
+              <div class="bg-primary/10 rounded-md p-2">
+                <DollarSignIcon class="text-primary size-5" />
+              </div>
+            </Card.Header>
+            <Card.Content>
+              <div class="text-2xl font-bold">
+                <Pricing cents={statsQuery.data.revenue.today.totalCents} country={shop.country} />
+              </div>
+              <p class="text-muted-foreground text-xs">
+                {formatNumber(statsQuery.data.revenue.today.count)} orders
+              </p>
+            </Card.Content>
+          </Card.Root>
+        </div>
 
-        <!-- This Month -->
-        <Card.Root>
-          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Card.Title class="text-sm font-medium">This Month</Card.Title>
-            <div class="bg-primary/10 rounded-md p-2">
-              <BanknoteIcon class="text-primary size-5" />
-            </div>
-          </Card.Header>
-          <Card.Content>
-            <div class="text-2xl font-bold">
-              <Pricing
-                cents={statsQuery.data.revenue.thisMonth.totalCents}
-                country={shop.country}
-              />
-            </div>
-            <div class="text-muted-foreground flex items-center gap-1 text-xs">
-              {#if statsQuery.data.revenue.vsLastWeek >= 0}
-                <TrendingUpIcon class="size-3 text-emerald-600" />
-                <span class="text-emerald-600">+{statsQuery.data.revenue.vsLastWeek}%</span>
-              {:else}
-                <TrendingDownIcon class="size-3 text-red-600" />
-                <span class="text-red-600">{statsQuery.data.revenue.vsLastWeek}%</span>
-              {/if}
-              vs last week
-            </div>
-          </Card.Content>
-        </Card.Root>
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Card.Title class="text-sm font-medium">This Month</Card.Title>
+              <div class="bg-primary/10 rounded-md p-2">
+                <BanknoteIcon class="text-primary size-5" />
+              </div>
+            </Card.Header>
+            <Card.Content>
+              <div class="text-2xl font-bold">
+                <Pricing
+                  cents={statsQuery.data.revenue.thisMonth.totalCents}
+                  country={shop.country}
+                />
+              </div>
+              <div class="text-muted-foreground flex items-center gap-1 text-xs">
+                {#if statsQuery.data.revenue.vsLastWeek >= 0}
+                  <TrendingUpIcon class="size-3 text-emerald-600" />
+                  <span class="text-emerald-600">+{statsQuery.data.revenue.vsLastWeek}%</span>
+                {:else}
+                  <TrendingDownIcon class="size-3 text-red-600" />
+                  <span class="text-red-600">{statsQuery.data.revenue.vsLastWeek}%</span>
+                {/if}
+                vs last week
+              </div>
+            </Card.Content>
+          </Card.Root>
+        </div>
 
-        <!-- Gross Profit Today -->
-        <Card.Root>
-          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Card.Title class="text-sm font-medium">Gross Profit Today</Card.Title>
-            <div class="rounded-md bg-emerald-500/10 p-2">
-              <TrendingUpIcon class="size-5 text-emerald-600" />
-            </div>
-          </Card.Header>
-          <Card.Content>
-            <div class="text-2xl font-bold">
-              <Pricing cents={statsQuery.data.grossProfit.todayCents} country={shop.country} />
-            </div>
-            <p class="text-muted-foreground text-xs">
-              Month: <Pricing
-                cents={statsQuery.data.grossProfit.thisMonthCents}
-                country={shop.country}
-              />
-            </p>
-          </Card.Content>
-        </Card.Root>
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Card.Title class="text-sm font-medium">Gross Profit Today</Card.Title>
+              <div class="rounded-md bg-emerald-500/10 p-2">
+                <TrendingUpIcon class="size-5 text-emerald-600" />
+              </div>
+            </Card.Header>
+            <Card.Content>
+              <div class="text-2xl font-bold">
+                <Pricing cents={statsQuery.data.grossProfit.todayCents} country={shop.country} />
+              </div>
+              <p class="text-muted-foreground text-xs">
+                Month: <Pricing
+                  cents={statsQuery.data.grossProfit.thisMonthCents}
+                  country={shop.country}
+                />
+              </p>
+            </Card.Content>
+          </Card.Root>
+        </div>
 
-        <!-- Inventory Value -->
-        <Card.Root>
-          <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
-            <div class="bg-primary/10 rounded-md p-2">
-              <PackageIcon class="text-primary size-5" />
-            </div>
-          </Card.Header>
-          <Card.Content>
-            <div class="text-2xl font-bold">
-              <Pricing
-                cents={statsQuery.data.products.inventoryValueRetailCents}
-                country={shop.country}
-              />
-            </div>
-            <p class="text-muted-foreground text-xs">
-              {statsQuery.data.products.total} products
-              {#if statsQuery.data.products.outOfStock > 0}
-                <span class="text-destructive">
-                  &middot; {statsQuery.data.products.outOfStock} out of stock
-                </span>
-              {/if}
-            </p>
-          </Card.Content>
-        </Card.Root>
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
+              <div class="bg-primary/10 rounded-md p-2">
+                <PackageIcon class="text-primary size-5" />
+              </div>
+            </Card.Header>
+            <Card.Content>
+              <div class="text-2xl font-bold">
+                <Pricing
+                  cents={statsQuery.data.products.inventoryValueRetailCents}
+                  country={shop.country}
+                />
+              </div>
+              <p class="text-muted-foreground text-xs">
+                {statsQuery.data.products.total} products
+                {#if statsQuery.data.products.outOfStock > 0}
+                  <span class="text-destructive">
+                    &middot; {statsQuery.data.products.outOfStock} out of stock
+                  </span>
+                {/if}
+              </p>
+            </Card.Content>
+          </Card.Root>
+        </div>
       {/if}
     </div>
 

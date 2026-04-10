@@ -171,45 +171,53 @@
   </div>
 
   <!-- Stats Cards -->
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <StatsCard
-      title="Total Suppliers"
-      value={stats().total}
-      description="Active suppliers"
-      icon={Building2Icon}
-      iconBgClass="bg-primary/10"
-      iconTextClass="text-primary"
-      borderClass="from-primary/20 to-primary/5"
-    />
-    <StatsCard
-      title="Total Purchases"
-      value=""
-      description="All time"
-      icon={DollarSignIcon}
-      iconBgClass="bg-emerald-500/10"
-      iconTextClass="text-emerald-600"
-      borderClass="from-emerald-500/20 to-emerald-500/5"
-      price={stats().totalPurchases}
-      country={shop.country}
-    />
-    <StatsCard
-      title="Total Invoices"
-      value={stats().totalInvoices}
-      description="From all suppliers"
-      icon={ReceiptIcon}
-      iconBgClass="bg-blue-500/10"
-      iconTextClass="text-blue-600"
-      borderClass="from-blue-500/20 to-blue-500/5"
-    />
-    <StatsCard
-      title="Avg Invoices"
-      value={stats().avgInvoices}
-      description="Per supplier"
-      icon={FileTextIcon}
-      iconBgClass="bg-amber-500/10"
-      iconTextClass="text-amber-600"
-      borderClass="from-amber-500/20 to-amber-500/5"
-    />
+  <div class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="Total Suppliers"
+        value={stats().total}
+        description="Active suppliers"
+        icon={Building2Icon}
+        iconBgClass="bg-primary/10"
+        iconTextClass="text-primary"
+        borderClass="from-primary/20 to-primary/5"
+      />
+    </div>
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="Total Purchases"
+        value=""
+        description="All time"
+        icon={DollarSignIcon}
+        iconBgClass="bg-emerald-500/10"
+        iconTextClass="text-emerald-600"
+        borderClass="from-emerald-500/20 to-emerald-500/5"
+        price={stats().totalPurchases}
+        country={shop.country}
+      />
+    </div>
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="Total Invoices"
+        value={stats().totalInvoices}
+        description="From all suppliers"
+        icon={ReceiptIcon}
+        iconBgClass="bg-blue-500/10"
+        iconTextClass="text-blue-600"
+        borderClass="from-blue-500/20 to-blue-500/5"
+      />
+    </div>
+    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <StatsCard
+        title="Avg Invoices"
+        value={stats().avgInvoices}
+        description="Per supplier"
+        icon={FileTextIcon}
+        iconBgClass="bg-amber-500/10"
+        iconTextClass="text-amber-600"
+        borderClass="from-amber-500/20 to-amber-500/5"
+      />
+    </div>
   </div>
 
   <section class="mt-4 space-y-6">
