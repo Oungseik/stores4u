@@ -14,6 +14,7 @@ export type ProductItem = {
   categories: string[];
   priceCents: number;
   stock: number;
+  lowStockThreshold: number | null;
 };
 
 export function createColumns(
@@ -55,7 +56,10 @@ export function createColumns(
       accessorKey: "stock",
       header: "Stock",
       cell: ({ row }) => {
-        return renderComponent(StockCell, { stock: row.original.stock });
+        return renderComponent(StockCell, {
+          stock: row.original.stock,
+          lowStockThreshold: row.original.lowStockThreshold,
+        });
       },
     },
     {

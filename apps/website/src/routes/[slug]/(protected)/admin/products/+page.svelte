@@ -273,13 +273,20 @@
         {#each allProducts as product (product.id)}
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
-              <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
+              <div
+                class="hover:bg-muted/50 flex w-full items-center gap-3 border-l-4 px-3 py-2.5 {product.stock ===
+                0
+                  ? 'border-red-400'
+                  : product.stock <= (product.lowStockThreshold ?? 10)
+                    ? 'border-amber-400'
+                    : 'border-transparent'}"
+              >
                 <a
                   href={`/${params.slug}/admin/products/${product.id}`}
                   class="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div
-                    class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
+                    class="bg-primary/10 hidden size-10 shrink-0 items-center justify-center rounded-lg sm:flex"
                   >
                     <PackageIcon class="text-primary size-5" />
                   </div>
@@ -300,7 +307,9 @@
                       country={shop.country}
                       priceClass="text-sm font-semibold"
                     />
-                    <p class="text-muted-foreground text-right text-xs">{product.stock} left</p>
+                    <div class="flex items-center justify-end gap-1.5">
+                      <p class="text-muted-foreground text-xs">{product.stock} left</p>
+                    </div>
                   </div>
                 </a>
 

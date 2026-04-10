@@ -75,6 +75,7 @@ export const listProductsHandler = os
         .filter((c): c is string => c !== undefined),
       aliases: p.productAliases.map((a) => a.alias),
       stock: p.stock,
+      lowStockThreshold: p.lowStockThreshold,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     }));

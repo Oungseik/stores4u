@@ -79,7 +79,9 @@
     <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard" }]} />
 
     <!-- KPI Cards -->
-    <div class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
+    <div
+      class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+    >
       {#if isLoading}
         {#each { length: 4 } as _}
           <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
