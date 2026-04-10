@@ -12,7 +12,6 @@
 		onValueChange,
 		items = [],
 		placeholder = 'All',
-		label = 'Filter',
 		class: className
 	}: FilterBarDropdownProps<T> = $props();
 
@@ -37,14 +36,7 @@
 		{selectedItem ? selectedItem.label : placeholder}
 		<ChevronDownIcon class="size-3 opacity-50" />
 	</Popover.Trigger>
-	<Popover.Content class="w-56 p-0" align="start">
-		<div class="px-1 py-1.5">
-			<span class="text-muted-foreground px-2 text-xs font-semibold tracking-wide uppercase">
-				{label}
-			</span>
-		</div>
-		<div class="border-t"></div>
-		<div class="p-1">
+	<Popover.Content class="w-56 p-1" align="start">
 			{#each items as item (item.value)}
 				<button
 					type="button"
@@ -59,6 +51,5 @@
 					{/if}
 				</button>
 			{/each}
-		</div>
 	</Popover.Content>
 </Popover.Root>

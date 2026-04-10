@@ -76,7 +76,6 @@ export type FilterBarDropdownProps<T> = {
   onValueChange?: (value: T | null) => void;
   items?: FilterBarDropdownItem<T>[];
   placeholder?: string;
-  label?: string;
   class?: string;
 };
 
