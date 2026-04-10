@@ -18,8 +18,15 @@ export const deleteProductHandler = os
     const shopDb = getShopDb(context.shop);
 
     const [existingProduct, existingImages] = await Promise.all([
-      shopDb.select({ image: product.image }).from(product).where(eq(product.id, input.id)).limit(1),
-      shopDb.select({ objectPath: productImage.objectPath }).from(productImage).where(eq(productImage.productId, input.id)),
+      shopDb
+        .select({ image: product.image })
+        .from(product)
+        .where(eq(product.id, input.id))
+        .limit(1),
+      shopDb
+        .select({ objectPath: productImage.objectPath })
+        .from(productImage)
+        .where(eq(productImage.productId, input.id)),
     ]);
 
     const allObjectPaths = [
@@ -31,12 +38,21 @@ export const deleteProductHandler = os
       const key = extractObjectKey(objectPath);
       if (key) {
         await removeImage(key).catch((e) => {
-          logger.error({ err: e, objectPath }, "Failed to delete image from storage during product deletion");
+          logger.error(
+            { err: e, objectPath },
+            "Failed to delete image from storage during product deletion",
+          );
         });
       }
-      await shopDb.delete(image).where(eq(image.objectPath, objectPath)).catch((e) => {
-        logger.error({ err: e, objectPath }, "Failed to delete image from registry during product deletion");
-      });
+      await shopDb
+        .delete(image)
+        .where(eq(image.objectPath, objectPath))
+        .catch((e) => {
+          logger.error(
+            { err: e, objectPath },
+            "Failed to delete image from registry during product deletion",
+          );
+        });
     }
 
     await shopDb.delete(product).where(eq(product.id, input.id));

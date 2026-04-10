@@ -7,5 +7,5 @@
 </script>
 
 {#if reason}
-  <span class="max-w-[200px] truncate inline-block align-bottom" title={reason}>{reason}</span>
+  <span class="inline-block max-w-[200px] truncate align-bottom" title={reason}>{reason}</span>
 {/if}

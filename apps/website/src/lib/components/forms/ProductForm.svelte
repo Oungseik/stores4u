@@ -186,7 +186,7 @@
     isUploadingImage = true;
     try {
       const results = await Promise.all(
-        validFiles.map((file) => uploadMutation.mutateAsync({ slug, file })),
+        validFiles.map((file) => uploadMutation.mutateAsync({ slug, file }))
       );
       imageEntries = [
         ...imageEntries,
@@ -392,23 +392,16 @@
     {#snippet children(field)}
       <div class="space-y-2">
         <Label>Categories</Label>
-        {#if categoriesQuery.isPending}
-          <div class="text-muted-foreground flex items-center gap-2 text-sm">
-            <Loader2Icon class="size-4 animate-spin" />
-            Loading categories...
-          </div>
-        {:else}
-          <TagsInput
-            value={field.state.value}
-            onValueChange={(value) => field.handleChange(value)}
-            suggestions={categorySuggestions}
-            restrictToSuggestions={true}
-            placeholder="Select categories..."
-          />
-          <p class="text-muted-foreground text-xs">
-            Type to search and select categories. Create categories first in the Categories page.
-          </p>
-        {/if}
+        <TagsInput
+          value={field.state.value}
+          onValueChange={(value) => field.handleChange(value)}
+          suggestions={categorySuggestions}
+          restrictToSuggestions={true}
+          placeholder="Select categories..."
+        />
+        <p class="text-muted-foreground text-xs">
+          Type to search and select categories. Create categories first in the Categories page.
+        </p>
       </div>
     {/snippet}
   </form.Field>
@@ -435,11 +428,15 @@
         {#each imageEntries as entry, i (entry.id)}
           <div class="bg-muted/50 group relative flex items-center gap-3 rounded-lg border p-2">
             {#if i === 0}
-              <span class="bg-primary text-primary-foreground ml-1 flex size-5 shrink-0 items-center justify-center rounded text-xs font-medium">
+              <span
+                class="bg-primary text-primary-foreground ml-1 flex size-5 shrink-0 items-center justify-center rounded text-xs font-medium"
+              >
                 {i + 1}
               </span>
             {:else}
-              <span class="text-muted-foreground ml-1 flex size-5 shrink-0 items-center justify-center rounded text-xs font-medium">
+              <span
+                class="text-muted-foreground ml-1 flex size-5 shrink-0 items-center justify-center rounded text-xs font-medium"
+              >
                 {i + 1}
               </span>
             {/if}
@@ -576,7 +573,10 @@
     {/if}
     <Button
       type="submit"
-      disabled={createProduct.isPending || updateProduct.isPending || isUploadingImage || deletingImageIds.size > 0}
+      disabled={createProduct.isPending ||
+        updateProduct.isPending ||
+        isUploadingImage ||
+        deletingImageIds.size > 0}
     >
       {#if createProduct.isPending || updateProduct.isPending}
         <Loader2Icon class="mr-2 size-4 animate-spin" />

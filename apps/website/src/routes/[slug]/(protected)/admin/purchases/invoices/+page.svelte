@@ -383,7 +383,11 @@
                               })}
                             >
                               <SearchIcon class="text-muted-foreground size-4" />
-                              <span>{file.status === "REVIEWED" || file.status === "REJECTED" ? "View Details" : "Review"}</span>
+                              <span
+                                >{file.status === "REVIEWED" || file.status === "REJECTED"
+                                  ? "View Details"
+                                  : "Review"}</span
+                              >
                             </a>
                           {/snippet}
                         </DropdownMenu.Item>
