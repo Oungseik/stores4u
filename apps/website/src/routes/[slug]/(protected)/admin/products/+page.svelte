@@ -1,5 +1,7 @@
 <script lang="ts">
+  import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
+  import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -8,6 +10,7 @@
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
+  import XCircleIcon from "@lucide/svelte/icons/x-circle";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
@@ -27,6 +30,7 @@
   import { goto } from "$app/navigation";
   import Pricing from "$lib/components/Pricing.svelte";
   import StockAdjustmentDialog from "$lib/components/StockAdjustmentDialog.svelte";
+  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import { createColumns } from "$lib/components/tables/products/columns";
@@ -94,6 +98,13 @@
     })
   );
 
+  const productStats = createQuery(() =>
+    orpc.products.stats.queryOptions({
+      input: { slug: params.slug },
+      enabled: !!params.slug,
+    })
+  );
+
   const columns = $derived(
     createColumns(shop.country, params.slug, handleDeleteProduct, handleAdjustProduct)
   );
@@ -120,6 +131,59 @@
       </a>
     {/snippet}
   </AdminDashboardHeader>
+
+  {#if productStats.data}
+    <div
+      class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+    >
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Total Products"
+          value={productStats.data.total}
+          description="In your catalog"
+          icon={PackageIcon}
+          iconBgClass="bg-primary/10"
+          iconTextClass="text-primary"
+          borderClass="from-primary/20 to-primary/5"
+        />
+      </div>
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Low Stock"
+          value={productStats.data.lowStock}
+          description="Needs restocking"
+          icon={AlertTriangleIcon}
+          iconBgClass="bg-amber-500/10"
+          iconTextClass="text-amber-600"
+          borderClass="from-amber-500/20 to-amber-500/5"
+        />
+      </div>
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Out of Stock"
+          value={productStats.data.outOfStock}
+          description="Unavailable"
+          icon={XCircleIcon}
+          iconBgClass="bg-red-500/10"
+          iconTextClass="text-red-600"
+          borderClass="from-red-500/20 to-red-500/5"
+        />
+      </div>
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Inventory Value"
+          value=""
+          description="Total retail value"
+          icon={DollarSignIcon}
+          iconBgClass="bg-emerald-500/10"
+          iconTextClass="text-emerald-600"
+          borderClass="from-emerald-500/20 to-emerald-500/5"
+          price={productStats.data.inventoryValueRetailCents}
+          country={shop.country}
+        />
+      </div>
+    </div>
+  {/if}
 
   <section class="space-y-6">
     <!-- Filters and Search -->
