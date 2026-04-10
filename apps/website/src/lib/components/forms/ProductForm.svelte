@@ -7,6 +7,7 @@
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
+  import * as FileDropZone from "@repo/ui/file-drop-zone";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { NumberInput } from "@repo/ui/number-input";
@@ -415,6 +416,20 @@
   <div class="space-y-2">
     <Label>Product Images</Label>
 
+    <FileDropZone.Root
+      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+      maxFileSize={2 * 1024 * 1024}
+      disabled={isUploadingImage}
+      fileCount={imageEntries.length}
+      onUpload={handleImageUpload}
+      onFileRejected={({ reason, file }) => toast.error(`${file.name}: ${reason}`)}
+    >
+      <FileDropZone.Trigger />
+    </FileDropZone.Root>
+    <p class="text-muted-foreground text-xs">
+      First image is the primary image. Select multiple images to upload at once.
+    </p>
+
     {#if imageEntries.length > 0}
       <div class="space-y-2">
         {#each imageEntries as entry, i (entry.id)}
@@ -478,32 +493,6 @@
         {/each}
       </div>
     {/if}
-
-    <div class="relative">
-      <Input
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/svg+xml"
-        multiple
-        onchange={(e) => {
-          const files = e.currentTarget.files
-            ? Array.from(e.currentTarget.files)
-            : [];
-          if (files.length > 0) {
-            handleImageUpload(files);
-            e.currentTarget.value = "";
-          }
-        }}
-        disabled={isUploadingImage}
-      />
-      {#if isUploadingImage}
-        <div class="absolute inset-0 flex items-center justify-center bg-white/80">
-          <Loader2Icon class="size-5 animate-spin" />
-        </div>
-      {/if}
-    </div>
-    <p class="text-muted-foreground text-xs">
-      Max file size: 2MB per image. Accepted formats: JPEG, PNG, WebP, SVG. First image is the primary image. Select multiple images to upload at once.
-    </p>
   </div>
 
   <div class="space-y-3 rounded-lg border p-4">
