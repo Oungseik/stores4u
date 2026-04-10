@@ -4,6 +4,7 @@
   import { isTextUIPart, isToolUIPart } from "ai";
 
   import { useAiChatChild } from "./ai-chat.svelte.js";
+  import { renderMarkdown } from "./render-markdown.js";
   import type { AiChatMessagesProps } from "./types.js";
 
   let {
@@ -21,7 +22,20 @@
   $effect(() => {
     ctx.chat.messages;
     ctx.chat.status;
-    setTimeout(() => ctx.scrollToBottom(), 50);
+
+    const msgs = ctx.chat.messages;
+    const last = msgs.length > 0 ? msgs[msgs.length - 1] : undefined;
+    if (last?.role === "assistant") {
+      for (const part of last.parts) {
+        if (isTextUIPart(part)) {
+          part.text;
+        }
+      }
+    }
+
+    if (ctx.isNearBottom) {
+      requestAnimationFrame(() => ctx.scrollToBottom());
+    }
   });
 </script>
 
@@ -33,7 +47,7 @@
   </div>
 {/snippet}
 
-<div bind:this={ref} class={["flex-1 overflow-y-auto px-4 py-3", className]}>
+<div bind:this={ctx.messagesContainer} class={["flex-1 overflow-y-auto px-4 py-3", className]}>
   {#if ctx.chat.messages.length === 0}
     {#if empty}
       {@render empty()}
@@ -60,9 +74,9 @@
         {:else}
           <div class="mb-3 flex justify-end">
             <div
-              class="bg-primary text-primary-foreground max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
+              class="bg-primary text-primary-foreground prose prose-invert prose-sm max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
             >
-              {text}
+              {@html renderMarkdown(text)}
             </div>
           </div>
         {/if}
@@ -79,9 +93,11 @@
             })}
           {:else}
             <div class="mb-3 flex justify-start">
-              <div class="bg-muted max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm">
+              <div
+                class="bg-muted prose prose-sm max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm"
+              >
                 {#each textParts as part}
-                  {part.text}
+                  {@html renderMarkdown(part.text)}
                 {/each}
               </div>
             </div>

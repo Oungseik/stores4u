@@ -1,10 +1,12 @@
 import { Agent } from "@mastra/core/agent";
 import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
-import { prepareImages } from "./_lib/image-utils";
+import { prepareImages } from "../_lib/image-utils";
 
 export const invoiceExtractionAgent = new Agent({
   id: "invoice-extraction",
   name: "Invoice Extraction Agent",
+  description:
+    "Extracts structured data from invoice images or PDFs. Returns supplier details, invoice metadata, line items with quantities and costs, and a confidence score. Only use this agent after the invoice has been verified as a valid invoice.",
   model: "openrouter/moonshotai/kimi-k2.5",
   instructions: `You are an invoice data extraction assistant. Extract all relevant information from the provided invoice image(s).
 

@@ -2,7 +2,7 @@ import { defineRelations } from "drizzle-orm";
 import { chat, message } from "./chat";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
-import { category, product, productAlias, productCategory } from "./product";
+import { category, product, productAlias, productCategory, productImage } from "./product";
 import {
   purchaseInvoice,
   purchaseInvoiceFile,
@@ -21,6 +21,7 @@ export const relations = defineRelations(
     product,
     productAlias,
     productCategory,
+    productImage,
     supplier,
     productSupplier,
     purchaseInvoiceFile,
@@ -47,6 +48,7 @@ export const relations = defineRelations(
     product: {
       productAliases: r.many.productAlias(),
       productCategories: r.many.productCategory(),
+      productImages: r.many.productImage(),
       productSuppliers: r.many.productSupplier(),
       purchaseInvoiceItems: r.many.purchaseInvoiceItem(),
       inventoryMovements: r.many.inventoryMovement(),
@@ -58,6 +60,9 @@ export const relations = defineRelations(
     productCategory: {
       product: r.one.product({ from: r.productCategory.productId, to: r.product.id }),
       category: r.one.category({ from: r.productCategory.categoryId, to: r.category.id }),
+    },
+    productImage: {
+      product: r.one.product({ from: r.productImage.productId, to: r.product.id }),
     },
     supplier: {
       productSuppliers: r.many.productSupplier(),

@@ -77,6 +77,27 @@ export const productAlias = sqliteTable(
   ],
 );
 
+export const productImage = sqliteTable(
+  "product_image",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => randomUUIDv7()),
+    productId: text("product_id")
+      .notNull()
+      .references(() => product.id, { onDelete: "cascade" }),
+    objectPath: text("object_path").notNull(),
+    position: integer("position").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index("product_image_product_id_idx").on(t.productId),
+    unique("product_image_product_id_object_path_unique").on(t.productId, t.objectPath),
+  ],
+);
+
 export type CategorySelect = typeof category.$inferSelect;
 export type CategoryInsert = typeof category.$inferInsert;
 
@@ -88,3 +109,6 @@ export type ProductCategoryInsert = typeof productCategory.$inferInsert;
 
 export type ProductAliasSelect = typeof productAlias.$inferSelect;
 export type ProductAliasInsert = typeof productAlias.$inferInsert;
+
+export type ProductImageSelect = typeof productImage.$inferSelect;
+export type ProductImageInsert = typeof productImage.$inferInsert;

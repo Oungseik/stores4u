@@ -13,6 +13,7 @@ import { saveMessageHandler } from "./handlers/chats/save_message";
 import { updateChatHandler } from "./handlers/chats/update_chat";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
+import { deleteImageHandler } from "./handlers/images/delete";
 import { uploadHandler } from "./handlers/images/upload";
 import { adjustStockHandler } from "./handlers/inventory/adjust_stock";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
@@ -75,6 +76,7 @@ export const router = os.router({
     stats: dashboardStatsHandler,
   },
   images: {
+    delete: deleteImageHandler,
     upload: uploadHandler,
   },
   inventory: {
