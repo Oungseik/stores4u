@@ -188,7 +188,7 @@
   <section class="space-y-6">
     <!-- Filters and Search -->
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
-      <div class="flex flex-wrap items-center justify-start gap-2 md:gap-4">
+      <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
         <FilterBar.Search
           placeholder="Search products, SKU..."
           value={searchParams.search}
@@ -219,6 +219,7 @@
         }}
         variant="outline"
         size="sm"
+        class="shrink-0"
       >
         <ToggleGroupItem value="card" aria-label="Card view">
           <LayoutGridIcon class="size-4" />
