@@ -84,6 +84,14 @@
     })
   );
 
+  const deleteImageMutation = createMutation(() =>
+    orpc.images.delete.mutationOptions({
+      onError: (error) => {
+        toast.error(error.message || "Failed to delete image");
+      },
+    })
+  );
+
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
   let scannerRef: BarcodeScanner | null = null;
 
@@ -111,6 +119,7 @@
   };
 
   let imageEntries = $state<{ id: number; url: string }[]>([...initialImageEntries]);
+  let deletingImageIds = $state<Set<number>>(new Set());
   let isUploadingImage = $state(false);
 
   const form = createForm(() => ({
@@ -189,8 +198,18 @@
     }
   }
 
-  function handleImageRemove(id: number) {
-    imageEntries = imageEntries.filter((entry) => entry.id !== id);
+  async function handleImageRemove(id: number) {
+    const entry = imageEntries.find((e) => e.id === id);
+    if (!entry) return;
+
+    deletingImageIds = new Set([...deletingImageIds, id]);
+    try {
+      await deleteImageMutation.mutateAsync({ slug, objectPath: entry.url });
+    } catch {
+      // storage cleanup failed, still remove from local state
+    }
+    deletingImageIds = new Set([...deletingImageIds].filter((i) => i !== id));
+    imageEntries = imageEntries.filter((e) => e.id !== id);
   }
 
   function handleImageMove(id: number, direction: "up" | "down") {
@@ -445,9 +464,14 @@
                 variant="ghost"
                 size="icon"
                 class="text-destructive hover:text-destructive size-7"
+                disabled={deletingImageIds.has(entry.id)}
                 onclick={() => handleImageRemove(entry.id)}
               >
-                <XIcon class="size-4" />
+                {#if deletingImageIds.has(entry.id)}
+                  <Loader2Icon class="size-4 animate-spin" />
+                {:else}
+                  <XIcon class="size-4" />
+                {/if}
               </Button>
             </div>
           </div>
@@ -563,7 +587,7 @@
     {/if}
     <Button
       type="submit"
-      disabled={createProduct.isPending || updateProduct.isPending || isUploadingImage}
+      disabled={createProduct.isPending || updateProduct.isPending || isUploadingImage || deletingImageIds.size > 0}
     >
       {#if createProduct.isPending || updateProduct.isPending}
         <Loader2Icon class="mr-2 size-4 animate-spin" />

@@ -1,7 +1,8 @@
 import { ORPCError } from "@orpc/server";
-import { eq, product, productCategory, productImage } from "@repo/db";
+import { eq, image, product, productCategory, productImage } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { logger } from "$lib/server/logger";
 import { getShopDb } from "$lib/server/shop_db";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
@@ -58,8 +59,13 @@ export const updateProductHandler = os
     if (oldImage && oldImage !== result.image) {
       const oldImageKey = extractObjectKey(oldImage);
       if (oldImageKey) {
-        await removeImage(oldImageKey).catch(() => {});
+        await removeImage(oldImageKey).catch((e) => {
+          logger.error({ err: e, objectPath: oldImage }, "Failed to delete old primary image from storage");
+        });
       }
+      await shopDb.delete(image).where(eq(image.objectPath, oldImage)).catch((e) => {
+        logger.error({ err: e, objectPath: oldImage }, "Failed to delete old primary image from registry");
+      });
     }
 
     const existingImages = await shopDb
@@ -79,8 +85,13 @@ export const updateProductHandler = os
       for (const img of removedImages) {
         const key = extractObjectKey(img.objectPath);
         if (key) {
-          await removeImage(key).catch(() => {});
+          await removeImage(key).catch((e) => {
+            logger.error({ err: e, objectPath: img.objectPath }, "Failed to delete image from storage");
+          });
         }
+        await shopDb.delete(image).where(eq(image.objectPath, img.objectPath)).catch((e) => {
+          logger.error({ err: e, objectPath: img.objectPath }, "Failed to delete image from registry");
+        });
       }
 
       await shopDb.delete(productImage).where(eq(productImage.productId, input.id));
