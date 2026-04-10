@@ -374,7 +374,7 @@
 
 <!-- View Supplier Dialog -->
 <Dialog.Root bind:open={isViewOpen}>
-  <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     {#if displaySupplier}
       <Dialog.Header>
         <div class="flex items-center gap-3">
@@ -443,16 +443,6 @@
           </div>
         </div>
 
-        <!-- Recent Activity Placeholder -->
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Recent Invoices
-          </h4>
-          <div class="text-muted-foreground rounded-md border p-3 text-center text-sm">
-            <p>View all invoices from this supplier on the invoices page</p>
-            <Button variant="outline" class="mt-2" size="sm">View Invoices</Button>
-          </div>
-        </div>
       </div>
 
       <Dialog.Footer>
@@ -480,7 +470,7 @@
     if (!open) addFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>Add New Supplier</Dialog.Title>
       <Dialog.Description>Create a new supplier in your system</Dialog.Description>
@@ -508,7 +498,7 @@
     if (!open) editFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     {#if selectedSupplier}
       <Dialog.Header>
         <Dialog.Title>Edit Supplier</Dialog.Title>

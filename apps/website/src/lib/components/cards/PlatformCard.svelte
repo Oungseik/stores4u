@@ -160,7 +160,7 @@
 
 <!-- Permission Settings Dialog -->
 <Dialog.Root bind:open={showPermissions}>
-  <Dialog.Content class="sm:max-w-[425px]">
+  <Dialog.Content class="sm:max-w-xl">
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <span

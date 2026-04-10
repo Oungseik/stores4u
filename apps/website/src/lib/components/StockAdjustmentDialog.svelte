@@ -32,6 +32,9 @@
 
   const queryClient = useQueryClient();
 
+  let direction = $state<Direction>("ADD");
+  let qty = $state(1);
+
   function getTodayString() {
     return new Date().toISOString().split("T")[0];
   }
@@ -84,22 +87,22 @@
   }));
 
   const projectedStock = $derived(
-    form.state.values.direction === "ADD"
-      ? currentStock + form.state.values.qty
-      : currentStock - form.state.values.qty
+    direction === "ADD" ? currentStock + qty : currentStock - qty
   );
 
   function handleOpenChange(value: boolean) {
     if (!value) {
       form.reset();
       form.setFieldValue("date", getTodayString());
+      direction = "ADD";
+      qty = 1;
       onClose();
     }
   }
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="sm:max-w-[425px]">
+  <Dialog.Content class="sm:max-w-xl">
     <Dialog.Header>
       <Dialog.Title>Adjust Stock</Dialog.Title>
       <Dialog.Description>
@@ -124,6 +127,7 @@
               value={field.state.value}
               onValueChange={(value) => {
                 if (value === "ADD" || value === "SUBTRACT") {
+                  direction = value;
                   field.handleChange(value);
                 }
               }}
@@ -189,7 +193,10 @@
             <Label>Quantity</Label>
             <NumberInput
               value={field.state.value}
-              onValueChange={(v) => field.handleChange(v)}
+              onValueChange={(v) => {
+                qty = v;
+                field.handleChange(v);
+              }}
               class="w-full"
               min={1}
               fraction={0}
@@ -271,14 +278,12 @@
           <span>Current stock</span>
           <span class="font-medium">{currentStock}</span>
         </div>
-        <div class="flex items-center justify-between">
-          <span>{form.state.values.direction === "ADD" ? "Adding" : "Subtracting"}</span>
+        <div class="flex items-center justify-between pb-2">
+          <span>{direction === "ADD" ? "Adding" : "Subtracting"}</span>
           <span
-            class={form.state.values.direction === "ADD"
-              ? "font-medium text-green-600"
-              : "font-medium text-red-600"}
+            class={direction === "ADD" ? "font-medium text-green-600" : "font-medium text-red-600"}
           >
-            {form.state.values.direction === "ADD" ? "+" : "-"}{form.state.values.qty}
+            {direction === "ADD" ? "+" : "-"}{qty}
           </span>
         </div>
         <div class="flex items-center justify-between border-t pt-2">

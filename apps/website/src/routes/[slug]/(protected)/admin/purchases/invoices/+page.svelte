@@ -447,7 +447,7 @@
 </div>
 
 <Dialog.Root bind:open={isUploadDialogOpen}>
-  <Dialog.Content class="max-h-[90vh] max-w-lg overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>Upload Invoice</Dialog.Title>
       <Dialog.Description>Upload a supplier invoice for OCR processing</Dialog.Description>

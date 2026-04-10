@@ -291,7 +291,7 @@
 
 <!-- Inline product creation dialog -->
 <Dialog.Root bind:open={createProductSheetOpen}>
-  <Dialog.Content class="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+  <Dialog.Content class="max-h-[85vh] overflow-y-auto sm:max-w-xl">
     <Dialog.Header>
       <Dialog.Title>Create New Product</Dialog.Title>
       <Dialog.Description>

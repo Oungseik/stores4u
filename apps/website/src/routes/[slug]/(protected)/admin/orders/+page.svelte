@@ -264,7 +264,7 @@
 </div>
 
 <Dialog.Root bind:open={isDetailsOpen}>
-  <Dialog.Content class="flex max-h-[90vh] flex-col">
+  <Dialog.Content class="flex max-h-[90vh] max-w-xl flex-col">
     {#if orderDetails.isLoading}
       <div class="flex items-center justify-center py-16">
         <Loader2Icon class="text-muted-foreground size-6 animate-spin" />

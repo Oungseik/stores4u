@@ -290,7 +290,7 @@
     if (!open) addFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-lg overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>Add New Category</Dialog.Title>
       <Dialog.Description>Create a new category to organize your products</Dialog.Description>
@@ -318,7 +318,7 @@
     if (!open) editFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-lg overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     {#if selectedCategory}
       <Dialog.Header>
         <Dialog.Title>Edit Category</Dialog.Title>
@@ -351,7 +351,7 @@
 
 <!-- Delete Confirmation Dialog -->
 <Dialog.Root bind:open={isDeleteOpen}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content class="max-w-xl">
     <Dialog.Header>
       <Dialog.Title>Delete Category</Dialog.Title>
       <Dialog.Description>

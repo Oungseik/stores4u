@@ -195,7 +195,7 @@
 {/snippet}
 
 <Dialog.Root bind:open={isOpen} onOpenChange={(open) => !open && onClose()}>
-  <Dialog.Content class="sm:max-w-[500px]">
+  <Dialog.Content class="sm:max-w-xl">
     {#if isConnected}
       <div class="flex flex-col items-center justify-center py-8">
         <div class="bg-primary/10 mb-4 flex size-16 items-center justify-center rounded-full">
