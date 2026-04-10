@@ -114,8 +114,8 @@
           <span class="truncate">{selectedSupplier?.name || "Select supplier..."}</span>
           <ChevronDownIcon class="size-4 opacity-50" />
         </Popover.Trigger>
-        <Popover.Content class="w-80 p-0" align="start">
-          <Command.Root>
+        <Popover.Content class="w-80" align="start">
+          <Command.Root class="gap-2">
             <Command.Input placeholder="Search suppliers..." />
             <Command.List>
               <Command.Empty>No suppliers found.</Command.Empty>
