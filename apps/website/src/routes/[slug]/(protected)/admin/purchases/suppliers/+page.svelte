@@ -2,7 +2,6 @@
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import EyeIcon from "@lucide/svelte/icons/eye";
-  import FileTextIcon from "@lucide/svelte/icons/file-text";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
@@ -18,6 +17,7 @@
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
+  import { Skeleton } from "@repo/ui/skeleton";
   import {
     createInfiniteQuery,
     createMutation,
@@ -113,15 +113,14 @@
     searchParams.update({ search: "" });
   }
 
-  // Stats
-  const stats = $derived(() => {
-    const total = allSuppliers.length;
-    const totalPurchases = allSuppliers.reduce((sum, s) => sum + s.totalPurchases, 0);
-    const totalInvoices = allSuppliers.reduce((sum, s) => sum + s.purchaseInvoicesCount, 0);
-    const avgInvoices = total > 0 ? Math.round(totalInvoices / total) : 0;
+  const supplierStats = createQuery(() =>
+    orpc.suppliers.stats.queryOptions({
+      input: { slug: params.slug },
+      enabled: !!params.slug,
+    })
+  );
 
-    return { total, totalPurchases, totalInvoices, avgInvoices };
-  });
+  const isLoadingStats = $derived(supplierStats.isLoading);
 
   function viewSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
@@ -174,52 +173,58 @@
   <div
     class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
   >
-    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-      <StatsCard
-        title="Total Suppliers"
-        value={stats().total}
-        description="Active suppliers"
-        icon={Building2Icon}
-        iconBgClass="bg-primary/10"
-        iconTextClass="text-primary"
-        borderClass="from-primary/20 to-primary/5"
-      />
-    </div>
-    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-      <StatsCard
-        title="Total Purchases"
-        value=""
-        description="All time"
-        icon={DollarSignIcon}
-        iconBgClass="bg-emerald-500/10"
-        iconTextClass="text-emerald-600"
-        borderClass="from-emerald-500/20 to-emerald-500/5"
-        price={stats().totalPurchases}
-        country={shop.country}
-      />
-    </div>
-    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-      <StatsCard
-        title="Total Invoices"
-        value={stats().totalInvoices}
-        description="From all suppliers"
-        icon={ReceiptIcon}
-        iconBgClass="bg-blue-500/10"
-        iconTextClass="text-blue-600"
-        borderClass="from-blue-500/20 to-blue-500/5"
-      />
-    </div>
-    <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-      <StatsCard
-        title="Avg Invoices"
-        value={stats().avgInvoices}
-        description="Per supplier"
-        icon={FileTextIcon}
-        iconBgClass="bg-amber-500/10"
-        iconTextClass="text-amber-600"
-        borderClass="from-amber-500/20 to-amber-500/5"
-      />
-    </div>
+    {#if isLoadingStats}
+      {#each { length: 3 } as _}
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="size-8 rounded-md" />
+            </Card.Header>
+            <Card.Content class="flex flex-col gap-2">
+              <Skeleton class="h-7 w-28" />
+              <Skeleton class="h-3 w-20" />
+            </Card.Content>
+          </Card.Root>
+        </div>
+      {/each}
+    {:else if supplierStats.data}
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Total Suppliers"
+          value={supplierStats.data.total}
+          description="Active suppliers"
+          icon={Building2Icon}
+          iconBgClass="bg-primary/10"
+          iconTextClass="text-primary"
+          borderClass="from-primary/20 to-primary/5"
+        />
+      </div>
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Total Purchases"
+          value=""
+          description="All time"
+          icon={DollarSignIcon}
+          iconBgClass="bg-emerald-500/10"
+          iconTextClass="text-emerald-600"
+          borderClass="from-emerald-500/20 to-emerald-500/5"
+          price={supplierStats.data.totalPurchases}
+          country={shop.country}
+        />
+      </div>
+      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <StatsCard
+          title="Total Invoices"
+          value={supplierStats.data.totalInvoices}
+          description="From all suppliers"
+          icon={ReceiptIcon}
+          iconBgClass="bg-blue-500/10"
+          iconTextClass="text-blue-600"
+          borderClass="from-blue-500/20 to-blue-500/5"
+        />
+      </div>
+    {/if}
   </div>
 
   <section class="mt-4 space-y-6">
@@ -442,7 +447,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <Dialog.Footer>

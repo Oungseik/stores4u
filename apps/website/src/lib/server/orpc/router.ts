@@ -51,6 +51,7 @@ import { createSupplierHandler } from "./handlers/suppliers/create_supplier";
 import { deleteSupplierHandler } from "./handlers/suppliers/delete_supplier";
 import { getSupplierHandler } from "./handlers/suppliers/get_supplier";
 import { listSuppliersHandler } from "./handlers/suppliers/list_suppliers";
+import { statsSuppliersHandler } from "./handlers/suppliers/stats_suppliers";
 import { updateSupplierHandler } from "./handlers/suppliers/update_supplier";
 import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
@@ -129,6 +130,7 @@ export const router = os.router({
     delete: deleteSupplierHandler,
     get: getSupplierHandler,
     list: listSuppliersHandler,
+    stats: statsSuppliersHandler,
     update: updateSupplierHandler,
   },
   tax: {

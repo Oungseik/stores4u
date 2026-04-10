@@ -12,6 +12,7 @@
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ScrollArea } from "@repo/ui/scroll-area";
+  import { Skeleton } from "@repo/ui/skeleton";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
@@ -79,6 +80,8 @@
     })
   );
 
+  const isLoading = $derived(orderStats.isLoading);
+
   const hasFilters = $derived(
     searchParams.search.length > 0 ||
       searchParams.dateFrom.length > 0 ||
@@ -143,29 +146,40 @@
   </AdminDashboardHeader>
 
   <div
-    class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3"
+    class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
   >
-    {#each [{ title: "Today", stats: orderStats.data?.today, description: "Today's revenue", icon: ReceiptIcon, iconBgClass: "bg-amber-500/10", iconTextClass: "text-amber-600", borderClass: "from-amber-500/20 to-amber-500/5" }, { title: "This Week", stats: orderStats.data?.thisWeek, description: "This week's revenue", icon: PackageIcon, iconBgClass: "bg-blue-500/10", iconTextClass: "text-blue-600", borderClass: "from-blue-500/20 to-blue-500/5" }, { title: "This Month", stats: orderStats.data?.thisMonth, description: "This month's revenue", icon: CalendarIcon, iconBgClass: "bg-emerald-500/10", iconTextClass: "text-emerald-600", borderClass: "from-emerald-500/20 to-emerald-500/5" }] as card}
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-        <StatsCard
-          title={card.title}
-          price={card.stats?.totalCents ?? 0}
-          country={shop.country}
-          priceClass="text-2xl font-bold"
-          description={card.description}
-          icon={card.icon}
-          iconBgClass={card.iconBgClass}
-          iconTextClass={card.iconTextClass}
-          borderClass={card.borderClass}
-        >
-          {#snippet footer()}
-            <span class="text-muted-foreground text-xs">
-              ~ {card.stats?.count ?? 0} orders
-            </span>
-          {/snippet}
-        </StatsCard>
-      </div>
-    {/each}
+    {#if isLoading}
+      {#each { length: 3 } as _}
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="size-8 rounded-md" />
+            </Card.Header>
+            <Card.Content class="flex flex-col gap-2">
+              <Skeleton class="h-7 w-28" />
+              <Skeleton class="h-3 w-20" />
+            </Card.Content>
+          </Card.Root>
+        </div>
+      {/each}
+    {:else if orderStats.data}
+      {#each [{ title: "Today", stats: orderStats.data.today, description: "Today's revenue", icon: ReceiptIcon, iconBgClass: "bg-amber-500/10", iconTextClass: "text-amber-600", borderClass: "from-amber-500/20 to-amber-500/5" }, { title: "This Week", stats: orderStats.data.thisWeek, description: "This week's revenue", icon: PackageIcon, iconBgClass: "bg-blue-500/10", iconTextClass: "text-blue-600", borderClass: "from-blue-500/20 to-blue-500/5" }, { title: "This Month", stats: orderStats.data.thisMonth, description: "This month's revenue", icon: CalendarIcon, iconBgClass: "bg-emerald-500/10", iconTextClass: "text-emerald-600", borderClass: "from-emerald-500/20 to-emerald-500/5" }] as card}
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <StatsCard
+            title={card.title}
+            price={card.stats.totalCents}
+            country={shop.country}
+            priceClass="text-2xl font-bold"
+            description={card.description}
+            icon={card.icon}
+            iconBgClass={card.iconBgClass}
+            iconTextClass={card.iconTextClass}
+            borderClass={card.borderClass}
+          ></StatsCard>
+        </div>
+      {/each}
+    {/if}
   </div>
 
   <section class="space-y-6">

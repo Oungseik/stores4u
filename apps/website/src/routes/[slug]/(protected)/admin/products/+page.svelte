@@ -16,6 +16,7 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
+  import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import {
     createInfiniteQuery,
@@ -132,7 +133,26 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  {#if productStats.data}
+  {#if productStats.isLoading}
+    <div
+      class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+    >
+      {#each { length: 4 } as _}
+        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="size-8 rounded-md" />
+            </Card.Header>
+            <Card.Content class="flex flex-col gap-2">
+              <Skeleton class="h-7 w-28" />
+              <Skeleton class="h-3 w-20" />
+            </Card.Content>
+          </Card.Root>
+        </div>
+      {/each}
+    </div>
+  {:else if productStats.data}
     <div
       class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
     >
@@ -275,12 +295,14 @@
           <Card.Root class="overflow-hidden p-0">
             <Card.Content class="p-0">
               <div
-                class="hover:bg-muted/50 flex w-full items-center gap-3 border-l-4 px-3 py-2.5 {product.stock ===
-                0
-                  ? 'border-red-400'
-                  : product.stock <= (product.lowStockThreshold ?? 10)
-                    ? 'border-amber-400'
-                    : 'border-transparent'}"
+                class={[
+                  "hover:bg-muted/50 flex w-full items-center gap-3 border-l-4 px-3 py-2.5",
+                  product.stock === 0
+                    ? "border-red-400"
+                    : product.stock <= (product.lowStockThreshold ?? 10)
+                      ? "border-amber-400"
+                      : "border-primary",
+                ]}
               >
                 <a
                   href={`/${params.slug}/admin/products/${product.id}`}
