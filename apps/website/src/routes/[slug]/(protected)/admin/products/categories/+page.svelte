@@ -131,7 +131,7 @@
 
   <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
-      <div class="flex items-center justify-start gap-4">
+      <div class="flex flex-wrap items-center justify-start gap-2 md:gap-4">
         <FilterBar.Search
           placeholder="Search categories..."
           value={searchParams.search}
