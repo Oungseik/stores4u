@@ -17,6 +17,7 @@ export function createColumns(
   slug: string,
   onEdit: (category: CategoryItem) => void,
   onDelete: (category: CategoryItem) => void,
+  onManageProducts: (category: CategoryItem) => void,
 ): ColumnDef<CategoryItem>[] {
   return [
     {
@@ -49,6 +50,7 @@ export function createColumns(
           slug,
           onEdit,
           onDelete,
+          onManageProducts,
         });
       },
     },

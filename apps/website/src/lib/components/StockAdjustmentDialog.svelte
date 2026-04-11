@@ -86,9 +86,7 @@
     },
   }));
 
-  const projectedStock = $derived(
-    direction === "ADD" ? currentStock + qty : currentStock - qty
-  );
+  const projectedStock = $derived(direction === "ADD" ? currentStock + qty : currentStock - qty);
 
   function handleOpenChange(value: boolean) {
     if (!value) {

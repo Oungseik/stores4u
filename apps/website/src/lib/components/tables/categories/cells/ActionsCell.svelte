@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ListPlusIcon from "@lucide/svelte/icons/list-plus";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -13,9 +14,10 @@
     slug: string;
     onEdit: (category: CategoryItem) => void;
     onDelete: (category: CategoryItem) => void;
+    onManageProducts: (category: CategoryItem) => void;
   };
 
-  const { category, onEdit, onDelete }: Props = $props();
+  const { category, onEdit, onDelete, onManageProducts }: Props = $props();
 
   function handleDelete() {
     confirmDelete({
@@ -36,6 +38,10 @@
     <MoreVerticalIcon class="size-4" />
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
+    <DropdownMenu.Item onclick={() => onManageProducts(category)}>
+      <ListPlusIcon class="size-4" />
+      Manage Products
+    </DropdownMenu.Item>
     <DropdownMenu.Item onclick={() => onEdit(category)}>
       <PencilIcon class="size-4" />
       Edit

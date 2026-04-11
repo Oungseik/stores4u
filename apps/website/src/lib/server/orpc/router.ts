@@ -3,7 +3,9 @@ import { createRouterClient } from "@orpc/server";
 import { os } from "./base";
 import { createCategoryHandler } from "./handlers/categories/create_category";
 import { deleteCategoryHandler } from "./handlers/categories/delete_category";
+import { getCategoryProductsHandler } from "./handlers/categories/get_category_products";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
+import { updateCategoryProductsHandler } from "./handlers/categories/update_category_products";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { createChatHandler } from "./handlers/chats/create_chat";
 import { deleteChatHandler } from "./handlers/chats/delete_chat";
@@ -62,8 +64,10 @@ export const router = os.router({
   categories: {
     create: createCategoryHandler,
     delete: deleteCategoryHandler,
+    getProducts: getCategoryProductsHandler,
     list: listCategoriesHandler,
     update: updateCategoryHandler,
+    updateProducts: updateCategoryProductsHandler,
   },
   chats: {
     create: createChatHandler,
