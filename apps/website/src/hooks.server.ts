@@ -39,9 +39,6 @@ const rateLimitHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-// TODO remove this on production
-const whitelistedEmails = ["mhemaungthuwin@gmail.com", "kweesai.saitama@gmail.com"];
-
 const authHandle: Handle = async ({ event, resolve }) => {
   if (event.url.pathname.startsWith("/api/auth")) {
     return svelteKitHandler({ event, resolve, auth, building });
@@ -53,13 +50,6 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
   const session = await auth.api.getSession({ headers: event.request.headers });
   event.locals.session = session;
-
-  // TODO remove this on production
-  if (session?.user.email && !whitelistedEmails.includes(session.user.email)) {
-    return new Response("Sorry, our application is currently under active development", {
-      status: 400,
-    });
-  }
 
   if (session?.user?.id && event.tracing?.root) {
     event.tracing.root.setAttribute("userId", session.user.id);
