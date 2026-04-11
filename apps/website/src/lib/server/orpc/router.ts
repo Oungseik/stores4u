@@ -38,6 +38,7 @@ import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_
 import { getInvoiceHandler } from "./handlers/purchase-invoices/get_invoice";
 import { getInvoiceFilesStatsHandler } from "./handlers/purchase-invoices/get_invoice_files_stats";
 import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
+import { listInvoicesHandler } from "./handlers/purchase-invoices/list_invoices";
 import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice_file";
 import { rejectInvoiceFileHandler } from "./handlers/purchase-invoices/reject_invoice_file";
 import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
@@ -92,6 +93,7 @@ export const router = os.router({
   purchaseInvoices: {
     deleteFile: deleteInvoiceFileHandler,
     downloadFile: downloadInvoiceFileHandler,
+    list: listInvoicesHandler,
     listFiles: listInvoiceFilesHandler,
     getFile: getInvoiceFileHandler,
     getInvoice: getInvoiceHandler,
