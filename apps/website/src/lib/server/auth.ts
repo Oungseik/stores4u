@@ -1,3 +1,6 @@
+import { createTransporter } from "@repo/website-auth";
+import { createAuth } from "@repo/website-auth/server";
+import { getRequestEvent } from "$app/server";
 import { env } from "$env/dynamic/public";
 import {
   BETTER_AUTH_SECRET,
@@ -12,10 +15,7 @@ import {
   SES_SMTP_PORT,
   SES_SMTP_USER,
 } from "$env/static/private";
-import { createAuth } from "@repo/website-auth/server";
 import { db } from "$lib/server/auth_db";
-import { createTransporter } from "@repo/website-auth";
-import { getRequestEvent } from "$app/server";
 
 const port = Number(SES_SMTP_PORT ?? "465");
 

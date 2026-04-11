@@ -13,11 +13,7 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import {
-    createInfiniteQuery,
-    createMutation,
-    useQueryClient,
-  } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";

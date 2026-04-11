@@ -23,7 +23,7 @@ const schemaObj = {
 
 export { schemaObj };
 
-export const connectDbRemote = (url: string, authToken: string) => {
+export const connectRemote = (url: string, authToken: string) => {
   const client = createClient({ url, authToken });
   return drizzle({ client, schema: schemaObj, relations });
 };
