@@ -1,21 +1,18 @@
 <script lang="ts">
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
-  import EyeIcon from "@lucide/svelte/icons/eye";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
-  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PhoneIcon from "@lucide/svelte/icons/phone";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
-  import { Button, buttonVariants } from "@repo/ui/button";
+  import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
-  import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { Skeleton } from "@repo/ui/skeleton";
   import {
@@ -88,24 +85,13 @@
 
   const allSuppliers = $derived(suppliers.data?.pages.flatMap((page) => page.items) ?? []);
 
-  // State
   let selectedSupplier = $state<ApiSupplier | null>(null);
-  let isViewOpen = $state(false);
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
   // svelte-ignore non_reactive_update
   let addFormRef: SupplierForm | null = null;
   // svelte-ignore non_reactive_update
   let editFormRef: SupplierForm | null = null;
-
-  const supplierDetails = createQuery(() =>
-    orpc.suppliers.get.queryOptions({
-      input: { slug: params.slug, supplierId: selectedSupplier?.id ?? "" },
-      enabled: isViewOpen && !!selectedSupplier?.id,
-    })
-  );
-
-  const displaySupplier = $derived(supplierDetails.data ?? selectedSupplier);
 
   const hasFilters = $derived(searchParams.search.length > 0);
 
@@ -121,11 +107,6 @@
   );
 
   const isLoadingStats = $derived(supplierStats.isLoading);
-
-  function viewSupplier(supplier: ApiSupplier) {
-    selectedSupplier = supplier;
-    isViewOpen = true;
-  }
 
   function editSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
@@ -279,32 +260,6 @@
                     {/if}
                   </div>
                 </div>
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger
-                    class={buttonVariants({ variant: "ghost", size: "icon" }) +
-                      " size-8 opacity-0 group-hover:opacity-100"}
-                  >
-                    <MoreVerticalIcon class="size-4" />
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end">
-                    <DropdownMenu.Item onclick={() => viewSupplier(supplier)}>
-                      <EyeIcon class="size-4" />
-                      View Details
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item onclick={() => editSupplier(supplier)}>
-                      <PencilIcon class="size-4" />
-                      Edit
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Separator />
-                    <DropdownMenu.Item
-                      class="text-red-600"
-                      onclick={() => deleteSupplier(supplier)}
-                    >
-                      <Trash2Icon class="size-4" />
-                      Delete
-                    </DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
               </div>
             </Card.Header>
             <Card.Content class="space-y-3">
@@ -343,10 +298,28 @@
                 </div>
               {/if}
             </Card.Content>
-            <Card.Footer class="pt-0">
-              <Button variant="outline" class="w-full" onclick={() => viewSupplier(supplier)}>
+            <Card.Footer class="flex flex-col gap-2 pt-0">
+              <Button
+                variant="outline"
+                class="w-full"
+                href={`/${params.slug}/admin/purchases/suppliers/${supplier.id}`}
+              >
                 View Details
               </Button>
+              <div class="flex w-full gap-2">
+                <Button
+                  variant="destructive"
+                  class="flex-1"
+                  onclick={() => deleteSupplier(supplier)}
+                >
+                  <Trash2Icon class="size-4" />
+                  Delete
+                </Button>
+                <Button variant="outline" class="flex-1" onclick={() => editSupplier(supplier)}>
+                  <PencilIcon class="size-4" />
+                  Edit
+                </Button>
+              </div>
             </Card.Footer>
           </Card.Root>
         {/each}
@@ -371,96 +344,6 @@
     {/if}
   </section>
 </div>
-
-<!-- View Supplier Dialog -->
-<Dialog.Root bind:open={isViewOpen}>
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    {#if displaySupplier}
-      <Dialog.Header>
-        <div class="flex items-center gap-3">
-          <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-            <Building2Icon class="text-primary size-5" />
-          </div>
-          <div>
-            <Dialog.Title class="text-xl">{displaySupplier.name}</Dialog.Title>
-            <Dialog.Description>Supplier details and history</Dialog.Description>
-          </div>
-        </div>
-      </Dialog.Header>
-
-      <div class="grid gap-6 py-4">
-        <!-- Contact Info -->
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Contact Information
-          </h4>
-          <div class="space-y-2 rounded-md border p-3 text-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Contact Person</span>
-              <span class="font-medium">{displaySupplier.contactName ?? "—"}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Phone</span>
-              <span>{displaySupplier.phone ?? "—"}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Email</span>
-              <span>{displaySupplier.email ?? "—"}</span>
-            </div>
-            <div class="flex items-start justify-between">
-              <span class="text-muted-foreground">Address</span>
-              <span class="max-w-xs text-right">{displaySupplier.address ?? "—"}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Payment Terms</span>
-              <span class="font-medium">{displaySupplier.paymentTerms ?? "—"}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stats -->
-        <div>
-          <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-            Purchase History
-          </h4>
-          <div class="space-y-2 rounded-md border p-3 text-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Total Purchases</span>
-              <span class="font-medium">
-                <Pricing cents={displaySupplier.totalPurchases} country={shop.country} />
-              </span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Total Invoices</span>
-              <span class="font-medium">{displaySupplier.purchaseInvoicesCount}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Last Purchase</span>
-              <span class="font-medium">
-                {displaySupplier.lastPurchase ? formatDate(displaySupplier.lastPurchase) : "—"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Dialog.Footer>
-        <Button variant="outline" onclick={() => (isViewOpen = false)}>Close</Button>
-        <Button
-          onclick={() => {
-            if (displaySupplier) {
-              isViewOpen = false;
-              editSupplier(displaySupplier);
-            }
-          }}
-        >
-          <PencilIcon class="size-4" />
-          Edit Supplier
-        </Button>
-      </Dialog.Footer>
-    {/if}
-  </Dialog.Content>
-</Dialog.Root>
 
 <!-- Add Supplier Dialog -->
 <Dialog.Root
@@ -520,7 +403,6 @@
           }}
           onSuccess={() => {
             isEditOpen = false;
-            isViewOpen = true;
             editFormRef?.resetForm();
           }}
           onCancel={() => {
