@@ -47,6 +47,14 @@
     })
   );
 
+  const chartYDomain = $derived.by(() => {
+    if (!revenueTrendQuery.data) return [0, null] as [number, number | null];
+    const maxVal = Math.max(
+      ...revenueTrendQuery.data.days.map((d) => Math.max(d.revenueCents, d.costCents))
+    );
+    return [0, maxVal] as [number, number | null];
+  });
+
   const isLoading = $derived(statsQuery.isLoading || revenueTrendQuery.isLoading);
 
   const revenueChartConfig = {
@@ -66,6 +74,23 @@
       }).format(cents / 100);
     } catch {
       return (cents / 100).toFixed(2);
+    }
+  }
+
+  function formatCentsCompact(cents: number): string {
+    const value = cents / 100;
+    if (!shop?.country) return value.toLocaleString(undefined, { notation: "compact" });
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: shop.country,
+        notation: "compact",
+        compactDisplay: "short",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1,
+      }).format(value);
+    } catch {
+      return value.toLocaleString(undefined, { notation: "compact" });
     }
   }
 
@@ -224,12 +249,15 @@
         {#if revenueTrendQuery.isLoading}
           <Skeleton class="aspect-[32/9] w-full" />
         {:else if revenueTrendQuery.data}
-          <Chart.Container config={revenueChartConfig} class="!aspect-[32/9] w-full">
+          <Chart.Container
+            config={revenueChartConfig}
+            class="!aspect-[32/9] w-full overflow-hidden"
+          >
             <AreaChart
               data={revenueTrendQuery.data.days}
               x="date"
               y="revenueCents"
-              yDomain={[0, null]}
+              yDomain={chartYDomain}
               series={[
                 { key: "revenueCents", label: "Revenue", color: "var(--chart-1)" },
                 { key: "costCents", label: "Cost", color: "var(--chart-3)" },
@@ -242,7 +270,7 @@
                   format: (d: string) => formatTrendDate(d),
                 },
                 yAxis: {
-                  format: (d: number) => formatCents(d),
+                  format: (d: number) => formatCentsCompact(d),
                 },
               }}
             >
