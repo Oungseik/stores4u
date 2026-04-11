@@ -142,10 +142,10 @@
 
   {#if productStats.isLoading}
     <div
-      class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+      class="flex snap-x gap-4 overflow-x-auto pb-2 xl:grid xl:grid-cols-4 xl:overflow-visible"
     >
       {#each { length: 4 } as _}
-        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton class="h-4 w-24" />
@@ -161,9 +161,9 @@
     </div>
   {:else if productStats.data}
     <div
-      class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+      class="flex snap-x gap-4 overflow-x-auto pb-2 xl:grid xl:grid-cols-4 xl:overflow-visible"
     >
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
           title="Total Products"
           value={productStats.data.total}
@@ -174,7 +174,7 @@
           borderClass="from-primary/20 to-primary/5"
         />
       </div>
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
           title="Low Stock"
           value={productStats.data.lowStock}
@@ -185,7 +185,7 @@
           borderClass="from-amber-500/20 to-amber-500/5"
         />
       </div>
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
           title="Out of Stock"
           value={productStats.data.outOfStock}
@@ -196,7 +196,7 @@
           borderClass="from-red-500/20 to-red-500/5"
         />
       </div>
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
           title="Inventory Value"
           value=""

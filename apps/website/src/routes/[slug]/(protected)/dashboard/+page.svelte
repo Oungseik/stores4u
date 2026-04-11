@@ -110,11 +110,11 @@
 
     <!-- KPI Cards -->
     <div
-      class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
+      class="flex snap-x gap-4 overflow-x-auto pb-2 xl:grid xl:grid-cols-4 xl:overflow-visible"
     >
       {#if isLoading}
         {#each { length: 4 } as _}
-          <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
             <Card.Root>
               <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
                 <Skeleton class="h-4 w-24" />
@@ -128,7 +128,7 @@
           </div>
         {/each}
       {:else if statsQuery.data}
-        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
               <Card.Title class="text-sm font-medium">Revenue Today</Card.Title>
@@ -147,7 +147,7 @@
           </Card.Root>
         </div>
 
-        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
               <Card.Title class="text-sm font-medium">This Month</Card.Title>
@@ -176,7 +176,7 @@
           </Card.Root>
         </div>
 
-        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
               <Card.Title class="text-sm font-medium">Gross Profit Today</Card.Title>
@@ -198,7 +198,7 @@
           </Card.Root>
         </div>
 
-        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
               <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
