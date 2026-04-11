@@ -6,7 +6,6 @@
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FolderIcon from "@lucide/svelte/icons/folder";
-  import HelpIcon from "@lucide/svelte/icons/help-circle";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LinkIcon from "@lucide/svelte/icons/link";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
@@ -97,11 +96,6 @@
       title: "Settings",
       href: `/${shop.slug}/dashboard/settings`,
       icon: SettingsIcon,
-    },
-    {
-      title: "Help",
-      href: `/${shop.slug}/dashboard/help`,
-      icon: HelpIcon,
     },
   ]);
 
