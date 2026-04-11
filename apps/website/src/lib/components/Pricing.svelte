@@ -11,15 +11,26 @@
   let { cents, country = null, priceClass = "", decimals = 2 }: Props = $props();
 
   const formatted = $derived(() => {
-    if (!country) return (cents / 100).toFixed(decimals);
-    const code = currency[country]?.code;
-    if (!code) return (cents / 100).toFixed(decimals);
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    }).format(cents / 100);
+    const amount = cents / 100;
+    const compact = Math.abs(amount) >= 10_000;
+
+    const number = new Intl.NumberFormat(undefined, {
+      style: "decimal",
+      ...(compact
+        ? { notation: "compact" as const, maximumFractionDigits: 2 }
+        : { minimumFractionDigits: decimals, maximumFractionDigits: decimals }),
+    }).format(amount);
+
+    if (!country) return number;
+
+    const config = currency[country];
+    if (!config) return number;
+    if (config.prefix) {
+      if (number.startsWith("-")) return `-${config.prefix}${number.slice(1)}`;
+      return `${config.prefix}${number}`;
+    }
+    if (config.suffix) return `${number} ${config.suffix}`;
+    return number;
   });
 </script>
 

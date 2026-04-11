@@ -50,20 +50,24 @@ export function getCountryName(code: CountryCode, locale = "en") {
 
 export function formatPrice(cents: number, country?: CountryCode | null): string {
   const amount = cents / 100;
+  const compact = Math.abs(amount) >= 10_000;
 
-  if (!country) {
-    return new Intl.NumberFormat(undefined, {
-      style: "decimal",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  }
+  const formatted = new Intl.NumberFormat(undefined, {
+    style: "decimal",
+    ...(compact
+      ? { notation: "compact" as const, maximumFractionDigits: 2 }
+      : { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+  }).format(amount);
+
+  if (!country) return formatted;
 
   const config = currency[country];
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: config.code,
-  }).format(amount);
+  if (config.prefix) {
+    if (formatted.startsWith("-")) return `-${config.prefix}${formatted.slice(1)}`;
+    return `${config.prefix}${formatted}`;
+  }
+  if (config.suffix) return `${formatted} ${config.suffix}`;
+  return formatted;
 }
 
 export function formatNumber(value: number, fraction = 2): string {
