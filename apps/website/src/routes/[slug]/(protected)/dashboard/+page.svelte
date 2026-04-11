@@ -8,6 +8,7 @@
   import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
   import TrendingDownIcon from "@lucide/svelte/icons/trending-down";
   import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
+  import { buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Chart from "@repo/ui/chart";
   import { ScrollArea } from "@repo/ui/scroll-area";
@@ -342,8 +343,7 @@
         Quick actions
       </h2>
       <div class="grid grid-cols-1 gap-3 @lg/main:grid-cols-2">
-        <a
-          href={`/${params.slug}/dashboard/checkout`}
+        <div
           class="group border-border bg-card relative flex flex-col justify-between overflow-hidden rounded-xl border p-6 transition-all duration-200 hover:shadow-md"
         >
           <div class="relative z-10">
@@ -357,20 +357,17 @@
             </p>
           </div>
           <div class="relative z-10 mt-6">
-            <span
-              class="bg-primary text-primary-foreground group-hover:bg-primary/90 inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all"
-            >
+            <a href={`/${params.slug}/dashboard/checkout`} class={buttonVariants()}>
               Open Checkout
               <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
+            </a>
           </div>
           <div
             class="from-primary/[0.03] absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity group-hover:opacity-100"
           ></div>
-        </a>
+        </div>
 
-        <a
-          href={`/${params.slug}/dashboard/agents`}
+        <div
           class="group border-border bg-card relative flex flex-col justify-between overflow-hidden rounded-xl border p-6 transition-all duration-200 hover:shadow-md"
         >
           <div class="relative z-10">
@@ -384,17 +381,16 @@
             </p>
           </div>
           <div class="relative z-10 mt-6">
-            <span
-              class="bg-primary text-primary-foreground group-hover:bg-primary/90 inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all"
-            >
-              Open Agents
-              <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
+            <!-- <a href={`/${params.slug}/chats`} class={buttonVariants()}> -->
+            <!--   Open Agents -->
+            <!--   <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" /> -->
+            <!-- </a> -->
+            <span class="text-muted-foreground"> Coming soon... </span>
           </div>
           <div
             class="from-primary/[0.03] absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity group-hover:opacity-100"
           ></div>
-        </a>
+        </div>
 
         <a
           href={`/${params.slug}/dashboard/products`}
