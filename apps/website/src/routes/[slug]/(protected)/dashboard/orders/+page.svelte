@@ -1,7 +1,6 @@
 <script lang="ts">
   import { CalendarDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
@@ -136,14 +135,7 @@
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/dashboard` }, { label: "Orders" }]}
-  >
-    {#snippet actions()}
-      <Button variant="outline" size="sm" class="gap-2">
-        <DownloadIcon class="size-4" />
-        Export
-      </Button>
-    {/snippet}
-  </AdminDashboardHeader>
+  />
 
   <div class="flex flex-col gap-1">
     <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
