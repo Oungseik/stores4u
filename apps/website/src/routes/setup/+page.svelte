@@ -81,7 +81,7 @@
           zipCode: value.zipCode || undefined,
           country: value.country || undefined,
         });
-        goto(`/${value.slug}/admin`);
+        goto(`/${value.slug}/dashboard`);
       } catch (error) {
         isSubmitting = false;
         if (error instanceof Error) {

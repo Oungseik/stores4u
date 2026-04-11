@@ -41,7 +41,7 @@
       {#snippet child()}
         <a
           class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-          href={`/${slug}/admin/products/${id}/edit`}
+          href={`/${slug}/dashboard/products/${id}/edit`}
         >
           <PencilIcon class="size-4" />
           Edit

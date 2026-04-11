@@ -128,11 +128,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 tooltipContent="Back to Admin"
-                isActive={isActive(`/${shop.slug}/admin`)}
+                isActive={isActive(`/${shop.slug}/dashboard`)}
               >
                 {#snippet child({ props })}
                   <a
-                    href={`/${shop.slug}/admin`}
+                    href={`/${shop.slug}/dashboard`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
@@ -255,7 +255,7 @@
             <DropdownMenu.Group>
               <DropdownMenu.Item>
                 {#snippet child({ props })}
-                  <a href={`/${shop.slug}/admin/settings`} {...props}>
+                  <a href={`/${shop.slug}/dashboard/settings`} {...props}>
                     <SettingsIcon class="size-4" />
                     Settings
                   </a>

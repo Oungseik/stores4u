@@ -40,5 +40,5 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     return redirect(303, "/setup");
   }
 
-  return redirect(303, url.searchParams.get("return_url") ?? `/${shops.at(0)?.slug}/admin`);
+  return redirect(303, url.searchParams.get("return_url") ?? `/${shops.at(0)?.slug}/dashboard`);
 };
