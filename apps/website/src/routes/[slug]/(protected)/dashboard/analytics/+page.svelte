@@ -95,7 +95,10 @@
 <div class="@container/main flex flex-1 flex-col gap-2 p-4 md:p-6">
   <div class="flex flex-col gap-4 md:gap-6">
     <AdminDashboardHeader
-      breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/dashboard` }, { label: "Analytics" }]}
+      breadcrumbs={[
+        { label: "Dashboard", href: `/${shop.slug}/dashboard` },
+        { label: "Analytics" },
+      ]}
     />
 
     <!-- Page Title & Description -->

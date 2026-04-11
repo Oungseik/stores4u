@@ -24,7 +24,8 @@
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
             <Breadcrumb.Item>
-              <Breadcrumb.Link href={`/${params.slug}/dashboard/products`}>Products</Breadcrumb.Link>
+              <Breadcrumb.Link href={`/${params.slug}/dashboard/products`}>Products</Breadcrumb.Link
+              >
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
             <Breadcrumb.Item>
