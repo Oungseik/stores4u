@@ -8,8 +8,8 @@ import { extractObjectKey, removeImage } from "$lib/server/storage";
 const input = z.object({
   slug: z.string().min(1).max(100),
   name: z.string().min(1).max(100).optional(),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1).max(1000),
+  title: z.string().max(200).optional(),
+  description: z.string().max(1000).optional(),
   address: z.string().min(1).max(200),
   city: z.string().min(1).max(100),
   phone: z.string().min(1).max(50),
@@ -34,8 +34,8 @@ export const updateShopHandler = os
       .update(shop)
       .set({
         name: input.name,
-        title: input.title,
-        description: input.description,
+        title: input.title ?? null,
+        description: input.description ?? null,
         address: input.address,
         city: input.city,
         state: input.state,

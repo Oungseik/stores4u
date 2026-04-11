@@ -65,8 +65,8 @@
       await updateShopMutation.mutateAsync({
         slug: shop.slug,
         name: profileSettings.name,
-        title: profileSettings.title,
-        description: profileSettings.description,
+        title: profileSettings.title || undefined,
+        description: profileSettings.description || undefined,
         logo: profileSettings.logo ?? undefined,
         heroImage: profileSettings.heroImage ?? undefined,
         address: value.address,

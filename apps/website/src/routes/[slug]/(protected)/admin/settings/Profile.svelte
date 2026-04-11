@@ -31,7 +31,7 @@
   const shopSettings = $derived({
     profile: {
       name: shop.name ?? "",
-      title: shop.title,
+      title: shop.title ?? "",
       description: shop.description,
       logo: shop.logo,
       heroImage: shop.heroImage,
@@ -132,8 +132,8 @@
       await updateShopMutation.mutateAsync({
         slug: shop.slug,
         name: value.name,
-        title: value.title,
-        description: value.description,
+        title: value.title || undefined,
+        description: value.description || undefined,
         logo: value.logo ?? undefined,
         heroImage: value.heroImage ?? undefined,
         address: shopSettings.business.address,
@@ -184,6 +184,32 @@
               onchange={(e) => field.handleChange(e.currentTarget.value)}
               placeholder="Your shop name"
             />
+            {#if field.state.meta.errors.length}
+              <p class="text-sm text-red-500">{field.state.meta.errors}</p>
+            {/if}
+          </div>
+        {/snippet}
+      </profileForm.Field>
+
+      <profileForm.Field
+        name="title"
+        validators={{
+          onChange: ({ value }) =>
+            z.string().max(200).optional().safeParse(value).error?.issues.at(0)?.message,
+        }}
+      >
+        {#snippet children(field)}
+          <div class="space-y-2">
+            <Label for={field.name}>Shop Title</Label>
+            <Input
+              id={field.name}
+              name={field.name}
+              value={field.state.value}
+              onblur={field.handleBlur}
+              onchange={(e) => field.handleChange(e.currentTarget.value)}
+              placeholder="My Awesome Shop - Best Products in Town"
+            />
+            <p class="text-muted-foreground text-xs">The display title shown on your shop page</p>
             {#if field.state.meta.errors.length}
               <p class="text-sm text-red-500">{field.state.meta.errors}</p>
             {/if}

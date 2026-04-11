@@ -4,8 +4,8 @@ import { z } from "zod";
 export const shopFormAiSchema = z.object({
   name: z.string(),
   slug: z.string(),
-  title: z.string(),
-  description: z.string(),
+  title: z.string().optional(),
+  description: z.string().optional(),
   address: z.string(),
   city: z.string(),
   phone: z.string(),

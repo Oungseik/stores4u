@@ -14,8 +14,8 @@ const input = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1).max(1000),
+  title: z.string().max(200).optional(),
+  description: z.string().max(1000).optional(),
   address: z.string().min(1).max(200),
   city: z.string().min(1).max(100),
   phone: z.string().min(1).max(50),

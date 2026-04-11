@@ -37,8 +37,8 @@
       .min(1, "Slug is required")
       .max(100)
       .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
-    title: z.string().min(1, "Title is required").max(200),
-    description: z.string().min(1, "Description is required").max(1000),
+    title: z.string().max(200).optional(),
+    description: z.string().max(1000).optional(),
   });
 
   const step2Schema = z.object({
@@ -71,8 +71,8 @@
         await createShopMutation.mutateAsync({
           name: value.name,
           slug: value.slug,
-          title: value.title,
-          description: value.description,
+          title: value.title || undefined,
+          description: value.description || undefined,
           address: value.address,
           city: value.city,
           phone: value.phone,
@@ -169,8 +169,8 @@
   function handleAiFill(fields: ShopFormFields) {
     form.setFieldValue("name", fields.name);
     form.setFieldValue("slug", fields.slug || generateSlug(fields.name));
-    form.setFieldValue("title", fields.title);
-    form.setFieldValue("description", fields.description);
+    if (fields.title) form.setFieldValue("title", fields.title);
+    if (fields.description) form.setFieldValue("description", fields.description);
     form.setFieldValue("address", fields.address);
     form.setFieldValue("city", fields.city);
     form.setFieldValue("phone", fields.phone);
@@ -331,17 +331,12 @@
                 name="title"
                 validators={{
                   onChange: ({ value }) =>
-                    z
-                      .string()
-                      .min(1, "Title is required")
-                      .max(200)
-                      .safeParse(value)
-                      .error?.issues.at(0)?.message,
+                    z.string().max(200).optional().safeParse(value).error?.issues.at(0)?.message,
                 }}
               >
                 {#snippet children(field)}
                   <div class="space-y-2">
-                    <Label for={field.name}>Shop Title *</Label>
+                    <Label for={field.name}>Shop Title</Label>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -350,7 +345,6 @@
                       onblur={field.handleBlur}
                       onchange={(e) => field.handleChange(e.currentTarget.value)}
                       placeholder="My Awesome Shop - Best Products in Town"
-                      required
                     />
                     <p class="text-muted-foreground text-xs">
                       The display title shown on your shop page
@@ -366,17 +360,12 @@
                 name="description"
                 validators={{
                   onChange: ({ value }) =>
-                    z
-                      .string()
-                      .min(1, "Description is required")
-                      .max(1000)
-                      .safeParse(value)
-                      .error?.issues.at(0)?.message,
+                    z.string().max(1000).optional().safeParse(value).error?.issues.at(0)?.message,
                 }}
               >
                 {#snippet children(field)}
                   <div class="space-y-2">
-                    <Label for={field.name}>Description *</Label>
+                    <Label for={field.name}>Description</Label>
                     <Textarea
                       id={field.name}
                       name={field.name}
@@ -385,7 +374,6 @@
                       onchange={(e) => field.handleChange(e.currentTarget.value)}
                       placeholder="Tell customers about your shop..."
                       rows={3}
-                      required
                     />
                     {#if field.state.meta.errors.length}
                       <p class="text-sm text-red-500">{field.state.meta.errors}</p>
