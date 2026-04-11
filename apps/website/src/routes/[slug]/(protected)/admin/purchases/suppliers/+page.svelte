@@ -1,6 +1,5 @@
 <script lang="ts">
   import Building2Icon from "@lucide/svelte/icons/building-2";
-  import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -14,11 +13,9 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import { Skeleton } from "@repo/ui/skeleton";
   import {
     createInfiniteQuery,
     createMutation,
-    createQuery,
     useQueryClient,
   } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
@@ -26,7 +23,6 @@
   import { toast } from "svelte-sonner";
 
   import Pricing from "$lib/components/Pricing.svelte";
-  import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
@@ -99,15 +95,6 @@
     searchParams.update({ search: "" });
   }
 
-  const supplierStats = createQuery(() =>
-    orpc.suppliers.stats.queryOptions({
-      input: { slug: params.slug },
-      enabled: !!params.slug,
-    })
-  );
-
-  const isLoadingStats = $derived(supplierStats.isLoading);
-
   function editSupplier(supplier: ApiSupplier) {
     selectedSupplier = supplier;
     isEditOpen = true;
@@ -145,65 +132,7 @@
     <p class="text-muted-foreground text-sm">Manage supplier information and relationships</p>
   </div>
 
-  <!-- Stats Cards -->
-  <div
-    class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
-  >
-    {#if isLoadingStats}
-      {#each { length: 3 } as _}
-        <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton class="h-4 w-24" />
-              <Skeleton class="size-8 rounded-md" />
-            </Card.Header>
-            <Card.Content class="flex flex-col gap-2">
-              <Skeleton class="h-7 w-28" />
-              <Skeleton class="h-3 w-20" />
-            </Card.Content>
-          </Card.Root>
-        </div>
-      {/each}
-    {:else if supplierStats.data}
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-        <StatsCard
-          title="Total Suppliers"
-          value={supplierStats.data.total}
-          description="Active suppliers"
-          icon={Building2Icon}
-          iconBgClass="bg-primary/10"
-          iconTextClass="text-primary"
-          borderClass="from-primary/20 to-primary/5"
-        />
-      </div>
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-        <StatsCard
-          title="Total Purchases"
-          value=""
-          description="All time"
-          icon={DollarSignIcon}
-          iconBgClass="bg-emerald-500/10"
-          iconTextClass="text-emerald-600"
-          borderClass="from-emerald-500/20 to-emerald-500/5"
-          price={supplierStats.data.totalPurchases}
-          country={shop.country}
-        />
-      </div>
-      <div class="min-w-[280px] flex-shrink-0 snap-center sm:min-w-0">
-        <StatsCard
-          title="Total Invoices"
-          value={supplierStats.data.totalInvoices}
-          description="From all suppliers"
-          icon={ReceiptIcon}
-          iconBgClass="bg-blue-500/10"
-          iconTextClass="text-blue-600"
-          borderClass="from-blue-500/20 to-blue-500/5"
-        />
-      </div>
-    {/if}
-  </div>
-
-  <section class="mt-4 space-y-6">
+  <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search
         placeholder="Search suppliers by name, contact, or email..."
