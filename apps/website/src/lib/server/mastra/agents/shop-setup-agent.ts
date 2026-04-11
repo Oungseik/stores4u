@@ -35,7 +35,7 @@ To suggest high quality, attractive and informative shop title and description t
 
 ## Required Information (collect these first)
 1. **Shop Name** - What would they like to call their shop?
-2. **Address** - Street address of their shop
+2. **Address** - Street address of their shop, **don't include the city, state, country**
 3. **City** - City where the shop is located
 4. **Phone** - Contact phone number
 
