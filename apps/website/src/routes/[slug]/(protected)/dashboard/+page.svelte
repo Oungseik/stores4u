@@ -10,6 +10,7 @@
   import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
   import * as Card from "@repo/ui/card";
   import * as Chart from "@repo/ui/chart";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
@@ -109,123 +110,126 @@
     </div>
 
     <!-- KPI Cards -->
-    <div
-      class="flex snap-x gap-4 overflow-x-auto pb-2 xl:grid xl:grid-cols-4 xl:overflow-visible"
-    >
-      {#if isLoading}
-        {#each { length: 4 } as _}
+    <ScrollArea orientation="horizontal" class="w-full">
+      <div class="flex snap-x gap-4 pb-4 xl:grid xl:grid-cols-4">
+        {#if isLoading}
+          {#each { length: 4 } as _}
+            <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+              <Card.Root>
+                <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <Skeleton class="h-4 w-24" />
+                  <Skeleton class="size-8 rounded-md" />
+                </Card.Header>
+                <Card.Content class="flex flex-col gap-2">
+                  <Skeleton class="h-7 w-28" />
+                  <Skeleton class="h-3 w-20" />
+                </Card.Content>
+              </Card.Root>
+            </div>
+          {/each}
+        {:else if statsQuery.data}
           <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
             <Card.Root>
               <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Skeleton class="h-4 w-24" />
-                <Skeleton class="size-8 rounded-md" />
+                <Card.Title class="text-sm font-medium">Revenue Today</Card.Title>
+                <div class="bg-primary/10 rounded-md p-2">
+                  <DollarSignIcon class="text-primary size-5" />
+                </div>
               </Card.Header>
-              <Card.Content class="flex flex-col gap-2">
-                <Skeleton class="h-7 w-28" />
-                <Skeleton class="h-3 w-20" />
+              <Card.Content>
+                <div class="text-2xl font-bold">
+                  <Pricing
+                    cents={statsQuery.data.revenue.today.totalCents}
+                    country={shop.country}
+                  />
+                </div>
+                <p class="text-muted-foreground text-xs">
+                  {formatNumber(statsQuery.data.revenue.today.count)} orders
+                </p>
               </Card.Content>
             </Card.Root>
           </div>
-        {/each}
-      {:else if statsQuery.data}
-        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Card.Title class="text-sm font-medium">Revenue Today</Card.Title>
-              <div class="bg-primary/10 rounded-md p-2">
-                <DollarSignIcon class="text-primary size-5" />
-              </div>
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">
-                <Pricing cents={statsQuery.data.revenue.today.totalCents} country={shop.country} />
-              </div>
-              <p class="text-muted-foreground text-xs">
-                {formatNumber(statsQuery.data.revenue.today.count)} orders
-              </p>
-            </Card.Content>
-          </Card.Root>
-        </div>
 
-        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Card.Title class="text-sm font-medium">This Month</Card.Title>
-              <div class="bg-primary/10 rounded-md p-2">
-                <BanknoteIcon class="text-primary size-5" />
-              </div>
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">
-                <Pricing
-                  cents={statsQuery.data.revenue.thisMonth.totalCents}
-                  country={shop.country}
-                />
-              </div>
-              <div class="text-muted-foreground flex items-center gap-1 text-xs">
-                {#if statsQuery.data.revenue.vsLastWeek >= 0}
-                  <TrendingUpIcon class="size-3 text-emerald-600" />
-                  <span class="text-emerald-600">+{statsQuery.data.revenue.vsLastWeek}%</span>
-                {:else}
-                  <TrendingDownIcon class="size-3 text-red-600" />
-                  <span class="text-red-600">{statsQuery.data.revenue.vsLastWeek}%</span>
-                {/if}
-                vs last week
-              </div>
-            </Card.Content>
-          </Card.Root>
-        </div>
+          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+            <Card.Root>
+              <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Card.Title class="text-sm font-medium">This Month</Card.Title>
+                <div class="bg-primary/10 rounded-md p-2">
+                  <BanknoteIcon class="text-primary size-5" />
+                </div>
+              </Card.Header>
+              <Card.Content>
+                <div class="text-2xl font-bold">
+                  <Pricing
+                    cents={statsQuery.data.revenue.thisMonth.totalCents}
+                    country={shop.country}
+                  />
+                </div>
+                <div class="text-muted-foreground flex items-center gap-1 text-xs">
+                  {#if statsQuery.data.revenue.vsLastWeek >= 0}
+                    <TrendingUpIcon class="size-3 text-emerald-600" />
+                    <span class="text-emerald-600">+{statsQuery.data.revenue.vsLastWeek}%</span>
+                  {:else}
+                    <TrendingDownIcon class="size-3 text-red-600" />
+                    <span class="text-red-600">{statsQuery.data.revenue.vsLastWeek}%</span>
+                  {/if}
+                  vs last week
+                </div>
+              </Card.Content>
+            </Card.Root>
+          </div>
 
-        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Card.Title class="text-sm font-medium">Gross Profit Today</Card.Title>
-              <div class="rounded-md bg-emerald-500/10 p-2">
-                <TrendingUpIcon class="size-5 text-emerald-600" />
-              </div>
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">
-                <Pricing cents={statsQuery.data.grossProfit.todayCents} country={shop.country} />
-              </div>
-              <p class="text-muted-foreground text-xs">
-                Month: <Pricing
-                  cents={statsQuery.data.grossProfit.thisMonthCents}
-                  country={shop.country}
-                />
-              </p>
-            </Card.Content>
-          </Card.Root>
-        </div>
+          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+            <Card.Root>
+              <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Card.Title class="text-sm font-medium">Gross Profit Today</Card.Title>
+                <div class="rounded-md bg-emerald-500/10 p-2">
+                  <TrendingUpIcon class="size-5 text-emerald-600" />
+                </div>
+              </Card.Header>
+              <Card.Content>
+                <div class="text-2xl font-bold">
+                  <Pricing cents={statsQuery.data.grossProfit.todayCents} country={shop.country} />
+                </div>
+                <p class="text-muted-foreground text-xs">
+                  Month: <Pricing
+                    cents={statsQuery.data.grossProfit.thisMonthCents}
+                    country={shop.country}
+                  />
+                </p>
+              </Card.Content>
+            </Card.Root>
+          </div>
 
-        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
-              <div class="bg-primary/10 rounded-md p-2">
-                <PackageIcon class="text-primary size-5" />
-              </div>
-            </Card.Header>
-            <Card.Content>
-              <div class="text-2xl font-bold">
-                <Pricing
-                  cents={statsQuery.data.products.inventoryValueRetailCents}
-                  country={shop.country}
-                />
-              </div>
-              <p class="text-muted-foreground text-xs">
-                {statsQuery.data.products.total} products
-                {#if statsQuery.data.products.outOfStock > 0}
-                  <span class="text-destructive">
-                    &middot; {statsQuery.data.products.outOfStock} out of stock
-                  </span>
-                {/if}
-              </p>
-            </Card.Content>
-          </Card.Root>
-        </div>
-      {/if}
-    </div>
+          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+            <Card.Root>
+              <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
+                <div class="bg-primary/10 rounded-md p-2">
+                  <PackageIcon class="text-primary size-5" />
+                </div>
+              </Card.Header>
+              <Card.Content>
+                <div class="text-2xl font-bold">
+                  <Pricing
+                    cents={statsQuery.data.products.inventoryValueRetailCents}
+                    country={shop.country}
+                  />
+                </div>
+                <p class="text-muted-foreground text-xs">
+                  {statsQuery.data.products.total} products
+                  {#if statsQuery.data.products.outOfStock > 0}
+                    <span class="text-destructive">
+                      &middot; {statsQuery.data.products.outOfStock} out of stock
+                    </span>
+                  {/if}
+                </p>
+              </Card.Content>
+            </Card.Root>
+          </div>
+        {/if}
+      </div>
+    </ScrollArea>
 
     <!-- Revenue Trend -->
     <Card.Root>

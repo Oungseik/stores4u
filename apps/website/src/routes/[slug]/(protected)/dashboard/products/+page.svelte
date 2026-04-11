@@ -16,6 +16,7 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import {
@@ -141,75 +142,75 @@
   </div>
 
   {#if productStats.isLoading}
-    <div
-      class="flex snap-x gap-4 overflow-x-auto pb-2 xl:grid xl:grid-cols-4 xl:overflow-visible"
-    >
-      {#each { length: 4 } as _}
-        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-          <Card.Root>
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton class="h-4 w-24" />
-              <Skeleton class="size-8 rounded-md" />
-            </Card.Header>
-            <Card.Content class="flex flex-col gap-2">
-              <Skeleton class="h-7 w-28" />
-              <Skeleton class="h-3 w-20" />
-            </Card.Content>
-          </Card.Root>
-        </div>
-      {/each}
-    </div>
+    <ScrollArea orientation="horizontal" class="w-full">
+      <div class="flex snap-x gap-4 pb-4 xl:grid xl:grid-cols-4">
+        {#each { length: 4 } as _}
+          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+            <Card.Root>
+              <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton class="h-4 w-24" />
+                <Skeleton class="size-8 rounded-md" />
+              </Card.Header>
+              <Card.Content class="flex flex-col gap-2">
+                <Skeleton class="h-7 w-28" />
+                <Skeleton class="h-3 w-20" />
+              </Card.Content>
+            </Card.Root>
+          </div>
+        {/each}
+      </div>
+    </ScrollArea>
   {:else if productStats.data}
-    <div
-      class="flex snap-x gap-4 overflow-x-auto pb-2 xl:grid xl:grid-cols-4 xl:overflow-visible"
-    >
-      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-        <StatsCard
-          title="Total Products"
-          value={productStats.data.total}
-          description="In your catalog"
-          icon={PackageIcon}
-          iconBgClass="bg-primary/10"
-          iconTextClass="text-primary"
-          borderClass="from-primary/20 to-primary/5"
-        />
+    <ScrollArea orientation="horizontal" class="w-full">
+      <div class="flex snap-x gap-4 pb-4 xl:grid xl:grid-cols-4">
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+          <StatsCard
+            title="Total Products"
+            value={productStats.data.total}
+            description="In your catalog"
+            icon={PackageIcon}
+            iconBgClass="bg-primary/10"
+            iconTextClass="text-primary"
+            borderClass="from-primary/20 to-primary/5"
+          />
+        </div>
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+          <StatsCard
+            title="Low Stock"
+            value={productStats.data.lowStock}
+            description="Needs restocking"
+            icon={AlertTriangleIcon}
+            iconBgClass="bg-amber-500/10"
+            iconTextClass="text-amber-600"
+            borderClass="from-amber-500/20 to-amber-500/5"
+          />
+        </div>
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+          <StatsCard
+            title="Out of Stock"
+            value={productStats.data.outOfStock}
+            description="Unavailable"
+            icon={XCircleIcon}
+            iconBgClass="bg-red-500/10"
+            iconTextClass="text-red-600"
+            borderClass="from-red-500/20 to-red-500/5"
+          />
+        </div>
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+          <StatsCard
+            title="Inventory Value"
+            value=""
+            description="Total retail value"
+            icon={DollarSignIcon}
+            iconBgClass="bg-emerald-500/10"
+            iconTextClass="text-emerald-600"
+            borderClass="from-emerald-500/20 to-emerald-500/5"
+            price={productStats.data.inventoryValueRetailCents}
+            country={shop.country}
+          />
+        </div>
       </div>
-      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-        <StatsCard
-          title="Low Stock"
-          value={productStats.data.lowStock}
-          description="Needs restocking"
-          icon={AlertTriangleIcon}
-          iconBgClass="bg-amber-500/10"
-          iconTextClass="text-amber-600"
-          borderClass="from-amber-500/20 to-amber-500/5"
-        />
-      </div>
-      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-        <StatsCard
-          title="Out of Stock"
-          value={productStats.data.outOfStock}
-          description="Unavailable"
-          icon={XCircleIcon}
-          iconBgClass="bg-red-500/10"
-          iconTextClass="text-red-600"
-          borderClass="from-red-500/20 to-red-500/5"
-        />
-      </div>
-      <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-        <StatsCard
-          title="Inventory Value"
-          value=""
-          description="Total retail value"
-          icon={DollarSignIcon}
-          iconBgClass="bg-emerald-500/10"
-          iconTextClass="text-emerald-600"
-          borderClass="from-emerald-500/20 to-emerald-500/5"
-          price={productStats.data.inventoryValueRetailCents}
-          country={shop.country}
-        />
-      </div>
-    </div>
+    </ScrollArea>
   {/if}
 
   <section class="space-y-6">
