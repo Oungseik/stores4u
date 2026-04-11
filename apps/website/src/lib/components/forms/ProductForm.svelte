@@ -406,7 +406,7 @@
     {/snippet}
   </form.Field>
 
-  <div class="space-y-2">
+  <!-- <div class="space-y-2">
     <Label>Product Images</Label>
 
     <FileDropZone.Root
@@ -490,7 +490,7 @@
         {/each}
       </div>
     {/if}
-  </div>
+  </div> -->
 
   <div class="space-y-3 rounded-lg border p-4">
     <div class="flex items-center gap-2">
