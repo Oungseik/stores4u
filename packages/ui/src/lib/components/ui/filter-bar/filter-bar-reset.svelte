@@ -13,7 +13,7 @@
 	<Button
 		data-slot="filter-bar-reset"
 		variant="ghost"
-		size="sm"
+		size="default"
 		onclick={() => ctx.opts.onReset.current()}
 		class={cn('gap-2', className)}
 	>

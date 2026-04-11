@@ -64,7 +64,7 @@
 <Popover.Root bind:open>
 	<Popover.Trigger
 		bind:ref
-		class={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'gap-2', className)}
+		class={cn(buttonVariants({ variant: 'outline', size: 'default' }), 'gap-2', className)}
 	>
 		<CalendarIcon class="size-4" />
 		{label()}
