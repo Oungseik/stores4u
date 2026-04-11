@@ -159,14 +159,9 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <!-- Page Title -->
-  <div>
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight">Suppliers</h1>
-        <p class="text-muted-foreground text-sm">Manage supplier information and relationships</p>
-      </div>
-    </div>
+  <div class="flex flex-col gap-1">
+    <h1 class="text-2xl font-semibold tracking-tight">Suppliers</h1>
+    <p class="text-muted-foreground text-sm">Manage supplier information and relationships</p>
   </div>
 
   <!-- Stats Cards -->

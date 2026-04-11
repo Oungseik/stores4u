@@ -2,6 +2,7 @@
   import FolderIcon from "@lucide/svelte/icons/folder";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";
+  import ListPlusIcon from "@lucide/svelte/icons/list-plus";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -9,7 +10,7 @@
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import * as Dialog from "@repo/ui/dialog";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
@@ -19,7 +20,9 @@
   import { toast } from "svelte-sonner";
   import z from "zod";
 
-  import CategoryForm from "$lib/components/forms/CategoryForm.svelte";
+  import AddCategoryDialog from "$lib/components/dialogs/AddCategoryDialog.svelte";
+  import EditCategoryDialog from "$lib/components/dialogs/EditCategoryDialog.svelte";
+  import ManageCategoryProductsDialog from "$lib/components/dialogs/ManageCategoryProductsDialog.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import { type CategoryItem, createColumns } from "$lib/components/tables/categories/columns";
@@ -66,23 +69,16 @@
     searchParams.update({ search: "" });
   }
 
-  let selectedCategory = $state<CategoryItem | null>(null);
   let isAddOpen = $state(false);
-  let isEditOpen = $state(false);
-  let isDeleteOpen = $state(false);
-  // svelte-ignore non_reactive_update
-  let addFormRef: CategoryForm | null = null;
-  // svelte-ignore non_reactive_update
-  let editFormRef: CategoryForm | null = null;
+  let editingCategory = $state<CategoryItem | null>(null);
+  let managingCategory = $state<CategoryItem | null>(null);
 
-  function editCategory(category: CategoryItem) {
-    selectedCategory = category;
-    isEditOpen = true;
+  function handleEditCategory(category: CategoryItem) {
+    editingCategory = category;
   }
 
-  function deleteCategory(category: CategoryItem) {
-    selectedCategory = category;
-    isDeleteOpen = true;
+  function handleManageProducts(category: CategoryItem) {
+    managingCategory = category;
   }
 
   const queryClient = useQueryClient();
@@ -92,8 +88,6 @@
       onSuccess: () => {
         toast.success("Category deleted successfully");
         queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
-        isDeleteOpen = false;
-        selectedCategory = null;
       },
       onError: (error) => {
         toast.error(error.message || "Failed to delete category");
@@ -101,16 +95,23 @@
     })
   );
 
-  function handleDelete() {
-    if (selectedCategory) {
-      deleteMutation.mutate({
-        slug: params.slug,
-        id: selectedCategory.id,
-      });
-    }
+  function performDelete(category: CategoryItem) {
+    deleteMutation.mutate({ slug: params.slug, id: category.id });
   }
 
-  const columns = $derived(createColumns(params.slug, editCategory, deleteCategory));
+  function handleDeleteCategory(category: CategoryItem) {
+    confirmDelete({
+      title: "Delete Category",
+      description: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        performDelete(category);
+      },
+    });
+  }
+
+  const columns = $derived(
+    createColumns(params.slug, handleEditCategory, performDelete, handleManageProducts)
+  );
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
@@ -128,6 +129,11 @@
       </Button>
     {/snippet}
   </AdminDashboardHeader>
+
+  <div class="flex flex-col gap-1">
+    <h1 class="text-2xl font-semibold tracking-tight">Categories</h1>
+    <p class="text-muted-foreground text-sm">Organize your products into categories</p>
+  </div>
 
   <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
@@ -233,14 +239,18 @@
                     <MoreVerticalIcon class="size-4" />
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content align="end">
-                    <DropdownMenu.Item onclick={() => editCategory(category)}>
+                    <DropdownMenu.Item onclick={() => handleManageProducts(category)}>
+                      <ListPlusIcon class="size-4" />
+                      Manage Products
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item onclick={() => handleEditCategory(category)}>
                       <PencilIcon class="size-4" />
                       Edit
                     </DropdownMenu.Item>
                     <DropdownMenu.Separator />
                     <DropdownMenu.Item
                       class="text-red-600"
-                      onclick={() => deleteCategory(category)}
+                      onclick={() => handleDeleteCategory(category)}
                     >
                       <Trash2Icon class="size-4" />
                       Delete
@@ -284,106 +294,24 @@
   </section>
 </div>
 
-<!-- Add Category Dialog -->
-<Dialog.Root
-  bind:open={isAddOpen}
-  onOpenChange={(open) => {
-    if (!open) addFormRef?.resetForm();
-  }}
->
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    <Dialog.Header>
-      <Dialog.Title>Add New Category</Dialog.Title>
-      <Dialog.Description>Create a new category to organize your products</Dialog.Description>
-    </Dialog.Header>
+{#if isAddOpen}
+  <AddCategoryDialog open={true} onClose={() => (isAddOpen = false)} slug={params.slug} />
+{/if}
 
-    <CategoryForm
-      bind:this={addFormRef}
-      slug={params.slug}
-      onSuccess={() => {
-        isAddOpen = false;
-        addFormRef?.resetForm();
-      }}
-      onCancel={() => {
-        isAddOpen = false;
-        addFormRef?.resetForm();
-      }}
-    />
-  </Dialog.Content>
-</Dialog.Root>
+{#if editingCategory}
+  <EditCategoryDialog
+    open={true}
+    onClose={() => (editingCategory = null)}
+    slug={params.slug}
+    category={editingCategory}
+  />
+{/if}
 
-<!-- Edit Category Dialog -->
-<Dialog.Root
-  bind:open={isEditOpen}
-  onOpenChange={(open) => {
-    if (!open) editFormRef?.resetForm();
-  }}
->
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    {#if selectedCategory}
-      <Dialog.Header>
-        <Dialog.Title>Edit Category</Dialog.Title>
-        <Dialog.Description>Update category information</Dialog.Description>
-      </Dialog.Header>
-
-      {#key selectedCategory.id}
-        <CategoryForm
-          bind:this={editFormRef}
-          slug={params.slug}
-          initialData={{
-            id: selectedCategory.id,
-            name: selectedCategory.name,
-            description: selectedCategory.description,
-          }}
-          onSuccess={() => {
-            isEditOpen = false;
-            selectedCategory = null;
-            editFormRef?.resetForm();
-          }}
-          onCancel={() => {
-            isEditOpen = false;
-            editFormRef?.resetForm();
-          }}
-        />
-      {/key}
-    {/if}
-  </Dialog.Content>
-</Dialog.Root>
-
-<!-- Delete Confirmation Dialog -->
-<Dialog.Root bind:open={isDeleteOpen}>
-  <Dialog.Content class="max-w-xl">
-    <Dialog.Header>
-      <Dialog.Title>Delete Category</Dialog.Title>
-      <Dialog.Description>
-        Are you sure you want to delete "{selectedCategory?.name}"?
-        {#if selectedCategory && selectedCategory.productCount > 0}
-          <span class="mt-2 block text-amber-600">
-            This category has {selectedCategory.productCount} product{selectedCategory.productCount >
-            1
-              ? "s"
-              : ""} associated with it. You must remove the category from those products first.
-          </span>
-        {:else}
-          <span class="mt-2 block">This action cannot be undone.</span>
-        {/if}
-      </Dialog.Description>
-    </Dialog.Header>
-
-    <Dialog.Footer>
-      <Button variant="outline" onclick={() => (isDeleteOpen = false)}>Cancel</Button>
-      <Button
-        variant="destructive"
-        onclick={handleDelete}
-        disabled={deleteMutation.isPending || (selectedCategory?.productCount ?? 0) > 0}
-      >
-        {#if deleteMutation.isPending}
-          <Loader2Icon class="mr-2 size-4 animate-spin" />
-          Deleting...
-        {:else}
-          Delete
-        {/if}
-      </Button>
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog.Root>
+{#if managingCategory}
+  <ManageCategoryProductsDialog
+    open={true}
+    onClose={() => (managingCategory = null)}
+    slug={params.slug}
+    category={managingCategory}
+  />
+{/if}

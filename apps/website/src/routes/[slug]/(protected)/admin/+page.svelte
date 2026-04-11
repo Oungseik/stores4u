@@ -78,6 +78,11 @@
   <div class="flex flex-col gap-6">
     <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard" }]} />
 
+    <div class="flex flex-col gap-1">
+      <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
+      <p class="text-muted-foreground text-sm">Overview of your store performance</p>
+    </div>
+
     <!-- KPI Cards -->
     <div
       class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"

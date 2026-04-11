@@ -145,6 +145,11 @@
     {/snippet}
   </AdminDashboardHeader>
 
+  <div class="flex flex-col gap-1">
+    <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
+    <p class="text-muted-foreground text-sm">View and manage customer orders</p>
+  </div>
+
   <div
     class="flex snap-x gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4"
   >
