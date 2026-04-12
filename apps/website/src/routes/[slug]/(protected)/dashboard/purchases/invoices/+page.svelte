@@ -16,6 +16,7 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
+  import * as Progress from "@repo/ui/progress";
   import * as FileDropZone from "@repo/ui/file-drop-zone";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
@@ -45,6 +46,7 @@
   let disabledFileDropZone = $state(false);
   let processingFileId = $state<string | null>(null);
   let isUploadDialogOpen = $state(false);
+  let uploadProgress = $state({ current: 0, total: 0 });
 
   const searchParams = useSearchParams(invoiceFilesFilterSchema);
   const debouncedSearch = new Debounced(() => searchParams.search, 500);
@@ -128,22 +130,7 @@
     })
   );
 
-  const uploadMutation = createMutation(() =>
-    orpc.purchaseInvoices.uploadFile.mutationOptions({
-      onSuccess: () => {
-        toast.success("File uploaded successfully");
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
-        isUploadDialogOpen = false;
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to upload file");
-      },
-      onSettled: () => {
-        disabledFileDropZone = false;
-      },
-    })
-  );
+  const uploadMutation = createMutation(() => orpc.purchaseInvoices.uploadFile.mutationOptions());
 
   const deleteMutation = createMutation(() =>
     orpc.purchaseInvoices.deleteFile.mutationOptions({
@@ -176,7 +163,41 @@
 
   async function handleUpload(files: File[]) {
     disabledFileDropZone = true;
-    uploadMutation.mutate({ slug: params.slug, file: files[0] });
+    uploadProgress = { current: 0, total: files.length };
+
+    let successCount = 0;
+    let failCount = 0;
+
+    await Promise.allSettled(
+      files.map((file, i) =>
+        uploadMutation
+          .mutateAsync({ slug: params.slug, file })
+          .then((result) => {
+            uploadProgress = { current: i + 1, total: files.length };
+            successCount++;
+            return result;
+          })
+          .catch((error) => {
+            uploadProgress = { current: i + 1, total: files.length };
+            failCount++;
+            toast.error(`${file.name}: ${error.message || "Failed to upload"}`);
+            throw error;
+          })
+      )
+    );
+
+    if (successCount > 0) {
+      toast.success(`${successCount} file${successCount > 1 ? "s" : ""} uploaded successfully`);
+      queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+      queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
+    }
+
+    uploadProgress = { current: 0, total: 0 };
+    disabledFileDropZone = false;
+
+    if (failCount === 0) {
+      isUploadDialogOpen = false;
+    }
   }
 
   function handleDeleteFile(id: string) {
@@ -450,8 +471,8 @@
 <Dialog.Root bind:open={isUploadDialogOpen}>
   <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
     <Dialog.Header>
-      <Dialog.Title>Upload Invoice</Dialog.Title>
-      <Dialog.Description>Upload a supplier invoice for OCR processing</Dialog.Description>
+      <Dialog.Title>Upload Invoices</Dialog.Title>
+      <Dialog.Description>Upload supplier invoices for OCR processing</Dialog.Description>
     </Dialog.Header>
 
     <div class="space-x-4">
@@ -459,7 +480,7 @@
         accept=".jpg,.jpeg,.png,.pdf"
         disabled={disabledFileDropZone}
         maxFileSize={10 * 1024 * 1024}
-        maxFiles={1}
+        maxFiles={10}
         onUpload={handleUpload}
         onFileRejected={({ reason, file }) => {
           disabledFileDropZone = false;
@@ -468,6 +489,16 @@
       >
         <FileDropZone.Trigger />
       </FileDropZone.Root>
+
+      {#if uploadProgress.total > 0}
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm">
+            <Loader2Icon class="size-4 animate-spin" />
+            <span class="text-muted-foreground">Uploading {uploadProgress.current} of {uploadProgress.total}...</span>
+          </div>
+          <Progress.Root value={uploadProgress.current} max={uploadProgress.total} />
+        </div>
+      {/if}
 
       <Card.Root>
         <Card.Header class="pb-2">
