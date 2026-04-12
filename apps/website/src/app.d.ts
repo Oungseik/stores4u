@@ -1,3 +1,4 @@
+/// <reference types="vite-plugin-pwa/svelte" />
 import type { Logger } from "$lib/server/logger";
 
 declare global {
