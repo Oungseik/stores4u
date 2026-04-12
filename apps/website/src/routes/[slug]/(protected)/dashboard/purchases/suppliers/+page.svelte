@@ -193,19 +193,21 @@
                 {#if supplier.email}
                   <div class="text-muted-foreground flex items-center gap-2">
                     <MailIcon class="size-3" />
-                    <span class="truncate">{supplier.email}</span>
+                    <a href={`mailto:${supplier.email}`} class="truncate hover:underline"
+                      >{supplier.email}</a
+                    >
                   </div>
                 {/if}
                 {#if supplier.phone}
                   <div class="text-muted-foreground flex items-center gap-2">
                     <PhoneIcon class="size-3" />
-                    <span>{supplier.phone}</span>
+                    <a href={`tel:${supplier.phone}`} class="hover:underline">{supplier.phone}</a>
                   </div>
                 {/if}
                 {#if supplier.phone2}
                   <div class="text-muted-foreground flex items-center gap-2">
                     <PhoneIcon class="size-3" />
-                    <span>{supplier.phone2}</span>
+                    <a href={`tel:${supplier.phone2}`} class="hover:underline">{supplier.phone2}</a>
                   </div>
                 {/if}
               </div>
