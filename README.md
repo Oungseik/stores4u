@@ -208,3 +208,11 @@ pnpm check   # Check for linting issues
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+---
+
+Gemini 3.1 Pro Preview is Great on invoice processing but expensive. approximate 40 invoices per $1.
+Kimi K2.5 doesn't support Myanmar words correctly.
+
+researching dots.mocr on RunPod
