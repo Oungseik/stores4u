@@ -177,7 +177,7 @@
                     />
                     <span class="text-muted-foreground text-xs">=</span>
                     <span class="min-w-[4rem] font-medium tabular-nums">
-                      {formatPrice(lineTotalsCents[index])}
+                      {formatPrice(lineTotalsCents[index], null, false)}
                     </span>
                     <Button
                       variant="ghost"

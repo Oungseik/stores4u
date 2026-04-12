@@ -48,9 +48,13 @@ export function getCountryName(code: CountryCode, locale = "en") {
   }
 }
 
-export function formatPrice(cents: number, country?: CountryCode | null): string {
+export function formatPrice(
+  cents: number,
+  country?: CountryCode | null,
+  compactEnabled = true,
+): string {
   const amount = cents / 100;
-  const compact = Math.abs(amount) >= 10_000;
+  const compact = compactEnabled && Math.abs(amount) >= 10_000;
 
   const formatted = new Intl.NumberFormat(undefined, {
     style: "decimal",

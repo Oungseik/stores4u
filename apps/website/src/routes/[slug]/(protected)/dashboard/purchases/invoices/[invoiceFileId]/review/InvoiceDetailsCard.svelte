@@ -51,7 +51,7 @@
     <div class="space-y-2 rounded-lg border p-4 text-sm">
       <div class="flex items-center justify-between">
         <span class="text-muted-foreground">Subtotal</span>
-        <div class="px-3">{formatPrice(subtotalCents)}</div>
+        <div class="px-3">{formatPrice(subtotalCents, null, false)}</div>
       </div>
 
       <div class="flex items-center justify-between">
@@ -73,7 +73,7 @@
 
       <div class="flex items-center justify-between">
         <span class="font-semibold">Total</span>
-        <div class="px-3">{formatPrice(totalCents)}</div>
+        <div class="px-3">{formatPrice(totalCents, null, false)}</div>
       </div>
     </div>
 
