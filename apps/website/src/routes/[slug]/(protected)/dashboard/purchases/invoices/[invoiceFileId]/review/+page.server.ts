@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
     throw error(404, "Invoice file not found");
   }
 
-  if (file.status === "REVIEWED" || file.status === "REJECTED") {
-    return redirect(303, `/${params.slug}dashboard/purchases/invoices/${params.invoiceFileId}`);
+  if (file.status === "REVIEWED") {
+    return redirect(303, `/${params.slug}/dashboard/purchases/invoices/${params.invoiceFileId}`);
   }
 };

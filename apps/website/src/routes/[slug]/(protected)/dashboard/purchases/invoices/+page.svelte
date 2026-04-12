@@ -16,9 +16,9 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import * as Progress from "@repo/ui/progress";
   import * as FileDropZone from "@repo/ui/file-drop-zone";
   import * as FilterBar from "@repo/ui/filter-bar";
+  import * as Progress from "@repo/ui/progress";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import {
     createInfiniteQuery,
@@ -335,7 +335,7 @@
             <Card.Content class="p-0">
               <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
                 <a
-                  href={`/${params.slug}/dashboard/purchases/invoices/${file.id}`}
+                  href={`/${params.slug}/dashboard/purchases/invoices/${file.id}${file.status === "REJECTED" ? "/review" : ""}`}
                   class="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div
@@ -398,7 +398,7 @@
                         <DropdownMenu.Item>
                           {#snippet child()}
                             <a
-                              href={`/${params.slug}/dashboard/purchases/invoices/${file.id}`}
+                              href={`/${params.slug}/dashboard/purchases/invoices/${file.id}${file.status === "REJECTED" ? "/review" : ""}`}
                               class={buttonVariants({
                                 variant: "ghost",
                                 class: "w-full justify-start px-2!",
@@ -494,7 +494,9 @@
         <div class="space-y-2">
           <div class="flex items-center gap-2 text-sm">
             <Loader2Icon class="size-4 animate-spin" />
-            <span class="text-muted-foreground">Uploading {uploadProgress.current} of {uploadProgress.total}...</span>
+            <span class="text-muted-foreground"
+              >Uploading {uploadProgress.current} of {uploadProgress.total}...</span
+            >
           </div>
           <Progress.Root value={uploadProgress.current} max={uploadProgress.total} />
         </div>

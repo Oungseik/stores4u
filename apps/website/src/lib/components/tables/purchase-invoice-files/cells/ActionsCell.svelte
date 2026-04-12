@@ -72,12 +72,24 @@
             </a>
           {/snippet}
         </DropdownMenu.Item>
-      {:else if status === "REVIEWED" || status === "REJECTED"}
+      {:else if status === "REVIEWED"}
         <DropdownMenu.Item>
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
               href={`/${slug}/dashboard/purchases/invoices/${id}`}
+            >
+              <SearchIcon class="size-4" />
+              View Details
+            </a>
+          {/snippet}
+        </DropdownMenu.Item>
+      {:else if status === "REJECTED"}
+        <DropdownMenu.Item>
+          {#snippet child()}
+            <a
+              class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
+              href={`/${slug}/dashboard/purchases/invoices/${id}/review`}
             >
               <SearchIcon class="size-4" />
               View Details
