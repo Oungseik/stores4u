@@ -23,6 +23,7 @@
     name: string;
     contactName: string | null;
     phone: string | null;
+    phone2: string | null;
     email: string | null;
     address: string | null;
   };
@@ -36,6 +37,7 @@
       name?: string;
       contactName?: string;
       phone?: string;
+      phone2?: string;
       email?: string;
       address?: string;
       paymentTerms?: string;
@@ -63,6 +65,7 @@
           name: created.name,
           contactName: created.contactName ?? null,
           phone: created.phone ?? null,
+          phone2: created.phone2 ?? null,
           email: created.email ?? null,
           address: created.address ?? null,
         };
@@ -174,6 +177,17 @@
               </div>
             {/if}
 
+            {#if selectedSupplier.phone2}
+              <div class="flex items-center gap-2 text-sm">
+                <div
+                  class="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded"
+                >
+                  <PhoneIcon class="size-3.5" />
+                </div>
+                <span class="truncate">{selectedSupplier.phone2}</span>
+              </div>
+            {/if}
+
             {#if selectedSupplier.email}
               <div class="flex items-center gap-2 text-sm">
                 <div
@@ -210,6 +224,7 @@
               name: initialSupplierData.name,
               contactName: initialSupplierData.contactName,
               phone: initialSupplierData.phone,
+              phone2: initialSupplierData.phone2,
               email: initialSupplierData.email,
               address: initialSupplierData.address,
               paymentTerms: initialSupplierData.paymentTerms,

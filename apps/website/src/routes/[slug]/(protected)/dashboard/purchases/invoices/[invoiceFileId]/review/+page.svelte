@@ -227,6 +227,7 @@
         name: found.name,
         contactName: found.contactName,
         phone: found.phone,
+        phone2: found.phone2,
         email: found.email,
         address: found.address,
       };

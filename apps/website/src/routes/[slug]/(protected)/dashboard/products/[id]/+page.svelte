@@ -320,6 +320,9 @@
                       {#if supplier.phone}
                         <p class="text-muted-foreground text-xs">{supplier.phone}</p>
                       {/if}
+                      {#if supplier.phone2}
+                        <p class="text-muted-foreground text-xs">{supplier.phone2}</p>
+                      {/if}
                     </div>
                   </div>
                 {/if}

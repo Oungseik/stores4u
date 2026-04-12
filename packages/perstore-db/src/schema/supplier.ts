@@ -9,6 +9,7 @@ export const supplier = sqliteTable("supplier", {
   name: text("name").notNull(),
   contactName: text("contact_name"),
   phone: text("phone"),
+  phone2: text("phone2"),
   email: text("email"),
   address: text("address"),
   paymentTerms: text("payment_terms"),

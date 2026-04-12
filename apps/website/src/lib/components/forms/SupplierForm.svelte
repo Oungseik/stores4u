@@ -18,6 +18,7 @@
         name?: string;
         contactName?: string | null;
         phone?: string | null;
+        phone2?: string | null;
         email?: string | null;
         address?: string | null;
         paymentTerms?: string | null;
@@ -28,6 +29,7 @@
         name: string;
         contactName: string | null;
         phone: string | null;
+        phone2: string | null;
         email: string | null;
         address: string | null;
         paymentTerms: string | null;
@@ -79,6 +81,7 @@
     name: initialData?.name ?? "",
     contactName: initialData?.contactName ?? "",
     phone: initialData?.phone ?? "",
+    phone2: initialData?.phone2 ?? "",
     email: initialData?.email ?? "",
     address: initialData?.address ?? "",
     paymentTerms: initialData?.paymentTerms ?? "",
@@ -94,6 +97,7 @@
           name: value.name,
           contactName: value.contactName || null,
           phone: value.phone || null,
+          phone2: value.phone2 || null,
           email: value.email || null,
           address: value.address || null,
           paymentTerms: value.paymentTerms || null,
@@ -104,6 +108,7 @@
           name: value.name,
           contactName: value.contactName || undefined,
           phone: value.phone || undefined,
+          phone2: value.phone2 || undefined,
           email: value.email || undefined,
           address: value.address || undefined,
           paymentTerms: value.paymentTerms || undefined,
@@ -204,6 +209,33 @@
       {/snippet}
     </form.Field>
 
+    <form.Field
+      name="phone2"
+      validators={{
+        onChange: ({ value }) =>
+          value ? z.string().max(50).safeParse(value).error?.issues.at(0)?.message : undefined,
+      }}
+    >
+      {#snippet children(field)}
+        <div class="space-y-2">
+          <Label for={field.name}>Phone 2</Label>
+          <PhoneInput
+            bind:value={field.state.value}
+            name={field.name}
+            placeholder="+1 555-0000"
+            onchange={(e) => {
+              field.handleChange(e.currentTarget.value);
+            }}
+          />
+          {#if field.state.meta.errors.length}
+            <p class="text-sm text-red-500">{field.state.meta.errors}</p>
+          {/if}
+        </div>
+      {/snippet}
+    </form.Field>
+  </div>
+
+  <div class="grid grid-cols-1">
     <form.Field
       name="email"
       validators={{

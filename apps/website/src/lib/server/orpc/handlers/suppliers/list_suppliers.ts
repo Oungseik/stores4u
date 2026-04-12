@@ -56,6 +56,7 @@ export const listSuppliersHandler = os
       name: s.name,
       contactName: s.contactName,
       phone: s.phone,
+      phone2: s.phone2,
       email: s.email,
       address: s.address,
       paymentTerms: s.paymentTerms,

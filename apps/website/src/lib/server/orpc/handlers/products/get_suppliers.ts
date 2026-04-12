@@ -28,6 +28,7 @@ export const getSuppliersHandler = os
       name: ps.supplier?.name ?? null,
       contactName: ps.supplier?.contactName ?? null,
       phone: ps.supplier?.phone ?? null,
+      phone2: ps.supplier?.phone2 ?? null,
       email: ps.supplier?.email ?? null,
       isPreferred: ps.isPreferred === "1",
     }));

@@ -312,6 +312,12 @@
                       <span>{supplier.phone}</span>
                     </div>
                   {/if}
+                  {#if supplier.phone2}
+                    <div class="flex items-center justify-between">
+                      <span class="text-muted-foreground">Phone 2</span>
+                      <span>{supplier.phone2}</span>
+                    </div>
+                  {/if}
                   {#if supplier.email}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">Email</span>

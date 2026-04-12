@@ -42,6 +42,7 @@ export const getSupplierHandler = os
       name: supplier.name,
       contactName: supplier.contactName,
       phone: supplier.phone,
+      phone2: supplier.phone2,
       email: supplier.email,
       address: supplier.address,
       paymentTerms: supplier.paymentTerms,

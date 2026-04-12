@@ -26,6 +26,7 @@ export const getInvoiceHandler = os
             name: true,
             contactName: true,
             phone: true,
+            phone2: true,
             email: true,
             address: true,
           },

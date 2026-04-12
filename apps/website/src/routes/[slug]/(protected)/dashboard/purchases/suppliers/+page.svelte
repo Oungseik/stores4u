@@ -48,6 +48,7 @@
     name: string;
     contactName: string | null;
     phone: string | null;
+    phone2: string | null;
     email: string | null;
     address: string | null;
     paymentTerms: string | null;
@@ -201,6 +202,12 @@
                     <span>{supplier.phone}</span>
                   </div>
                 {/if}
+                {#if supplier.phone2}
+                  <div class="text-muted-foreground flex items-center gap-2">
+                    <PhoneIcon class="size-3" />
+                    <span>{supplier.phone2}</span>
+                  </div>
+                {/if}
               </div>
 
               <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
@@ -322,6 +329,7 @@
             name: selectedSupplier.name,
             contactName: selectedSupplier.contactName,
             phone: selectedSupplier.phone,
+            phone2: selectedSupplier.phone2,
             email: selectedSupplier.email,
             address: selectedSupplier.address,
             paymentTerms: selectedSupplier.paymentTerms,

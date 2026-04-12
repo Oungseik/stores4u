@@ -149,6 +149,10 @@
             <span>{supplier.phone ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
+            <span class="text-muted-foreground">Phone 2</span>
+            <span>{supplier.phone2 ?? "—"}</span>
+          </div>
+          <div class="flex items-center justify-between">
             <span class="text-muted-foreground">Email</span>
             <span>{supplier.email ?? "—"}</span>
           </div>
@@ -229,6 +233,7 @@
             name: supplier.name,
             contactName: supplier.contactName,
             phone: supplier.phone,
+            phone2: supplier.phone2,
             email: supplier.email,
             address: supplier.address,
             paymentTerms: supplier.paymentTerms,

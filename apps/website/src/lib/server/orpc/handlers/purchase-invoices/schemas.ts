@@ -19,6 +19,7 @@ export const newSupplierInput = z.object({
   name: z.string().min(1).max(255),
   contactName: z.string().max(255).optional(),
   phone: z.string().max(50).optional(),
+  phone2: z.string().max(50).optional(),
   email: z.string().max(255).optional(),
   address: z.string().max(500).optional(),
   paymentTerms: z.string().max(100).optional(),

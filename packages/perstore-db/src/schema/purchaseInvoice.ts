@@ -9,6 +9,7 @@ export const ExtractedSupplierSchema = z.object({
   name: z.string(),
   contactName: z.string().optional(),
   phone: z.string().optional(),
+  phone2: z.string().optional(),
   email: z.string().optional(),
   address: z.string().optional(),
 });
