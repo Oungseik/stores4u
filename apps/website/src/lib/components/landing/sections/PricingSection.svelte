@@ -84,7 +84,7 @@
           <div class="h-full">
             {#if tier.featured}
               <div
-                class="relative h-full rounded-2xl p-[2px] bg-gradient-to-br from-primary via-chart-2 to-chart-3"
+                class="from-primary via-chart-2 to-chart-3 relative h-full rounded-2xl bg-gradient-to-br p-[2px]"
               >
                 <div class="bg-card h-full rounded-2xl p-8">
                   <div class="mb-6 flex items-center justify-between">
