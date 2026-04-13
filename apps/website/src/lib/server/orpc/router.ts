@@ -5,8 +5,8 @@ import { createCategoryHandler } from "./handlers/categories/create_category";
 import { deleteCategoryHandler } from "./handlers/categories/delete_category";
 import { getCategoryProductsHandler } from "./handlers/categories/get_category_products";
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
-import { updateCategoryProductsHandler } from "./handlers/categories/update_category_products";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
+import { updateCategoryProductsHandler } from "./handlers/categories/update_category_products";
 import { createChatHandler } from "./handlers/chats/create_chat";
 import { deleteChatHandler } from "./handlers/chats/delete_chat";
 import { getChatHandler } from "./handlers/chats/get_chat";
@@ -25,8 +25,6 @@ import { statsOrdersHandler } from "./handlers/orders/stats_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";
 import { deleteProductHandler } from "./handlers/products/delete_product";
-import { getInvoiceHistoryHandler } from "./handlers/products/get_invoice_history";
-import { getOrderHistoryHandler } from "./handlers/products/get_order_history";
 import { getProductHandler } from "./handlers/products/get_product";
 import { getSuppliersHandler } from "./handlers/products/get_suppliers";
 import { listProductsHandler } from "./handlers/products/list_products";
@@ -34,8 +32,8 @@ import { statsProductsHandler } from "./handlers/products/stats_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_invoice_file";
 import { downloadInvoiceFileHandler } from "./handlers/purchase-invoices/download_invoice_file";
-import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
 import { getInvoiceHandler } from "./handlers/purchase-invoices/get_invoice";
+import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
 import { getInvoiceFilesStatsHandler } from "./handlers/purchase-invoices/get_invoice_files_stats";
 import { listInvoiceFilesHandler } from "./handlers/purchase-invoices/list_invoice_files";
 import { listInvoicesHandler } from "./handlers/purchase-invoices/list_invoices";
@@ -107,8 +105,6 @@ export const router = os.router({
     create: createProductHandler,
     delete: deleteProductHandler,
     get: getProductHandler,
-    getInvoiceHistory: getInvoiceHistoryHandler,
-    getOrderHistory: getOrderHistoryHandler,
     getSuppliers: getSuppliersHandler,
     list: listProductsHandler,
     stats: statsProductsHandler,

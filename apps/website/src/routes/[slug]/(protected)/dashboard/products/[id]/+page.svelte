@@ -4,8 +4,6 @@
   import BarcodeIcon from "@lucide/svelte/icons/barcode";
   import BoxIcon from "@lucide/svelte/icons/box";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
-  import FileTextIcon from "@lucide/svelte/icons/file-text";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -14,12 +12,10 @@
   import TagIcon from "@lucide/svelte/icons/tag";
   import TrendingDownIcon from "@lucide/svelte/icons/trending-down";
   import TruckIcon from "@lucide/svelte/icons/truck";
-  import UserIcon from "@lucide/svelte/icons/user";
   import * as Alert from "@repo/ui/alert";
   import { Badge } from "@repo/ui/badge";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import * as Separator from "@repo/ui/separator";
   import * as Tabs from "@repo/ui/tabs";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { useSearchParams } from "runed/kit";
@@ -52,13 +48,6 @@
     })
   );
 
-  const invoiceHistoryQuery = createQuery(() =>
-    orpc.products.getInvoiceHistory.queryOptions({
-      input: { slug: params.slug, productId: params.id, pageSize: 5 },
-      enabled: searchParams.tab === "overview" && !!product,
-    })
-  );
-
   const movementsQuery = createInfiniteQuery(() =>
     orpc.inventory.listMovements.infiniteOptions({
       initialPageParam: undefined as string | undefined,
@@ -73,35 +62,11 @@
     })
   );
 
-  const orderHistoryQuery = createInfiniteQuery(() =>
-    orpc.products.getOrderHistory.infiniteOptions({
-      initialPageParam: undefined as string | undefined,
-      input: (cursor) => ({
-        slug: params.slug,
-        productId: params.id,
-        cursor,
-        pageSize: 20,
-      }),
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: searchParams.tab === "history" && !!product,
-    })
-  );
-
   const hasLowStock = $derived(
     product && product.lowStockThreshold != null ? product.stock < product.lowStockThreshold : false
   );
 
-  const mostRecentUnitCost = $derived(invoiceHistoryQuery.data?.mostRecentUnitCost ?? null);
-
-  const hasPricingWarning = $derived(() => {
-    if (!mostRecentUnitCost || !product) return false;
-    return product.priceCents < mostRecentUnitCost;
-  });
-
   const allMovements = $derived(movementsQuery.data?.pages.flatMap((p) => p.items) ?? []);
-  const allOrders = $derived(orderHistoryQuery.data?.pages.flatMap((p) => p.items) ?? []);
-  const totalRevenue = $derived(orderHistoryQuery.data?.pages[0]?.totalRevenue ?? 0);
-  const totalUnitsSold = $derived(orderHistoryQuery.data?.pages[0]?.totalUnitsSold ?? 0);
 
   let showAdjustDialog = $state(false);
 
@@ -184,17 +149,6 @@
         </Alert.Root>
       {/if}
 
-      {#if hasPricingWarning()}
-        <Alert.Root variant="destructive">
-          <AlertTriangleIcon />
-          <Alert.Title>Pricing Warning</Alert.Title>
-          <Alert.Description>
-            Selling price ({(product.priceCents / 100).toFixed(2)}) is below the most recent
-            supplier cost ({(mostRecentUnitCost! / 100).toFixed(2)}).
-          </Alert.Description>
-        </Alert.Root>
-      {/if}
-
       <Card.Root>
         <Card.Header class="pb-3">
           <Card.Title class="text-xl">{product.name}</Card.Title>
@@ -240,7 +194,6 @@
       <Tabs.List>
         <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
         <Tabs.Trigger value="inventory">Inventory</Tabs.Trigger>
-        <Tabs.Trigger value="history">History</Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="overview" class="mt-4 space-y-4">
@@ -254,38 +207,6 @@
             </Card.Content>
           </Card.Root>
         {/if}
-
-        <div class="grid grid-cols-2 gap-3">
-          <Card.Root>
-            <Card.Content class="p-4">
-              <div class="flex items-center gap-3">
-                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-lg">
-                  <DollarSignIcon class="text-primary size-5" />
-                </div>
-                <div>
-                  <p class="text-muted-foreground text-xs">Total Revenue</p>
-                  <p class="text-foreground text-lg font-semibold">
-                    <Pricing cents={totalRevenue} />
-                  </p>
-                </div>
-              </div>
-            </Card.Content>
-          </Card.Root>
-
-          <Card.Root>
-            <Card.Content class="p-4">
-              <div class="flex items-center gap-3">
-                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-lg">
-                  <ShoppingCartIcon class="text-primary size-5" />
-                </div>
-                <div>
-                  <p class="text-muted-foreground text-xs">Units Sold</p>
-                  <p class="text-foreground text-lg font-semibold">{totalUnitsSold}</p>
-                </div>
-              </div>
-            </Card.Content>
-          </Card.Root>
-        </div>
 
         <Card.Root>
           <Card.Header class="pb-3">
@@ -326,51 +247,6 @@
                     </div>
                   </div>
                 {/if}
-              {/each}
-            {/if}
-          </Card.Content>
-        </Card.Root>
-
-        <Card.Root>
-          <Card.Header class="pb-3">
-            <Card.Title class="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-              <FileTextIcon class="size-4" />
-              Recent Invoices
-            </Card.Title>
-          </Card.Header>
-          <Card.Content class="flex flex-col gap-3">
-            {#if invoiceHistoryQuery.isLoading}
-              <div class="flex items-center justify-center py-4">
-                <Loader2Icon class="text-muted-foreground size-5 animate-spin" />
-              </div>
-            {:else if invoiceHistoryQuery.isError}
-              <p class="text-muted-foreground py-4 text-center text-sm">Failed to load invoices</p>
-            {:else if invoiceHistoryQuery.data?.items.length === 0}
-              <p class="text-muted-foreground py-4 text-center text-sm">No invoices found</p>
-            {:else}
-              {#each invoiceHistoryQuery.data?.items ?? [] as invoice}
-                <div class="flex items-center justify-between rounded-lg border p-3">
-                  <div class="flex items-center gap-3">
-                    <div class="bg-muted flex size-10 items-center justify-center rounded-lg">
-                      <FileTextIcon class="text-muted-foreground size-5" />
-                    </div>
-                    <div>
-                      <p class="text-foreground font-medium">{invoice.invoiceNumber ?? "N/A"}</p>
-                      <p class="text-muted-foreground text-sm">
-                        {invoice.supplierName ?? "Unknown"}
-                      </p>
-                      <p class="text-muted-foreground text-xs">
-                        {invoice.invoiceDate ? formatDate(invoice.invoiceDate) : "N/A"}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-foreground font-medium">
-                      <Pricing cents={invoice.lineTotalCents} />
-                    </p>
-                    <p class="text-muted-foreground text-xs">{invoice.qty} units</p>
-                  </div>
-                </div>
               {/each}
             {/if}
           </Card.Content>
@@ -460,92 +336,6 @@
               </Button>
             </div>
           {/if}
-        {/if}
-      </Tabs.Content>
-
-      <Tabs.Content value="history" class="mt-4 space-y-3">
-        {#if orderHistoryQuery.isLoading}
-          <div class="flex items-center justify-center py-12">
-            <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-          </div>
-        {:else if orderHistoryQuery.isError}
-          <div class="flex items-center justify-center py-12">
-            <p class="text-red-500">Failed to load order history</p>
-          </div>
-        {:else if allOrders.length === 0}
-          <div class="flex flex-col items-center justify-center py-12 text-center">
-            <div class="bg-muted mb-3 flex size-12 items-center justify-center rounded-full">
-              <ShoppingCartIcon class="text-muted-foreground size-6" />
-            </div>
-            <p class="text-muted-foreground">No order history found</p>
-          </div>
-        {:else}
-          {#each allOrders as order}
-            <Card.Root>
-              <Card.Content class="p-4">
-                <div class="flex items-start gap-3">
-                  <div
-                    class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
-                  >
-                    <UserIcon class="text-primary size-5" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center justify-between">
-                      <p class="text-foreground font-medium">{order.customerName ?? "Unknown"}</p>
-                      <Badge variant="secondary">
-                        {order.qty} units
-                      </Badge>
-                    </div>
-                    {#if order.customerPhone}
-                      <p class="text-muted-foreground mt-1 text-sm">{order.customerPhone}</p>
-                    {/if}
-                    <div class="mt-2 flex items-center justify-between">
-                      <div class="text-muted-foreground flex items-center gap-2 text-xs">
-                        <CalendarIcon class="size-3" />
-                        <span>{formatDate(order.createdAt, true)}</span>
-                      </div>
-                      <p class="text-foreground font-semibold">
-                        <Pricing cents={order.lineTotalCents} />
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Card.Content>
-            </Card.Root>
-          {/each}
-
-          {#if orderHistoryQuery.hasNextPage}
-            <div class="mt-4 flex justify-center">
-              <Button
-                variant="outline"
-                onclick={() => orderHistoryQuery.fetchNextPage()}
-                disabled={orderHistoryQuery.isFetchingNextPage}
-              >
-                {#if orderHistoryQuery.isFetchingNextPage}
-                  <Loader2Icon class="mr-2 size-4 animate-spin" />
-                  Loading...
-                {:else}
-                  Load More
-                {/if}
-              </Button>
-            </div>
-          {/if}
-
-          <Card.Root class="bg-muted border shadow-none">
-            <Card.Content class="p-4">
-              <div class="flex items-center justify-between">
-                <span class="text-muted-foreground text-sm">Total Orders</span>
-                <span class="text-foreground font-semibold">{allOrders.length}</span>
-              </div>
-              <Separator.Root class="my-3" />
-              <div class="flex items-center justify-between">
-                <span class="text-muted-foreground text-sm">Total Revenue</span>
-                <span class="text-foreground font-semibold">
-                  <Pricing cents={totalRevenue} priceClass="text-lg" />
-                </span>
-              </div>
-            </Card.Content>
-          </Card.Root>
         {/if}
       </Tabs.Content>
     </Tabs.Root>
