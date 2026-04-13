@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { buttonVariants } from '@lib/components/ui/button';
-	import * as Command from '@lib/components/ui/command';
-	import Flag from '@lib/components/ui/phone-input/flag.svelte';
 	import * as Popover from '@lib/components/ui/popover';
+	import Button from '@lib/components/button.svelte';
+	import * as Command from '@lib/components/ui/command';
 	import { ScrollArea } from '@lib/components/ui/scroll-area';
-	import { cn } from '@lib/utils.js';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
+	import { cn } from '@lib/utils.js';
+	import Flag from '@lib/components/ui/phone-input/flag.svelte';
 	import type { Country, CountryCode } from 'svelte-tel-input/types';
 
 	interface Props {
@@ -34,29 +34,34 @@
 	let open = $state(false);
 	let selectedValue = $state(false);
 
-	const selectCountry = (country: Country) => {
+	function selectCountry(country: Country) {
 		selected = country.iso2;
 		selectedValue = true;
 		open = false;
 		onselect?.(selected);
-	};
+	}
 </script>
 
 <Popover.Root bind:open>
-	<Popover.Trigger
-		class={cn(
-			buttonVariants({ variant: 'outline' }),
-			'flex shrink-0 gap-1 rounded-l-lg rounded-r-none px-3'
-		)}
-		disabled={disabled}
-	>
-		<Flag country={selectedCountry} />
-		<ChevronsUpDownIcon
-			class={cn('-mr-2 h-4 w-4 opacity-50', disabled ? 'hidden' : 'opacity-100')}
-		/>
+	<Popover.Trigger>
+		{#snippet child({ props })}
+			<Button
+				{...props}
+				type="button"
+				variant="outline"
+				class={cn('flex shrink-0 gap-1 rounded-l-lg rounded-r-none px-3')}
+				{disabled}
+			>
+				<Flag country={selectedCountry} />
+				<ChevronsUpDownIcon
+					class={cn('-mr-2 h-4 w-4 opacity-50', disabled ? 'hidden' : 'opacity-100')}
+				/>
+			</Button>
+		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content
 		class="w-[300px] p-0"
+		align="start"
 		onCloseAutoFocus={(e) => {
 			if (selectedValue) {
 				selectedValue = false;
@@ -65,14 +70,14 @@
 		}}
 	>
 		<Command.Root>
-			<Command.Input placeholder="Search country..." />
+			<Command.Input placeholder="Search..." />
 			<Command.List>
 				<ScrollArea class="h-72">
 					<Command.Empty>No country found.</Command.Empty>
-					<Command.Group>
+					<Command.Group class="overflow-clip">
 						{#each countries.sort(order) as country (country.id)}
 							<Command.Item
-								class="gap-2"
+								class="gap-2 [&_.cn-command-item-indicator]:hidden"
 								value={country.name}
 								onSelect={() => selectCountry(country)}
 							>
@@ -83,7 +88,7 @@
 								</span>
 								<div class="w-4">
 									{#if country.iso2 == selected}
-										<CheckIcon class="size-4" />
+										<CheckIcon class="phone-input-check-icon size-4" />
 									{/if}
 								</div>
 							</Command.Item>
