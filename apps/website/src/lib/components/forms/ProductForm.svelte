@@ -1,13 +1,13 @@
 <script lang="ts">
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  import ChevronUpIcon from "@lucide/svelte/icons/chevron-up";
+  // import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
+  // import ChevronUpIcon from "@lucide/svelte/icons/chevron-up";
   import KeyboardIcon from "@lucide/svelte/icons/keyboard";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import QrCodeIcon from "@lucide/svelte/icons/qr-code";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
-  import * as FileDropZone from "@repo/ui/file-drop-zone";
+  // import * as FileDropZone from "@repo/ui/file-drop-zone";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { NumberInput } from "@repo/ui/number-input";
@@ -77,25 +77,27 @@
     })
   );
 
-  const uploadMutation = createMutation(() =>
-    orpc.images.upload.mutationOptions({
-      onError: () => {
-        toast.error("Failed to upload image");
-      },
-    })
-  );
-
-  const deleteImageMutation = createMutation(() =>
-    orpc.images.delete.mutationOptions({
-      onError: (error) => {
-        toast.error(error.message || "Failed to delete image");
-      },
-    })
-  );
+  // const uploadMutation = createMutation(() =>
+  //   orpc.images.upload.mutationOptions({
+  //     onError: () => {
+  //       toast.error("Failed to upload image");
+  //     },
+  //   })
+  // );
+  //
+  // const deleteImageMutation = createMutation(() =>
+  //   orpc.images.delete.mutationOptions({
+  //     onError: (error) => {
+  //       toast.error(error.message || "Failed to delete image");
+  //     },
+  //   })
+  // );
 
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
+  // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
 
+  // svelte-ignore state_referenced_locally
   const isEditMode = !!initialData;
 
   const categoryNames = $derived(
@@ -104,11 +106,13 @@
       .filter((name): name is string => name !== undefined) ?? []
   );
 
+  // svelte-ignore state_referenced_locally
   const initialImages = initialData?.images ?? (initialData?.image ? [initialData.image] : []);
 
   let nextImageId = 0;
   const initialImageEntries = initialImages.map((url) => ({ id: nextImageId++, url }));
 
+  // svelte-ignore state_referenced_locally
   const defaultValues = {
     name: initialData?.name ?? "",
     sku: initialData?.sku ?? "",
@@ -165,65 +169,65 @@
 
   const categorySuggestions = $derived(categoriesQuery.data?.items.map((c) => c.name) ?? []);
 
-  const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"] as const;
-  type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
+  // const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"] as const;
+  // type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
 
-  function isValidImageType(type: string): type is AcceptedImageType {
-    return ACCEPTED_IMAGE_TYPES.includes(type as AcceptedImageType);
-  }
+  // function isValidImageType(type: string): type is AcceptedImageType {
+  //   return ACCEPTED_IMAGE_TYPES.includes(type as AcceptedImageType);
+  // }
 
-  async function handleImageUpload(files: File[]) {
-    const validFiles = files.filter((f) => {
-      if (!isValidImageType(f.type)) {
-        toast.error(`Invalid image type: ${f.name}`);
-        return false;
-      }
-      return true;
-    });
-
-    if (validFiles.length === 0) return;
-
-    isUploadingImage = true;
-    try {
-      const results = await Promise.all(
-        validFiles.map((file) => uploadMutation.mutateAsync({ slug, file }))
-      );
-      imageEntries = [
-        ...imageEntries,
-        ...results.map((r) => ({ id: nextImageId++, url: r.objectPath })),
-      ];
-    } catch {
-      toast.error("Failed to upload one or more images");
-    } finally {
-      isUploadingImage = false;
-    }
-  }
-
-  async function handleImageRemove(id: number) {
-    const entry = imageEntries.find((e) => e.id === id);
-    if (!entry) return;
-
-    deletingImageIds = new Set([...deletingImageIds, id]);
-    try {
-      await deleteImageMutation.mutateAsync({ slug, objectPath: entry.url });
-    } catch {
-      // storage cleanup failed, still remove from local state
-    }
-    deletingImageIds = new Set([...deletingImageIds].filter((i) => i !== id));
-    imageEntries = imageEntries.filter((e) => e.id !== id);
-  }
-
-  function handleImageMove(id: number, direction: "up" | "down") {
-    const index = imageEntries.findIndex((entry) => entry.id === id);
-    if (index === -1) return;
-    const newIndex = direction === "up" ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= imageEntries.length) return;
-    const updated = [...imageEntries];
-    const temp = updated[index];
-    updated[index] = updated[newIndex];
-    updated[newIndex] = temp;
-    imageEntries = updated;
-  }
+  // async function handleImageUpload(files: File[]) {
+  //   const validFiles = files.filter((f) => {
+  //     if (!isValidImageType(f.type)) {
+  //       toast.error(`Invalid image type: ${f.name}`);
+  //       return false;
+  //     }
+  //     return true;
+  //   });
+  //
+  //   if (validFiles.length === 0) return;
+  //
+  //   isUploadingImage = true;
+  //   try {
+  //     const results = await Promise.all(
+  //       validFiles.map((file) => uploadMutation.mutateAsync({ slug, file }))
+  //     );
+  //     imageEntries = [
+  //       ...imageEntries,
+  //       ...results.map((r) => ({ id: nextImageId++, url: r.objectPath })),
+  //     ];
+  //   } catch {
+  //     toast.error("Failed to upload one or more images");
+  //   } finally {
+  //     isUploadingImage = false;
+  //   }
+  // }
+  //
+  // async function handleImageRemove(id: number) {
+  //   const entry = imageEntries.find((e) => e.id === id);
+  //   if (!entry) return;
+  //
+  //   deletingImageIds = new Set([...deletingImageIds, id]);
+  //   try {
+  //     await deleteImageMutation.mutateAsync({ slug, objectPath: entry.url });
+  //   } catch {
+  //     // storage cleanup failed, still remove from local state
+  //   }
+  //   deletingImageIds = new Set([...deletingImageIds].filter((i) => i !== id));
+  //   imageEntries = imageEntries.filter((e) => e.id !== id);
+  // }
+  //
+  // function handleImageMove(id: number, direction: "up" | "down") {
+  //   const index = imageEntries.findIndex((entry) => entry.id === id);
+  //   if (index === -1) return;
+  //   const newIndex = direction === "up" ? index - 1 : index + 1;
+  //   if (newIndex < 0 || newIndex >= imageEntries.length) return;
+  //   const updated = [...imageEntries];
+  //   const temp = updated[index];
+  //   updated[index] = updated[newIndex];
+  //   updated[newIndex] = temp;
+  //   imageEntries = updated;
+  // }
 
   export function resetForm() {
     form.reset();
