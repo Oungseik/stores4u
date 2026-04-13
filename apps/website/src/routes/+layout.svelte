@@ -6,7 +6,6 @@
   import { ModeWatcher } from "mode-watcher";
 
   import { browser } from "$app/environment";
-  import PwaInstallButton from "$lib/components/pwa-install-button.svelte";
   import { createDehydratedScript } from "$lib/utils";
 
   import "../app.css";
@@ -27,6 +26,5 @@
   <ModeWatcher />
   <Toaster richColors />
   <ConfirmDeleteDialog />
-  <PwaInstallButton />
   {@render children()}
 </QueryClientProvider>
