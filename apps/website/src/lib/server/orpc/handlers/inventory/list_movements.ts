@@ -6,7 +6,7 @@ import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/
 const input = z.object({
   slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
-  pageSize: z.number().int().positive().default(20),
+  pageSize: z.number().int().positive().default(12),
   order: z.enum(["asc", "desc"]).default("desc"),
   productId: z.string().optional(),
   search: z.string().optional(),
