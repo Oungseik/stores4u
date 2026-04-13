@@ -491,7 +491,7 @@
       </FileDropZone.Root>
 
       {#if uploadProgress.total > 0}
-        <div class="space-y-2">
+        <div class="mb-3 space-y-2">
           <div class="flex items-center gap-2 text-sm">
             <Loader2Icon class="size-4 animate-spin" />
             <span class="text-muted-foreground"
