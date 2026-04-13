@@ -20,7 +20,7 @@ import { uploadHandler } from "./handlers/images/upload";
 import { adjustStockHandler } from "./handlers/inventory/adjust_stock";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
-import { listOrdersHandler } from "./handlers/orders/list_order";
+import { listOrdersHandler } from "./handlers/orders/list_orders";
 import { statsOrdersHandler } from "./handlers/orders/stats_order";
 import { checkoutHandler } from "./handlers/products/checkout_product";
 import { createProductHandler } from "./handlers/products/create_product";

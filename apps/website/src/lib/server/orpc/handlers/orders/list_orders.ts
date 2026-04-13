@@ -10,6 +10,7 @@ const input = z.object({
   search: z.string().optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
+  productId: z.string().optional(),
 });
 
 export const listOrdersHandler = os
@@ -23,6 +24,7 @@ export const listOrdersHandler = os
     const orders = await shopDb.query.order.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
+        items: { productId: input.productId },
         OR: input.search
           ? [
               { id: { like: `%${input.search}%` } },
