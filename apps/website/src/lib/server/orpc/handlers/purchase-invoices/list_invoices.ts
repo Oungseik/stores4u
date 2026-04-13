@@ -1,3 +1,4 @@
+import { eq, purchaseInvoiceItem } from "@repo/db";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -7,6 +8,7 @@ const input = z.object({
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   supplierId: z.string().optional(),
+  productId: z.string().optional(),
 });
 
 export const listInvoicesHandler = os
@@ -19,16 +21,17 @@ export const listInvoicesHandler = os
 
     const invoices = await shopDb.query.purchaseInvoice.findMany({
       where: {
-        id: input.cursor ? { lte: input.cursor } : undefined,
+        items: { productId: input.productId },
         supplierId: input.supplierId,
       },
       with: {
         supplier: {
           columns: { name: true },
         },
-        items: {
-          columns: { id: true },
-        },
+      },
+      extras: {
+        itemsCount: (table) =>
+          shopDb.$count(purchaseInvoiceItem, eq(purchaseInvoiceItem.purchaseInvoiceId, table.id)),
       },
       limit: input.pageSize + 1,
       orderBy: { id: "desc" },
@@ -48,7 +51,7 @@ export const listInvoicesHandler = os
       createdAt: invoice.createdAt,
       status: invoice.status,
       totalCents: invoice.totalCents,
-      itemsCount: invoice.items.length,
+      itemsCount: invoice.itemsCount,
       vatCents: invoice.vatCents,
       discountCents: invoice.discountCents,
       freightCents: invoice.freightCents,
