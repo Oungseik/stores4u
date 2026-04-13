@@ -1,5 +1,5 @@
 import { execFile as execFileCb } from "child_process";
-import { mkdtemp, readFile, readdir, rm, writeFile } from "fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "fs/promises";
 import os from "os";
 import path from "path";
 import { promisify } from "util";
@@ -40,9 +40,7 @@ export async function pdfToImages(pdfBuffer: Buffer): Promise<string[]> {
       outputPrefix,
     ]);
 
-    const files = (await readdir(tmpDir))
-      .filter((f) => f.endsWith(".png"))
-      .sort();
+    const files = (await readdir(tmpDir)).filter((f) => f.endsWith(".png")).sort();
 
     const images = await Promise.all(
       files.map(async (f) => {
