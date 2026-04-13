@@ -1,4 +1,4 @@
-import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+import { PDFParse } from "pdf-parse";
 import { logger } from "$lib/server/logger";
 
 export const MAX_PDF_PAGES = 10;
@@ -9,44 +9,20 @@ export interface PdfTextResult {
   pageCount: number;
 }
 
-GlobalWorkerOptions.workerSrc = "";
-
 export async function extractPdfText(pdfBuffer: Buffer): Promise<PdfTextResult> {
-  const uint8 = new Uint8Array(pdfBuffer.buffer, pdfBuffer.byteOffset, pdfBuffer.byteLength);
+  const parser = new PDFParse({ data: pdfBuffer });
+  const textResult = await parser.getText();
 
-  const doc = await getDocument({ data: uint8, useSystemFonts: true }).promise;
-  const pageCount = doc.numPages;
+  const pageCount = textResult.total;
 
   if (pageCount > MAX_PDF_PAGES) {
+    await parser.destroy();
     throw new Error(`PDF has ${pageCount} pages, maximum is ${MAX_PDF_PAGES}`);
   }
 
-  const pageTexts: string[] = [];
+  let text = textResult.text;
 
-  for (let i = 1; i <= pageCount; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    const strings = content.items
-      .filter(
-        (
-          item,
-        ): item is {
-          str: string;
-          dir: string;
-          width: number;
-          height: number;
-          transform: number[];
-          fontName: string;
-          hasEOL: boolean;
-        } => "str" in item,
-      )
-      .map((item) => item.str);
-    pageTexts.push(strings.join(" "));
-  }
-
-  doc.destroy();
-
-  let text = pageTexts.join("\n\n");
+  await parser.destroy();
 
   if (text.length > MAX_PDF_TEXT_CHARS) {
     text = text.slice(0, MAX_PDF_TEXT_CHARS);
