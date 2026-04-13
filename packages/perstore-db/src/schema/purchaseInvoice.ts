@@ -15,7 +15,7 @@ export const ExtractedSupplierSchema = z.object({
 });
 
 export const ExtractedInvoiceSchema = z.object({
-  invoiceNumber: z.string(),
+  invoiceNumber: z.string().optional(),
   invoiceDate: z.string().optional(),
   subtotalCents: z.number().optional(),
   vatCents: z.number().optional(),

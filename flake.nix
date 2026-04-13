@@ -30,6 +30,7 @@
           openssl
           pango
           pixman
+          poppler-utils
           sqlite
           stdenv.cc.cc.lib
           zlib

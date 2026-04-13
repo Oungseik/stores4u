@@ -1,7 +1,15 @@
+import { execFile as execFileCb } from "child_process";
+import { mkdtemp, readFile, readdir, rm, writeFile } from "fs/promises";
+import os from "os";
+import path from "path";
+import { promisify } from "util";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
 
+const execFile = promisify(execFileCb);
+
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+export const MAX_PDF_PAGES = 5;
 
 export const InvoiceVerificationResultSchema = z.object({
   isInvoice: z.boolean(),
@@ -15,25 +23,40 @@ export function imageToBase64(buffer: Buffer, mimeType: string): string {
 }
 
 export async function pdfToImages(pdfBuffer: Buffer): Promise<string[]> {
+  const tmpDir = await mkdtemp(path.join(os.tmpdir(), "pdf-"));
+  const pdfPath = path.join(tmpDir, "input.pdf");
+  const outputPrefix = path.join(tmpDir, "page");
+
   try {
-    const { default: sharp } = await import("sharp");
+    await writeFile(pdfPath, pdfBuffer);
 
-    const pages: string[] = [];
-    const pdfInfo = await sharp(pdfBuffer, { pages: -1 }).metadata();
+    await execFile("pdftoppm", [
+      "-png",
+      "-r",
+      "200",
+      "-l",
+      String(MAX_PDF_PAGES),
+      pdfPath,
+      outputPrefix,
+    ]);
 
-    const totalPages = pdfInfo.pages ?? 1;
+    const files = (await readdir(tmpDir))
+      .filter((f) => f.endsWith(".png"))
+      .sort();
 
-    for (let i = 0; i < totalPages; i++) {
-      const pngBuffer = await sharp(pdfBuffer, { page: i }).png().toBuffer();
+    const images = await Promise.all(
+      files.map(async (f) => {
+        const buf = await readFile(path.join(tmpDir, f));
+        return `data:image/png;base64,${buf.toString("base64")}`;
+      }),
+    );
 
-      const base64 = pngBuffer.toString("base64");
-      pages.push(`data:image/png;base64,${base64}`);
-    }
-
-    return pages;
+    return images;
   } catch (error) {
     logger.error({ error }, "Failed to convert PDF to images");
     throw error;
+  } finally {
+    await rm(tmpDir, { recursive: true, force: true });
   }
 }
 

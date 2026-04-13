@@ -8,15 +8,8 @@ import {
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
 import type { InvoiceVerificationResult } from "$lib/server/mastra/_lib/image-utils";
-import { extractPdfText } from "$lib/server/mastra/_lib/pdf-text-utils";
-import {
-  processInvoice,
-  processInvoiceFromText,
-} from "$lib/server/mastra/agents/invoice-extraction-agent";
-import {
-  verifyInvoice,
-  verifyInvoiceFromText,
-} from "$lib/server/mastra/agents/invoice-verification-agent";
+import { processInvoice } from "$lib/server/mastra/agents/invoice-extraction-agent";
+import { verifyInvoice } from "$lib/server/mastra/agents/invoice-verification-agent";
 import {
   authMiddleware,
   os,
@@ -84,52 +77,26 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("INTERNAL_SERVER_ERROR");
     }
 
-    const isPdf = file.fileType === "application/pdf";
+    let verificationResult: InvoiceVerificationResult;
+    try {
+      verificationResult = await verifyInvoice(fileBuffer, file.fileType);
+    } catch (error) {
+      await shopDb
+        .update(purchaseInvoiceFile)
+        .set({ status: "FAILED", updatedAt: new Date() })
+        .where(eq(purchaseInvoiceFile.id, file.id));
 
-    let pdfFullText: string | null = null;
-    if (isPdf) {
-      try {
-        const pdfResult = await extractPdfText(fileBuffer);
-        pdfFullText = pdfResult.text;
-      } catch (error) {
-        await shopDb
-          .update(purchaseInvoiceFile)
-          .set({ status: "FAILED", updatedAt: new Date() })
-          .where(eq(purchaseInvoiceFile.id, file.id));
-
-        logger.error({ error }, "PDF text extraction failed");
-        throw new ORPCError("BAD_REQUEST", {
-          message:
-            "Failed to extract text from PDF. The file may be corrupted or contain only images.",
-        });
-      }
+      logger.error({ error }, "Invoice verification failed");
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Failed to verify invoice: Please upload clear and correctly formatted invoice",
+      });
     }
-
-    const verificationPromise =
-      isPdf && pdfFullText
-        ? verifyInvoiceFromText(pdfFullText)
-        : verifyInvoice(fileBuffer, file.fileType);
-
-    const verificationResult: InvoiceVerificationResult = await verificationPromise.catch(
-      async (error) => {
-        await shopDb
-          .update(purchaseInvoiceFile)
-          .set({ status: "FAILED", updatedAt: new Date() })
-          .where(eq(purchaseInvoiceFile.id, file.id));
-
-        logger.error({ error }, "Invoice verification failed");
-        throw new ORPCError("BAD_REQUEST", {
-          message: "Failed to verify invoice: Please upload clear and correctly formatted invoice",
-        });
-      },
-    );
 
     const photoUrl = file.objectPath;
     const now = new Date();
 
     if (!verificationResult.isInvoice) {
       const rejectionReason = verificationResult.rejectionReason ?? "Document is not an invoice";
-
       await shopDb.transaction(async (tx) => {
         await tx.insert(purchaseInvoiceOcrResult).values({
           photoUrl,
@@ -152,12 +119,10 @@ export const processInvoiceFileHandler = os
       };
     }
 
-    const extraction =
-      isPdf && pdfFullText
-        ? processInvoiceFromText(pdfFullText)
-        : processInvoice(fileBuffer, file.fileType);
-
-    const extractedData: ExtractedInvoiceData = await extraction.catch(async (error) => {
+    let extractedData: ExtractedInvoiceData;
+    try {
+      extractedData = await processInvoice(fileBuffer, file.fileType);
+    } catch (error) {
       await shopDb
         .update(purchaseInvoiceFile)
         .set({ status: "FAILED", updatedAt: new Date() })
@@ -167,14 +132,14 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("BAD_REQUEST", {
         message: "Failed to process invoice: Please upload clear and correctly formatted invoice",
       });
-    });
+    }
 
     await shopDb.transaction(async (tx) => {
       await tx.insert(purchaseInvoiceOcrResult).values({
         photoUrl,
         invoiceFileId: file.id,
         rawJson: extractedData,
-        extractedText: extractedData.rawText ?? (isPdf ? pdfFullText : null),
+        extractedText: extractedData.rawText ?? null,
         extractedData,
         confidenceScore: extractedData.confidence,
         createdAt: now,
