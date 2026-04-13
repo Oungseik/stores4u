@@ -16,6 +16,7 @@
 </script>
 
 <svelte:head>
+  <link rel="manifest" href="/manifest.json" />
   {#if !browser}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html createDehydratedScript(dehydrate(data.queryClient))}
