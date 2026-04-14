@@ -33,6 +33,9 @@ export const getProductHandler = os
           orderBy: { position: "asc" },
           columns: { id: true, objectPath: true, position: true },
         },
+        productAliases: {
+          columns: { alias: true },
+        },
       },
     });
 
@@ -48,6 +51,7 @@ export const getProductHandler = os
       description: product.description,
       image: product.image,
       images: product.productImages.map((img) => img.objectPath),
+      aliases: product.productAliases.map((pa) => pa.alias),
       uom: product.uom,
       priceCents: product.priceCents,
       stock: product.stock,
