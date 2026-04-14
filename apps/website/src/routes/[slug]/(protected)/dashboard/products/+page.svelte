@@ -412,7 +412,9 @@
                           "inline-flex rounded px-1 py-px text-[10px] leading-none font-semibold",
                           marginPercent > 0
                             ? "bg-emerald-500/10 text-emerald-600"
-                            : "bg-red-500/10 text-red-600",
+                            : marginPercent === 0
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-red-500/10 text-red-600",
                         ]}
                       >
                         {marginPercent > 0 ? "+" : ""}{marginPercent}%
