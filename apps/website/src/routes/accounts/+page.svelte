@@ -49,7 +49,7 @@
     accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "password") ?? false
   );
 
-  const searchParams = useSearchParams(accountsTabSchema);
+  const searchParams = useSearchParams(accountsTabSchema, { noScroll: true });
 
   // --- Profile Tab ---
   let isUploadingAvatar = $state(false);

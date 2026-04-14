@@ -23,7 +23,7 @@
 
   const { data: shop }: PageProps = $props();
 
-  const searchParams = useSearchParams(settingsTabSchema);
+  const searchParams = useSearchParams(settingsTabSchema, { noScroll: true });
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">

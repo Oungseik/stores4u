@@ -40,7 +40,7 @@
     updatedAt: Date;
   };
 
-  const searchParams = useSearchParams(ordersFilterSchema);
+  const searchParams = useSearchParams(ordersFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
   const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
   const debouncedDateTo = new Debounced(() => searchParams.dateTo, 300);

@@ -60,7 +60,7 @@
   }
 
   let cart = $state<CartItem[]>([]);
-  const searchParams = useSearchParams(checkoutModeSchema);
+  const searchParams = useSearchParams(checkoutModeSchema, { noScroll: true });
   let searchQuery = $state("");
   const debouncedSearch = new Debounced(() => searchQuery, 300);
 

@@ -20,7 +20,7 @@
   let isSubmitting = $state(false);
   const defaultValues = { name: "", email: "", password: "" };
 
-  const params = useSearchParams(returnUrlSchema);
+  const params = useSearchParams(returnUrlSchema, { noScroll: true });
 
   const form = createForm(() => ({
     defaultValues,

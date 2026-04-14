@@ -44,7 +44,7 @@
   const { params, data: shop }: PageProps = $props();
   const queryClient = useQueryClient();
 
-  const searchParams = useSearchParams(productsFilterSchema);
+  const searchParams = useSearchParams(productsFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
   // JSON.stringify via $derived prevents false reactive triggers:
   // useSearchParams re-parses arrays from URL on every read (new reference each time),

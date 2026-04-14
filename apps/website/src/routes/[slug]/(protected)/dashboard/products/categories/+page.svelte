@@ -39,7 +39,7 @@
 
   const { params, data: shop }: PageProps = $props();
 
-  const searchParams = useSearchParams(categoriesFilterSchema);
+  const searchParams = useSearchParams(categoriesFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
 
   const categories = createInfiniteQuery(() =>

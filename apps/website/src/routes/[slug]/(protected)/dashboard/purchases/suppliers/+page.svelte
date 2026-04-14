@@ -59,7 +59,7 @@
     updatedAt: Date;
   };
 
-  const searchParams = useSearchParams(suppliersFilterSchema);
+  const searchParams = useSearchParams(suppliersFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
 
   const suppliers = createInfiniteQuery(() =>
