@@ -5,6 +5,7 @@ import {
   inventoryMovement,
   product,
   productAlias,
+  productSupplier,
   purchaseInvoice,
   purchaseInvoiceFile,
   purchaseInvoiceItem,
