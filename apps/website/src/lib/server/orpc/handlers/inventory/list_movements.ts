@@ -1,4 +1,4 @@
-import { movementTypes, referenceTypes } from "@repo/db";
+import { movementTypes } from "@repo/db";
 import { z } from "zod";
 
 import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
@@ -13,7 +13,6 @@ const input = z.object({
   movementTypes: z.array(z.enum(movementTypes)).optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
-  referenceTypes: z.array(z.enum(referenceTypes)).optional(),
 });
 
 export const listMovementsHandler = os
@@ -27,7 +26,6 @@ export const listMovementsHandler = os
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
         productId: input.productId || undefined,
         movementType: input.movementTypes?.length ? { in: input.movementTypes } : undefined,
-        referenceType: input.referenceTypes?.length ? { in: input.referenceTypes } : undefined,
         occurredAt: {
           gte: input.dateFrom ? new Date(input.dateFrom) : undefined,
           lte: input.dateTo ? new Date(input.dateTo) : undefined,

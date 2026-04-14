@@ -6,7 +6,7 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import type { CountryCode } from "@repo/config";
-  import type { MovementType, ReferenceType } from "@repo/db";
+  import type { MovementType } from "@repo/db";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";
@@ -40,9 +40,7 @@
   const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
   const debouncedDateTo = new Debounced(() => searchParams.dateTo, 300);
   const movementTypesKey = $derived(JSON.stringify(searchParams.movementTypes ?? []));
-  const referenceTypesKey = $derived(JSON.stringify(searchParams.referenceTypes ?? []));
   const debouncedMovementTypes = new Debounced(() => movementTypesKey, 300);
-  const debouncedReferenceTypes = new Debounced(() => referenceTypesKey, 300);
 
   const movementsQuery = createInfiniteQuery(() =>
     orpc.inventory.listMovements.infiniteOptions({
@@ -54,7 +52,6 @@
         dateFrom: debouncedDateFrom.current || undefined,
         dateTo: debouncedDateTo.current || undefined,
         movementTypes: JSON.parse(debouncedMovementTypes.current) as MovementType[],
-        referenceTypes: JSON.parse(debouncedReferenceTypes.current) as ReferenceType[],
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     })
@@ -69,8 +66,7 @@
   const hasFilters = $derived(
     searchParams.dateFrom.length > 0 ||
       searchParams.dateTo.length > 0 ||
-      (searchParams.movementTypes?.length ?? 0) > 0 ||
-      (searchParams.referenceTypes?.length ?? 0) > 0
+      (searchParams.movementTypes?.length ?? 0) > 0
   );
 
   function resetFilters() {
@@ -79,7 +75,6 @@
       movementTypes: [],
       dateFrom: "",
       dateTo: "",
-      referenceTypes: [],
     });
   }
 
@@ -109,12 +104,6 @@
     { value: "ADJUSTMENT", label: "Adjustment" },
     { value: "CORRECTION", label: "Correction" },
   ];
-
-  const referenceTypeOptions: { value: ReferenceType; label: string }[] = [
-    { value: "ORDER", label: "Order" },
-    { value: "PURCHASE_INVOICE", label: "Purchase Invoice" },
-    { value: "MANUAL", label: "Manual" },
-  ];
 </script>
 
 <section class="space-y-6">
@@ -129,14 +118,6 @@
       />
 
       <FilterBar.DatePicker value={dateValue} onValueChange={handleDateRangeChange} />
-
-      <FilterBar.CheckboxGroup
-        items={referenceTypeOptions}
-        value={searchParams.referenceTypes}
-        onValueChange={(value) => searchParams.update({ referenceTypes: value })}
-        placeholder="All References"
-        label="Reference Type"
-      />
 
       <FilterBar.Reset />
     </div>
