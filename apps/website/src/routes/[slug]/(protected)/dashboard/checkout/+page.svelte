@@ -274,8 +274,8 @@
                     <p class="text-foreground truncate text-sm leading-tight font-medium">
                       {item.name}
                     </p>
-                    <span class="text-xs tabular-nums text-muted-foreground">
-                       {formatPrice(item.priceCents * item.quantity, shop.country)}
+                    <span class="text-muted-foreground text-xs tabular-nums">
+                      {formatPrice(item.priceCents * item.quantity, shop.country)}
                     </span>
                   </div>
 

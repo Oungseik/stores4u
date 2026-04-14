@@ -214,9 +214,9 @@
               <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
                 <div>
                   <p class="text-muted-foreground text-xs">Total Purchases</p>
-                    <p class="font-semibold">
-                      {formatPrice(supplier.totalPurchases, shop.country)}
-                    </p>
+                  <p class="font-semibold">
+                    {formatPrice(supplier.totalPurchases, shop.country)}
+                  </p>
                 </div>
                 <div class="text-right">
                   <p class="text-muted-foreground text-xs">Invoices</p>

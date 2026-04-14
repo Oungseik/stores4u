@@ -3,6 +3,7 @@ import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
 import ActionsCell from "./cells/ActionsCell.svelte";
+import LastCostCell from "./cells/LastCostCell.svelte";
 import NameCell from "./cells/NameCell.svelte";
 import PriceCell from "./cells/PriceCell.svelte";
 import StockCell from "./cells/StockCell.svelte";
@@ -12,6 +13,7 @@ export type ProductItem = {
   name: string;
   sku: string | null;
   priceCents: number;
+  lastCostCents: number | null;
   stock: number;
   lowStockThreshold: number | null;
 };
@@ -42,6 +44,17 @@ export function createColumns(
       header: "Price",
       cell: ({ row }) => {
         return renderComponent(PriceCell, { cents: row.original.priceCents, country });
+      },
+    },
+    {
+      accessorKey: "lastCostCents",
+      header: "Last Cost",
+      cell: ({ row }) => {
+        return renderComponent(LastCostCell, {
+          lastCostCents: row.original.lastCostCents,
+          priceCents: row.original.priceCents,
+          country,
+        });
       },
     },
     {

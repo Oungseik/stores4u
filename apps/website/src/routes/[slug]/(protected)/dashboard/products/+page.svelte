@@ -297,89 +297,131 @@
         </div>
       {/if}
     {:else}
-      <div class="space-y-2">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4">
         {#each allProducts as product (product.id)}
-          <Card.Root class="overflow-hidden p-0">
-            <Card.Content class="p-0">
-              <div
-                class={[
-                  "hover:bg-muted/50 flex w-full items-center gap-3 border-l-4 px-3 py-2.5",
-                  product.stock === 0
-                    ? "border-red-400"
-                    : product.stock <= (product.lowStockThreshold ?? 10)
-                      ? "border-amber-400"
-                      : "border-primary",
-                ]}
-              >
-                <a
-                  href={`/${params.slug}/dashboard/products/${product.id}`}
-                  class="flex min-w-0 flex-1 items-center gap-3"
-                >
-                  <div
-                    class="bg-primary/10 hidden size-10 shrink-0 items-center justify-center rounded-lg sm:flex"
-                  >
-                    <PackageIcon class="text-primary size-5" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium">{product.name}</p>
-                    <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
-                      <span>{product.sku}</span>
-                      {#if product.categories?.length > 0}
-                        <span>•</span>
-                        <span>{product.categories[0]}</span>
-                      {/if}
-                    </div>
-                  </div>
+          {@const marginPercent =
+            product.lastCostCents && product.lastCostCents > 0
+              ? Math.round(
+                  ((product.priceCents - product.lastCostCents) / product.lastCostCents) * 100
+                )
+              : null}
+          {@const stockStatus =
+            product.stock === 0
+              ? "out"
+              : product.stock <= (product.lowStockThreshold ?? 10)
+                ? "low"
+                : "ok"}
 
-                  <div class="shrink-0">
+          <Card.Root class="group overflow-hidden p-0">
+            <a href={`/${params.slug}/dashboard/products/${product.id}`} class="block">
+              <div class="bg-muted/40 relative aspect-square overflow-hidden">
+                {#if product.image}
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    class="size-full object-cover transition-transform group-hover:scale-105"
+                  />
+                {:else}
+                  <div class="flex size-full items-center justify-center">
+                    <PackageIcon class="text-muted-foreground/40 size-10" />
+                  </div>
+                {/if}
+                {#if stockStatus !== "ok"}
+                  <span
+                    class={[
+                      "absolute top-2 left-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+                      stockStatus === "out"
+                        ? "bg-red-500/90 text-white"
+                        : "bg-amber-500/90 text-white",
+                    ]}
+                  >
+                    {stockStatus === "out" ? "Out of stock" : "Low stock"}
+                  </span>
+                {/if}
+                <div class="absolute top-2 right-2">
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger
+                      class={buttonVariants({ variant: "secondary", size: "icon" }) +
+                        " size-7 opacity-0 shadow-sm transition-opacity group-hover:opacity-100"}
+                      onclick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                    >
+                      <MoreVerticalIcon class="size-3.5" />
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end">
+                      <DropdownMenu.Item>
+                        {#snippet child()}
+                          <a
+                            class={buttonVariants({
+                              variant: "ghost",
+                              class: "w-full justify-start",
+                            })}
+                            href={`/${params.slug}/dashboard/products/${product.id}/edit`}
+                          >
+                            <PencilIcon class="size-4" />
+                            Edit
+                          </a>
+                        {/snippet}
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onclick={() => handleAdjustProduct(product.id, product.name, product.stock)}
+                      >
+                        <ArrowUpDownIcon class="size-4" />
+                        Adjust Stock
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item
+                        class="text-destructive"
+                        onclick={() => handleDeleteProduct(product.id)}
+                      >
+                        <Trash2Icon class="size-4" />
+                        Delete
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5 p-3">
+                <div class="min-w-0">
+                  <p class="truncate text-sm leading-tight font-medium">{product.name}</p>
+                  <p class="text-muted-foreground truncate text-xs">
+                    {product.sku ?? "No SKU"}
+                    {#if product.categories?.length > 0}
+                      <span> · {product.categories[0]}</span>
+                    {/if}
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-0.5">
+                  <div class="flex items-center justify-between gap-1">
                     <span class="text-sm font-semibold">
                       {formatPrice(product.priceCents, shop.country)}
                     </span>
-                    <div class="flex items-center justify-end gap-1.5">
-                      <p class="text-muted-foreground text-xs">{product.stock} left</p>
-                    </div>
+                    <span class="text-muted-foreground text-xs">{product.stock} left</span>
                   </div>
-                </a>
-
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger
-                    class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
-                  >
-                    <MoreVerticalIcon class="text-muted-foreground size-4" />
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end">
-                    <DropdownMenu.Item>
-                      {#snippet child()}
-                        <a
-                          class={buttonVariants({
-                            variant: "ghost",
-                            class: "w-full justify-start",
-                          })}
-                          href={`/${params.slug}/dashboard/products/${product.id}/edit`}
-                        >
-                          <PencilIcon class="size-4" />
-                          Edit
-                        </a>
-                      {/snippet}
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onclick={() => handleAdjustProduct(product.id, product.name, product.stock)}
-                    >
-                      <ArrowUpDownIcon class="size-4" />
-                      Adjust Stock
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Separator />
-                    <DropdownMenu.Item
-                      class="text-destructive"
-                      onclick={() => handleDeleteProduct(product.id)}
-                    >
-                      <Trash2Icon class="size-4" />
-                      Delete
-                    </DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
+                  {#if product.lastCostCents != null && marginPercent != null}
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-muted-foreground text-xs">
+                        Cost {formatPrice(product.lastCostCents, shop.country)}
+                      </span>
+                      <span
+                        class={[
+                          "inline-flex rounded px-1 py-px text-[10px] leading-none font-semibold",
+                          marginPercent > 0
+                            ? "bg-emerald-500/10 text-emerald-600"
+                            : "bg-red-500/10 text-red-600",
+                        ]}
+                      >
+                        {marginPercent > 0 ? "+" : ""}{marginPercent}%
+                      </span>
+                    </div>
+                  {/if}
+                </div>
               </div>
-            </Card.Content>
+            </a>
           </Card.Root>
         {/each}
       </div>

@@ -46,6 +46,12 @@ export const listProductsHandler = os
       with: {
         productCategories: { with: { category: true } },
         productAliases: { columns: { alias: true } },
+        inventoryMovements: {
+          columns: { unitCostCents: true },
+          where: { movementType: { in: ["PURCHASE", "ADJUSTMENT"] } },
+          orderBy: { occurredAt: "desc" },
+          limit: 1,
+        },
       },
       limit: input.pageSize + 1,
       orderBy: { id: input.order },
@@ -70,6 +76,7 @@ export const listProductsHandler = os
       image: p.image,
       uom: p.uom,
       priceCents: p.priceCents,
+      lastCostCents: p.inventoryMovements[0]?.unitCostCents ?? null,
       categories: p.productCategories
         .map((c) => c.category?.name)
         .filter((c): c is string => c !== undefined),
