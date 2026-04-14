@@ -11,7 +11,6 @@
   import { buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Chart from "@repo/ui/chart";
-  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Separator } from "@repo/ui/separator";
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
@@ -111,8 +110,7 @@
     </div>
 
     <!-- KPI Cards -->
-    <ScrollArea orientation="horizontal" class="w-full">
-      <div class="flex snap-x gap-4 pb-4 xl:grid xl:grid-cols-4">
+    <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible">
         {#if isLoading}
           {#each { length: 4 } as _}
             <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -229,8 +227,7 @@
             </Card.Root>
           </div>
         {/if}
-      </div>
-    </ScrollArea>
+    </div>
 
     <!-- Revenue Trend -->
     <Card.Root>
