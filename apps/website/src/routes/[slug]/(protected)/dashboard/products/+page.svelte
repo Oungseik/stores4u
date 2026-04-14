@@ -297,7 +297,7 @@
         </div>
       {/if}
     {:else}
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:gap-4">
         {#each allProducts as product (product.id)}
           {@const marginPercent =
             product.lastCostCents && product.lastCostCents > 0
@@ -314,7 +314,7 @@
 
           <Card.Root class="group overflow-hidden p-0">
             <a href={`/${params.slug}/dashboard/products/${product.id}`} class="block">
-              <div class="bg-muted/40 relative aspect-square overflow-hidden">
+              <div class="bg-muted/40 relative aspect-[3/2] overflow-hidden">
                 {#if product.image}
                   <img
                     src={product.image}
