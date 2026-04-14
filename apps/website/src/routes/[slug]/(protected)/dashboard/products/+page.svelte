@@ -29,6 +29,7 @@
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
+  import ProductDialog from "$lib/components/ProductDialog.svelte";
   import StockAdjustmentDialog from "$lib/components/StockAdjustmentDialog.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -107,7 +108,13 @@
   );
 
   const columns = $derived(
-    createColumns(shop.country, params.slug, handleDeleteProduct, handleAdjustProduct)
+    createColumns(
+      shop.country,
+      params.slug,
+      handleDeleteProduct,
+      handleAdjustProduct,
+      handleEditProduct
+    )
   );
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
@@ -116,9 +123,14 @@
   }
 
   let adjustProduct = $state<{ id: string; name: string; stock: number } | null>(null);
+  let productDialog = $state<{ productId?: string } | null>(null);
 
   function handleAdjustProduct(id: string, name: string, stock: number) {
     adjustProduct = { id, name, stock };
+  }
+
+  function handleEditProduct(id: string) {
+    productDialog = { productId: id };
   }
 </script>
 
@@ -127,9 +139,9 @@
     breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/dashboard` }, { label: "Products" }]}
   >
     {#snippet actions()}
-      <a href={`/${shop.slug}/dashboard/products/add`} class={buttonVariants()}>
+      <Button onclick={() => (productDialog = {})}>
         <PlusIcon class="size-4" /> Add Product
-      </a>
+      </Button>
     {/snippet}
   </AdminDashboardHeader>
 
@@ -351,19 +363,9 @@
                       <MoreVerticalIcon class="size-3.5" />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content align="end">
-                      <DropdownMenu.Item>
-                        {#snippet child()}
-                          <a
-                            class={buttonVariants({
-                              variant: "ghost",
-                              class: "w-full justify-start",
-                            })}
-                            href={`/${params.slug}/dashboard/products/${product.id}/edit`}
-                          >
-                            <PencilIcon class="size-4" />
-                            Edit
-                          </a>
-                        {/snippet}
+                      <DropdownMenu.Item onclick={() => handleEditProduct(product.id)}>
+                        <PencilIcon class="size-4" />
+                        Edit
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
                         onclick={() => handleAdjustProduct(product.id, product.name, product.stock)}
@@ -455,6 +457,15 @@
       productId={adjustProduct.id}
       productName={adjustProduct.name}
       currentStock={adjustProduct.stock}
+    />
+  {/if}
+
+  {#if productDialog}
+    <ProductDialog
+      open={true}
+      onClose={() => (productDialog = null)}
+      slug={params.slug}
+      productId={productDialog.productId}
     />
   {/if}
 </div>
