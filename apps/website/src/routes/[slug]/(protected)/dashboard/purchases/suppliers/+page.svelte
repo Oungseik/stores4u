@@ -109,11 +109,7 @@
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
-    breadcrumbs={[
-      { label: "Dashboard", href: `/${shop.slug}/dashboard` },
-      { label: "Purchases", href: `/${shop.slug}/dashboard/purchases` },
-      { label: "Suppliers" },
-    ]}
+    breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}/dashboard` }, { label: "Suppliers" }]}
   >
     {#snippet actions()}
       <Button onclick={() => (isAddOpen = true)}>
