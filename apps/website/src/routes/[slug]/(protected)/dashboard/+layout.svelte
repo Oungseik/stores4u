@@ -15,7 +15,7 @@
     style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
   >
     <AdminSidebar variant="inset" {shop} {user} currentPath={page.url.pathname} />
-    <Sidebar.Inset>
+    <Sidebar.Inset class="overflow-hidden">
       <!-- <header -->
       <!--   class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear" -->
       <!-- > -->
@@ -25,7 +25,7 @@
       <!--     <h1 class="text-base font-medium">Checkout</h1> -->
       <!--   </div> -->
       <!-- </header> -->
-      <div class="flex flex-1 flex-col">
+      <div class="flex flex-1 flex-col overflow-hidden">
         {@render children?.()}
       </div>
     </Sidebar.Inset>
