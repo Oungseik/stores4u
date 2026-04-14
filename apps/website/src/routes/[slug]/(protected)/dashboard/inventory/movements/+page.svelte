@@ -32,7 +32,7 @@
 
   const { params, data: shop }: PageProps = $props();
 
-  const searchParams = useSearchParams(inventoryMovementsFilterSchema);
+  const searchParams = useSearchParams(inventoryMovementsFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
   const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
   const debouncedDateTo = new Debounced(() => searchParams.dateTo, 300);
