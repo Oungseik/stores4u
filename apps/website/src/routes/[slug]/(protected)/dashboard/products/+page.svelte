@@ -16,7 +16,6 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
-
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import {
@@ -142,7 +141,9 @@
   </div>
 
   {#if productStats.isLoading}
-    <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible">
+    <div
+      class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible"
+    >
       {#each { length: 4 } as _}
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root class="h-[170px]">
@@ -159,7 +160,9 @@
       {/each}
     </div>
   {:else if productStats.data}
-    <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible">
+    <div
+      class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible"
+    >
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
           title="Total Products"
@@ -330,7 +333,7 @@
 
                   <div class="shrink-0">
                     <span class="text-sm font-semibold">
-                       {formatPrice(product.priceCents, shop.country)}
+                      {formatPrice(product.priceCents, shop.country)}
                     </span>
                     <div class="flex items-center justify-end gap-1.5">
                       <p class="text-muted-foreground text-xs">{product.stock} left</p>

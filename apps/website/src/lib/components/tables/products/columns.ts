@@ -11,7 +11,6 @@ export type ProductItem = {
   id: string;
   name: string;
   sku: string | null;
-  categories: string[];
   priceCents: number;
   stock: number;
   lowStockThreshold: number | null;
@@ -36,13 +35,6 @@ export function createColumns(
       header: "SKU",
       cell: ({ row }) => {
         return row.original.sku ?? "—";
-      },
-    },
-    {
-      accessorKey: "categories",
-      header: "Category",
-      cell: ({ row }) => {
-        return row.original.categories.length > 0 ? row.original.categories[0] : "—";
       },
     },
     {
