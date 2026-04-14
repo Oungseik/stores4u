@@ -88,14 +88,6 @@ export const invoiceFilesFilterSchema = createSearchParamsSchema({
   { search: string; statuses: PurchaseInvoiceFileStatus[]; view: InvoiceFilesView }
 >;
 
-type ProductDetailTab = {
-  tab: "overview" | "inventory" | "history";
-};
-
-export const productDetailTabSchema = createSearchParamsSchema({
-  tab: { type: "string", default: "overview" },
-}) as StandardSchemaV1<unknown, ProductDetailTab>;
-
 type AccountsTab = {
   tab: "profile" | "security" | "sessions" | "connections" | "danger";
 };
