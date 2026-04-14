@@ -142,7 +142,7 @@
 
       {#if selectedSupplier}
         <div class="bg-background rounded-lg border p-4 shadow-sm">
-          <div class="mb-3 flex items-start gap-3">
+          <div class="mb-3 flex items-center gap-3">
             <div
               class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-full"
             >
@@ -150,7 +150,6 @@
             </div>
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-semibold">{selectedSupplier.name}</p>
-              <p class="text-muted-foreground text-xs">{selectedSupplier.id}</p>
             </div>
           </div>
 
