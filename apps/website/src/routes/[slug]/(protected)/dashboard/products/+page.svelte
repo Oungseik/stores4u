@@ -145,7 +145,7 @@
     <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible">
       {#each { length: 4 } as _}
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-          <Card.Root>
+          <Card.Root class="h-[170px]">
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton class="h-4 w-24" />
               <Skeleton class="size-8 rounded-md" />
