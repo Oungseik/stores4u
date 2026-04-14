@@ -224,19 +224,18 @@
                           oninput={(e) => (productSearch = e.currentTarget.value)}
                         />
                         <Command.List>
-                          <Command.Empty>
-                            <div class="flex flex-col items-center gap-2 py-4">
-                              <p class="text-muted-foreground text-sm">No products found</p>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onclick={() => openCreateProductSheet(item.id)}
-                              >
-                                <PlusCircleIcon class="mr-1 size-4" />
-                                Create new product
-                              </Button>
-                            </div>
-                          </Command.Empty>
+                          {#if filteredProducts.length > 0}
+                            <Command.Item
+                              class="mt-2 py-3"
+                              value="__create_new__"
+                              onSelect={() => openCreateProductSheet(item.id)}
+                            >
+                              <PlusCircleIcon class="size-4" />
+                              Create new product
+                            </Command.Item>
+                            <Command.Separator />
+                          {/if}
+
                           {#each filteredProducts as product (product.id)}
                             <Command.Item
                               value={product.name}
@@ -254,16 +253,6 @@
                               </div>
                             </Command.Item>
                           {/each}
-                          {#if filteredProducts.length > 0}
-                            <Command.Separator />
-                            <Command.Item
-                              value="__create_new__"
-                              onSelect={() => openCreateProductSheet(item.id)}
-                            >
-                              <PlusCircleIcon class="size-4" />
-                              Create new product
-                            </Command.Item>
-                          {/if}
                         </Command.List>
                       </Command.Root>
                     </Popover.Content>
