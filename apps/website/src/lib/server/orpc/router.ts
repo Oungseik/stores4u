@@ -28,6 +28,7 @@ import { deleteProductHandler } from "./handlers/products/delete_product";
 import { getProductHandler } from "./handlers/products/get_product";
 import { getSuppliersHandler } from "./handlers/products/get_suppliers";
 import { listProductsHandler } from "./handlers/products/list_products";
+import { statsProductHandler } from "./handlers/products/stats_product";
 import { statsProductsHandler } from "./handlers/products/stats_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_invoice_file";
@@ -105,6 +106,7 @@ export const router = os.router({
     create: createProductHandler,
     delete: deleteProductHandler,
     get: getProductHandler,
+    statsProduct: statsProductHandler,
     getSuppliers: getSuppliersHandler,
     list: listProductsHandler,
     stats: statsProductsHandler,
