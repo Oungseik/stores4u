@@ -15,7 +15,6 @@
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import MovementTypeCell from "$lib/components/tables/inventory-movements/cells/MovementTypeCell.svelte";
@@ -26,7 +25,7 @@
   } from "$lib/components/tables/inventory-movements/columns";
   import { orpc } from "$lib/orpc_client";
   import { type InventoryMovementsView, inventoryMovementsFilterSchema } from "$lib/search_param";
-  import { formatDate } from "$lib/utils";
+  import { formatDate, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -233,12 +232,12 @@
                   {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
                     {#if movement.unitPriceCents !== null}
                       <p class="text-muted-foreground text-xs">
-                        <Pricing cents={movement.unitPriceCents} country={shop.country} />
+                        {formatPrice(movement.unitPriceCents, shop.country)}
                       </p>
                     {/if}
                   {:else if movement.unitCostCents !== null}
                     <p class="text-muted-foreground text-xs">
-                      <Pricing cents={movement.unitCostCents} country={shop.country} />
+                      {formatPrice(movement.unitCostCents, shop.country)}
                     </p>
                   {/if}
                 </div>

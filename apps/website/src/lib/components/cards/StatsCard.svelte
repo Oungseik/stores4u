@@ -3,7 +3,7 @@
   import * as Card from "@repo/ui/card";
   import type { Component, Snippet } from "svelte";
 
-  import Pricing from "$lib/components/Pricing.svelte";
+  import { formatPrice } from "$lib/utils";
 
   interface Props {
     title: string;
@@ -47,7 +47,7 @@
   <Card.Content>
     <div class={priceClass}>
       {#if price !== undefined}
-        <Pricing cents={price} {country} {priceClass} />
+        {formatPrice(price, country)}
       {:else}
         {value}
       {/if}

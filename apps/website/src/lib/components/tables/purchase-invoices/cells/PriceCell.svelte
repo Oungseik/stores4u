@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CountryCode } from "@repo/config";
 
-  import Pricing from "$lib/components/Pricing.svelte";
+  import { formatPrice } from "$lib/utils";
 
   type Props = {
     cents: number;
@@ -12,5 +12,5 @@
 </script>
 
 <span class="font-medium">
-  <Pricing {cents} {country} />
+  {formatPrice(cents, country)}
 </span>

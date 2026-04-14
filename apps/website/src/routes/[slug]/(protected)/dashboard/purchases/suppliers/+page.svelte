@@ -18,12 +18,11 @@
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { suppliersFilterSchema } from "$lib/search_param";
-  import { formatDate } from "$lib/utils";
+  import { formatDate, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -215,9 +214,9 @@
               <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
                 <div>
                   <p class="text-muted-foreground text-xs">Total Purchases</p>
-                  <p class="font-semibold">
-                    <Pricing cents={supplier.totalPurchases} country={shop.country} />
-                  </p>
+                    <p class="font-semibold">
+                      {formatPrice(supplier.totalPurchases, shop.country)}
+                    </p>
                 </div>
                 <div class="text-right">
                   <p class="text-muted-foreground text-xs">Invoices</p>

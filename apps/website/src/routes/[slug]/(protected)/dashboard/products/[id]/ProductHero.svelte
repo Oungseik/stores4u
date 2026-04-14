@@ -3,9 +3,8 @@
   import { type CountryCode } from "@repo/config";
   import { Badge } from "@repo/ui/badge";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import ProductImageGallery from "$lib/components/ProductImageGallery.svelte";
-  import { formatDate } from "$lib/utils";
+  import { formatDate, formatPrice } from "$lib/utils";
 
   interface Props {
     product: {
@@ -67,7 +66,7 @@
 
     <div class="flex flex-wrap items-center gap-4">
       <span class="text-3xl font-bold">
-        <Pricing cents={product.priceCents} priceClass="text-3xl font-bold" {country} />
+        {formatPrice(product.priceCents, country)}
       </span>
       {#if isOutOfStock}
         <Badge variant="destructive" class="text-sm">Out of Stock</Badge>
@@ -103,7 +102,7 @@
         <div>
           <p class="text-muted-foreground">Price</p>
           <p class="font-medium">
-            <Pricing cents={product.priceCents} {country} />
+            {formatPrice(product.priceCents, country)}
           </p>
         </div>
         <div>

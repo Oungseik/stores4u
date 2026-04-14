@@ -16,12 +16,11 @@
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { ordersFilterSchema } from "$lib/search_param";
-  import { formatDate } from "$lib/utils";
+  import { formatDate, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -243,7 +242,7 @@
 
                   <div class="shrink-0 text-right">
                     <p class="text-sm font-semibold">
-                      <Pricing cents={order.totalCents} country={shop.country} />
+                      {formatPrice(order.totalCents, shop.country)}
                     </p>
                     <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
                   </div>
@@ -291,7 +290,7 @@
         </Dialog.Description>
       </Dialog.Header>
 
-      <div class="h-[66vh] overflow-hidden">
+      <div class="max-h-[66vh] overflow-hidden">
         <ScrollArea class="h-full pr-2.5">
           <div class="grid gap-6 py-4">
             <div>
@@ -333,7 +332,7 @@
                     </div>
                     <div class="text-right">
                       <p class="text-muted-foreground text-xs">x {item.qty}</p>
-                      <Pricing cents={item.lineTotalCents} country={shop.country} />
+                      {formatPrice(item.lineTotalCents, shop.country)}
                     </div>
                   </div>
                 {/each}
@@ -347,19 +346,19 @@
               <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Subtotal</span>
-                  <Pricing cents={order.subtotalCents} country={shop.country} />
+                  {formatPrice(order.subtotalCents, shop.country)}
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Discount</span>
-                  <Pricing cents={order.discountCents} country={shop.country} />
+                  {formatPrice(order.discountCents, shop.country)}
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Shipping (Local pickup)</span>
-                  <Pricing cents={0} country={shop.country} />
+                  {formatPrice(0, shop.country)}
                 </div>
                 <div class="flex justify-between border-t pt-2 font-semibold">
                   <span>Total</span>
-                  <Pricing cents={order.totalCents} country={shop.country} />
+                  {formatPrice(order.totalCents, shop.country)}
                 </div>
                 <div class="flex justify-between text-xs">
                   <span class="text-muted-foreground">Payment Status</span>

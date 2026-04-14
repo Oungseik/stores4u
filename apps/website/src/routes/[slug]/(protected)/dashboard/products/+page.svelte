@@ -30,7 +30,6 @@
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
-  import Pricing from "$lib/components/Pricing.svelte";
   import StockAdjustmentDialog from "$lib/components/StockAdjustmentDialog.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -38,6 +37,7 @@
   import { createColumns } from "$lib/components/tables/products/columns";
   import { orpc } from "$lib/orpc_client";
   import { type ProductsView, productsFilterSchema } from "$lib/search_param";
+  import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -329,11 +329,9 @@
                   </div>
 
                   <div class="shrink-0">
-                    <Pricing
-                      cents={product.priceCents}
-                      country={shop.country}
-                      priceClass="text-sm font-semibold"
-                    />
+                    <span class="text-sm font-semibold">
+                       {formatPrice(product.priceCents, shop.country)}
+                    </span>
                     <div class="flex items-center justify-end gap-1.5">
                       <p class="text-muted-foreground text-xs">{product.stock} left</p>
                     </div>

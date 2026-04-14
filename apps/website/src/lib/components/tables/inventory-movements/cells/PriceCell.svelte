@@ -2,7 +2,7 @@
   import type { CountryCode } from "@repo/config";
   import type { MovementType } from "@repo/db";
 
-  import Pricing from "$lib/components/Pricing.svelte";
+  import { formatPrice } from "$lib/utils";
 
   type Props = {
     movementType: MovementType;
@@ -20,6 +20,6 @@
 
 {#if cents !== null}
   <span class="font-medium">
-    <Pricing {cents} {country} />
+    {formatPrice(cents, country)}
   </span>
 {/if}

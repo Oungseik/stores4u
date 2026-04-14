@@ -19,7 +19,6 @@
   import { Area, AreaChart, ChartClipPath } from "layerchart";
   import { cubicInOut } from "svelte/easing";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { formatPrice } from "$lib/utils";
@@ -125,7 +124,7 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                <Pricing cents={statsQuery.data.revenue.today.totalCents} country={shop.country} />
+                {formatPrice(statsQuery.data.revenue.today.totalCents, shop.country)}
               </div>
               <p class="text-muted-foreground text-xs">
                 {formatNumber(statsQuery.data.revenue.today.count)} orders
@@ -144,10 +143,7 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                <Pricing
-                  cents={statsQuery.data.revenue.thisMonth.totalCents}
-                  country={shop.country}
-                />
+                {formatPrice(statsQuery.data.revenue.thisMonth.totalCents, shop.country)}
               </div>
               <div class="text-muted-foreground flex items-center gap-1 text-xs">
                 {#if statsQuery.data.revenue.vsLastWeek >= 0}
@@ -173,13 +169,10 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                <Pricing cents={statsQuery.data.grossProfit.todayCents} country={shop.country} />
+                {formatPrice(statsQuery.data.grossProfit.todayCents, shop.country)}
               </div>
               <p class="text-muted-foreground text-xs">
-                Month: <Pricing
-                  cents={statsQuery.data.grossProfit.thisMonthCents}
-                  country={shop.country}
-                />
+                Month: {formatPrice(statsQuery.data.grossProfit.thisMonthCents, shop.country)}
               </p>
             </Card.Content>
           </Card.Root>
@@ -195,10 +188,7 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                <Pricing
-                  cents={statsQuery.data.products.inventoryValueRetailCents}
-                  country={shop.country}
-                />
+                {formatPrice(statsQuery.data.products.inventoryValueRetailCents, shop.country)}
               </div>
               <p class="text-muted-foreground text-xs">
                 {statsQuery.data.products.total} products

@@ -4,7 +4,7 @@
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { Skeleton } from "@repo/ui/skeleton";
 
-  import Pricing from "$lib/components/Pricing.svelte";
+  import { formatPrice } from "$lib/utils";
 
   interface Product {
     id: string;
@@ -75,11 +75,9 @@
                   {product.sku || product.barcode || "No sku or barcode"}
                 </p>
               </div>
-              <Pricing
-                cents={product.priceCents}
-                country={(country as "MM" | "TH" | "US") ?? null}
-                priceClass="text-sm font-semibold"
-              />
+              <span class="text-sm font-semibold">
+                {formatPrice(product.priceCents, country as "MM" | "TH" | "US")}
+              </span>
             </Command.Item>
           {/each}
         </Command.Group>

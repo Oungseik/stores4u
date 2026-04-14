@@ -19,7 +19,6 @@
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
-  import Pricing from "$lib/components/Pricing.svelte";
   import ProductResults from "$lib/components/ProductResults.svelte";
   import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
   import { orpc } from "$lib/orpc_client";
@@ -275,11 +274,9 @@
                     <p class="text-foreground truncate text-sm leading-tight font-medium">
                       {item.name}
                     </p>
-                    <Pricing
-                      cents={item.priceCents * item.quantity}
-                      country={shop.country}
-                      priceClass="text-xs tabular-nums text-muted-foreground"
-                    />
+                    <span class="text-xs tabular-nums text-muted-foreground">
+                       {formatPrice(item.priceCents * item.quantity, shop.country)}
+                    </span>
                   </div>
 
                   <!-- Quantity Controls -->
@@ -339,7 +336,7 @@
           </div>
           <div>
             <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <Pricing cents={totalCents} country={shop.country} priceClass="text-lg font-bold" />
+            <span class="text-lg font-bold">{formatPrice(totalCents, shop.country)}</span>
           </div>
         </div>
       </div>
