@@ -182,6 +182,20 @@ export const submitInvoiceReviewHandler = os
           await tx.insert(productAlias).values(aliasesToCreate).onConflictDoNothing();
         }
 
+        const supplierProductIds = new Set(input.items.map((item) => item.productId));
+        if (supplierProductIds.size > 0) {
+          await tx
+            .insert(productSupplier)
+            .values(
+              [...supplierProductIds].map((productId) => ({
+                productId,
+                supplierId: input.supplierId,
+                createdAt: now,
+              })),
+            )
+            .onConflictDoNothing();
+        }
+
         await tx.insert(inventoryMovement).values(
           input.items.map((item, index) => ({
             productId: item.productId,
