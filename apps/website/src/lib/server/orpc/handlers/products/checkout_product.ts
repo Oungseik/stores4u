@@ -150,7 +150,7 @@ export const checkoutHandler = os
           .filter(([id, requested]) => getProduct(id).stock < requested)
           .map(([id, requested]) => {
             const p = getProduct(id);
-            return `"${p.name}" (available: ${getProduct(id)}, requested: ${requested})`;
+            return `"${p.name}" (available: ${getProduct(id).stock}, requested: ${requested})`;
           });
 
         throw new ORPCError("BAD_REQUEST", {
