@@ -127,7 +127,7 @@
 
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
-                tooltipContent="Back to Admin"
+                tooltipContent="Back to dashboard"
                 isActive={isActive(`/${shop.slug}/dashboard`)}
               >
                 {#snippet child({ props })}
@@ -137,7 +137,7 @@
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
                     <ArrowLeftIcon class="size-4" />
-                    <span>Back to Admin</span>
+                    <span>Back to dashboard</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>
