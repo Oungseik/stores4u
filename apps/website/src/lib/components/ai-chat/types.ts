@@ -1,44 +1,66 @@
-import type { Chat } from "@ai-sdk/svelte";
+import type { UIMessage } from "@ai-sdk/svelte";
 import type { Snippet } from "svelte";
-import type { HTMLAttributes, HTMLButtonAttributes, HTMLTextareaAttributes } from "svelte/elements";
+import type { HTMLTextareaAttributes } from "svelte/elements";
+
+export type InitialMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt?: Date;
+};
 
 export type AiChatRootProps = {
   api: string;
+  chatId?: string;
+  initialMessages?: InitialMessage[];
+  onSend?: (input: { text: string; messageCount: number }) => Promise<string | void> | void;
+  onFinish?: (input: { message: UIMessage }) => Promise<void> | void;
   onToolResult?: (toolName: string, output: unknown) => void;
   children: Snippet;
 };
 
-export type AiChatPanelProps = {
-  ref?: HTMLDivElement | null;
-  class?: string;
-  children: Snippet;
-};
-
-export type AiChatHeaderProps = {
-  title?: string;
-  subtitle?: string;
-  class?: string;
-};
-
 export type AiChatMessagesProps = {
-  ref?: HTMLDivElement | null;
   class?: string;
   empty?: Snippet;
   userMessage?: Snippet<[{ text: string }]>;
   assistantMessage?: Snippet<[{ textParts: string[]; toolParts: unknown[] }]>;
   generating?: Snippet;
-  toolResult?: Snippet;
 };
 
 export type AiChatInputProps = {
-  ref?: HTMLTextAreaElement | null;
   placeholder?: string;
   class?: string;
   children?: Snippet;
 } & Omit<HTMLTextareaAttributes, "class" | "children" | "value" | "placeholder">;
 
-export type AiChatToggleProps = {
+export type AiChatSendButtonProps = {
   class?: string;
+  children?: Snippet;
+};
+
+export type AiChatFooterProps = {
+  text?: string;
+  class?: string;
+};
+
+export type AiChatFloatingContainerProps = {
+  class?: string;
+  children: Snippet;
+};
+
+export type AiChatFloatingHeaderProps = {
+  title?: string;
+  subtitle?: string;
+  class?: string;
+};
+
+export type AiChatFloatingToggleProps = {
+  class?: string;
+};
+
+export type AiChatFullPageContainerProps = {
+  class?: string;
+  children: Snippet;
 };
 
 export type AiChatWidgetProps = {

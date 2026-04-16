@@ -8,22 +8,23 @@
   import type { AiChatMessagesProps } from "./types.js";
 
   let {
-    ref = $bindable(null),
     class: className,
     empty,
     userMessage,
     assistantMessage,
     generating,
-    toolResult,
   }: AiChatMessagesProps = $props();
 
   const ctx = useAiChatChild();
 
   $effect(() => {
-    ctx.chat.messages;
-    ctx.chat.status;
+    ctx.chat?.messages;
+    ctx.chat?.status;
 
-    const msgs = ctx.chat.messages;
+    const chat = ctx.chat;
+    if (!chat) return;
+
+    const msgs = chat.messages;
     const last = msgs.length > 0 ? msgs[msgs.length - 1] : undefined;
     if (last?.role === "assistant") {
       for (const part of last.parts) {
@@ -48,7 +49,7 @@
 {/snippet}
 
 <div bind:this={ctx.messagesContainer} class={["flex-1 overflow-y-auto px-4 py-3", className]}>
-  {#if ctx.chat.messages.length === 0}
+  {#if !ctx.chat || ctx.chat.messages.length === 0}
     {#if empty}
       {@render empty()}
     {:else}
@@ -107,23 +108,19 @@
         {:else}
           {@render DefaultGenerating()}
         {/if}
-        {#each completedToolParts as _part}
-          {#if toolResult}
-            {@render toolResult()}
-          {:else}
-            <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
-              <svg
-                class="size-3.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-              <span class="text-xs">Done!</span>
-            </div>
-          {/if}
+        {#each completedToolParts}
+          <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
+            <svg
+              class="size-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            <span class="text-xs">Done!</span>
+          </div>
         {/each}
       {/if}
     {/each}

@@ -3,20 +3,20 @@
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
 
-  import { useAiChatChild } from "./ai-chat.svelte.js";
-  import type { AiChatToggleProps } from "./types.js";
+  import type { AiChatFloatingToggleProps } from "../types.js";
+  import { useFloatingChild } from "./floating.svelte.js";
 
-  let { class: className }: AiChatToggleProps = $props();
+  let { class: className }: AiChatFloatingToggleProps = $props();
 
-  const ctx = useAiChatChild();
+  const floating = useFloatingChild();
 </script>
 
 <Button
-  onclick={() => ctx.toggleChat()}
+  onclick={() => floating.toggle()}
   size="icon-xs"
   class={["bg-primary hover:bg-primary/90 ml-auto size-12 rounded-full shadow-lg", className]}
 >
-  {#if ctx.isOpen}
+  {#if floating.isOpen}
     <XIcon class="size-5" />
   {:else}
     <MessageCircleIcon class="size-5" />

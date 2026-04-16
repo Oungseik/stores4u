@@ -1,22 +1,20 @@
 <script lang="ts">
-  import { Chat, type UIMessage } from "@ai-sdk/svelte";
+  import type { UIMessage } from "@ai-sdk/svelte";
   import BotIcon from "@lucide/svelte/icons/bot";
   import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
-  import SendIcon from "@lucide/svelte/icons/send";
   import * as Avatar from "@repo/ui/avatar";
   import { Button } from "@repo/ui/button";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
   import { Spinner } from "@repo/ui/spinner";
-  import { Textarea } from "@repo/ui/textarea";
   import { ThinkingDots } from "@repo/ui/thinking-dots";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, isTextUIPart } from "ai";
-  import { onMount, tick } from "svelte";
+  import { isTextUIPart } from "ai";
+  import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
 
   import { page } from "$app/state";
+  import * as AiChat from "$lib/components/ai-chat";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -26,14 +24,9 @@
   const queryClient = useQueryClient();
 
   let currentChatId = $state<string | null>(null);
-  let chat = $state<Chat<UIMessage> | null>(null);
-  let inputValue = $state("");
-  let scrollAreaRef: HTMLElement | null = $state(null);
-  let messagesEndRef: HTMLDivElement | null = $state(null);
-  let textareaRef: HTMLTextAreaElement | null = $state(null);
+  let chatMessages = $state<AiChat.InitialMessage[]>([]);
   let hasInitialized = $state(false);
   let isLoadingChat = $state(false);
-  let isUserAtBottom = $state(true);
 
   const chatsQuery = createQuery(() =>
     orpc.chats.list.queryOptions({ input: { slug: data.slug } })
@@ -47,8 +40,6 @@
 
   const updateChatMut = createMutation(() => orpc.chats.update.mutationOptions());
 
-  const isChatBusy = $derived(chat?.status === "submitted" || chat?.status === "streaming");
-
   const chatItems = $derived(chatsQuery.data?.items ?? []);
 
   function invalidateChatsList() {
@@ -57,87 +48,16 @@
     });
   }
 
-  function scrollToBottom(behavior: ScrollBehavior = "smooth") {
-    tick().then(() => {
-      messagesEndRef?.scrollIntoView({ behavior });
-    });
-  }
-
-  function getScrollViewport(): HTMLElement | null {
-    if (!scrollAreaRef) return null;
-    const viewport = scrollAreaRef.querySelector('[data-slot="scroll-area-viewport"]');
-    return viewport instanceof HTMLElement ? viewport : null;
-  }
-
-  function handleViewportScroll() {
-    const viewport = getScrollViewport();
-    if (!viewport) return;
-    isUserAtBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 100;
-  }
-
-  function adjustTextareaHeight() {
-    if (textareaRef) {
-      textareaRef.style.height = "auto";
-      textareaRef.style.height = `${Math.min(textareaRef.scrollHeight, 200)}px`;
-    }
-  }
-
-  function createChatInstance(
-    chatId: string,
-    initialMessages: Array<{
-      id: string;
-      role: "user" | "assistant";
-      content: string;
-      createdAt?: Date;
-    }>
-  ): Chat<UIMessage> {
-    const messages: UIMessage[] = initialMessages.map((m) => ({
-      id: m.id,
-      role: m.role,
-      parts: [{ type: "text" as const, text: m.content }],
-    }));
-
-    return new Chat({
-      id: chatId,
-      messages,
-      transport: new DefaultChatTransport({
-        api: `/api/ai/${data.slug}/shop-assistant`,
-      }),
-      onFinish: async ({ message }) => {
-        const text = message.parts
-          .filter(isTextUIPart)
-          .map((p) => p.text)
-          .join("");
-        if (text) {
-          try {
-            await saveMessageMut.mutateAsync({
-              slug: data.slug,
-              chatId,
-              role: "assistant",
-              content: text,
-            });
-            invalidateChatsList();
-          } catch (e) {
-            console.error("Failed to save assistant message:", e);
-            toast.error("Failed to save assistant message");
-          }
-        }
-      },
-    });
-  }
-
   async function selectChat(chatId: string) {
     currentChatId = chatId;
     isLoadingChat = true;
-    isUserAtBottom = true;
-    chat = null;
+    chatMessages = [];
     try {
       const chatData = await queryClient.fetchQuery(
         orpc.chats.get.queryOptions({ input: { slug: data.slug, chatId } })
       );
       if (chatData) {
-        chat = createChatInstance(chatId, chatData.messages);
-        scrollToBottom("instant");
+        chatMessages = chatData.messages;
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
@@ -148,13 +68,13 @@
   }
 
   async function createNewChat() {
-    if (chat && chat.messages.length === 0 && currentChatId) {
+    if (chatMessages.length === 0 && currentChatId) {
       return currentChatId;
     }
     try {
       const newChat = await createChatMut.mutateAsync({ slug: data.slug });
       currentChatId = newChat.id;
-      chat = createChatInstance(newChat.id, []);
+      chatMessages = [];
       invalidateChatsList();
       return newChat.id;
     } catch (e) {
@@ -162,53 +82,6 @@
       toast.error("Failed to create chat");
       return undefined;
     }
-  }
-
-  async function handleSend() {
-    const content = inputValue.trim();
-    if (!content) return;
-    if (chat?.status === "submitted" || chat?.status === "streaming") return;
-
-    let chatId = currentChatId;
-
-    if (!chatId) {
-      try {
-        const newChat = await createChatMut.mutateAsync({ slug: data.slug });
-        chatId = newChat.id;
-        currentChatId = chatId;
-        chat = createChatInstance(chatId, []);
-      } catch (e) {
-        console.error("Failed to create chat:", e);
-        toast.error("Failed to create chat");
-        return;
-      }
-    }
-
-    if (chat && chat.messages.length === 0) {
-      const title = content.length > 50 ? content.slice(0, 50) + "..." : content;
-      updateChatMut.mutate({ slug: data.slug, chatId, title });
-    }
-
-    const chatIdCopy = chatId;
-    saveMessageMut
-      .mutateAsync({
-        slug: data.slug,
-        chatId: chatIdCopy,
-        role: "user",
-        content,
-      })
-      .catch((e) => {
-        console.error("Failed to save message:", e);
-        toast.error("Failed to save message");
-      });
-
-    chat?.sendMessage({ text: content });
-    inputValue = "";
-    isUserAtBottom = true;
-    await tick();
-    adjustTextareaHeight();
-    scrollToBottom();
-    invalidateChatsList();
   }
 
   async function handleDeleteChat(chatId: string) {
@@ -225,37 +98,69 @@
         await selectChat(remaining[0].id);
       } else {
         currentChatId = null;
-        chat = null;
+        chatMessages = [];
       }
     }
     invalidateChatsList();
   }
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleSend();
+  async function handleOnSend({ text, messageCount }: { text: string; messageCount: number }) {
+    let chatId = currentChatId;
+
+    if (!chatId) {
+      try {
+        const newChat = await createChatMut.mutateAsync({ slug: data.slug });
+        chatId = newChat.id;
+        currentChatId = chatId;
+      } catch (e) {
+        console.error("Failed to create chat:", e);
+        toast.error("Failed to create chat");
+        return;
+      }
+    }
+
+    if (messageCount === 0) {
+      const title = text.length > 50 ? text.slice(0, 50) + "..." : text;
+      updateChatMut.mutate({ slug: data.slug, chatId, title });
+    }
+
+    saveMessageMut
+      .mutateAsync({
+        slug: data.slug,
+        chatId,
+        role: "user",
+        content: text,
+      })
+      .catch((e) => {
+        console.error("Failed to save message:", e);
+        toast.error("Failed to save message");
+      });
+
+    invalidateChatsList();
+    return chatId;
+  }
+
+  async function handleOnFinish({ message }: { message: UIMessage }) {
+    if (!currentChatId) return;
+    const text = message.parts
+      .filter(isTextUIPart)
+      .map((p) => p.text)
+      .join("");
+    if (text) {
+      try {
+        await saveMessageMut.mutateAsync({
+          slug: data.slug,
+          chatId: currentChatId,
+          role: "assistant",
+          content: text,
+        });
+        invalidateChatsList();
+      } catch (e) {
+        console.error("Failed to save assistant message:", e);
+        toast.error("Failed to save assistant message");
+      }
     }
   }
-
-  function handleInput() {
-    adjustTextareaHeight();
-  }
-
-  $effect.pre(() => {
-    chat?.messages;
-    chat?.status;
-    if (isUserAtBottom) scrollToBottom();
-  });
-
-  $effect(() => {
-    const viewport = getScrollViewport();
-    if (!viewport) return;
-    viewport.addEventListener("scroll", handleViewportScroll, { passive: true });
-    return () => {
-      viewport.removeEventListener("scroll", handleViewportScroll);
-    };
-  });
 
   onMount(() => {
     if (chatItems.length > 0 && !currentChatId && !hasInitialized) {
@@ -319,118 +224,91 @@
           <div class="flex h-full items-center justify-center">
             <Spinner class="text-muted-foreground size-8" />
           </div>
-        {:else if !chat || chat.messages.length === 0}
-          <div class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
-            <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-              <BotIcon class="text-primary size-6" />
-            </div>
-            <div class="flex max-w-md flex-col gap-2">
-              <h2 class="text-lg font-semibold">How can I help you today?</h2>
-              <p class="text-muted-foreground text-sm">
-                I can help you manage your inventory, analyze sales data, create reports, and answer
-                questions about your shop.
-              </p>
-            </div>
-          </div>
         {:else}
-          <ScrollArea bind:ref={scrollAreaRef} class="h-full px-4 py-4">
-            <div class="mx-auto flex max-w-3xl flex-col gap-6">
-              {#each chat.messages as message (message.id)}
-                <div class="flex gap-3">
-                  {#if message.role === "assistant"}
-                    <Avatar.Root class="size-8 shrink-0">
-                      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
-                        AI
-                      </Avatar.Fallback>
-                    </Avatar.Root>
-                  {:else}
-                    <Avatar.Root class="size-8 shrink-0">
-                      <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
-                      <Avatar.Fallback>
-                        {data.user.name.charAt(0).toUpperCase()}
-                      </Avatar.Fallback>
-                    </Avatar.Root>
-                  {/if}
-                  <div class="flex min-w-0 flex-1 flex-col gap-1">
-                    <div class="flex items-center gap-2">
-                      <span class="text-sm font-medium">
-                        {message.role === "assistant" ? "Assistant" : data.user.name}
-                      </span>
-                    </div>
-                    {#if message.role === "assistant"}
-                      {@const textParts = message.parts.filter(
-                        (p): p is typeof p & { type: "text"; text: string } =>
-                          isTextUIPart(p) && p.text.trim().length > 0
-                      )}
-                      {#if textParts.length > 0}
-                        <div class="prose prose-sm dark:prose-invert max-w-none">
-                          {#each textParts as part}
-                            <p class="whitespace-pre-wrap">{part.text}</p>
-                          {/each}
-                        </div>
-                      {:else}
-                        <ThinkingDots class="text-sm" />
-                      {/if}
-                    {:else}
-                      <div class="prose prose-sm dark:prose-invert max-w-none">
-                        {#each message.parts as part}
-                          {#if isTextUIPart(part)}
-                            <p class="whitespace-pre-wrap">{part.text}</p>
-                          {/if}
-                        {/each}
-                      </div>
-                    {/if}
-                  </div>
-                </div>
-              {/each}
-              {#if chat.status === "submitted"}
-                <div class="flex gap-3">
-                  <Avatar.Root class="size-8 shrink-0">
-                    <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
-                      AI
-                    </Avatar.Fallback>
-                  </Avatar.Root>
-                  <div class="flex min-w-0 flex-1 flex-col gap-1">
-                    <div class="flex items-center gap-2">
-                      <span class="text-sm font-medium">Assistant</span>
-                    </div>
-                    <ThinkingDots class="text-sm" />
-                  </div>
-                </div>
-              {/if}
-              <div bind:this={messagesEndRef}></div>
-            </div>
-          </ScrollArea>
-        {/if}
-      </div>
-
-      <div class="border-t p-4">
-        <div class="mx-auto max-w-3xl">
-          <div class="bg-background relative flex items-end gap-2 rounded-lg border p-2">
-            <Textarea
-              bind:value={inputValue}
-              bind:ref={textareaRef}
-              placeholder="Type a message... (Shift + Enter for new line)"
-              class="min-h-[44px] resize-none border-0 bg-transparent py-3 [scrollbar-width:none] focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
-              rows={1}
-              onkeydown={handleKeydown}
-              oninput={handleInput}
-            />
-            <Button
-              size="icon"
-              class="shrink-0"
-              disabled={!inputValue.trim() || isChatBusy || isLoadingChat}
-              onclick={handleSend}
+          {#key currentChatId}
+            <AiChat.Root
+              chatId={currentChatId ?? undefined}
+              api={`/api/ai/${data.slug}/shop-assistant`}
+              initialMessages={chatMessages}
+              onSend={handleOnSend}
+              onFinish={handleOnFinish}
             >
-              <SendIcon class="size-4" />
-              <span class="sr-only">Send message</span>
-            </Button>
-          </div>
-          <p class="text-muted-foreground mt-2 text-center text-xs">
-            AI can make mistakes. Please verify important information.
-          </p>
-        </div>
+              <AiChat.FullPageContainer>
+                <AiChat.Messages
+                  empty={welcomeSnippet}
+                  userMessage={userMessageSnippet}
+                  assistantMessage={assistantMessageSnippet}
+                  generating={generatingSnippet}
+                />
+                <AiChat.Input placeholder="Type a message...">
+                  <AiChat.SendButton />
+                </AiChat.Input>
+                <AiChat.Footer />
+              </AiChat.FullPageContainer>
+            </AiChat.Root>
+          {/key}
+        {/if}
       </div>
     </div>
   </Sidebar.Inset>
 </Sidebar.Provider>
+
+{#snippet welcomeSnippet()}
+  <div class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
+    <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+      <BotIcon class="text-primary size-6" />
+    </div>
+    <div class="flex max-w-md flex-col gap-2">
+      <h2 class="text-lg font-semibold">How can I help you today?</h2>
+      <p class="text-muted-foreground text-sm">
+        I can help you manage your inventory, analyze sales data, create reports, and answer
+        questions about your shop.
+      </p>
+    </div>
+  </div>
+{/snippet}
+
+{#snippet userMessageSnippet({ text }: { text: string })}
+  <div class="mb-4 flex gap-3">
+    <Avatar.Root class="size-8 shrink-0">
+      <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
+      <Avatar.Fallback>
+        {data.user.name.charAt(0).toUpperCase()}
+      </Avatar.Fallback>
+    </Avatar.Root>
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <span class="text-sm font-medium">{data.user.name}</span>
+      <div class="prose prose-sm dark:prose-invert max-w-none">
+        <p class="whitespace-pre-wrap">{text}</p>
+      </div>
+    </div>
+  </div>
+{/snippet}
+
+{#snippet assistantMessageSnippet({ textParts }: { textParts: string[]; toolParts: unknown[] })}
+  <div class="mb-4 flex gap-3">
+    <Avatar.Root class="size-8 shrink-0">
+      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">AI</Avatar.Fallback>
+    </Avatar.Root>
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <span class="text-sm font-medium">Assistant</span>
+      <div class="prose prose-sm dark:prose-invert max-w-none">
+        {#each textParts as partText}
+          <p class="whitespace-pre-wrap">{partText}</p>
+        {/each}
+      </div>
+    </div>
+  </div>
+{/snippet}
+
+{#snippet generatingSnippet()}
+  <div class="mb-4 flex gap-3">
+    <Avatar.Root class="size-8 shrink-0">
+      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">AI</Avatar.Fallback>
+    </Avatar.Root>
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <span class="text-sm font-medium">Assistant</span>
+      <ThinkingDots class="text-sm" />
+    </div>
+  </div>
+{/snippet}

@@ -1,26 +1,47 @@
 import Root from "./ai-chat.svelte";
-import Header from "./ai-chat-header.svelte";
+import Footer from "./ai-chat-footer.svelte";
 import Input from "./ai-chat-input.svelte";
 import Messages from "./ai-chat-messages.svelte";
-import Panel from "./ai-chat-panel.svelte";
-import Toggle from "./ai-chat-toggle.svelte";
+import SendButton from "./ai-chat-send-button.svelte";
+import FloatingContainer from "./floating/ai-chat-floating-container.svelte";
+import FloatingHeader from "./floating/ai-chat-floating-header.svelte";
+import FloatingToggle from "./floating/ai-chat-floating-toggle.svelte";
+import FullPageContainer from "./fullpage/ai-chat-fullpage-container.svelte";
 import Widget from "./ai-chat-widget.svelte";
 
-export type { AiChatWidgetProps } from "./types.js";
+export type {
+  AiChatWidgetProps,
+  AiChatRootProps,
+  AiChatMessagesProps,
+  AiChatInputProps,
+  AiChatSendButtonProps,
+  AiChatFooterProps,
+  AiChatFloatingContainerProps,
+  AiChatFloatingHeaderProps,
+  AiChatFloatingToggleProps,
+  AiChatFullPageContainerProps,
+  InitialMessage,
+} from "./types.js";
 
 export {
-  Header,
-  Header as AiChatHeader,
+  Root,
+  Root as AiChat,
+  Footer,
+  Footer as AiChatFooter,
   Input,
   Input as AiChatInput,
   Messages,
   Messages as AiChatMessages,
-  Panel,
-  Panel as AiChatPanel,
-  Root,
-  Root as AiChat,
-  Toggle,
-  Toggle as AiChatToggle,
+  SendButton,
+  SendButton as AiChatSendButton,
+  FloatingContainer,
+  FloatingContainer as AiChatFloatingContainer,
+  FloatingHeader,
+  FloatingHeader as AiChatFloatingHeader,
+  FloatingToggle,
+  FloatingToggle as AiChatFloatingToggle,
+  FullPageContainer,
+  FullPageContainer as AiChatFullPageContainer,
   Widget,
   Widget as AiChatWidget,
 };

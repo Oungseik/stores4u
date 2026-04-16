@@ -3,16 +3,13 @@
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
 
-  import { useAiChatChild } from "./ai-chat.svelte.js";
-  import type { AiChatHeaderProps } from "./types.js";
+  import { useFloatingChild } from "./floating.svelte.js";
+  import type { AiChatFloatingHeaderProps } from "../types.js";
 
-  let {
-    title = "AI Assistant",
-    subtitle = "How can I help?",
-    class: className,
-  }: AiChatHeaderProps = $props();
+  let { title = "AI Assistant", subtitle = "How can I help?", class: className }:
+    AiChatFloatingHeaderProps = $props();
 
-  const ctx = useAiChatChild();
+  const floating = useFloatingChild();
 </script>
 
 <div class={["flex items-center justify-between border-b px-4 py-3", className]}>
@@ -25,7 +22,7 @@
       <p class="text-muted-foreground text-xs">{subtitle}</p>
     </div>
   </div>
-  <Button variant="ghost" size="icon" class="size-8" onclick={() => ctx.toggleChat()}>
+  <Button variant="ghost" size="icon" class="size-8" onclick={() => floating.close()}>
     <XIcon class="size-4" />
   </Button>
 </div>
