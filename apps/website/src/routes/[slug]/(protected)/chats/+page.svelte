@@ -4,7 +4,9 @@
   import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
   import * as Avatar from "@repo/ui/avatar";
   import { Button } from "@repo/ui/button";
+  import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
+  import { Input } from "@repo/ui/input";
   import * as Sidebar from "@repo/ui/sidebar";
   import { Spinner } from "@repo/ui/spinner";
   import { ThinkingDots } from "@repo/ui/thinking-dots";
@@ -28,6 +30,8 @@
   let chatMessages = $state<AiChat.InitialMessage[]>([]);
   let hasInitialized = $state(false);
   let isLoadingChat = $state(false);
+  let isRenameDialogOpen = $state(false);
+  let renameTitle = $state("");
 
   const chatsQuery = createQuery(() =>
     orpc.chats.list.queryOptions({ input: { slug: data.slug } })
@@ -103,6 +107,28 @@
       }
     }
     invalidateChatsList();
+  }
+
+  function openRenameDialog() {
+    const currentTitle = chatItems.find((c) => c.id === currentChatId)?.title ?? "";
+    renameTitle = currentTitle;
+    isRenameDialogOpen = true;
+  }
+
+  async function handleRenameChat() {
+    if (!currentChatId || !renameTitle.trim()) return;
+    try {
+      await updateChatMut.mutateAsync({
+        slug: data.slug,
+        chatId: currentChatId,
+        title: renameTitle.trim(),
+      });
+      invalidateChatsList();
+      isRenameDialogOpen = false;
+    } catch (e) {
+      console.error("Failed to rename chat:", e);
+      toast.error("Failed to rename chat");
+    }
   }
 
   async function handleOnSend({ text, messageCount }: { text: string; messageCount: number }) {
@@ -209,6 +235,7 @@
                 {/snippet}
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end">
+                <DropdownMenu.Item onclick={openRenameDialog}>Rename Chat</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={() => currentChatId && handleDeleteChat(currentChatId)}>
                   Delete Chat
                 </DropdownMenu.Item>
@@ -253,6 +280,33 @@
     </div>
   </Sidebar.Inset>
 </Sidebar.Provider>
+
+<Dialog.Root bind:open={isRenameDialogOpen}>
+  <Dialog.Content class="max-w-md">
+    <Dialog.Header>
+      <Dialog.Title>Rename Chat</Dialog.Title>
+      <Dialog.Description>Enter a new name for this chat.</Dialog.Description>
+    </Dialog.Header>
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleRenameChat();
+      }}
+    >
+      <div class="py-4">
+        <Input bind:value={renameTitle} placeholder="Chat title" autofocus />
+      </div>
+      <Dialog.Footer>
+        <Button type="button" variant="outline" onclick={() => (isRenameDialogOpen = false)}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={!renameTitle.trim() || updateChatMut.status === "pending"}>
+          {updateChatMut.status === "pending" ? "Saving..." : "Save"}
+        </Button>
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>
 
 {#snippet welcomeSnippet()}
   <div class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
