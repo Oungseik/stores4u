@@ -165,7 +165,10 @@
                   class="data-[active=true]:bg-primary/10 data-[active=true]:text-primary min-w-0"
                   tooltipContent={chat.title}
                   isActive={chat.id === currentChatId}
-                  onclick={() => onSelectChat?.(chat.id)}
+                  onclick={() => {
+                    onSelectChat?.(chat.id);
+                    if (sidebar.isMobile) sidebar.setOpenMobile(false);
+                  }}
                 >
                   <span class="truncate">{chat.title}</span>
                 </Sidebar.MenuButton>
