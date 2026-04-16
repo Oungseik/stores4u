@@ -1,5 +1,6 @@
 <script lang="ts">
   import MessageCircleIcon from "@lucide/svelte/icons/message-circle";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { ThinkingDots } from "@repo/ui/thinking-dots";
   import { isTextUIPart, isToolUIPart } from "ai";
 
@@ -48,89 +49,91 @@
   </div>
 {/snippet}
 
-<div bind:this={ctx.messagesContainer} class={["flex-1 overflow-y-auto px-4 py-3", className]}>
-  {#if !ctx.chat || ctx.chat.messages.length === 0}
-    {#if empty}
-      {@render empty()}
-    {:else}
-      <div class="flex h-full flex-col items-center justify-center gap-3 text-center">
-        <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-          <MessageCircleIcon class="text-primary size-6" />
-        </div>
-        <div>
-          <p class="text-sm font-medium">Welcome!</p>
-          <p class="text-muted-foreground mt-1 text-xs">How can I help?</p>
-        </div>
-      </div>
-    {/if}
-  {:else}
-    {#each ctx.chat.messages as message (message.id)}
-      {#if message.role === "user"}
-        {@const text = message.parts
-          .filter((p) => isTextUIPart(p))
-          .map((p) => p.text)
-          .join("")}
-        {#if userMessage}
-          {@render userMessage({ text })}
-        {:else}
-          <div class="mb-3 flex justify-end">
-            <div
-              class="bg-primary text-primary-foreground prose prose-invert prose-sm max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
-            >
-              {@html renderMarkdown(text)}
-            </div>
+<ScrollArea class={["h-4/5 flex-1", className]} bind:viewportRef={ctx.messagesContainer}>
+  <div class="mx-auto max-w-4xl px-4 py-4 lg:py-8">
+    {#if !ctx.chat || ctx.chat.messages.length === 0}
+      {#if empty}
+        {@render empty()}
+      {:else}
+        <div class="flex h-full flex-col items-center justify-center gap-3 text-center">
+          <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+            <MessageCircleIcon class="text-primary size-6" />
           </div>
-        {/if}
-      {:else if message.role === "assistant"}
-        {@const textParts = message.parts.filter((p) => isTextUIPart(p))}
-        {@const completedToolParts = message.parts.filter(
-          (p) => isToolUIPart(p) && p.state === "output-available"
-        )}
-        {#if textParts.length > 0}
-          {#if assistantMessage}
-            {@render assistantMessage({
-              textParts: textParts.map((p) => p.text),
-              toolParts: completedToolParts,
-            })}
+          <div>
+            <p class="text-sm font-medium">Welcome!</p>
+            <p class="text-muted-foreground mt-1 text-xs">How can I help?</p>
+          </div>
+        </div>
+      {/if}
+    {:else}
+      {#each ctx.chat.messages as message (message.id)}
+        {#if message.role === "user"}
+          {@const text = message.parts
+            .filter((p) => isTextUIPart(p))
+            .map((p) => p.text)
+            .join("")}
+          {#if userMessage}
+            {@render userMessage({ text })}
           {:else}
-            <div class="mb-3 flex justify-start">
+            <div class="mb-3 flex justify-end">
               <div
-                class="bg-muted prose prose-sm max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm"
+                class="bg-primary text-primary-foreground prose prose-invert prose-sm max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
               >
-                {#each textParts as part}
-                  {@html renderMarkdown(part.text)}
-                {/each}
+                {@html renderMarkdown(text)}
               </div>
             </div>
           {/if}
-        {:else if generating}
+        {:else if message.role === "assistant"}
+          {@const textParts = message.parts.filter((p) => isTextUIPart(p))}
+          {@const completedToolParts = message.parts.filter(
+            (p) => isToolUIPart(p) && p.state === "output-available"
+          )}
+          {#if textParts.length > 0}
+            {#if assistantMessage}
+              {@render assistantMessage({
+                textParts: textParts.map((p) => p.text),
+                toolParts: completedToolParts,
+              })}
+            {:else}
+              <div class="mb-3 flex justify-start">
+                <div
+                  class="bg-muted prose prose-sm max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm"
+                >
+                  {#each textParts as part}
+                    {@html renderMarkdown(part.text)}
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          {:else if generating}
+            {@render generating()}
+          {:else}
+            {@render DefaultGenerating()}
+          {/if}
+          {#each completedToolParts}
+            <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
+              <svg
+                class="size-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              <span class="text-xs">Done!</span>
+            </div>
+          {/each}
+        {/if}
+      {/each}
+
+      {#if ctx.chat.status === "submitted"}
+        {#if generating}
           {@render generating()}
         {:else}
           {@render DefaultGenerating()}
         {/if}
-        {#each completedToolParts}
-          <div class="mb-3 ml-1 flex items-center gap-1.5 text-green-600">
-            <svg
-              class="size-3.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            <span class="text-xs">Done!</span>
-          </div>
-        {/each}
-      {/if}
-    {/each}
-
-    {#if ctx.chat.status === "submitted"}
-      {#if generating}
-        {@render generating()}
-      {:else}
-        {@render DefaultGenerating()}
       {/if}
     {/if}
-  {/if}
-</div>
+  </div>
+</ScrollArea>

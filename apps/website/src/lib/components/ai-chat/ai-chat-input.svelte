@@ -25,7 +25,7 @@
   }
 </script>
 
-<form class={["border-t p-3", className]} onsubmit={handleSubmit}>
+<form class={["mx-auto w-full max-w-4xl p-3", className]} onsubmit={handleSubmit}>
   <div class="flex items-end gap-2">
     <Textarea
       bind:value={ctx.inputText}

@@ -269,14 +269,14 @@
 {/snippet}
 
 {#snippet userMessageSnippet({ text }: { text: string })}
-  <div class="mb-4 flex gap-3">
+  <div class="mb-4 flex flex-row-reverse gap-3">
     <Avatar.Root class="size-8 shrink-0">
       <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
       <Avatar.Fallback>
         {data.user.name.charAt(0).toUpperCase()}
       </Avatar.Fallback>
     </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col gap-1">
+    <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
       <span class="text-sm font-medium">{data.user.name}</span>
       <div class="prose prose-sm dark:prose-invert max-w-none">
         <p class="whitespace-pre-wrap">{text}</p>
