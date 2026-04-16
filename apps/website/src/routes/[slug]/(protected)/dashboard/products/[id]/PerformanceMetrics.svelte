@@ -69,7 +69,6 @@
           icon={PackageIcon}
           iconBgClass="bg-primary/10"
           iconTextClass="text-primary"
-          borderClass="from-primary/20 to-primary/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -81,7 +80,6 @@
           icon={DollarSignIcon}
           iconBgClass="bg-emerald-500/10"
           iconTextClass="text-emerald-600"
-          borderClass="from-emerald-500/20 to-emerald-500/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -92,7 +90,6 @@
           icon={TrendingUpIcon}
           iconBgClass="bg-blue-500/10"
           iconTextClass="text-blue-600"
-          borderClass="from-blue-500/20 to-blue-500/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -103,7 +100,6 @@
           icon={ArrowUpDownIcon}
           iconBgClass="bg-amber-500/10"
           iconTextClass="text-amber-600"
-          borderClass="from-amber-500/20 to-amber-500/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -115,7 +111,6 @@
           icon={DollarSignIcon}
           iconBgClass="bg-purple-500/10"
           iconTextClass="text-purple-600"
-          borderClass="from-purple-500/20 to-purple-500/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -126,7 +121,6 @@
           icon={TruckIcon}
           iconBgClass="bg-cyan-500/10"
           iconTextClass="text-cyan-600"
-          borderClass="from-cyan-500/20 to-cyan-500/5"
         />
       </div>
     </div>

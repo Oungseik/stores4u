@@ -183,7 +183,6 @@
           icon={PackageIcon}
           iconBgClass="bg-primary/10"
           iconTextClass="text-primary"
-          borderClass="from-primary/20 to-primary/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -194,7 +193,6 @@
           icon={AlertTriangleIcon}
           iconBgClass="bg-amber-500/10"
           iconTextClass="text-amber-600"
-          borderClass="from-amber-500/20 to-amber-500/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -205,7 +203,6 @@
           icon={XCircleIcon}
           iconBgClass="bg-red-500/10"
           iconTextClass="text-red-600"
-          borderClass="from-red-500/20 to-red-500/5"
         />
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
@@ -216,7 +213,6 @@
           icon={DollarSignIcon}
           iconBgClass="bg-emerald-500/10"
           iconTextClass="text-emerald-600"
-          borderClass="from-emerald-500/20 to-emerald-500/5"
           price={productStats.data.inventoryValueRetailCents}
           country={shop.country}
         />

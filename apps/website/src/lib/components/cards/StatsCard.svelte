@@ -12,7 +12,6 @@
     icon: Component<{ class?: string }>;
     iconBgClass?: string;
     iconTextClass?: string;
-    borderClass?: string;
     price?: number;
     country?: CountryCode | null;
     priceClass?: string;
@@ -25,7 +24,6 @@
     description,
     iconBgClass = "bg-muted",
     iconTextClass = "",
-    borderClass = "",
     price,
     country = "US",
     priceClass = "text-2xl font-bold",
@@ -35,9 +33,6 @@
 </script>
 
 <Card.Root class="relative overflow-hidden">
-  {#if borderClass}
-    <div class="absolute top-0 right-0 h-full w-1 {borderClass} bg-gradient-to-b"></div>
-  {/if}
   <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
     <Card.Title class="text-sm font-medium">{title}</Card.Title>
     <div class="rounded-md p-2 {iconBgClass}">
