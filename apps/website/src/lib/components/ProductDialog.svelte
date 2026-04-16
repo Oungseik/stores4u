@@ -40,6 +40,7 @@
           image: productQuery.data.image,
           images: productQuery.data.images,
           barcode: productQuery.data.barcode,
+          lowStockThreshold: productQuery.data.lowStockThreshold,
           categoryIds: productQuery.data.categories.map((c) => c.id),
         }
       : undefined

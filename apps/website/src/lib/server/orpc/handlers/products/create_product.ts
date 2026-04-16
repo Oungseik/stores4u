@@ -14,6 +14,7 @@ const input = z.object({
   barcode: z.string().max(100).optional(),
   description: z.string().max(1000).optional(),
   priceCents: z.number().int().positive(),
+  lowStockThreshold: z.number().int().min(0).optional(),
   categoryIds: z.array(z.string()).optional(),
 });
 
@@ -36,6 +37,7 @@ export const createProductHandler = os
         barcode: input.barcode,
         description: input.description,
         priceCents: input.priceCents,
+        lowStockThreshold: input.lowStockThreshold,
       })
       .returning();
 

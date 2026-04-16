@@ -32,6 +32,7 @@
     images?: string[];
     barcode: string | null;
     categoryIds?: string[];
+    lowStockThreshold: number | null;
   }
 
   interface Props {
@@ -120,6 +121,7 @@
     uom: initialData?.uom ?? "piece",
     description: initialData?.description ?? "",
     barcode: initialData?.barcode ?? "",
+    lowStockThreshold: initialData?.lowStockThreshold ?? 10,
     categoryNames,
   };
 
@@ -148,6 +150,7 @@
           image: imageEntries[0]?.url ?? null,
           images: imageEntries.length > 0 ? imageEntries.map((e) => e.url) : null,
           barcode: value.barcode || null,
+          lowStockThreshold: value.lowStockThreshold,
           categoryIds: categoryIds.length > 0 ? categoryIds : null,
         });
       } else {
@@ -161,6 +164,7 @@
           image: imageEntries[0]?.url ?? undefined,
           images: imageEntries.length > 0 ? imageEntries.map((e) => e.url) : undefined,
           barcode: value.barcode || undefined,
+          lowStockThreshold: value.lowStockThreshold,
           categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
         });
       }
@@ -374,6 +378,35 @@
       {/snippet}
     </form.Field>
   </div>
+
+  <form.Field
+    name="lowStockThreshold"
+    validators={{
+      onChange: ({ value }) => {
+        if (value == null) return undefined;
+        const parsed = z.number().int().min(0).safeParse(value);
+        return parsed.error?.issues.at(0)?.message;
+      },
+    }}
+  >
+    {#snippet children(field)}
+      <div class="space-y-2">
+        <Label for={field.name}>Low Stock Threshold</Label>
+        <NumberInput
+          value={field.state.value}
+          onValueChange={(v) => field.handleChange(v)}
+          onblur={field.handleBlur}
+          fraction={0}
+          min={0}
+          placeholder="10"
+        />
+        <p class="text-muted-foreground text-xs">Alert when stock falls below this number</p>
+        {#if field.state.meta.errors.length}
+          <p class="text-sm text-red-500">{field.state.meta.errors}</p>
+        {/if}
+      </div>
+    {/snippet}
+  </form.Field>
 
   <form.Field name="description">
     {#snippet children(field)}

@@ -17,6 +17,7 @@ const input = z.object({
   barcode: z.string().max(100).nullable(),
   description: z.string().max(1000).nullable(),
   priceCents: z.number().int().positive(),
+  lowStockThreshold: z.number().int().min(0).nullable(),
   categoryIds: z.array(z.string()).nullable(),
 });
 
@@ -47,6 +48,7 @@ export const updateProductHandler = os
         barcode: input.barcode,
         description: input.description,
         priceCents: input.priceCents,
+        lowStockThreshold: input.lowStockThreshold,
       })
       .where(eq(product.id, input.id))
       .returning();
