@@ -102,7 +102,7 @@
   const isActive = (href: string) => currentPath === href;
 </script>
 
-<Sidebar.Root collapsible="icon" {...restProps}>
+<Sidebar.Root collapsible="icon" style="view-transition-name: sidebar;" {...restProps}>
   <Sidebar.Header>
     <Sidebar.Menu>
       <Sidebar.MenuItem>
