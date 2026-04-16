@@ -1,6 +1,6 @@
 import { Chat, type UIMessage } from "@ai-sdk/svelte";
-import { Context } from "runed";
 import { DefaultChatTransport, getToolName, isToolUIPart } from "ai";
+import { Context } from "runed";
 
 import type { InitialMessage } from "./types";
 
@@ -42,7 +42,7 @@ class AiChatState {
   get isNearBottom(): boolean {
     if (!this.messagesContainer) return true;
     const { scrollTop, scrollHeight, clientHeight } = this.messagesContainer;
-    return scrollHeight - scrollTop - clientHeight < 150;
+    return scrollHeight - scrollTop - clientHeight < 250;
   }
 
   async handleSubmit(e?: Event) {
@@ -62,6 +62,10 @@ class AiChatState {
     this._chat.sendMessage({ text });
     this.inputText = "";
     requestAnimationFrame(() => this.adjustTextareaHeight());
+  }
+
+  async stop() {
+    await this._chat?.stop();
   }
 
   scrollToBottom() {
