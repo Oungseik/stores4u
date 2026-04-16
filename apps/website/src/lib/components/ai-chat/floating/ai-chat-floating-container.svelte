@@ -10,7 +10,7 @@
   const ctx = useAiChatChild();
   const floating = useFloatingChild();
 
-  $effect(() => {
+  $effect.pre(() => {
     floating.isOpen;
     if (floating.isOpen) {
       tick().then(() => ctx.scrollToBottom());
