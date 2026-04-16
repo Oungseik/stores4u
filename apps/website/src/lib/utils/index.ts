@@ -39,7 +39,7 @@ export function getImageContentType(file: string) {
  * @param {string} [locale='en'] - The locale in which to display the country name (e.g., 'en' for English, 'fr' for French).
  * @returns {string | undefined} The country name, or the code if a name cannot be found with fallback set to 'code'.
  */
-export function getCountryName(code: CountryCode, locale = "en") {
+export function getCountryName(code: CountryCode, locale = "en"): string | undefined {
   try {
     const regionNames = new Intl.DisplayNames([locale], { type: "region", fallback: "code" });
     return regionNames.of(code);
