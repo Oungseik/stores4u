@@ -49,7 +49,7 @@
   </div>
 {/snippet}
 
-<ScrollArea class={["h-4/5 flex-1", className]} bind:viewportRef={ctx.messagesContainer}>
+<ScrollArea class={["min-h-0 flex-1", className]} bind:viewportRef={ctx.messagesContainer}>
   <div class="mx-auto max-w-4xl px-4 py-4 lg:py-8">
     {#if !ctx.chat || ctx.chat.messages.length === 0}
       {#if empty}
