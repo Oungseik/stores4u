@@ -1,50 +1,47 @@
 <script lang="ts">
-  import { Badge } from "@repo/ui/badge";
-
   type Props = {
     status: string;
   };
 
   const { status }: Props = $props();
 
-  const statusConfig: Record<
-    string,
-    { variant: "secondary" | "default" | "destructive" | "outline"; label: string; class?: string }
-  > = {
-    UPLOADED: { variant: "secondary", label: "Uploaded" },
+  const statusConfig: Record<string, { class: string; label: string }> = {
+    UPLOADED: {
+      label: "Uploaded",
+      class: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
+    },
     PROCESSING: {
-      variant: "default",
       label: "Processing",
-      class:
-        "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10 dark:text-amber-400",
+      class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
     },
     PROCESSED: {
-      variant: "default",
       label: "Ready to Review",
-      class:
-        "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10 dark:text-emerald-400",
+      class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
     },
     FAILED: {
-      variant: "default",
       label: "Failed",
-      class: "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/10 dark:text-red-400",
+      class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
     },
     REVIEWED: {
-      variant: "default",
       label: "Reviewed",
-      class:
-        "bg-blue-500/10 text-blue-600 border-blue-500/20 hover:bg-blue-500/10 dark:text-blue-400",
+      class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
     },
     REJECTED: {
-      variant: "default",
       label: "Rejected",
-      class: "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/10 dark:text-red-400",
+      class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
     },
   };
 
-  const config = $derived(statusConfig[status] ?? { variant: "secondary" as const, label: status });
+  const config = $derived(
+    statusConfig[status] ?? {
+      class: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
+      label: status,
+    }
+  );
 </script>
 
-<Badge variant={config.variant} class={config.class}>
+<span
+  class={["inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", config.class]}
+>
   {config.label}
-</Badge>
+</span>

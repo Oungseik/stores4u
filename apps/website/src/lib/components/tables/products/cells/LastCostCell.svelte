@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { CountryCode } from "@repo/config";
-  import { Badge } from "@repo/ui/badge";
 
   import { formatPrice } from "$lib/utils";
 
@@ -17,20 +16,27 @@
       ? Math.round(((priceCents - lastCostCents) / lastCostCents) * 100)
       : null
   );
+
+  const marginClass = $derived(
+    marginPercent != null
+      ? marginPercent > 0
+        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+        : marginPercent === 0
+          ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400"
+          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+      : ""
+  );
 </script>
 
 {#if lastCostCents != null}
   <div class="flex items-center gap-1.5">
     <span class="text-muted-foreground text-sm">{formatPrice(lastCostCents, country)}</span>
     {#if marginPercent != null}
-      <Badge
-        variant="outline"
-        class={marginPercent > 0
-          ? "border-emerald-200 bg-emerald-500/10 text-emerald-600"
-          : "border-red-200 bg-red-500/10 text-red-600"}
+      <span
+        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {marginClass}"
       >
         {marginPercent > 0 ? "+" : ""}{marginPercent}%
-      </Badge>
+      </span>
     {/if}
   </div>
 {:else}

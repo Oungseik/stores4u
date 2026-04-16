@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { Badge } from "@repo/ui/badge";
-
   type Props = {
     stock: number;
     lowStockThreshold: number | null;
@@ -14,14 +12,26 @@
 </script>
 
 <div class="flex items-center gap-2">
-  <span class="font-medium" class:text-red-600={isOutOfStock} class:text-amber-600={isLowStock}>
+  <span
+    class="font-medium"
+    class:text-red-700={isOutOfStock}
+    class:text-amber-700={isLowStock}
+    class:dark:text-red-400={isOutOfStock}
+    class:dark:text-amber-400={isLowStock}
+  >
     {stock}
   </span>
   {#if isOutOfStock}
-    <Badge variant="outline" class="border-red-200 bg-red-500/10 text-red-600">Out of Stock</Badge>
+    <span
+      class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400"
+    >
+      Out of Stock
+    </span>
   {:else if isLowStock}
-    <Badge variant="outline" class="border-amber-200 bg-amber-500/10 text-amber-600">
+    <span
+      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+    >
       Low Stock
-    </Badge>
+    </span>
   {/if}
 </div>

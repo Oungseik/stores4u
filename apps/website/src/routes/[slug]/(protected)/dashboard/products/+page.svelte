@@ -343,8 +343,8 @@
                     class={[
                       "absolute top-2 left-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
                       stockStatus === "out"
-                        ? "bg-red-500/90 text-white"
-                        : "bg-amber-500/90 text-white",
+                        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
                     ]}
                   >
                     {stockStatus === "out" ? "Out of stock" : "Low stock"}
@@ -413,10 +413,10 @@
                         class={[
                           "inline-flex rounded px-1 py-px text-[10px] leading-none font-semibold",
                           marginPercent > 0
-                            ? "bg-emerald-500/10 text-emerald-600"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                             : marginPercent === 0
-                              ? "bg-muted text-muted-foreground"
-                              : "bg-red-500/10 text-red-600",
+                              ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400"
+                              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
                         ]}
                       >
                         {marginPercent > 0 ? "+" : ""}{marginPercent}%
