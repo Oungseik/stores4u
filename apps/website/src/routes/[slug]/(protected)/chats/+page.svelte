@@ -15,6 +15,7 @@
 
   import { page } from "$app/state";
   import * as AiChat from "$lib/components/ai-chat";
+  import { renderMarkdown } from "$lib/components/ai-chat/render-markdown.js";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -279,7 +280,7 @@
     <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
       <span class="text-sm font-medium">{data.user.name}</span>
       <div class="prose prose-sm dark:prose-invert max-w-none">
-        <p class="whitespace-pre-wrap">{text}</p>
+        {@html renderMarkdown(text)}
       </div>
     </div>
   </div>
@@ -294,7 +295,7 @@
       <span class="text-sm font-medium">Assistant</span>
       <div class="prose prose-sm dark:prose-invert max-w-none">
         {#each textParts as partText}
-          <p class="whitespace-pre-wrap">{partText}</p>
+          {@html renderMarkdown(partText)}
         {/each}
       </div>
     </div>

@@ -167,7 +167,6 @@
                   isActive={chat.id === currentChatId}
                   onclick={() => onSelectChat?.(chat.id)}
                 >
-                  <MessageSquareIcon class="size-4 shrink-0" />
                   <span class="truncate">{chat.title}</span>
                 </Sidebar.MenuButton>
 

@@ -97,7 +97,7 @@
             {:else}
               <div class="mb-3 flex justify-start">
                 <div
-                  class="bg-muted prose prose-sm max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm"
+                  class="bg-muted prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-3 text-sm"
                 >
                   {#each textParts as part}
                     {@html renderMarkdown(part.text)}
