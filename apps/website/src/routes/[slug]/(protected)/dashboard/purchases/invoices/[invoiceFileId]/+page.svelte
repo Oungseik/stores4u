@@ -356,25 +356,7 @@
                     <div class="flex flex-col gap-2 p-3 text-sm lg:flex-row lg:items-center">
                       <div class="flex-1">
                         <span class="font-medium">{item.invoiceItemName}</span>
-                        {#if item.product}
-                          <div
-                            class="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-xs"
-                          >
-                            <span class="inline-flex items-center gap-1">
-                              {#if item.product.image}
-                                <img
-                                  src={item.product.image}
-                                  alt=""
-                                  class="size-4 rounded object-cover"
-                                />
-                              {/if}
-                              <span>{item.product.name}</span>
-                              {#if item.product.sku}
-                                <span class="opacity-60">({item.product.sku})</span>
-                              {/if}
-                            </span>
-                          </div>
-                        {/if}
+                        <span class="opacity-60">({item.product?.sku})</span>
                       </div>
                       <div class="text-muted-foreground flex items-center gap-2 tabular-nums">
                         <span>{item.qty} x</span>
