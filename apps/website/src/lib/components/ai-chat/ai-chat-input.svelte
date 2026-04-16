@@ -4,8 +4,12 @@
   import { useAiChatChild } from "./ai-chat.svelte.js";
   import type { AiChatInputProps } from "./types.js";
 
-  let { placeholder = "Type a message...", class: className, children, ...rest }: AiChatInputProps =
-    $props();
+  let {
+    placeholder = "Type a message...",
+    class: className,
+    children,
+    ...rest
+  }: AiChatInputProps = $props();
 
   const ctx = useAiChatChild();
 

@@ -3,11 +3,14 @@
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
 
-  import { useFloatingChild } from "./floating.svelte.js";
   import type { AiChatFloatingHeaderProps } from "../types.js";
+  import { useFloatingChild } from "./floating.svelte.js";
 
-  let { title = "AI Assistant", subtitle = "How can I help?", class: className }:
-    AiChatFloatingHeaderProps = $props();
+  let {
+    title = "AI Assistant",
+    subtitle = "How can I help?",
+    class: className,
+  }: AiChatFloatingHeaderProps = $props();
 
   const floating = useFloatingChild();
 </script>

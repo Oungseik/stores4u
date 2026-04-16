@@ -2,8 +2,8 @@
   import { tick } from "svelte";
 
   import { useAiChatChild } from "../ai-chat.svelte.js";
-  import { useFloatingChild } from "./floating.svelte.js";
   import type { AiChatFloatingContainerProps } from "../types.js";
+  import { useFloatingChild } from "./floating.svelte.js";
 
   let { class: className, children }: AiChatFloatingContainerProps = $props();
 

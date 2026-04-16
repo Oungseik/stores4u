@@ -1,11 +1,11 @@
 <script lang="ts">
+  import Input from "./ai-chat-input.svelte";
+  import Messages from "./ai-chat-messages.svelte";
+  import SendButton from "./ai-chat-send-button.svelte";
+  import Root from "./ai-chat.svelte";
   import FloatingContainer from "./floating/ai-chat-floating-container.svelte";
   import FloatingHeader from "./floating/ai-chat-floating-header.svelte";
   import FloatingToggle from "./floating/ai-chat-floating-toggle.svelte";
-  import Input from "./ai-chat-input.svelte";
-  import Messages from "./ai-chat-messages.svelte";
-  import Root from "./ai-chat.svelte";
-  import SendButton from "./ai-chat-send-button.svelte";
   import { useFloatingState } from "./floating/floating.svelte.js";
   import type { AiChatWidgetProps } from "./types.js";
 
