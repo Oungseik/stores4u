@@ -2,7 +2,6 @@ import { randomUUIDv7 } from "bun";
 import { sql } from "drizzle-orm";
 import { check, index, integer, real, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { z } from "zod";
-import { message } from "./chat";
 import { product } from "./product";
 import { supplier } from "./supplier";
 
@@ -74,7 +73,6 @@ export const purchaseInvoiceFile = sqliteTable(
     filename: text("filename").notNull(),
     fileType: text("file_type").notNull(),
     size: integer("size").notNull(),
-    chatMessageId: text("chat_message_id").references(() => message.id, { onDelete: "cascade" }),
     status: text("status", { enum: purchaseInvoiceFileStatus }).default("UPLOADED").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
@@ -89,7 +87,6 @@ export const purchaseInvoiceFile = sqliteTable(
       sql`${t.status} IN ('UPLOADED', 'PROCESSING', 'PROCESSED', 'FAILED', 'REJECTED', 'REVIEWING', 'REVIEWED')`,
     ),
     index("invoice_file_status_created_at_idx").on(t.status, t.createdAt),
-    index("purchase_invoice_file_chat_message_id_idx").on(t.chatMessageId),
   ],
 );
 
