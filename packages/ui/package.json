@@ -11,6 +11,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "exports": {
+    "./ai-elements/*": "./src/lib/components/ai-elements/*/index.js",
     "./*": "./src/lib/components/ui/*/index.js",
     "./css": "./src/app.css",
     "./styles/*": "./src/lib/styles/*.css"

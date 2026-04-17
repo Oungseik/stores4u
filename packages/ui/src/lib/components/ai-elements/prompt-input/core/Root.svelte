@@ -59,7 +59,7 @@
 	let usingProvider = Boolean(controller);
 	let localAttachmentsContext = new AttachmentsContext();
 	let attachmentsContext = controller?.attachments ?? localAttachmentsContext;
-	let promptTextHandle = $state<PromptInputTextHandle | null>(null);
+	let promptTextHandle = $state.raw<PromptInputTextHandle | null>(null);
 
 	setPromptInputTextRegistration({
 		register: (handle) => {
