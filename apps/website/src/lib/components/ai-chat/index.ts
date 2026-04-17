@@ -1,4 +1,7 @@
 import Root from "./ai-chat.svelte";
+import AttachButton from "./ai-chat-attach-button.svelte";
+import AttachmentsPreview from "./ai-chat-attachments-preview.svelte";
+import FileDropZone from "./ai-chat-file-drop-zone.svelte";
 import Footer from "./ai-chat-footer.svelte";
 import Input from "./ai-chat-input.svelte";
 import Messages from "./ai-chat-messages.svelte";
@@ -20,12 +23,22 @@ export type {
   AiChatFloatingHeaderProps,
   AiChatFloatingToggleProps,
   AiChatFullPageContainerProps,
+  AiChatFileDropZoneProps,
+  AiChatAttachButtonProps,
+  AiChatAttachmentsPreviewProps,
   InitialMessage,
+  InitialMessageImage,
 } from "./types.js";
 
 export {
   Root,
   Root as AiChat,
+  AttachButton,
+  AttachButton as AiChatAttachButton,
+  AttachmentsPreview,
+  AttachmentsPreview as AiChatAttachmentsPreview,
+  FileDropZone,
+  FileDropZone as AiChatFileDropZone,
   Footer,
   Footer as AiChatFooter,
   Input,

@@ -2,8 +2,16 @@
   import { useAiChat } from "./ai-chat.svelte.js";
   import type { AiChatRootProps } from "./types.js";
 
-  let { api, chatId, initialMessages, onSend, onFinish, onToolResult, children }: AiChatRootProps =
-    $props();
+  let {
+    api,
+    chatId,
+    initialMessages,
+    onSend,
+    onFinish,
+    onToolResult,
+    maxFiles,
+    children,
+  }: AiChatRootProps = $props();
 
   useAiChat({
     get api() {
@@ -23,6 +31,9 @@
     },
     get onToolResult() {
       return onToolResult;
+    },
+    get maxFiles() {
+      return maxFiles;
     },
   });
 </script>

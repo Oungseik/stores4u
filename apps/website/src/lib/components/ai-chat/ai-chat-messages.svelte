@@ -2,7 +2,7 @@
   import MessageCircleIcon from "@lucide/svelte/icons/message-circle";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { ThinkingDots } from "@repo/ui/thinking-dots";
-  import { isTextUIPart, isToolUIPart } from "ai";
+  import { isFileUIPart, isTextUIPart, isToolUIPart } from "ai";
 
   import { useAiChatChild } from "./ai-chat.svelte.js";
   import { renderMarkdown } from "./render-markdown.js";
@@ -72,13 +72,25 @@
             .filter((p) => isTextUIPart(p))
             .map((p) => p.text)
             .join("")}
+          {@const fileParts = message.parts.filter((p) => isFileUIPart(p))}
+          {@const images = fileParts.map((p) => ({ url: p.url, mediaType: p.mediaType }))}
           {#if userMessage}
-            {@render userMessage({ text })}
+            {@render userMessage({ text, images })}
           {:else}
             <div class="mb-3 flex justify-end">
               <div
                 class="bg-primary text-primary-foreground prose prose-invert prose-sm max-w-[80%] rounded-2xl rounded-br-sm px-3 py-2 text-sm"
               >
+                {#if images.length > 0}
+                  <div
+                    class="mb-1.5 grid gap-1"
+                    style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));"
+                  >
+                    {#each images as image}
+                      <img src={image.url} alt="" class="max-h-48 w-full rounded-md object-cover" />
+                    {/each}
+                  </div>
+                {/if}
                 {@html renderMarkdown(text)}
               </div>
             </div>

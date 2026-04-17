@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as FileDropZone from "@repo/ui/file-drop-zone";
   import { Textarea } from "@repo/ui/textarea";
 
   import { useAiChatChild } from "./ai-chat.svelte.js";
@@ -7,6 +8,7 @@
   let {
     placeholder = "Type a message...",
     class: className,
+    leading,
     children,
     ...rest
   }: AiChatInputProps = $props();
@@ -23,20 +25,44 @@
       handleSubmit();
     }
   }
+
+  const textareaClass =
+    "bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm [scrollbar-width:none] focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden";
 </script>
 
-<form class={["mx-auto w-full max-w-4xl p-3", className]} onsubmit={handleSubmit}>
+<form class={["mx-auto w-full p-3", className]} onsubmit={handleSubmit}>
   <div class="flex items-end gap-2">
-    <Textarea
-      bind:value={ctx.inputText}
-      bind:ref={ctx.textareaRef}
-      {placeholder}
-      rows={1}
-      class="bg-muted max-h-[120px] min-h-[40px] flex-1 resize-none border-0 px-3 py-2 text-sm [scrollbar-width:none] focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
-      onkeydown={handleKeydown}
-      oninput={() => ctx.adjustTextareaHeight()}
-      {...rest}
-    />
+    {#if leading}
+      {@render leading()}
+    {/if}
+    {#if ctx.hasFileDropZone}
+      <FileDropZone.Textarea>
+        {#snippet child({ props })}
+          <Textarea
+            bind:value={ctx.inputText}
+            bind:ref={ctx.textareaRef}
+            {placeholder}
+            rows={1}
+            class={textareaClass}
+            onkeydown={handleKeydown}
+            oninput={() => ctx.adjustTextareaHeight()}
+            {...props}
+            {...rest}
+          />
+        {/snippet}
+      </FileDropZone.Textarea>
+    {:else}
+      <Textarea
+        bind:value={ctx.inputText}
+        bind:ref={ctx.textareaRef}
+        {placeholder}
+        rows={1}
+        class={textareaClass}
+        onkeydown={handleKeydown}
+        oninput={() => ctx.adjustTextareaHeight()}
+        {...rest}
+      />
+    {/if}
     {#if children}
       {@render children()}
     {/if}
