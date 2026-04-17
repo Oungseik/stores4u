@@ -69,10 +69,8 @@ Rule of thumb:
 - give `child` exact same merged behavior as default branch
 - if wrapper element needed, expose `wrapperProps` too
 
-Bits UI proof:
+Review checks:
 
-- `packages/bits-ui/src/lib/bits/separator/components/separator.svelte`
-- `packages/bits-ui/src/lib/bits/popover/components/popover-trigger.svelte`
-- `packages/bits-ui/src/lib/bits/popover/components/popover-content.svelte`
-- `packages/bits-ui/src/lib/bits/dialog/components/dialog-content.svelte`
-- `packages/bits-ui/src/lib/bits/tooltip/components/tooltip-content.svelte`
+- `child` receives the same merged props as the default branch
+- internal ids, aria attrs, refs, handlers, and classes survive customization
+- wrapper layers expose separate props when callers need to replace nested elements

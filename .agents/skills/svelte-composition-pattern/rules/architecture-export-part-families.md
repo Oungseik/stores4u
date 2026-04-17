@@ -64,9 +64,8 @@ Why:
 - each part small, testable, replaceable
 - variants become composition choices, not flag matrix
 
-Bits UI proof:
+Review checks:
 
-- `packages/bits-ui/src/lib/bits/popover/index.ts`
-- `packages/bits-ui/src/lib/bits/popover/exports.ts`
-- `packages/bits-ui/src/lib/bits/dialog/exports.ts`
-- `packages/bits-ui/src/lib/bits/menu/exports.ts`
+- exported names describe structure, not toggles
+- namespace family stays shallow: `Root`, `Trigger`, `Content`, not nested flag bags
+- adding a new structural option should mean adding a part or sub-family, not another boolean

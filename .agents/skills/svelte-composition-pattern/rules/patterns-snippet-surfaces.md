@@ -82,9 +82,8 @@ Why:
 - no legacy slot API
 - stateful customization stays typed
 
-Bits UI proof:
+Review checks:
 
-- `packages/bits-ui/src/lib/bits/separator/components/separator.svelte`
-- `packages/bits-ui/src/lib/bits/popover/components/popover-trigger.svelte`
-- `packages/bits-ui/src/lib/bits/popover/components/popover-content.svelte`
-- `packages/bits-ui/src/lib/internal/types.ts`
+- `children` handles normal composition and `child` owns element replacement
+- snippet props carry typed state such as `open`, `selected`, or merged props
+- render flags like `renderTrigger` or `renderIcon` disappear from the API

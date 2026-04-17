@@ -92,8 +92,8 @@ Extra rule:
 - leaf parts should ask context for what they need
 - parent should not orchestrate every child manually
 
-Bits UI proof:
+Review checks:
 
-- `packages/bits-ui/src/lib/bits/popover/components/popover.svelte`
-- `packages/bits-ui/src/lib/bits/popover/popover.svelte.ts`
-- `packages/bits-ui/src/lib/bits/dialog/dialog.svelte.ts`
+- root creates shared state and sets context once
+- parts read context directly instead of accepting tunneled state props
+- shared behavior can move into `.svelte.ts` helpers when leaf components get noisy

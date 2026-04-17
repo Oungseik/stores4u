@@ -8,19 +8,18 @@ flags, render-mode props, or prop-drilled state, and it pushes them back
 toward explicit part families, typed context, snippet escape hatches, and
 modern Svelte 5 APIs.
 
-Grounded in Bits UI patterns, but focused on reusable shape over framework
-ceremony.
+Focused on reusable shape over framework ceremony.
 
 ## Install
 
 ```bash
-npx skills add huntabyte/bits-ui --skill svelte-composition-pattern
+npx skills add Oungseik/svelte-composition-pattern
 ```
 
 Install globally instead of per-project:
 
 ```bash
-npx skills add huntabyte/bits-ui --skill svelte-composition-pattern -g
+npx skills add Oungseik/svelte-composition-pattern -g
 ```
 
 ## When to Use
@@ -46,7 +45,8 @@ Use this skill when:
 
 - `SKILL.md` - entry point, activation guidance, and rule map
 - `rules/` - focused guidance for each pattern
-- `references/bits-ui-examples.md` - concrete Bits UI examples
+- `references/composition-pattern-checkpoints.md` - compact repo-local pattern
+  checkpoints
 - `references/svelte-5-api-checkpoints.md` - Svelte 5 API checkpoints used by
   the skill
 
@@ -54,8 +54,7 @@ Use this skill when:
 
 ### Architecture
 
-- `architecture-export-part-families` - export namespace part families like
-  Bits UI
+- `architecture-export-part-families` - export namespace part families
 - `architecture-avoid-mode-props` - replace boolean modes with explicit parts
   or discriminated unions
 
@@ -93,7 +92,7 @@ Use this skill when:
 
 ## Notes
 
-The skill is shaped by Bits UI, but it is not tied to one exact helper stack.
-If a codebase already uses helpers like `runed` `Context` or
+The skill is pattern-first, not tied to one exact helper stack. If a codebase
+already uses helpers like `runed` `Context` or
 `svelte-toolbelt` `mergeProps`, keep the house style. If not, default to the
 platform Svelte 5 APIs.

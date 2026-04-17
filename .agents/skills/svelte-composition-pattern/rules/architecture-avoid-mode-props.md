@@ -69,8 +69,8 @@ Why:
 - docs easier
 - implementation branches shrink
 
-Bits UI proof:
+Review checks:
 
-- `packages/bits-ui/src/lib/bits/accordion/types.ts`
-- `packages/bits-ui/src/lib/bits/popover/exports.ts`
-- `packages/bits-ui/src/lib/bits/menu/exports.ts`
+- boolean props remain only for real on/off behavior, not structure
+- structural variation is modeled as parts, sub-families, or discriminated unions
+- invalid combinations should be impossible or rejected by types

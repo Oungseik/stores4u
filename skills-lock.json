@@ -14,7 +14,7 @@
     "svelte-composition-pattern": {
       "source": "oungseik/svelte-composition-pattern",
       "sourceType": "github",
-      "computedHash": "63ebe453eb4e6a7e7e3cd7b2493bb4caddd2336aafe785719bf2834a10304b54"
+      "computedHash": "e1a18e157d7b54aa0520866220e8e605b2678c92eeb5c7ea7da053478ef0c983"
     },
     "svelte-core-bestpractices": {
       "source": "sveltejs/ai-tools",

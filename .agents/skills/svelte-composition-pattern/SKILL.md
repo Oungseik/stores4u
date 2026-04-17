@@ -4,7 +4,8 @@ description:
   Svelte composition patterns for scalable component APIs. Use when building or
   refactoring headless Svelte components, compound component families,
   snippet-driven APIs, typed context flows, or when boolean props and render
-  flags start spreading. Grounded in Bits UI patterns and modern Svelte 5 APIs.
+  flags start spreading. Focused on reusable part families and modern Svelte 5
+  APIs.
 ---
 
 # Svelte Composition Pattern
@@ -41,7 +42,7 @@ Use this skill when:
 
 ### 1. Architecture
 
-- `architecture-export-part-families` - export namespace part families like Bits UI
+- `architecture-export-part-families` - export namespace part families
 - `architecture-avoid-mode-props` - replace boolean modes with explicit parts or discriminated unions
 
 ### 2. State Ownership
@@ -57,17 +58,18 @@ Use this skill when:
 
 - `svelte5-modern-apis` - use runes, `createContext`, snippets, attachments, callback props, async rules
 
-## Repo Proof
+## Extra Reference
 
-For concrete Bits UI examples, read `references/bits-ui-examples.md`.
+For compact, repo-local pattern checkpoints, read
+`references/composition-pattern-checkpoints.md`.
 
 For latest Svelte API checkpoints bundled into this skill, read
 `references/svelte-5-api-checkpoints.md`.
 
 ## House Style Note
 
-Bits UI sometimes uses helpers like `runed` `Context` and `svelte-toolbelt`
-`mergeProps`. That fine. Shape matters more than exact helper:
+Some repos use helpers like `runed` `Context` and `svelte-toolbelt`
+`mergeProps`. That is fine. Shape matters more than exact helper:
 
 - typed context
 - root-owned state
