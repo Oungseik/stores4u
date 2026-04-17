@@ -11,10 +11,10 @@
       "sourceType": "github",
       "computedHash": "f5f2565710300bf4770d6fd745024e8a788e419ca6aff5cabc0ca7f9abbbd31a"
     },
-    "shadcn": {
-      "source": "shadcn/ui",
+    "svelte-composition-pattern": {
+      "source": "oungseik/svelte-composition-pattern",
       "sourceType": "github",
-      "computedHash": "1ec42c9b918b315d8e5c6c856b78c3c4725fc93dea30b9b7e9975c69848fcce6"
+      "computedHash": "63ebe453eb4e6a7e7e3cd7b2493bb4caddd2336aafe785719bf2834a10304b54"
     },
     "svelte-core-bestpractices": {
       "source": "sveltejs/ai-tools",
