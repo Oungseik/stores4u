@@ -1,11 +1,13 @@
 <script lang="ts">
-  import CheckIcon from "@lucide/svelte/icons/check";
+  import { Chat } from "@ai-sdk/svelte";
   import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
-  import MapPinIcon from "@lucide/svelte/icons/map-pin";
-  import StoreIcon from "@lucide/svelte/icons/store";
+  import MessageCircleIcon from "@lucide/svelte/icons/message-circle";
+  import XIcon from "@lucide/svelte/icons/x";
   import { COUNTRIES, type CountryCode } from "@repo/config";
+  import * as Message from "@repo/ui/ai-elements/message";
+  import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
@@ -15,12 +17,12 @@
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
+  import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
   import { toast } from "svelte-sonner";
   import z from "zod";
 
   import { goto } from "$app/navigation";
   import { PUBLIC_DOMAIN } from "$env/static/public";
-  import * as AiChat from "$lib/components/ai-chat";
   import { orpc } from "$lib/orpc_client";
   import { fillFormOutputSchema } from "$lib/types/shop-form";
   import type { ShopFormFields } from "$lib/types/shop-form";
@@ -154,17 +156,14 @@
     {
       title: "Shop Identity",
       description: "Tell us about your shop (You can edit later in settings)",
-      icon: StoreIcon,
     },
     {
       title: "Contact Information",
       description: "How can customers reach you?",
-      icon: MapPinIcon,
     },
   ];
 
   const currentStepConfig = $derived(stepConfig[currentStep - 1]);
-  const CurrentStepIcon = $derived(currentStepConfig.icon);
 
   function handleAiFill(fields: ShopFormFields) {
     form.setFieldValue("name", fields.name);
@@ -181,13 +180,29 @@
     currentStep = 2;
   }
 
-  function handleToolResult(toolName: string, output: unknown) {
-    if (toolName === "fillShopForm") {
-      const parsed = fillFormOutputSchema.safeParse(output);
-      if (parsed.success && parsed.data.success) {
-        handleAiFill(parsed.data.fields);
-      }
-    }
+  let isChatOpen = $state(false);
+
+  let chat = $state(
+    new Chat({
+      transport: new DefaultChatTransport({ api: "/api/ai/shop-setup" }),
+      onFinish: async ({ message }) => {
+        for (const part of message.parts) {
+          if (isToolUIPart(part) && part.state === "output-available" && part.output) {
+            const toolName = getToolName(part);
+            if (toolName === "fillShopForm") {
+              const parsed = fillFormOutputSchema.safeParse(part.output);
+              if (parsed.success && parsed.data.success) {
+                handleAiFill(parsed.data.fields);
+              }
+            }
+          }
+        }
+      },
+    })
+  );
+
+  async function handleSubmit(message: PromptInput.PromptInputMessage) {
+    chat.sendMessage({ text: message.text, files: message.files });
   }
 </script>
 
@@ -198,46 +213,8 @@
       <span>{PUBLIC_DOMAIN}</span>
     </a>
 
-    <div class="flex items-center justify-center gap-2">
-      {#each stepConfig as _, i}
-        <div
-          class="flex items-center gap-2 {currentStep === i + 1
-            ? 'text-primary'
-            : currentStep > i + 1
-              ? 'text-primary'
-              : 'text-muted-foreground'}"
-        >
-          <div
-            class="flex size-8 items-center justify-center rounded-full border-2 {currentStep ===
-            i + 1
-              ? 'border-primary bg-primary/10'
-              : currentStep > i + 1
-                ? 'border-primary bg-primary'
-                : 'border-muted-foreground/30'}"
-          >
-            {#if currentStep > i + 1}
-              <CheckIcon class="text-primary-foreground size-4" tabindex={-1} />
-              <span class="sr-only">Completed</span>
-            {:else}
-              <span class="text-sm font-medium">{i + 1}</span>
-            {/if}
-          </div>
-          {#if i < stepConfig.length - 1}
-            <div
-              class="h-0.5 w-8 {currentStep > i + 1 ? 'bg-primary' : 'bg-muted-foreground/30'}"
-            ></div>
-          {/if}
-        </div>
-      {/each}
-    </div>
-
     <Card.Root>
       <Card.Header class="text-center">
-        <div
-          class="bg-primary/10 mx-auto mb-2 flex size-12 items-center justify-center rounded-full"
-        >
-          <CurrentStepIcon class="text-primary size-6" />
-        </div>
         <Card.Title class="text-xl">{currentStepConfig.title}</Card.Title>
         <Card.Description>{currentStepConfig.description}</Card.Description>
       </Card.Header>
@@ -593,11 +570,94 @@
     </p>
   </div>
 
-  <AiChat.Widget
-    api="/api/ai/shop-setup"
-    onToolResult={handleToolResult}
-    title="AI Setup Assistant"
-    subtitle="Helps you set up your store"
-    placeholder="Tell me about your shop..."
-  />
+  {#if isChatOpen}
+    <div
+      class="bg-background fixed right-6 bottom-[calc(var(--spacing)*20)] z-50 flex h-[38rem] w-80 flex-col overflow-hidden rounded-xl border shadow-lg sm:w-96"
+    >
+      <div class="flex items-center gap-3 border-b p-3">
+        <div class="bg-primary/10 flex size-8 items-center justify-center rounded-full">
+          <MessageCircleIcon class="text-primary size-4" />
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-medium">AI Setup Assistant</p>
+          <p class="text-muted-foreground text-xs">Helps you set up your store</p>
+        </div>
+        <Button variant="ghost" size="icon" onclick={() => (isChatOpen = false)}>
+          <XIcon class="size-4" />
+        </Button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto">
+        {#if chat.messages.length > 0}
+          <div class="space-y-4 p-4">
+            {#each chat.messages as message (message.id)}
+              {#if message.role === "user"}
+                {@const text = message.parts
+                  .filter(isTextUIPart)
+                  .map((p) => p.text)
+                  .join("")}
+                <Message.Message from="user">
+                  <Message.MessageContent>
+                    <Message.MessageResponse content={text} />
+                  </Message.MessageContent>
+                </Message.Message>
+              {:else if message.role === "assistant"}
+                {@const text = message.parts
+                  .filter(isTextUIPart)
+                  .map((p) => p.text)
+                  .join("")}
+                <Message.Message from="assistant">
+                  <Message.MessageContent>
+                    <Message.MessageResponse content={text} />
+                  </Message.MessageContent>
+                </Message.Message>
+              {/if}
+            {/each}
+            {#if chat.status === "submitted"}
+              <div class="flex gap-2">
+                <div class="flex items-center gap-1">
+                  <span class="bg-foreground/80 size-1.5 animate-bounce rounded-full"></span>
+                  <span
+                    class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
+                    style="animation-delay: 0.2s"
+                  ></span>
+                  <span
+                    class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
+                    style="animation-delay: 0.4s"
+                  ></span>
+                </div>
+              </div>
+            {/if}
+          </div>
+        {:else}
+          <div class="flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
+            <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+              <MessageCircleIcon class="text-primary size-5" />
+            </div>
+            <p class="text-muted-foreground text-sm">
+              Tell me about your shop and I'll help you set it up!
+            </p>
+          </div>
+        {/if}
+      </div>
+
+      <PromptInput.Root onSubmit={handleSubmit} class="mx-auto my-2 w-92">
+        <PromptInput.Toolbar>
+          <PromptInput.Textarea placeholder="Tell me about your shop..." />
+          <PromptInput.Submit status={chat.status} onStop={() => chat.stop()} />
+        </PromptInput.Toolbar>
+      </PromptInput.Root>
+    </div>
+  {/if}
+
+  <Button
+    class="fixed right-6 bottom-6 z-50 size-12 rounded-full shadow-lg"
+    onclick={() => (isChatOpen = !isChatOpen)}
+  >
+    {#if isChatOpen}
+      <XIcon class="size-5" />
+    {:else}
+      <MessageCircleIcon class="size-5" />
+    {/if}
+  </Button>
 </div>
