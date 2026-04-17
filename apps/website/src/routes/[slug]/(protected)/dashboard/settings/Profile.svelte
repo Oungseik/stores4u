@@ -246,7 +246,7 @@
               />
               <Button
                 type="button"
-                variant="destructive"
+                variant="secondary"
                 size="icon"
                 class="absolute -top-2 -right-2 size-6"
                 onclick={handleLogoRemove}
@@ -303,7 +303,7 @@
               />
               <Button
                 type="button"
-                variant="destructive"
+                variant="secondary"
                 size="sm"
                 class="absolute top-2 right-2"
                 onclick={handleHeroImageRemove}
