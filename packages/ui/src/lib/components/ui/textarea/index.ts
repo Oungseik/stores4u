@@ -1,7 +1,7 @@
-import Root from '@lib/components/ui/textarea/textarea.svelte';
+import Root from "./textarea.svelte";
 
 export {
 	Root,
 	//
-	Root as Textarea
+	Root as Textarea,
 };

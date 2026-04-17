@@ -60,6 +60,9 @@
     "zod": "^4.3.6"
   },
   "dependencies": {
-    "maska": "^3.2.0"
+    "@shikijs/themes": "^4.0.2",
+    "ai": "^6.0.168",
+    "maska": "^3.2.0",
+    "svelte-streamdown": "^3.0.1"
   }
 }
