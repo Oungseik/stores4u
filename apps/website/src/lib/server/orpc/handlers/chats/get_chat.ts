@@ -16,7 +16,12 @@ export const getChatHandler = os
   .handler(async ({ input, context: { shopDb } }) => {
     const chat = await shopDb.query.chat.findFirst({
       where: { id: input.chatId },
-      with: { messages: { orderBy: { createdAt: "asc" } } },
+      with: {
+        messages: {
+          orderBy: { createdAt: "asc" },
+          with: { invoiceFiles: true },
+        },
+      },
     });
 
     if (!chat) {
