@@ -41,6 +41,7 @@ export const relations = defineRelations(
     },
     message: {
       chat: r.one.chat({ from: r.message.chatId, to: r.chat.id }),
+      invoiceFiles: r.many.purchaseInvoiceFile(),
     },
     category: {
       productCategories: r.many.productCategory(),
@@ -73,6 +74,10 @@ export const relations = defineRelations(
       supplier: r.one.supplier({ from: r.productSupplier.supplierId, to: r.supplier.id }),
     },
     purchaseInvoiceFile: {
+      message: r.one.message({
+        from: r.purchaseInvoiceFile.chatMessageId,
+        to: r.message.id,
+      }),
       ocrResult: r.one.purchaseInvoiceOcrResult({
         from: r.purchaseInvoiceFile.id,
         to: r.purchaseInvoiceOcrResult.invoiceFileId,
