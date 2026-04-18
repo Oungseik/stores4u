@@ -7,12 +7,6 @@ import { getCategoryProductsHandler } from "./handlers/categories/get_category_p
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { updateCategoryProductsHandler } from "./handlers/categories/update_category_products";
-import { createChatHandler } from "./handlers/chats/create_chat";
-import { deleteChatHandler } from "./handlers/chats/delete_chat";
-import { getChatHandler } from "./handlers/chats/get_chat";
-import { listChatsHandler } from "./handlers/chats/list_chats";
-import { saveMessageHandler } from "./handlers/chats/save_message";
-import { updateChatHandler } from "./handlers/chats/update_chat";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { deleteImageHandler } from "./handlers/images/delete";
@@ -68,14 +62,7 @@ export const router = os.router({
     update: updateCategoryHandler,
     updateProducts: updateCategoryProductsHandler,
   },
-  chats: {
-    create: createChatHandler,
-    delete: deleteChatHandler,
-    get: getChatHandler,
-    list: listChatsHandler,
-    saveMessage: saveMessageHandler,
-    update: updateChatHandler,
-  },
+
   dashboard: {
     revenueTrend: dashboardRevenueTrendHandler,
     stats: dashboardStatsHandler,

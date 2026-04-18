@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { UIMessage } from "@ai-sdk/svelte";
+  import { Chat } from "@ai-sdk/svelte";
   import BotIcon from "@lucide/svelte/icons/bot";
   import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
+  import * as Message from "@repo/ui/ai-elements/message";
+  import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
   import * as Avatar from "@repo/ui/avatar";
   import { Button } from "@repo/ui/button";
   import * as Dialog from "@repo/ui/dialog";
@@ -9,15 +12,12 @@
   import { Input } from "@repo/ui/input";
   import * as Sidebar from "@repo/ui/sidebar";
   import { Spinner } from "@repo/ui/spinner";
-  import { ThinkingDots } from "@repo/ui/thinking-dots";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
-  import { isTextUIPart } from "ai";
+  import { DefaultChatTransport, isTextUIPart } from "ai";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
 
   import { page } from "$app/state";
-  import * as AiChat from "$lib/components/ai-chat";
-  import { renderMarkdown } from "$lib/components/ai-chat/render-markdown.js";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
@@ -27,23 +27,51 @@
   const queryClient = useQueryClient();
 
   let currentChatId = $state<string | null>(null);
-  let chatMessages = $state<AiChat.InitialMessage[]>([]);
+  let chatMessages = $state<UIMessage[]>([]);
   let hasInitialized = $state(false);
   let isLoadingChat = $state(false);
   let isRenameDialogOpen = $state(false);
   let renameTitle = $state("");
+  let messagesContainer = $state<HTMLDivElement | null>(null);
+
+  let chat = $derived(
+    new Chat({
+      transport: new DefaultChatTransport({ api: `/api/ai/${data.slug}/shop-assistant` }),
+      onFinish: async ({ message }) => {
+        if (!currentChatId) return;
+        const text = message.parts
+          .filter(isTextUIPart)
+          .map((p) => p.text)
+          .join("");
+        if (text) {
+          try {
+            await saveMessageMut.mutateAsync({
+              slug: data.slug,
+              chatId: currentChatId,
+              role: "assistant",
+              content: text,
+            });
+            invalidateChatsList();
+          } catch (e) {
+            console.error("Failed to save assistant message:", e);
+            toast.error("Failed to save assistant message");
+          }
+        }
+      },
+    })
+  );
+
+  const pendingFileIds = new Map<string, Promise<string | void>>();
 
   const chatsQuery = createQuery(() =>
     orpc.chats.list.queryOptions({ input: { slug: data.slug } })
   );
 
   const saveMessageMut = createMutation(() => orpc.chats.saveMessage.mutationOptions());
-
   const createChatMut = createMutation(() => orpc.chats.create.mutationOptions());
-
   const deleteChatMut = createMutation(() => orpc.chats.delete.mutationOptions());
-
   const updateChatMut = createMutation(() => orpc.chats.update.mutationOptions());
+  const uploadFileMut = createMutation(() => orpc.purchaseInvoices.uploadFile.mutationOptions());
 
   const chatItems = $derived(chatsQuery.data?.items ?? []);
 
@@ -62,7 +90,14 @@
         orpc.chats.get.queryOptions({ input: { slug: data.slug, chatId } })
       );
       if (chatData) {
-        chatMessages = chatData.messages;
+        chatMessages = chatData.messages.map(
+          (m) =>
+            ({
+              id: m.id,
+              role: m.role,
+              parts: [{ type: "text" as const, text: m.content }],
+            }) satisfies UIMessage
+        );
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
@@ -131,9 +166,17 @@
     }
   }
 
-  async function handleOnSend({ text, messageCount }: { text: string; messageCount: number }) {
-    let chatId = currentChatId;
+  function handleFileAdd(
+    added: PromptInput.PromptInputAttachmentData[],
+    _all: PromptInput.PromptInputAttachmentData[]
+  ) {
+    for (const attachment of added) {
+      uploadFileMut.mutateAsync({ slug: data.slug, file: attachment.file });
+    }
+  }
 
+  async function handleSubmit(message: PromptInput.PromptInputMessage) {
+    let chatId = currentChatId;
     if (!chatId) {
       try {
         const newChat = await createChatMut.mutateAsync({ slug: data.slug });
@@ -146,17 +189,20 @@
       }
     }
 
-    if (messageCount === 0) {
-      const title = text.length > 50 ? text.slice(0, 50) + "..." : text;
+    if (chat.messages.length === 0) {
+      const title = message.text.length > 50 ? message.text.slice(0, 50) + "..." : message.text;
       updateChatMut.mutate({ slug: data.slug, chatId, title });
     }
+
+    const allFilePromises = Array.from(pendingFileIds.values());
+    pendingFileIds.clear();
 
     saveMessageMut
       .mutateAsync({
         slug: data.slug,
         chatId,
         role: "user",
-        content: text,
+        content: message.text,
       })
       .catch((e) => {
         console.error("Failed to save message:", e);
@@ -164,30 +210,27 @@
       });
 
     invalidateChatsList();
-    return chatId;
+
+    chat.sendMessage({
+      text: message.text,
+      files: message.files,
+    });
   }
 
-  async function handleOnFinish({ message }: { message: UIMessage }) {
-    if (!currentChatId) return;
-    const text = message.parts
-      .filter(isTextUIPart)
-      .map((p) => p.text)
-      .join("");
-    if (text) {
-      try {
-        await saveMessageMut.mutateAsync({
-          slug: data.slug,
-          chatId: currentChatId,
-          role: "assistant",
-          content: text,
+  $effect(() => {
+    chat?.messages;
+    chat?.status;
+    if (messagesContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+      if (scrollHeight - scrollTop - clientHeight < 250) {
+        requestAnimationFrame(() => {
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
         });
-        invalidateChatsList();
-      } catch (e) {
-        console.error("Failed to save assistant message:", e);
-        toast.error("Failed to save assistant message");
       }
     }
-  }
+  });
 
   onMount(() => {
     if (chatItems.length > 0 && !currentChatId && !hasInitialized) {
@@ -247,35 +290,141 @@
         {/if}
       </header>
 
-      <div class="flex-1 overflow-hidden">
+      <div class="flex flex-1 flex-col overflow-hidden">
         {#if isLoadingChat}
-          <div class="flex h-full items-center justify-center">
+          <div class="flex flex-1 items-center justify-center">
             <Spinner class="text-muted-foreground size-8" />
           </div>
+        {:else if chat.messages.length > 0}
+          <div class="flex-1 overflow-y-auto" bind:this={messagesContainer}>
+            <div class="mx-auto max-w-4xl space-y-4 p-4">
+              {#each chat.messages as message (message.id)}
+                {#if message.role === "user"}
+                  {@const text = message.parts
+                    .filter(isTextUIPart)
+                    .map((p) => p.text)
+                    .join("")}
+                  {@const attachments = message.parts.filter((p) => p.type === "file")}
+                  <Message.Message from="user">
+                    <div class="mb-4 flex flex-row-reverse gap-3">
+                      <Avatar.Root class="size-8 shrink-0">
+                        <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
+                        <Avatar.Fallback>
+                          {data.user.name.charAt(0).toUpperCase()}
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+                      <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
+                        <Message.MessageContent>
+                          <Message.MessageResponse content={text} />
+                        </Message.MessageContent>
+                        {#if attachments.length > 0}
+                          <Message.MessageAttachments>
+                            {#each attachments as attachment (attachment.url)}
+                              <Message.MessageAttachment
+                                data={{
+                                  type: "file",
+                                  url: attachment.url,
+                                  mediaType: attachment.mediaType,
+                                  filename: attachment.filename,
+                                }}
+                              />
+                            {/each}
+                          </Message.MessageAttachments>
+                        {/if}
+                      </div>
+                    </div>
+                  </Message.Message>
+                {:else if message.role === "assistant"}
+                  {@const text = message.parts
+                    .filter(isTextUIPart)
+                    .map((p) => p.text)
+                    .join("")}
+                  <Message.Message from="assistant">
+                    <div class="mb-4 flex gap-3">
+                      <Avatar.Root class="size-8 shrink-0">
+                        <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+                          AI
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+                      <div class="flex min-w-0 flex-1 flex-col gap-1">
+                        <Message.MessageContent>
+                          <Message.MessageResponse content={text} />
+                        </Message.MessageContent>
+                      </div>
+                    </div>
+                  </Message.Message>
+                {/if}
+              {/each}
+              {#if chat.status === "submitted"}
+                <div class="mb-4 flex gap-3">
+                  <Avatar.Root class="size-8 shrink-0">
+                    <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+                      AI
+                    </Avatar.Fallback>
+                  </Avatar.Root>
+                  <div class="flex min-w-0 flex-1 flex-col gap-1">
+                    <span class="text-sm font-medium">Assistant</span>
+                    <div class="flex items-center gap-1">
+                      <span class="bg-foreground/80 size-1.5 animate-bounce rounded-full"></span>
+                      <span
+                        class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
+                        style="animation-delay: 0.2s"
+                      ></span>
+                      <span
+                        class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
+                        style="animation-delay: 0.4s"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              {/if}
+            </div>
+          </div>
         {:else}
-          {#key currentChatId}
-            <AiChat.Root
-              chatId={currentChatId ?? undefined}
-              api={`/api/ai/${data.slug}/shop-assistant`}
-              initialMessages={chatMessages}
-              onSend={handleOnSend}
-              onFinish={handleOnFinish}
-            >
-              <AiChat.FullPageContainer>
-                <AiChat.Messages
-                  empty={welcomeSnippet}
-                  userMessage={userMessageSnippet}
-                  assistantMessage={assistantMessageSnippet}
-                  generating={generatingSnippet}
-                />
-                <AiChat.Input placeholder="Type a message...">
-                  <AiChat.SendButton />
-                </AiChat.Input>
-                <AiChat.Footer />
-              </AiChat.FullPageContainer>
-            </AiChat.Root>
-          {/key}
+          <div class="flex flex-1 flex-col items-center justify-center gap-4 p-4 text-center">
+            <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+              <BotIcon class="text-primary size-6" />
+            </div>
+            <div class="flex max-w-md flex-col gap-2">
+              <h2 class="text-lg font-semibold">How can I help you today?</h2>
+              <p class="text-muted-foreground text-sm">
+                I can help you manage your inventory, analyze sales data, create reports, and answer
+                questions about your shop.
+              </p>
+            </div>
+          </div>
         {/if}
+
+        <div class="mx-auto w-full max-w-4xl p-4 pt-0">
+          <PromptInput.Root
+            accept="image/*,.pdf"
+            globalDrop
+            maxFiles={5}
+            onFileAdd={handleFileAdd}
+            onSubmit={handleSubmit}
+          >
+            <PromptInput.Attachments>
+              {#snippet children(attachment)}
+                <PromptInput.Attachment data={attachment} />
+              {/snippet}
+            </PromptInput.Attachments>
+            <PromptInput.Toolbar>
+              <PromptInput.Tools>
+                <PromptInput.ActionMenu>
+                  <PromptInput.ActionMenuTrigger />
+                  <PromptInput.ActionMenuContent class="min-w-50">
+                    <PromptInput.ActionAddAttachments />
+                  </PromptInput.ActionMenuContent>
+                </PromptInput.ActionMenu>
+                <PromptInput.Textarea placeholder="Type a message..." />
+              </PromptInput.Tools>
+              <PromptInput.Submit status={chat.status} onStop={() => chat.stop()} />
+            </PromptInput.Toolbar>
+          </PromptInput.Root>
+          <p class="text-muted-foreground mt-2 text-center text-xs">
+            AI can make mistakes. Please verify important information.
+          </p>
+        </div>
       </div>
     </div>
   </Sidebar.Inset>
@@ -307,63 +456,3 @@
     </form>
   </Dialog.Content>
 </Dialog.Root>
-
-{#snippet welcomeSnippet()}
-  <div class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
-    <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-      <BotIcon class="text-primary size-6" />
-    </div>
-    <div class="flex max-w-md flex-col gap-2">
-      <h2 class="text-lg font-semibold">How can I help you today?</h2>
-      <p class="text-muted-foreground text-sm">
-        I can help you manage your inventory, analyze sales data, create reports, and answer
-        questions about your shop.
-      </p>
-    </div>
-  </div>
-{/snippet}
-
-{#snippet userMessageSnippet({ text }: { text: string })}
-  <div class="mb-4 flex flex-row-reverse gap-3">
-    <Avatar.Root class="size-8 shrink-0">
-      <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
-      <Avatar.Fallback>
-        {data.user.name.charAt(0).toUpperCase()}
-      </Avatar.Fallback>
-    </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
-      <span class="text-sm font-medium">{data.user.name}</span>
-      <div class="prose prose-sm dark:prose-invert max-w-none">
-        {@html renderMarkdown(text)}
-      </div>
-    </div>
-  </div>
-{/snippet}
-
-{#snippet assistantMessageSnippet({ textParts }: { textParts: string[]; toolParts: unknown[] })}
-  <div class="mb-4 flex gap-3">
-    <Avatar.Root class="size-8 shrink-0">
-      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">AI</Avatar.Fallback>
-    </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col gap-1">
-      <span class="text-sm font-medium">Assistant</span>
-      <div class="prose prose-sm dark:prose-invert max-w-none">
-        {#each textParts as partText}
-          {@html renderMarkdown(partText)}
-        {/each}
-      </div>
-    </div>
-  </div>
-{/snippet}
-
-{#snippet generatingSnippet()}
-  <div class="mb-4 flex gap-3">
-    <Avatar.Root class="size-8 shrink-0">
-      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">AI</Avatar.Fallback>
-    </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col gap-1">
-      <span class="text-sm font-medium">Assistant</span>
-      <ThinkingDots class="text-sm" />
-    </div>
-  </div>
-{/snippet}
