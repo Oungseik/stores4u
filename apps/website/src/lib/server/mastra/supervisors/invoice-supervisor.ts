@@ -1,6 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { invoiceVerificationAgent } from "../agents/invoice-verification-agent";
-import { invoiceExtractionAgent } from "../agents/invoice-extraction-agent";
+import { invoiceExtractionAgent } from "$lib/server/mastra/agents/invoice-extraction-agent";
+import { invoiceVerificationAgent } from "$lib/server/mastra/agents/invoice-verification-agent";
 
 export const invoiceSupervisor = new Agent({
   id: "invoice-supervisor",
