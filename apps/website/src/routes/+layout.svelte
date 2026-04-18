@@ -4,15 +4,26 @@
   import { Toaster } from "@repo/ui/sonner";
   import { QueryClientProvider, dehydrate } from "@tanstack/svelte-query";
   import { ModeWatcher } from "mode-watcher";
+  import { onMount } from "svelte";
 
   import { browser } from "$app/environment";
   import { onNavigate } from "$app/navigation";
+  import { env } from "$env/dynamic/public";
   import { createDehydratedScript } from "$lib/utils";
 
   import "../app.css";
   import type { LayoutProps } from "./$types";
 
   let { children, data }: LayoutProps = $props();
+
+  onMount(async () => {
+    if (env.PUBLIC_ENVIRONMENT === "development" && "serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+    }
+  });
 
   onNavigate((navigation) => {
     if (!document.startViewTransition) return;
