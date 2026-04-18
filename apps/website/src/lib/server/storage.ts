@@ -100,3 +100,7 @@ export async function getObject(key: string): Promise<Buffer> {
   const arrayBuffer = await file.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }
+
+export function getObjectStream(key: string): ReadableStream<Uint8Array> {
+  return storage.file(key).stream();
+}
