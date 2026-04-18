@@ -12,6 +12,7 @@
   },
   "exports": {
     "./ai-elements/*": "./src/lib/components/ai-elements/*/index.js",
+    "./prompt-kit/*": "./src/lib/components/prompt-kit/*/index.js",
     "./*": "./src/lib/components/ui/*/index.js",
     "./css": "./src/app.css",
     "./styles/*": "./src/lib/styles/*.css"

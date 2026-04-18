@@ -13,6 +13,7 @@
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { PhoneInput } from "@repo/ui/phone-input";
+  import { Loader } from "@repo/ui/prompt-kit/loader";
   import * as Select from "@repo/ui/select";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
@@ -615,17 +616,7 @@
             {/each}
             {#if chat.status === "submitted"}
               <div class="flex gap-2">
-                <div class="flex items-center gap-1">
-                  <span class="bg-foreground/80 size-1.5 animate-bounce rounded-full"></span>
-                  <span
-                    class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
-                    style="animation-delay: 0.2s"
-                  ></span>
-                  <span
-                    class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
-                    style="animation-delay: 0.4s"
-                  ></span>
-                </div>
+                <Loader variant="typing" />
               </div>
             {/if}
           </div>
