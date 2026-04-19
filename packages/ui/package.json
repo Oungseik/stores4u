@@ -65,6 +65,7 @@
     "@shikijs/langs": "^4.0.2",
     "@shikijs/themes": "^4.0.2",
     "ai": "^6.0.168",
+    "dompurify": "^3.4.0",
     "isomorphic-dompurify": "^3.9.0",
     "maska": "^3.2.0",
     "shiki": "^4.0.2",

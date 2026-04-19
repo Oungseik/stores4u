@@ -15,7 +15,10 @@
 		| "input-streaming"
 		| "input-available"
 		| "output-available"
-		| "output-error";
+		| "output-error"
+		| "approval-requested"
+		| "approval-responded"
+		| "output-denied";
 
 	interface ToolHeaderProps {
 		type: ToolUIPartType;
@@ -32,6 +35,9 @@
 			"input-available": "Running",
 			"output-available": "Completed",
 			"output-error": "Error",
+			"approval-requested": "Approval Needed",
+			"approval-responded": "Approved",
+			"output-denied": "Denied",
 		} as const;
 
 		let icons = {
@@ -39,6 +45,9 @@
 			"input-available": ClockIcon,
 			"output-available": CheckCircleIcon,
 			"output-error": XCircleIcon,
+			"approval-requested": ClockIcon,
+			"approval-responded": CheckCircleIcon,
+			"output-denied": XCircleIcon,
 		} as const;
 
 		let IconComponent = icons[state];

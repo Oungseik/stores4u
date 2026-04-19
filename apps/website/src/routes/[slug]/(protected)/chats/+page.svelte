@@ -7,7 +7,8 @@
   import { Loader } from "@repo/ui/prompt-kit/loader";
   import { Spinner } from "@repo/ui/spinner";
   import { useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, isTextUIPart } from "ai";
+  import * as Tool from "@repo/ui/ai-elements/tool";
+  import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
 
   import { goto } from "$app/navigation";
   import { orpc } from "$lib/orpc_client";
@@ -100,10 +101,6 @@
               </div>
             </Message.Message>
           {:else if message.role === "assistant"}
-            {@const text = message.parts
-              .filter(isTextUIPart)
-              .map((p) => p.text)
-              .join("")}
             <Message.Message from="assistant">
               <div class="mb-4 flex gap-3">
                 <Avatar.Root class="size-8 shrink-0">
@@ -113,7 +110,25 @@
                 </Avatar.Root>
                 <div class="flex min-w-0 flex-1 flex-col gap-1">
                   <Message.MessageContent>
-                    <Message.MessageResponse content={text} />
+                    {#each message.parts as part, partIndex (partIndex)}
+                      {#if isTextUIPart(part)}
+                        <Message.MessageResponse content={part.text} />
+                      {:else if isToolUIPart(part)}
+                        <Tool.Root>
+                          <Tool.Header type={getToolName(part)} state={part.state} />
+                          <Tool.Content>
+                            {#if part.input}
+                              <Tool.Input input={part.input} />
+                            {/if}
+                            {#if part.state === "output-available"}
+                              <Tool.Output output={part.output} />
+                            {:else if part.state === "output-error"}
+                              <Tool.Output errorText={part.errorText} />
+                            {/if}
+                          </Tool.Content>
+                        </Tool.Root>
+                      {/if}
+                    {/each}
                   </Message.MessageContent>
                 </div>
               </div>
