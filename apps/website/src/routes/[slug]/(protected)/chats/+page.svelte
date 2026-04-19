@@ -3,11 +3,11 @@
   import BotIcon from "@lucide/svelte/icons/bot";
   import * as Message from "@repo/ui/ai-elements/message";
   import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
+  import * as Tool from "@repo/ui/ai-elements/tool";
   import * as Avatar from "@repo/ui/avatar";
   import { Loader } from "@repo/ui/prompt-kit/loader";
   import { Spinner } from "@repo/ui/spinner";
   import { useQueryClient } from "@tanstack/svelte-query";
-  import * as Tool from "@repo/ui/ai-elements/tool";
   import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
 
   import { goto } from "$app/navigation";
@@ -44,19 +44,32 @@
     chat.sendMessage({ text: message.text, files: message.files });
   }
 
-  $effect.pre(() => {
-    chat?.messages;
-    chat?.status;
+  function isNearBottom(): boolean {
+    if (!messagesContainer) return true;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+    return scrollHeight - scrollTop - clientHeight < 250;
+  }
+
+  function scrollToBottom() {
     if (messagesContainer) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
-      if (scrollHeight - scrollTop - clientHeight < 250) {
-        requestAnimationFrame(() => {
-          if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          }
-        });
-      }
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+  }
+
+  $effect(() => {
+    const container = messagesContainer;
+    if (!container) return;
+
+    let rafId = 0;
+    const observer = new MutationObserver(() => {
+      if (!isNearBottom()) return;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(scrollToBottom);
+    });
+
+    observer.observe(container, { childList: true, subtree: true, characterData: true });
+
+    return () => observer.disconnect();
   });
 </script>
 
