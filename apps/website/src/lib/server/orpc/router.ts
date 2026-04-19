@@ -43,6 +43,10 @@ import { disconnectPlatformHandler } from "./handlers/social/disconnect_platform
 import { getFacebookPagesHandler } from "./handlers/social/get_facebook_pages";
 import { listConnectionsHandler } from "./handlers/social/list_connections";
 import { updatePermissionsHandler } from "./handlers/social/update_permissions";
+import { getThreadMessagesHandler } from "./handlers/threads/get_thread_messages";
+import { listThreadsHandler } from "./handlers/threads/list_threads";
+import { deleteThreadHandler } from "./handlers/threads/delete_thread";
+import { updateThreadHandler } from "./handlers/threads/update_thread";
 import { createSupplierHandler } from "./handlers/suppliers/create_supplier";
 import { deleteSupplierHandler } from "./handlers/suppliers/delete_supplier";
 import { getSupplierHandler } from "./handlers/suppliers/get_supplier";
@@ -125,6 +129,12 @@ export const router = os.router({
   tax: {
     get: getTaxSettingsHandler,
     update: updateTaxSettingsHandler,
+  },
+  threads: {
+    delete: deleteThreadHandler,
+    getMessages: getThreadMessagesHandler,
+    list: listThreadsHandler,
+    update: updateThreadHandler,
   },
   user: {
     listAccounts: listAccountsHandler,

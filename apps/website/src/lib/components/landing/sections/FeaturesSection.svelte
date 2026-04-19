@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Button } from "@repo/ui/button";
   import { siFacebook, siTelegram, siTiktok, siViber } from "simple-icons";
 
   import BarcodeScanner from "../BarcodeScanner.svelte";
@@ -337,37 +338,49 @@
           <!-- Platform icons -->
           <div class="flex items-center gap-4">
             <!-- Facebook -->
-            <div
-              class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl bg-[#1877F2]/10 transition-transform hover:scale-110"
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              class="rounded-xl bg-[#1877F2]/10 transition-transform hover:scale-110 hover:bg-[#1877F2]/10"
+              aria-label="Facebook"
             >
               <svg class="h-6 w-6 text-[#1877F2]" viewBox="0 0 24 24" fill="currentColor">
                 <path d={siFacebook.path} />
               </svg>
-            </div>
+            </Button>
             <!-- TikTok -->
-            <div
-              class="bg-muted text-foreground flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl transition-transform hover:scale-110"
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              class="bg-muted rounded-xl transition-transform hover:scale-110"
+              aria-label="TikTok"
             >
               <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                 <path d={siTiktok.path} />
               </svg>
-            </div>
+            </Button>
             <!-- Viber -->
-            <div
-              class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl bg-[#7360f2]/10 transition-transform hover:scale-110"
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              class="rounded-xl bg-[#7360f2]/10 transition-transform hover:scale-110 hover:bg-[#7360f2]/10"
+              aria-label="Viber"
             >
               <svg class="h-6 w-6 text-[#7360f2]" viewBox="0 0 24 24" fill="currentColor">
                 <path d={siViber.path} />
               </svg>
-            </div>
+            </Button>
             <!-- Telegram -->
-            <div
-              class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl bg-[#0088cc]/10 transition-transform hover:scale-110"
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              class="rounded-xl bg-[#0088cc]/10 transition-transform hover:scale-110 hover:bg-[#0088cc]/10"
+              aria-label="Telegram"
             >
               <svg class="h-6 w-6 text-[#0088cc]" viewBox="0 0 24 24" fill="currentColor">
                 <path d={siTelegram.path} />
               </svg>
-            </div>
+            </Button>
           </div>
         </div>
       </ScrollReveal>

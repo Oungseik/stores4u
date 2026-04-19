@@ -7,7 +7,7 @@ export const invoiceSupervisor = new Agent({
   name: "Invoice Supervisor",
   description:
     "Handles all invoice-related tasks including verifying invoice images, extracting invoice data, and answering questions about invoices. Delegates to specialized invoice agents as needed.",
-  model: "openrouter/minimax/minimax-m2.7",
+  model: "openrouter/moonshotai/kimi-k2.5",
   instructions: `You are an invoice operations supervisor. You coordinate invoice-related tasks using specialized agents.
 
 Available agents:

@@ -10,6 +10,7 @@
   import * as Avatar from "@repo/ui/avatar";
   import { Button } from "@repo/ui/button";
   import * as Dialog from "@repo/ui/dialog";
+  import { Spinner } from "@repo/ui/spinner";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
 
   import { page } from "$app/state";
@@ -266,9 +267,7 @@
 
             {#if isLoadingPages}
               <div class="flex items-center justify-center py-8">
-                <div
-                  class="border-primary size-8 animate-spin rounded-full border-2 border-t-transparent"
-                ></div>
+                <Spinner class="text-primary size-8" />
               </div>
             {:else if pagesError}
               <div class="bg-destructive/10 text-destructive rounded-lg p-4 text-sm">
@@ -348,10 +347,7 @@
         {:else}
           <Button onclick={handleConnect} disabled={isConnecting}>
             {#if isConnecting}
-              <div
-                class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-                data-icon="inline-start"
-              ></div>
+              <Spinner class="size-4" data-icon="inline-start" />
               Connecting...
             {:else}
               Connect Account

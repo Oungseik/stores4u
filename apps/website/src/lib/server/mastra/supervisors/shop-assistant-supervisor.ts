@@ -8,7 +8,7 @@ export const shopAssistantSupervisor = new Agent({
   name: "Shop Assistant",
   description:
     "Master supervisor for the shop chat. Routes user requests to the appropriate domain supervisor or agent. Handles invoice operations and general shop questions.",
-  model: "openrouter/minimax/minimax-m2.7",
+  model: "openrouter/moonshotai/kimi-k2.5",
   instructions: `You are the main shop assistant supervisor. You help shop owners with all aspects of their business by delegating to specialized domain supervisors and agents.
 
 Available resources:

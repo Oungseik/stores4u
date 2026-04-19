@@ -1,12 +1,20 @@
 <script lang="ts">
   import * as Sidebar from "@repo/ui/sidebar";
+  import { createQuery } from "@tanstack/svelte-query";
 
   import { page } from "$app/state";
+  import { orpc } from "$lib/orpc_client";
 
   import type { LayoutProps } from "./$types";
   import ChatsSidebar from "./chats-sidebar.svelte";
 
   let { data, children }: LayoutProps = $props();
+
+  let threadsQuery = createQuery(() =>
+    orpc.threads.list.queryOptions({
+      input: { slug: data.slug },
+    })
+  );
 </script>
 
 <Sidebar.Provider
@@ -18,17 +26,13 @@
     shop={{ id: data.id, name: data.name, slug: data.slug, logo: data.logo }}
     user={data.user}
     currentPath={page.url.pathname}
-    chats={[]}
+    chats={threadsQuery.data?.items ?? []}
   />
   <Sidebar.Inset>
     <div class="flex h-full flex-1 flex-col overflow-hidden">
       <header class="flex h-14 items-center gap-2 border-b px-4">
         <Sidebar.Trigger class="-ms-1" />
-        {#if page.url.pathname.startsWith(`/${data.slug}/chats/`)}
-          <h1 class="font-medium">Chat</h1>
-        {:else}
-          <h1 class="font-medium">New Chat</h1>
-        {/if}
+        <h1 class="font-medium">Chats</h1>
       </header>
       {@render children()}
     </div>

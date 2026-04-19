@@ -1,6 +1,6 @@
 import { handleChatStream } from "@mastra/ai-sdk";
-import { createUIMessageStreamResponse } from "ai";
 import { RequestContext } from "@mastra/core/request-context";
+import { createUIMessageStreamResponse } from "ai";
 import { mastra } from "$lib/server/mastra";
 
 export async function POST({
@@ -29,11 +29,6 @@ export async function POST({
     const requestContext = new RequestContext<{ slug: string }>();
     requestContext.set("slug", slug);
 
-    const memory = {
-      thread: body.threadId ?? crypto.randomUUID(),
-      resource: slug,
-    };
-
     const stream = await handleChatStream({
       mastra,
       agentId: "shopAssistantSupervisor",
@@ -42,7 +37,10 @@ export async function POST({
         requestContext,
       },
       defaultOptions: {
-        memory,
+        memory: {
+          thread: body.threadId ?? crypto.randomUUID(),
+          resource: slug,
+        },
         maxSteps: 10,
       },
       version: "v6",

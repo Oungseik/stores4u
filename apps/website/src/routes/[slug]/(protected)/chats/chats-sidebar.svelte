@@ -2,18 +2,26 @@
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import BotIcon from "@lucide/svelte/icons/bot";
   import MessageSquareIcon from "@lucide/svelte/icons/message-square";
+  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import SettingsIcon from "@lucide/svelte/icons/settings";
+  import TrashIcon from "@lucide/svelte/icons/trash";
   import * as Avatar from "@repo/ui/avatar";
   import { Button } from "@repo/ui/button";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
+  import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
+  import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import type { ComponentProps } from "svelte";
 
+  import { page } from "$app/state";
   import { authClient } from "$lib/auth_client";
+  import { orpc } from "$lib/orpc_client";
 
   interface Chat {
     id: string;
@@ -48,6 +56,58 @@
   );
 
   const isActive = (href: string) => currentPath === href || currentPath.startsWith(href + "/");
+
+  const queryClient = useQueryClient();
+
+  let renamingChat: Chat | null = $state(null);
+  let renameTitle = $state("");
+
+  let updateTitleMutation = createMutation(() =>
+    orpc.threads.update.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
+      },
+    })
+  );
+
+  let deleteThreadMutation = createMutation(() =>
+    orpc.threads.delete.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
+      },
+    })
+  );
+
+  function openRenameDialog(chat: Chat) {
+    renamingChat = chat;
+    renameTitle = chat.title;
+  }
+
+  async function handleRename() {
+    if (!renamingChat || !renameTitle.trim()) return;
+    await updateTitleMutation.mutateAsync({
+      slug: shop.slug,
+      threadId: renamingChat.id,
+      title: renameTitle.trim(),
+    });
+    renamingChat = null;
+  }
+
+  function handleDelete(chat: Chat) {
+    confirmDelete({
+      title: "Delete Chat",
+      description: `Are you sure you want to delete "${chat.title}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        await deleteThreadMutation.mutateAsync({
+          slug: shop.slug,
+          threadId: chat.id,
+        });
+        if (page.url.pathname === `/${shop.slug}/chats/${chat.id}`) {
+          window.location.href = `/${shop.slug}/chats`;
+        }
+      },
+    });
+  }
 </script>
 
 <Sidebar.Root collapsible="offcanvas" {...restProps}>
@@ -159,6 +219,26 @@
                     </a>
                   {/snippet}
                 </Sidebar.MenuButton>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    {#snippet child({ props })}
+                      <Sidebar.MenuAction {...props}>
+                        <MoreVerticalIcon />
+                      </Sidebar.MenuAction>
+                    {/snippet}
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content side="right" align="start">
+                    <DropdownMenu.Item onclick={() => openRenameDialog(chat)}>
+                      <PencilIcon class="size-4" />
+                      Rename
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item variant="destructive" onclick={() => handleDelete(chat)}>
+                      <TrashIcon class="size-4" />
+                      Delete
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
               </Sidebar.MenuItem>
             {/each}
           </Sidebar.Menu>
@@ -240,3 +320,33 @@
     </Sidebar.Menu>
   </Sidebar.Footer>
 </Sidebar.Root>
+
+<Dialog.Root
+  open={renamingChat !== null}
+  onOpenChange={(open) => {
+    if (!open) renamingChat = null;
+  }}
+>
+  <Dialog.Content class="max-w-md">
+    <Dialog.Header>
+      <Dialog.Title>Rename Chat</Dialog.Title>
+      <Dialog.Description>Enter a new name for this chat.</Dialog.Description>
+    </Dialog.Header>
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleRename();
+      }}
+    >
+      <div class="py-4">
+        <Input bind:value={renameTitle} placeholder="Chat title" autofocus />
+      </div>
+      <Dialog.Footer>
+        <Button type="button" variant="outline" onclick={() => (renamingChat = null)}>
+          Cancel
+        </Button>
+        <Button type="submit">Save</Button>
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>

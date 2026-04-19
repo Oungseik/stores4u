@@ -9,6 +9,7 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
+  import { Label } from "@repo/ui/label";
   import { Switch } from "@repo/ui/switch";
   import type { SocialConnectionSelect } from "@repo/website-auth";
   import { siFacebook, siTelegram, siTiktok, siViber } from "simple-icons";
@@ -204,7 +205,7 @@
 
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label for="auto-post-products" class="text-sm font-medium">Auto-post Products</label>
+            <Label for="auto-post-products">Auto-post Products</Label>
             <p class="text-muted-foreground text-xs">
               Automatically post when new products are added
             </p>
@@ -218,7 +219,7 @@
 
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label for="manual-posting" class="text-sm font-medium">Manual Posting</label>
+            <Label for="manual-posting">Manual Posting</Label>
             <p class="text-muted-foreground text-xs">
               Allow manual posting from the marketing page
             </p>
@@ -232,7 +233,7 @@
 
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label for="post-promotions" class="text-sm font-medium">Post Promotions</label>
+            <Label for="post-promotions">Post Promotions</Label>
             <p class="text-muted-foreground text-xs">
               Automatically share sales and special offers
             </p>
@@ -246,7 +247,7 @@
 
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label for="post-order-updates" class="text-sm font-medium">Order Updates</label>
+            <Label for="post-order-updates">Order Updates</Label>
             <p class="text-muted-foreground text-xs">
               Share order confirmations and shipping updates
             </p>

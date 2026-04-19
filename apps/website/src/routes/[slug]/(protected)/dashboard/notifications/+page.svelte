@@ -274,22 +274,22 @@
                         >{formatRelativeTime(notification.createdAt)}</span
                       >
                       <div class="flex items-center gap-1">
-                        <button
-                          type="button"
-                          class="hover:bg-muted rounded p-1 transition-colors"
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onclick={(e) => togglePin(notification.id, e)}
                           aria-label="Unpin notification"
                         >
-                          <PinIcon class="text-primary size-4" />
-                        </button>
-                        <button
-                          type="button"
-                          class="hover:bg-muted rounded p-1 transition-colors"
+                          <PinIcon class="text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onclick={(e) => deleteNotification(notification.id, e)}
                           aria-label="Delete notification"
                         >
-                          <TrashIcon class="text-muted-foreground hover:text-destructive size-4" />
-                        </button>
+                          <TrashIcon class="text-muted-foreground hover:text-destructive" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -350,22 +350,22 @@
                         >{formatRelativeTime(notification.createdAt)}</span
                       >
                       <div class="flex items-center gap-1">
-                        <button
-                          type="button"
-                          class="hover:bg-muted rounded p-1 transition-colors"
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onclick={(e) => togglePin(notification.id, e)}
                           aria-label="Pin notification"
                         >
-                          <PinOffIcon class="text-muted-foreground hover:text-foreground size-4" />
-                        </button>
-                        <button
-                          type="button"
-                          class="hover:bg-muted rounded p-1 transition-colors"
+                          <PinOffIcon class="text-muted-foreground hover:text-foreground" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onclick={(e) => deleteNotification(notification.id, e)}
                           aria-label="Delete notification"
                         >
-                          <TrashIcon class="text-muted-foreground hover:text-destructive size-4" />
-                        </button>
+                          <TrashIcon class="text-muted-foreground hover:text-destructive" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -426,22 +426,22 @@
                         >{formatRelativeTime(notification.createdAt)}</span
                       >
                       <div class="flex items-center gap-1">
-                        <button
-                          type="button"
-                          class="hover:bg-muted rounded p-1 transition-colors"
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onclick={(e) => togglePin(notification.id, e)}
                           aria-label="Pin notification"
                         >
-                          <PinOffIcon class="text-muted-foreground hover:text-foreground size-4" />
-                        </button>
-                        <button
-                          type="button"
-                          class="hover:bg-muted rounded p-1 transition-colors"
+                          <PinOffIcon class="text-muted-foreground hover:text-foreground" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
                           onclick={(e) => deleteNotification(notification.id, e)}
                           aria-label="Delete notification"
                         >
-                          <TrashIcon class="text-muted-foreground hover:text-destructive size-4" />
-                        </button>
+                          <TrashIcon class="text-muted-foreground hover:text-destructive" />
+                        </Button>
                       </div>
                     </div>
                   </div>
