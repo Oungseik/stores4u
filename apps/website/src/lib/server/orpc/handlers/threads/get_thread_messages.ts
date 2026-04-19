@@ -1,7 +1,7 @@
-import { ORPCError } from "@orpc/server";
+import { toAISdkV5Messages } from "@mastra/ai-sdk/ui";
 import { z } from "zod";
-import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { createShopMemory } from "$lib/server/mastra/_lib/memory";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -26,15 +26,7 @@ export const getThreadMessagesHandler = os
       perPage: false,
     });
 
-    const messages = result.messages
-      .filter((m) => m.role !== "system")
-      .map((m) => ({
-        id: m.id,
-        role: m.role as "user" | "assistant",
-        parts: m.content.parts
-          .filter((p): p is { type: "text"; text: string } => p.type === "text")
-          .map((p) => ({ type: "text" as const, text: p.text })),
-      }));
+    const messages = toAISdkV5Messages(result.messages.filter((m) => m.role !== "system"));
 
     return { messages };
   });
