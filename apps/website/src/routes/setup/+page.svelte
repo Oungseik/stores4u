@@ -8,6 +8,7 @@
   import { COUNTRIES, type CountryCode } from "@repo/config";
   import * as Message from "@repo/ui/ai-elements/message";
   import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
+  import * as Reasoning from "@repo/ui/ai-elements/reasoning";
   import * as Tool from "@repo/ui/ai-elements/tool";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
@@ -19,7 +20,7 @@
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
+  import { DefaultChatTransport, getToolName, isReasoningUIPart, isTextUIPart, isToolUIPart } from "ai";
   import { tick } from "svelte";
   import { toast } from "svelte-sonner";
   import z from "zod";
@@ -647,7 +648,14 @@
                 <Message.Message from="assistant">
                   <Message.MessageContent>
                     {#each message.parts as part, partIndex (partIndex)}
-                      {#if isTextUIPart(part)}
+                      {#if isReasoningUIPart(part)}
+                        <Reasoning.Root isStreaming={part.state === "streaming"}>
+                          <Reasoning.Trigger />
+                          <Reasoning.Content>
+                            {part.text}
+                          </Reasoning.Content>
+                        </Reasoning.Root>
+                      {:else if isTextUIPart(part)}
                         <Message.MessageResponse content={part.text} />
                       {:else if isToolUIPart(part)}
                         <Tool.Root>

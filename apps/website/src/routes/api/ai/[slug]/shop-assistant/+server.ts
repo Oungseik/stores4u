@@ -44,6 +44,7 @@ export async function POST({
         maxSteps: 10,
       },
       version: "v6",
+      sendReasoning: true,
     });
 
     return createUIMessageStreamResponse({ stream });

@@ -3,12 +3,13 @@
   import BotIcon from "@lucide/svelte/icons/bot";
   import * as Message from "@repo/ui/ai-elements/message";
   import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
+  import * as Reasoning from "@repo/ui/ai-elements/reasoning";
   import * as Tool from "@repo/ui/ai-elements/tool";
   import * as Avatar from "@repo/ui/avatar";
   import { Loader } from "@repo/ui/prompt-kit/loader";
   import { Spinner } from "@repo/ui/spinner";
   import { useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
+  import { DefaultChatTransport, getToolName, isReasoningUIPart, isTextUIPart, isToolUIPart } from "ai";
 
   import { goto } from "$app/navigation";
   import { orpc } from "$lib/orpc_client";
@@ -124,7 +125,14 @@
                 <div class="flex min-w-0 flex-1 flex-col gap-1">
                   <Message.MessageContent>
                     {#each message.parts as part, partIndex (partIndex)}
-                      {#if isTextUIPart(part)}
+                      {#if isReasoningUIPart(part)}
+                        <Reasoning.Root isStreaming={part.state === "streaming"}>
+                          <Reasoning.Trigger />
+                          <Reasoning.Content>
+                            {part.text}
+                          </Reasoning.Content>
+                        </Reasoning.Root>
+                      {:else if isTextUIPart(part)}
                         <Message.MessageResponse content={part.text} />
                       {:else if isToolUIPart(part)}
                         <Tool.Root>
