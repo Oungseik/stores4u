@@ -143,7 +143,10 @@
                   <Message.MessageContent>
                     {#each message.parts as part, partIndex (partIndex)}
                       {#if isReasoningUIPart(part)}
-                        <Reasoning.Root isStreaming={part.state === "streaming"} defaultOpen={false}>
+                        <Reasoning.Root
+                          isStreaming={part.state === "streaming"}
+                          defaultOpen={false}
+                        >
                           <Reasoning.Trigger />
                           <Reasoning.Content>
                             {part.text}
