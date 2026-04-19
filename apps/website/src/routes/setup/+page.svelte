@@ -16,11 +16,18 @@
   import { Label } from "@repo/ui/label";
   import { PhoneInput } from "@repo/ui/phone-input";
   import { Loader } from "@repo/ui/prompt-kit/loader";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Select from "@repo/ui/select";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, getToolName, isReasoningUIPart, isTextUIPart, isToolUIPart } from "ai";
+  import {
+    DefaultChatTransport,
+    getToolName,
+    isReasoningUIPart,
+    isTextUIPart,
+    isToolUIPart,
+  } from "ai";
   import { tick } from "svelte";
   import { toast } from "svelte-sonner";
   import z from "zod";
@@ -630,7 +637,7 @@
         </Button>
       </div>
 
-      <div bind:this={messagesContainer} class="flex-1 overflow-y-auto">
+      <ScrollArea bind:viewportRef={messagesContainer} class="flex-1">
         {#if chat.messages.length > 0}
           <div class="space-y-4 p-4">
             {#each chat.messages as message (message.id)}
@@ -693,7 +700,7 @@
             </p>
           </div>
         {/if}
-      </div>
+      </ScrollArea>
 
       <PromptInput.Root onSubmit={handleSubmit} class="mx-auto my-2 w-92">
         <PromptInput.Toolbar>

@@ -7,9 +7,16 @@
   import * as Tool from "@repo/ui/ai-elements/tool";
   import * as Avatar from "@repo/ui/avatar";
   import { Loader } from "@repo/ui/prompt-kit/loader";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Spinner } from "@repo/ui/spinner";
   import { useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, getToolName, isReasoningUIPart, isTextUIPart, isToolUIPart } from "ai";
+  import {
+    DefaultChatTransport,
+    getToolName,
+    isReasoningUIPart,
+    isTextUIPart,
+    isToolUIPart,
+  } from "ai";
 
   import { goto } from "$app/navigation";
   import { orpc } from "$lib/orpc_client";
@@ -20,13 +27,11 @@
   const queryClient = useQueryClient();
 
   let chat = $state<Chat | null>(null);
-  let threadId = $state<string | null>(null);
   let messagesContainer = $state<HTMLDivElement | null>(null);
   let navigated = $state(false);
 
   function handleSubmit(message: PromptInput.PromptInputMessage) {
     const tid = crypto.randomUUID();
-    threadId = tid;
     navigated = false;
     chat = new Chat({
       transport: new DefaultChatTransport({
@@ -76,7 +81,7 @@
 
 <div class="flex flex-1 flex-col overflow-hidden">
   {#if chat && chat.messages.length > 0}
-    <div class="flex-1 overflow-y-auto" bind:this={messagesContainer}>
+    <ScrollArea class="h-4/5 flex-1" bind:viewportRef={messagesContainer}>
       <div class="mx-auto max-w-4xl space-y-4 p-4">
         {#each chat.messages as message (message.id)}
           {#if message.role === "user"}
@@ -169,7 +174,7 @@
           </div>
         {/if}
       </div>
-    </div>
+    </ScrollArea>
   {:else if chat && chat.status === "submitted"}
     <div class="flex flex-1 items-center justify-center">
       <Spinner class="text-muted-foreground size-8" />
@@ -189,7 +194,7 @@
     </div>
   {/if}
 
-  <div class="mx-auto w-full max-w-4xl p-4 pt-0">
+  <div class="mx-auto w-full max-w-4xl p-4">
     <PromptInput.Root accept="image/*,.pdf" globalDrop maxFiles={5} onSubmit={handleSubmit}>
       <PromptInput.Attachments>
         {#snippet children(attachment)}
