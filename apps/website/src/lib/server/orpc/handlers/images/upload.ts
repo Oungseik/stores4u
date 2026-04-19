@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { image } from "@repo/db";
 import sharp from "sharp";
 import { z } from "zod";
@@ -21,7 +22,7 @@ export const uploadHandler = os
     const file = input.file;
 
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error("File size exceeds 2MB limit");
+      throw new ORPCError("BAD_REQUEST", { message: "File size exceeds 2MB limit" });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -29,7 +30,9 @@ export const uploadHandler = os
 
     const detectedType = detectImageType(buffer);
     if (!detectedType || !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
-      throw new Error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Invalid image type. Accepted: JPEG, PNG, WebP, SVG",
+      });
     }
 
     const uuid = Bun.randomUUIDv7();

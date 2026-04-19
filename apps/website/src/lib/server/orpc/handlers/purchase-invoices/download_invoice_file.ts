@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getShopDb } from "$lib/server/shop_db";
@@ -20,12 +21,12 @@ export const downloadInvoiceFileHandler = os
     });
 
     if (!file) {
-      throw new Error("Invoice file not found");
+      throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
     const objectKey = extractObjectKey(file.objectPath);
     if (!objectKey) {
-      throw new Error("Invalid file path");
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Invalid file path" });
     }
 
     const downloadUrl = presignDownload(objectKey);
