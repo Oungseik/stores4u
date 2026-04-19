@@ -19,6 +19,7 @@
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import type { ComponentProps } from "svelte";
 
+  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { authClient } from "$lib/auth_client";
   import { orpc } from "$lib/orpc_client";
@@ -103,7 +104,7 @@
           threadId: chat.id,
         });
         if (page.url.pathname === `/${shop.slug}/chats/${chat.id}`) {
-          window.location.href = `/${shop.slug}/chats`;
+          goto(`/${shop.slug}/chats`);
         }
       },
     });
