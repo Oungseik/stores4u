@@ -1,21 +1,29 @@
 <script lang="ts">
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import BotIcon from "@lucide/svelte/icons/bot";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MessageSquareIcon from "@lucide/svelte/icons/message-square";
-  import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
+  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import TrashIcon from "@lucide/svelte/icons/trash";
   import * as Avatar from "@repo/ui/avatar";
   import { Button } from "@repo/ui/button";
+  import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
+  import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
+  import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import type { ComponentProps } from "svelte";
 
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import { authClient } from "$lib/auth_client";
+  import { orpc } from "$lib/orpc_client";
 
   interface Chat {
     id: string;
@@ -37,10 +45,9 @@
     };
     currentPath: string;
     chats?: Chat[];
-    currentChatId?: string;
-    onNewChat?: () => void;
-    onSelectChat?: (chatId: string) => void;
-    onDeleteChat?: (chatId: string) => void;
+    hasNextPage?: boolean;
+    fetchNextPage?: () => Promise<unknown>;
+    isFetchingNextPage?: boolean;
   }
 
   let {
@@ -48,10 +55,9 @@
     user,
     currentPath,
     chats = [],
-    currentChatId,
-    onNewChat,
-    onSelectChat,
-    onDeleteChat,
+    hasNextPage = false,
+    fetchNextPage,
+    isFetchingNextPage = false,
     ...restProps
   }: Props = $props();
 
@@ -63,7 +69,59 @@
     chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const isActive = (href: string) => currentPath === href;
+  const isActive = (href: string) => currentPath === href || currentPath.startsWith(href + "/");
+
+  const queryClient = useQueryClient();
+
+  let renamingChat: Chat | null = $state(null);
+  let renameTitle = $state("");
+
+  let updateTitleMutation = createMutation(() =>
+    orpc.threads.update.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
+      },
+    })
+  );
+
+  let deleteThreadMutation = createMutation(() =>
+    orpc.threads.delete.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
+      },
+    })
+  );
+
+  function openRenameDialog(chat: Chat) {
+    renamingChat = chat;
+    renameTitle = chat.title;
+  }
+
+  async function handleRename() {
+    if (!renamingChat || !renameTitle.trim()) return;
+    await updateTitleMutation.mutateAsync({
+      slug: shop.slug,
+      threadId: renamingChat.id,
+      title: renameTitle.trim(),
+    });
+    renamingChat = null;
+  }
+
+  function handleDelete(chat: Chat) {
+    confirmDelete({
+      title: "Delete Chat",
+      description: `Are you sure you want to delete "${chat.title}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        await deleteThreadMutation.mutateAsync({
+          slug: shop.slug,
+          threadId: chat.id,
+        });
+        if (page.url.pathname === `/${shop.slug}/chats/${chat.id}`) {
+          goto(`/${shop.slug}/chats`);
+        }
+      },
+    });
+  }
 </script>
 
 <Sidebar.Root collapsible="offcanvas" {...restProps}>
@@ -95,17 +153,17 @@
 
   <Sidebar.Content class="overflow-hidden">
     <ScrollArea class="h-full">
-      <!-- New Chat Button -->
       <Sidebar.Group>
         <Sidebar.GroupContent>
-          <Button variant="outline" class="w-full justify-start gap-2" onclick={onNewChat}>
-            <PlusIcon class="size-4" />
-            <span>New Chat</span>
-          </Button>
+          <a href={`/${shop.slug}/chats`} class="block">
+            <Button variant="outline" class="w-full justify-start gap-2">
+              <PlusIcon class="size-4" />
+              <span>New Chat</span>
+            </Button>
+          </a>
         </Sidebar.GroupContent>
       </Sidebar.Group>
 
-      <!-- AI Assistant Navigation -->
       <Sidebar.Group>
         <Sidebar.GroupLabel>AI Assistant</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
@@ -146,7 +204,6 @@
         </Sidebar.GroupContent>
       </Sidebar.Group>
 
-      <!-- Chat History -->
       <Sidebar.Group>
         <Sidebar.GroupLabel>Chat History</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
@@ -160,38 +217,37 @@
           </div>
           <Sidebar.Menu>
             {#each filteredChats as chat (chat.id)}
-              <Sidebar.MenuItem class="flex items-center gap-2">
+              <Sidebar.MenuItem>
                 <Sidebar.MenuButton
                   class="data-[active=true]:bg-primary/10 data-[active=true]:text-primary min-w-0"
                   tooltipContent={chat.title}
-                  isActive={chat.id === currentChatId}
-                  onclick={() => {
-                    onSelectChat?.(chat.id);
-                    if (sidebar.isMobile) sidebar.setOpenMobile(false);
-                  }}
+                  isActive={currentPath === `/${shop.slug}/chats/${chat.id}`}
                 >
-                  <span class="truncate">{chat.title}</span>
+                  {#snippet child({ props })}
+                    <a
+                      href={`/${shop.slug}/chats/${chat.id}`}
+                      {...props}
+                      onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                    >
+                      <span class="truncate">{chat.title}</span>
+                    </a>
+                  {/snippet}
                 </Sidebar.MenuButton>
-
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
                     {#snippet child({ props })}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        class="size-6 shrink-0 group-data-[collapsible=icon]:hidden"
-                        {...props}
-                      >
-                        <span class="sr-only">More</span>
-                        <MoreHorizontalIcon class="size-3" />
-                      </Button>
+                      <Sidebar.MenuAction {...props}>
+                        <MoreVerticalIcon />
+                      </Sidebar.MenuAction>
                     {/snippet}
                   </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end">
-                    <DropdownMenu.Item
-                      onclick={() => onDeleteChat?.(chat.id)}
-                      class="text-destructive focus:text-destructive"
-                    >
+                  <DropdownMenu.Content side="right" align="start">
+                    <DropdownMenu.Item onclick={() => openRenameDialog(chat)}>
+                      <PencilIcon class="size-4" />
+                      Rename
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item variant="destructive" onclick={() => handleDelete(chat)}>
                       <TrashIcon class="size-4" />
                       Delete
                     </DropdownMenu.Item>
@@ -199,6 +255,23 @@
                 </DropdownMenu.Root>
               </Sidebar.MenuItem>
             {/each}
+            {#if hasNextPage}
+              <Sidebar.MenuItem>
+                <Button
+                  variant="ghost"
+                  class="w-full justify-center text-xs"
+                  onclick={() => fetchNextPage?.()}
+                  disabled={isFetchingNextPage}
+                >
+                  {#if isFetchingNextPage}
+                    <Loader2Icon class="mr-1 size-3 animate-spin" />
+                    Loading...
+                  {:else}
+                    Load more
+                  {/if}
+                </Button>
+              </Sidebar.MenuItem>
+            {/if}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
@@ -278,3 +351,38 @@
     </Sidebar.Menu>
   </Sidebar.Footer>
 </Sidebar.Root>
+
+<Dialog.Root
+  open={renamingChat !== null}
+  onOpenChange={(open) => {
+    if (!open && !updateTitleMutation.isPending) renamingChat = null;
+  }}
+>
+  <Dialog.Content class="max-w-md">
+    <Dialog.Header>
+      <Dialog.Title>Rename Chat</Dialog.Title>
+      <Dialog.Description>Enter a new name for this chat.</Dialog.Description>
+    </Dialog.Header>
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleRename();
+      }}
+    >
+      <div class="py-4">
+        <Input bind:value={renameTitle} placeholder="Chat title" autofocus />
+      </div>
+      <Dialog.Footer>
+        <Button
+          type="button"
+          variant="outline"
+          onclick={() => (renamingChat = null)}
+          disabled={updateTitleMutation.isPending}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={updateTitleMutation.isPending}>Save</Button>
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>

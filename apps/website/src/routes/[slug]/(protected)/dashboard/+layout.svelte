@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Sidebar from "@repo/ui/sidebar";
+  import { Spinner } from "@repo/ui/spinner";
 
   import { page } from "$app/state";
 
@@ -34,9 +35,7 @@
   <!-- Fallback while shop data is loading -->
   <div class="flex h-screen items-center justify-center">
     <div class="text-center">
-      <div
-        class="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-2 border-t-transparent"
-      ></div>
+      <Spinner class="text-primary mx-auto mb-4 size-8" />
       <p class="text-muted-foreground text-sm">Loading...</p>
     </div>
   </div>

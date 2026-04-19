@@ -7,12 +7,6 @@ import { getCategoryProductsHandler } from "./handlers/categories/get_category_p
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { updateCategoryProductsHandler } from "./handlers/categories/update_category_products";
-import { createChatHandler } from "./handlers/chats/create_chat";
-import { deleteChatHandler } from "./handlers/chats/delete_chat";
-import { getChatHandler } from "./handlers/chats/get_chat";
-import { listChatsHandler } from "./handlers/chats/list_chats";
-import { saveMessageHandler } from "./handlers/chats/save_message";
-import { updateChatHandler } from "./handlers/chats/update_chat";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { deleteImageHandler } from "./handlers/images/delete";
@@ -49,6 +43,10 @@ import { disconnectPlatformHandler } from "./handlers/social/disconnect_platform
 import { getFacebookPagesHandler } from "./handlers/social/get_facebook_pages";
 import { listConnectionsHandler } from "./handlers/social/list_connections";
 import { updatePermissionsHandler } from "./handlers/social/update_permissions";
+import { getThreadMessagesHandler } from "./handlers/threads/get_thread_messages";
+import { listThreadsHandler } from "./handlers/threads/list_threads";
+import { deleteThreadHandler } from "./handlers/threads/delete_thread";
+import { updateThreadHandler } from "./handlers/threads/update_thread";
 import { createSupplierHandler } from "./handlers/suppliers/create_supplier";
 import { deleteSupplierHandler } from "./handlers/suppliers/delete_supplier";
 import { getSupplierHandler } from "./handlers/suppliers/get_supplier";
@@ -68,14 +66,7 @@ export const router = os.router({
     update: updateCategoryHandler,
     updateProducts: updateCategoryProductsHandler,
   },
-  chats: {
-    create: createChatHandler,
-    delete: deleteChatHandler,
-    get: getChatHandler,
-    list: listChatsHandler,
-    saveMessage: saveMessageHandler,
-    update: updateChatHandler,
-  },
+
   dashboard: {
     revenueTrend: dashboardRevenueTrendHandler,
     stats: dashboardStatsHandler,
@@ -138,6 +129,12 @@ export const router = os.router({
   tax: {
     get: getTaxSettingsHandler,
     update: updateTaxSettingsHandler,
+  },
+  threads: {
+    delete: deleteThreadHandler,
+    getMessages: getThreadMessagesHandler,
+    list: listThreadsHandler,
+    update: updateThreadHandler,
   },
   user: {
     listAccounts: listAccountsHandler,

@@ -83,16 +83,17 @@
   {#if allImages.length > 1}
     <div class="flex gap-2">
       {#each allImages as image, index}
-        <button
+        <Button
+          variant="ghost"
           onclick={() => goToIndex(index)}
-          class="bg-muted relative aspect-square w-16 overflow-hidden rounded-lg border-2 transition-all {index ===
+          class="relative aspect-square w-16 overflow-hidden rounded-lg border-2 p-0 {index ===
           currentIndex
             ? 'border-primary'
             : 'border-transparent hover:border-gray-300'}"
           aria-label="View image {index + 1}"
         >
           <img src={image.src} alt="Thumbnail {index + 1}" class="size-full object-cover" />
-        </button>
+        </Button>
       {/each}
     </div>
   {/if}

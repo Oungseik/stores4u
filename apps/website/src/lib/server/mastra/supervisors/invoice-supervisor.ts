@@ -1,13 +1,13 @@
 import { Agent } from "@mastra/core/agent";
-import { invoiceVerificationAgent } from "../agents/invoice-verification-agent";
-import { invoiceExtractionAgent } from "../agents/invoice-extraction-agent";
+import { invoiceExtractionAgent } from "$lib/server/mastra/agents/invoice-extraction-agent";
+import { invoiceVerificationAgent } from "$lib/server/mastra/agents/invoice-verification-agent";
 
 export const invoiceSupervisor = new Agent({
   id: "invoice-supervisor",
   name: "Invoice Supervisor",
   description:
     "Handles all invoice-related tasks including verifying invoice images, extracting invoice data, and answering questions about invoices. Delegates to specialized invoice agents as needed.",
-  model: "openrouter/minimax/minimax-m2.7",
+  model: "openrouter/moonshotai/kimi-k2.5",
   instructions: `You are an invoice operations supervisor. You coordinate invoice-related tasks using specialized agents.
 
 Available agents:

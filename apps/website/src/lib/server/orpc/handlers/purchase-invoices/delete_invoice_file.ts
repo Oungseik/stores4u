@@ -8,8 +8,12 @@ import {
 } from "@repo/db";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { deleteObject, extractObjectKey } from "$lib/server/storage";
 
 const input = z.object({
@@ -21,9 +25,8 @@ export const deleteInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const file = await shopDb.query.purchaseInvoiceFile.findFirst({
       where: { id: input.fileId },
     });

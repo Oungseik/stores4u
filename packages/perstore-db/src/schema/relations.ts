@@ -1,5 +1,4 @@
 import { defineRelations } from "drizzle-orm";
-import { chat, message } from "./chat";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
 import { category, product, productAlias, productCategory, productImage } from "./product";
@@ -15,8 +14,6 @@ import { taxSettings } from "./tax";
 
 export const relations = defineRelations(
   {
-    chat,
-    message,
     category,
     product,
     productAlias,
@@ -36,13 +33,6 @@ export const relations = defineRelations(
     taxSettings,
   },
   (r) => ({
-    chat: {
-      messages: r.many.message(),
-    },
-    message: {
-      chat: r.one.chat({ from: r.message.chatId, to: r.chat.id }),
-      invoiceFiles: r.many.purchaseInvoiceFile(),
-    },
     category: {
       productCategories: r.many.productCategory(),
     },
@@ -74,10 +64,6 @@ export const relations = defineRelations(
       supplier: r.one.supplier({ from: r.productSupplier.supplierId, to: r.supplier.id }),
     },
     purchaseInvoiceFile: {
-      message: r.one.message({
-        from: r.purchaseInvoiceFile.chatMessageId,
-        to: r.message.id,
-      }),
       ocrResult: r.one.purchaseInvoiceOcrResult({
         from: r.purchaseInvoiceFile.id,
         to: r.purchaseInvoiceOcrResult.invoiceFileId,

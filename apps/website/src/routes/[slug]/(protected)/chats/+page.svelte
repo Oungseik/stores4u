@@ -1,369 +1,221 @@
 <script lang="ts">
-  import type { UIMessage } from "@ai-sdk/svelte";
+  import { Chat } from "@ai-sdk/svelte";
   import BotIcon from "@lucide/svelte/icons/bot";
-  import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
+  import * as Message from "@repo/ui/ai-elements/message";
+  import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
+  import * as Reasoning from "@repo/ui/ai-elements/reasoning";
+  import * as Tool from "@repo/ui/ai-elements/tool";
   import * as Avatar from "@repo/ui/avatar";
-  import { Button } from "@repo/ui/button";
-  import * as Dialog from "@repo/ui/dialog";
-  import * as DropdownMenu from "@repo/ui/dropdown-menu";
-  import { Input } from "@repo/ui/input";
-  import * as Sidebar from "@repo/ui/sidebar";
+  import { Loader } from "@repo/ui/prompt-kit/loader";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Spinner } from "@repo/ui/spinner";
-  import { ThinkingDots } from "@repo/ui/thinking-dots";
-  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
-  import { isTextUIPart } from "ai";
-  import { onMount } from "svelte";
-  import { toast } from "svelte-sonner";
+  import { useQueryClient } from "@tanstack/svelte-query";
+  import {
+    DefaultChatTransport,
+    getToolName,
+    isReasoningUIPart,
+    isTextUIPart,
+    isToolUIPart,
+  } from "ai";
 
-  import { page } from "$app/state";
-  import * as AiChat from "$lib/components/ai-chat";
-  import { renderMarkdown } from "$lib/components/ai-chat/render-markdown.js";
+  import { goto } from "$app/navigation";
   import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
-  import ChatsSidebar from "./chats-sidebar.svelte";
 
   let { data }: PageProps = $props();
   const queryClient = useQueryClient();
 
-  let currentChatId = $state<string | null>(null);
-  let chatMessages = $state<AiChat.InitialMessage[]>([]);
-  let hasInitialized = $state(false);
-  let isLoadingChat = $state(false);
-  let isRenameDialogOpen = $state(false);
-  let renameTitle = $state("");
+  let chat = $state<Chat | null>(null);
+  let messagesContainer = $state<HTMLDivElement | null>(null);
+  let navigated = $state(false);
 
-  const chatsQuery = createQuery(() =>
-    orpc.chats.list.queryOptions({ input: { slug: data.slug } })
-  );
-
-  const saveMessageMut = createMutation(() => orpc.chats.saveMessage.mutationOptions());
-
-  const createChatMut = createMutation(() => orpc.chats.create.mutationOptions());
-
-  const deleteChatMut = createMutation(() => orpc.chats.delete.mutationOptions());
-
-  const updateChatMut = createMutation(() => orpc.chats.update.mutationOptions());
-
-  const chatItems = $derived(chatsQuery.data?.items ?? []);
-
-  function invalidateChatsList() {
-    queryClient.invalidateQueries({
-      queryKey: orpc.chats.list.queryKey({ input: { slug: data.slug } }),
+  function handleSubmit(message: PromptInput.PromptInputMessage) {
+    const tid = crypto.randomUUID();
+    navigated = false;
+    chat = new Chat({
+      transport: new DefaultChatTransport({
+        api: `/api/ai/${data.slug}/shop-assistant`,
+        body: { threadId: tid },
+      }),
+      onFinish: () => {
+        if (!navigated) {
+          navigated = true;
+          goto(`/${data.slug}/chats/${tid}`).then(() =>
+            queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() })
+          );
+        }
+      },
     });
+    chat.sendMessage({ text: message.text, files: message.files });
   }
 
-  async function selectChat(chatId: string) {
-    currentChatId = chatId;
-    isLoadingChat = true;
-    chatMessages = [];
-    try {
-      const chatData = await queryClient.fetchQuery(
-        orpc.chats.get.queryOptions({ input: { slug: data.slug, chatId } })
-      );
-      if (chatData) {
-        chatMessages = chatData.messages;
-      }
-    } catch (e) {
-      console.error("Failed to load chat:", e);
-      toast.error("Failed to load chat");
-    } finally {
-      isLoadingChat = false;
+  function isNearBottom(): boolean {
+    if (!messagesContainer) return true;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+    return scrollHeight - scrollTop - clientHeight < 250;
+  }
+
+  function scrollToBottom() {
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   }
 
-  async function createNewChat() {
-    if (chatMessages.length === 0 && currentChatId) {
-      return currentChatId;
-    }
-    try {
-      const newChat = await createChatMut.mutateAsync({ slug: data.slug });
-      currentChatId = newChat.id;
-      chatMessages = [];
-      invalidateChatsList();
-      return newChat.id;
-    } catch (e) {
-      console.error("Failed to create chat:", e);
-      toast.error("Failed to create chat");
-      return undefined;
-    }
-  }
+  $effect(() => {
+    const container = messagesContainer;
+    if (!container) return;
 
-  async function handleDeleteChat(chatId: string) {
-    try {
-      await deleteChatMut.mutateAsync({ slug: data.slug, chatId });
-    } catch (e) {
-      console.error("Failed to delete chat:", e);
-      toast.error("Failed to delete chat");
-      return;
-    }
-    if (currentChatId === chatId) {
-      const remaining = chatsQuery.data?.items.filter((c) => c.id !== chatId) ?? [];
-      if (remaining.length > 0) {
-        await selectChat(remaining[0].id);
-      } else {
-        currentChatId = null;
-        chatMessages = [];
-      }
-    }
-    invalidateChatsList();
-  }
+    let rafId = 0;
+    const observer = new MutationObserver(() => {
+      if (!isNearBottom()) return;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(scrollToBottom);
+    });
 
-  function openRenameDialog() {
-    const currentTitle = chatItems.find((c) => c.id === currentChatId)?.title ?? "";
-    renameTitle = currentTitle;
-    isRenameDialogOpen = true;
-  }
+    observer.observe(container, { childList: true, subtree: true, characterData: true });
 
-  async function handleRenameChat() {
-    if (!currentChatId || !renameTitle.trim()) return;
-    try {
-      await updateChatMut.mutateAsync({
-        slug: data.slug,
-        chatId: currentChatId,
-        title: renameTitle.trim(),
-      });
-      invalidateChatsList();
-      isRenameDialogOpen = false;
-    } catch (e) {
-      console.error("Failed to rename chat:", e);
-      toast.error("Failed to rename chat");
-    }
-  }
-
-  async function handleOnSend({ text, messageCount }: { text: string; messageCount: number }) {
-    let chatId = currentChatId;
-
-    if (!chatId) {
-      try {
-        const newChat = await createChatMut.mutateAsync({ slug: data.slug });
-        chatId = newChat.id;
-        currentChatId = chatId;
-      } catch (e) {
-        console.error("Failed to create chat:", e);
-        toast.error("Failed to create chat");
-        return;
-      }
-    }
-
-    if (messageCount === 0) {
-      const title = text.length > 50 ? text.slice(0, 50) + "..." : text;
-      updateChatMut.mutate({ slug: data.slug, chatId, title });
-    }
-
-    saveMessageMut
-      .mutateAsync({
-        slug: data.slug,
-        chatId,
-        role: "user",
-        content: text,
-      })
-      .catch((e) => {
-        console.error("Failed to save message:", e);
-        toast.error("Failed to save message");
-      });
-
-    invalidateChatsList();
-    return chatId;
-  }
-
-  async function handleOnFinish({ message }: { message: UIMessage }) {
-    if (!currentChatId) return;
-    const text = message.parts
-      .filter(isTextUIPart)
-      .map((p) => p.text)
-      .join("");
-    if (text) {
-      try {
-        await saveMessageMut.mutateAsync({
-          slug: data.slug,
-          chatId: currentChatId,
-          role: "assistant",
-          content: text,
-        });
-        invalidateChatsList();
-      } catch (e) {
-        console.error("Failed to save assistant message:", e);
-        toast.error("Failed to save assistant message");
-      }
-    }
-  }
-
-  onMount(() => {
-    if (chatItems.length > 0 && !currentChatId && !hasInitialized) {
-      hasInitialized = true;
-      selectChat(chatItems[0].id);
-    }
+    return () => observer.disconnect();
   });
 </script>
 
-<Sidebar.Provider
-  style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
-  class="h-dvh min-h-0 overflow-hidden"
->
-  <ChatsSidebar
-    variant="inset"
-    shop={{ id: data.id, name: data.name, slug: data.slug, logo: data.logo }}
-    user={data.user}
-    currentPath={page.url.pathname}
-    chats={chatItems.map((c) => ({
-      id: c.id,
-      title: c.title,
-      updatedAt: c.updatedAt,
-    }))}
-    currentChatId={currentChatId ?? undefined}
-    onNewChat={createNewChat}
-    onSelectChat={(id) => selectChat(id)}
-    onDeleteChat={handleDeleteChat}
-  />
-  <Sidebar.Inset>
-    <div class="flex h-full flex-1 flex-col overflow-hidden">
-      <header class="flex h-14 items-center gap-2 border-b px-4">
-        <Sidebar.Trigger class="-ms-1" />
-        {#if currentChatId}
-          <div class="flex flex-1 items-center justify-between">
-            <h1 class="font-medium">
-              {chatItems.find((c) => c.id === currentChatId)?.title ?? "Chat"}
-            </h1>
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
-                {#snippet child({ props })}
-                  <Button variant="ghost" size="icon" {...props}>
-                    <MoreHorizontalIcon class="size-4" />
-                    <span class="sr-only">More options</span>
-                  </Button>
-                {/snippet}
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end">
-                <DropdownMenu.Item onclick={openRenameDialog}>Rename Chat</DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => currentChatId && handleDeleteChat(currentChatId)}>
-                  Delete Chat
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </div>
-        {:else}
-          <h1 class="font-medium">New Chat</h1>
-        {/if}
-      </header>
-
-      <div class="flex-1 overflow-hidden">
-        {#if isLoadingChat}
-          <div class="flex h-full items-center justify-center">
-            <Spinner class="text-muted-foreground size-8" />
-          </div>
-        {:else}
-          {#key currentChatId}
-            <AiChat.Root
-              chatId={currentChatId ?? undefined}
-              api={`/api/ai/${data.slug}/shop-assistant`}
-              initialMessages={chatMessages}
-              onSend={handleOnSend}
-              onFinish={handleOnFinish}
-            >
-              <AiChat.FullPageContainer>
-                <AiChat.Messages
-                  empty={welcomeSnippet}
-                  userMessage={userMessageSnippet}
-                  assistantMessage={assistantMessageSnippet}
-                  generating={generatingSnippet}
-                />
-                <AiChat.Input placeholder="Type a message...">
-                  <AiChat.SendButton />
-                </AiChat.Input>
-                <AiChat.Footer />
-              </AiChat.FullPageContainer>
-            </AiChat.Root>
-          {/key}
-        {/if}
-      </div>
-    </div>
-  </Sidebar.Inset>
-</Sidebar.Provider>
-
-<Dialog.Root bind:open={isRenameDialogOpen}>
-  <Dialog.Content class="max-w-md">
-    <Dialog.Header>
-      <Dialog.Title>Rename Chat</Dialog.Title>
-      <Dialog.Description>Enter a new name for this chat.</Dialog.Description>
-    </Dialog.Header>
-    <form
-      onsubmit={(e) => {
-        e.preventDefault();
-        handleRenameChat();
-      }}
-    >
-      <div class="py-4">
-        <Input bind:value={renameTitle} placeholder="Chat title" autofocus />
-      </div>
-      <Dialog.Footer>
-        <Button type="button" variant="outline" onclick={() => (isRenameDialogOpen = false)}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={!renameTitle.trim() || updateChatMut.status === "pending"}>
-          {updateChatMut.status === "pending" ? "Saving..." : "Save"}
-        </Button>
-      </Dialog.Footer>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
-
-{#snippet welcomeSnippet()}
-  <div class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
-    <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-      <BotIcon class="text-primary size-6" />
-    </div>
-    <div class="flex max-w-md flex-col gap-2">
-      <h2 class="text-lg font-semibold">How can I help you today?</h2>
-      <p class="text-muted-foreground text-sm">
-        I can help you manage your inventory, analyze sales data, create reports, and answer
-        questions about your shop.
-      </p>
-    </div>
-  </div>
-{/snippet}
-
-{#snippet userMessageSnippet({ text }: { text: string })}
-  <div class="mb-4 flex flex-row-reverse gap-3">
-    <Avatar.Root class="size-8 shrink-0">
-      <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
-      <Avatar.Fallback>
-        {data.user.name.charAt(0).toUpperCase()}
-      </Avatar.Fallback>
-    </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
-      <span class="text-sm font-medium">{data.user.name}</span>
-      <div class="prose prose-sm dark:prose-invert max-w-none">
-        {@html renderMarkdown(text)}
-      </div>
-    </div>
-  </div>
-{/snippet}
-
-{#snippet assistantMessageSnippet({ textParts }: { textParts: string[]; toolParts: unknown[] })}
-  <div class="mb-4 flex gap-3">
-    <Avatar.Root class="size-8 shrink-0">
-      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">AI</Avatar.Fallback>
-    </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col gap-1">
-      <span class="text-sm font-medium">Assistant</span>
-      <div class="prose prose-sm dark:prose-invert max-w-none">
-        {#each textParts as partText}
-          {@html renderMarkdown(partText)}
+<div class="flex flex-1 flex-col overflow-hidden">
+  {#if chat && chat.messages.length > 0}
+    <ScrollArea class="h-4/5 flex-1" bind:viewportRef={messagesContainer}>
+      <div class="mx-auto max-w-4xl space-y-4 p-4">
+        {#each chat.messages as message (message.id)}
+          {#if message.role === "user"}
+            {@const text = message.parts
+              .filter(isTextUIPart)
+              .map((p) => p.text)
+              .join("")}
+            {@const attachments = message.parts.filter((p) => p.type === "file")}
+            <Message.Message from="user">
+              <div class="mb-4 flex flex-row-reverse gap-3">
+                <Avatar.Root class="size-8 shrink-0">
+                  <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
+                  <Avatar.Fallback>
+                    {data.user.name.charAt(0).toUpperCase()}
+                  </Avatar.Fallback>
+                </Avatar.Root>
+                <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
+                  <Message.MessageContent>
+                    <Message.MessageResponse content={text} />
+                  </Message.MessageContent>
+                  {#if attachments.length > 0}
+                    <Message.MessageAttachments>
+                      {#each attachments as attachment (attachment.url)}
+                        <Message.MessageAttachment
+                          data={{
+                            type: "file",
+                            url: attachment.url,
+                            mediaType: attachment.mediaType,
+                            filename: attachment.filename,
+                          }}
+                        />
+                      {/each}
+                    </Message.MessageAttachments>
+                  {/if}
+                </div>
+              </div>
+            </Message.Message>
+          {:else if message.role === "assistant"}
+            <Message.Message from="assistant">
+              <div class="mb-4 flex gap-3">
+                <Avatar.Root class="size-8 shrink-0">
+                  <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+                    AI
+                  </Avatar.Fallback>
+                </Avatar.Root>
+                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                  <Message.MessageContent>
+                    {#each message.parts as part, partIndex (partIndex)}
+                      {#if isReasoningUIPart(part)}
+                        <Reasoning.Root isStreaming={part.state === "streaming"}>
+                          <Reasoning.Trigger />
+                          <Reasoning.Content>
+                            {part.text}
+                          </Reasoning.Content>
+                        </Reasoning.Root>
+                      {:else if isTextUIPart(part)}
+                        <Message.MessageResponse content={part.text} />
+                      {:else if isToolUIPart(part)}
+                        <Tool.Root>
+                          <Tool.Header type={getToolName(part)} state={part.state} />
+                          <Tool.Content>
+                            {#if part.input}
+                              <Tool.Input input={part.input} />
+                            {/if}
+                            {#if part.state === "output-available"}
+                              <Tool.Output output={part.output} />
+                            {:else if part.state === "output-error"}
+                              <Tool.Output errorText={part.errorText} />
+                            {/if}
+                          </Tool.Content>
+                        </Tool.Root>
+                      {/if}
+                    {/each}
+                  </Message.MessageContent>
+                </div>
+              </div>
+            </Message.Message>
+          {/if}
         {/each}
+        {#if chat.status === "submitted"}
+          <div class="mb-4 flex gap-3">
+            <Avatar.Root class="size-8 shrink-0">
+              <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+                AI
+              </Avatar.Fallback>
+            </Avatar.Root>
+            <div class="flex min-w-0 flex-1 flex-col gap-1">
+              <Loader variant="typing" />
+            </div>
+          </div>
+        {/if}
+      </div>
+    </ScrollArea>
+  {:else if chat && chat.status === "submitted"}
+    <div class="flex flex-1 items-center justify-center">
+      <Spinner class="text-muted-foreground size-8" />
+    </div>
+  {:else}
+    <div class="flex flex-1 flex-col items-center justify-center gap-4 p-4 text-center">
+      <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+        <BotIcon class="text-primary size-6" />
+      </div>
+      <div class="flex max-w-md flex-col gap-2">
+        <h2 class="text-lg font-semibold">How can I help you today?</h2>
+        <p class="text-muted-foreground text-sm">
+          I can help you manage your inventory, analyze sales data, create reports, and answer
+          questions about your shop.
+        </p>
       </div>
     </div>
-  </div>
-{/snippet}
+  {/if}
 
-{#snippet generatingSnippet()}
-  <div class="mb-4 flex gap-3">
-    <Avatar.Root class="size-8 shrink-0">
-      <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">AI</Avatar.Fallback>
-    </Avatar.Root>
-    <div class="flex min-w-0 flex-1 flex-col gap-1">
-      <span class="text-sm font-medium">Assistant</span>
-      <ThinkingDots class="text-sm" />
-    </div>
+  <div class="mx-auto w-full max-w-4xl p-4">
+    <PromptInput.Root accept="image/*,.pdf" globalDrop maxFiles={5} onSubmit={handleSubmit}>
+      <PromptInput.Attachments>
+        {#snippet children(attachment)}
+          <PromptInput.Attachment data={attachment} />
+        {/snippet}
+      </PromptInput.Attachments>
+      <PromptInput.Toolbar class="flex-1">
+        <PromptInput.Tools class="flex-1">
+          <PromptInput.ActionMenu>
+            <PromptInput.ActionMenuTrigger />
+            <PromptInput.ActionMenuContent class="min-w-50">
+              <PromptInput.ActionAddAttachments />
+            </PromptInput.ActionMenuContent>
+          </PromptInput.ActionMenu>
+          <PromptInput.Textarea placeholder="Type a message..." class="flex-1" />
+        </PromptInput.Tools>
+        <PromptInput.Submit status={chat?.status} onStop={() => chat?.stop()} />
+      </PromptInput.Toolbar>
+    </PromptInput.Root>
+    <p class="text-muted-foreground mt-2 text-center text-xs">
+      AI can make mistakes. Please verify important information.
+    </p>
   </div>
-{/snippet}
+</div>

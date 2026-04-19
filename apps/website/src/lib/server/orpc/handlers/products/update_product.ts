@@ -1,9 +1,13 @@
 import { ORPCError } from "@orpc/server";
 import { eq, image, product, productCategory, productImage } from "@repo/db";
 import { z } from "zod";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { logger } from "$lib/server/logger";
-import { getShopDb } from "$lib/server/shop_db";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
@@ -25,9 +29,8 @@ export const updateProductHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const existing = await shopDb
       .select({ image: product.image })
       .from(product)

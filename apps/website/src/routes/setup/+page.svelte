@@ -8,16 +8,27 @@
   import { COUNTRIES, type CountryCode } from "@repo/config";
   import * as Message from "@repo/ui/ai-elements/message";
   import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
+  import * as Reasoning from "@repo/ui/ai-elements/reasoning";
+  import * as Tool from "@repo/ui/ai-elements/tool";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { PhoneInput } from "@repo/ui/phone-input";
+  import { Loader } from "@repo/ui/prompt-kit/loader";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Select from "@repo/ui/select";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
-  import { DefaultChatTransport, getToolName, isTextUIPart, isToolUIPart } from "ai";
+  import {
+    DefaultChatTransport,
+    getToolName,
+    isReasoningUIPart,
+    isTextUIPart,
+    isToolUIPart,
+  } from "ai";
+  import { tick } from "svelte";
   import { toast } from "svelte-sonner";
   import z from "zod";
 
@@ -31,6 +42,25 @@
   let currentStep = $state(1);
   const totalSteps = 2;
   let isSubmitting = $state(false);
+
+  let chat = $derived(
+    new Chat({
+      transport: new DefaultChatTransport({ api: "/api/ai/shop-setup" }),
+      onFinish: async ({ message }) => {
+        for (const part of message.parts) {
+          if (isToolUIPart(part) && part.state === "output-available" && part.output) {
+            const toolName = getToolName(part);
+            if (toolName === "fillShopForm") {
+              const parsed = fillFormOutputSchema.safeParse(part.output);
+              if (parsed.success && parsed.data.success) {
+                handleAiFill(parsed.data.fields);
+              }
+            }
+          }
+        }
+      },
+    })
+  );
 
   const step1Schema = z.object({
     name: z.string().min(1, "Shop name is required").max(100),
@@ -181,25 +211,45 @@
   }
 
   let isChatOpen = $state(false);
+  let messagesContainer: HTMLDivElement | null = $state(null);
+  let textareaRef: HTMLTextAreaElement | null = $state(null);
 
-  let chat = $state(
-    new Chat({
-      transport: new DefaultChatTransport({ api: "/api/ai/shop-setup" }),
-      onFinish: async ({ message }) => {
-        for (const part of message.parts) {
-          if (isToolUIPart(part) && part.state === "output-available" && part.output) {
-            const toolName = getToolName(part);
-            if (toolName === "fillShopForm") {
-              const parsed = fillFormOutputSchema.safeParse(part.output);
-              if (parsed.success && parsed.data.success) {
-                handleAiFill(parsed.data.fields);
-              }
-            }
-          }
-        }
-      },
-    })
-  );
+  function isNearBottom(): boolean {
+    if (!messagesContainer) return true;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+    return scrollHeight - scrollTop - clientHeight < 250;
+  }
+
+  function scrollToBottom() {
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  $effect(() => {
+    const container = messagesContainer;
+    if (!container) return;
+
+    let rafId = 0;
+    const observer = new MutationObserver(() => {
+      if (!isNearBottom()) return;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(scrollToBottom);
+    });
+
+    observer.observe(container, { childList: true, subtree: true, characterData: true });
+
+    return () => observer.disconnect();
+  });
+
+  $effect.pre(() => {
+    if (isChatOpen) {
+      tick().then(() => {
+        scrollToBottom();
+        textareaRef?.focus();
+      });
+    }
+  });
 
   async function handleSubmit(message: PromptInput.PromptInputMessage) {
     chat.sendMessage({ text: message.text, files: message.files });
@@ -587,7 +637,7 @@
         </Button>
       </div>
 
-      <div class="flex-1 overflow-y-auto">
+      <ScrollArea bind:viewportRef={messagesContainer} class="flex-1">
         {#if chat.messages.length > 0}
           <div class="space-y-4 p-4">
             {#each chat.messages as message (message.id)}
@@ -602,30 +652,41 @@
                   </Message.MessageContent>
                 </Message.Message>
               {:else if message.role === "assistant"}
-                {@const text = message.parts
-                  .filter(isTextUIPart)
-                  .map((p) => p.text)
-                  .join("")}
                 <Message.Message from="assistant">
                   <Message.MessageContent>
-                    <Message.MessageResponse content={text} />
+                    {#each message.parts as part, partIndex (partIndex)}
+                      {#if isReasoningUIPart(part)}
+                        <Reasoning.Root isStreaming={part.state === "streaming"}>
+                          <Reasoning.Trigger />
+                          <Reasoning.Content>
+                            {part.text}
+                          </Reasoning.Content>
+                        </Reasoning.Root>
+                      {:else if isTextUIPart(part)}
+                        <Message.MessageResponse content={part.text} />
+                      {:else if isToolUIPart(part)}
+                        <Tool.Root>
+                          <Tool.Header type={getToolName(part)} state={part.state} />
+                          <Tool.Content>
+                            {#if part.input}
+                              <Tool.Input input={part.input} />
+                            {/if}
+                            {#if part.state === "output-available"}
+                              <Tool.Output output={part.output} />
+                            {:else if part.state === "output-error"}
+                              <Tool.Output errorText={part.errorText} />
+                            {/if}
+                          </Tool.Content>
+                        </Tool.Root>
+                      {/if}
+                    {/each}
                   </Message.MessageContent>
                 </Message.Message>
               {/if}
             {/each}
             {#if chat.status === "submitted"}
               <div class="flex gap-2">
-                <div class="flex items-center gap-1">
-                  <span class="bg-foreground/80 size-1.5 animate-bounce rounded-full"></span>
-                  <span
-                    class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
-                    style="animation-delay: 0.2s"
-                  ></span>
-                  <span
-                    class="bg-foreground/80 size-1.5 animate-bounce rounded-full"
-                    style="animation-delay: 0.4s"
-                  ></span>
-                </div>
+                <Loader variant="typing" />
               </div>
             {/if}
           </div>
@@ -639,11 +700,11 @@
             </p>
           </div>
         {/if}
-      </div>
+      </ScrollArea>
 
       <PromptInput.Root onSubmit={handleSubmit} class="mx-auto my-2 w-92">
         <PromptInput.Toolbar>
-          <PromptInput.Textarea placeholder="Tell me about your shop..." />
+          <PromptInput.Textarea bind:ref={textareaRef} placeholder="Tell me about your shop..." />
           <PromptInput.Submit status={chat.status} onStop={() => chat.stop()} />
         </PromptInput.Toolbar>
       </PromptInput.Root>

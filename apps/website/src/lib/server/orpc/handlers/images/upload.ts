@@ -1,8 +1,13 @@
+import { ORPCError } from "@orpc/server";
 import { image } from "@repo/db";
 import sharp from "sharp";
 import { z } from "zod";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
 import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";
 
@@ -17,11 +22,12 @@ export const uploadHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const file = input.file;
 
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error("File size exceeds 2MB limit");
+      throw new ORPCError("BAD_REQUEST", { message: "File size exceeds 2MB limit" });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -29,7 +35,9 @@ export const uploadHandler = os
 
     const detectedType = detectImageType(buffer);
     if (!detectedType || !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
-      throw new Error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Invalid image type. Accepted: JPEG, PNG, WebP, SVG",
+      });
     }
 
     const uuid = Bun.randomUUIDv7();
@@ -54,7 +62,6 @@ export const uploadHandler = os
 
     const objectPath = getObjectUrl(objectKey);
 
-    const shopDb = getShopDb(context.shop);
     await shopDb.insert(image).values({
       objectPath,
       filename: file.name,

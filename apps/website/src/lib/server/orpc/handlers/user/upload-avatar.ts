@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { eq, user } from "@repo/website-auth";
 import sharp from "sharp";
 import { z } from "zod";
@@ -19,7 +20,7 @@ export const uploadAvatarHandler = os
     const file = input.file;
 
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error("File size exceeds 2MB limit");
+      throw new ORPCError("BAD_REQUEST", { message: "File size exceeds 2MB limit" });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -27,11 +28,13 @@ export const uploadAvatarHandler = os
 
     const detectedType = detectImageType(buffer);
     if (!detectedType || !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
-      throw new Error("Invalid image type. Accepted: JPEG, PNG, WebP");
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Invalid image type. Accepted: JPEG, PNG, WebP",
+      });
     }
 
     if (detectedType === "image/svg+xml") {
-      throw new Error("SVG is not supported for avatars");
+      throw new ORPCError("BAD_REQUEST", { message: "SVG is not supported for avatars" });
     }
 
     const userId = context.session.user.id;

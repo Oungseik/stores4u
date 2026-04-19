@@ -26,6 +26,7 @@ export async function POST({ request, locals }: { request: Request; locals: App.
       agentId: "shopSetupAgent",
       params,
       version: "v6",
+      sendReasoning: true,
     });
 
     return createUIMessageStreamResponse({ stream });

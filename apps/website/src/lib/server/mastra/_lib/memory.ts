@@ -25,6 +25,7 @@ export function createShopMemory(slug: string): Memory {
     }),
     options: {
       lastMessages: 20,
+      generateTitle: true,
     },
   });
 

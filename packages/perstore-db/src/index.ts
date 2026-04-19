@@ -2,10 +2,8 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import {
   category,
-  chat,
   image,
   inventoryMovement,
-  message,
   order,
   orderItem,
   product,
@@ -24,8 +22,6 @@ import {
 import { relations } from "./schema/relations";
 
 const schema = {
-  chat,
-  message,
   category,
   image,
   purchaseInvoiceFile,
