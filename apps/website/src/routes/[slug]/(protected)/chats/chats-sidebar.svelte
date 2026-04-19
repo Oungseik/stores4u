@@ -355,7 +355,7 @@
 <Dialog.Root
   open={renamingChat !== null}
   onOpenChange={(open) => {
-    if (!open) renamingChat = null;
+    if (!open && !updateTitleMutation.isPending) renamingChat = null;
   }}
 >
   <Dialog.Content class="max-w-md">
@@ -373,10 +373,15 @@
         <Input bind:value={renameTitle} placeholder="Chat title" autofocus />
       </div>
       <Dialog.Footer>
-        <Button type="button" variant="outline" onclick={() => (renamingChat = null)}>
+        <Button
+          type="button"
+          variant="outline"
+          onclick={() => (renamingChat = null)}
+          disabled={updateTitleMutation.isPending}
+        >
           Cancel
         </Button>
-        <Button type="submit">Save</Button>
+        <Button type="submit" disabled={updateTitleMutation.isPending}>Save</Button>
       </Dialog.Footer>
     </form>
   </Dialog.Content>

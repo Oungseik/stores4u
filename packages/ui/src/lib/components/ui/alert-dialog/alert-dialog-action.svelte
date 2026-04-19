@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
-	import { Button, buttonVariants, type ButtonProps } from '@lib/components/ui/button/index.js';
+	import { Button, type ButtonProps, buttonVariants } from '@lib/components/ui/button/index.js';
 	import { cn } from '@lib/utils.js';
+	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
+
 	let {
 		ref = $bindable(null),
 		variant = 'default',
 		class: className,
+		loading = false,
+		disabled = undefined,
 		children,
 		...restProps
 	}: AlertDialogPrimitive.ActionProps & {
@@ -18,6 +21,7 @@
 	bind:ref
 	data-slot="alert-dialog-action"
 	class={cn(buttonVariants({ variant }), className)}
+	disabled={loading || disabled}
 	{...restProps}
 >
 	{#snippet child({ props })}
