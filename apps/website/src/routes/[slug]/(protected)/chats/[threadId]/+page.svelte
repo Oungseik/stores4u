@@ -5,9 +5,8 @@
   import * as Avatar from "@repo/ui/avatar";
   import { Loader } from "@repo/ui/prompt-kit/loader";
   import { Spinner } from "@repo/ui/spinner";
-  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
+  import { createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { DefaultChatTransport, isTextUIPart } from "ai";
-  import { onMount } from "svelte";
 
   import { orpc } from "$lib/orpc_client";
 
@@ -17,7 +16,6 @@
   let threadId = $derived(params.threadId);
 
   let messagesContainer = $state<HTMLDivElement | null>(null);
-  let titleUpdated = $state(false);
   let hasExistingMessages = $state(false);
 
   const queryClient = useQueryClient();
@@ -25,14 +23,6 @@
   let messagesQuery = createQuery(() =>
     orpc.threads.getMessages.queryOptions({
       input: { slug: data.slug, threadId },
-    })
-  );
-
-  let updateTitleMutation = createMutation(() =>
-    orpc.threads.update.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
-      },
     })
   );
 
@@ -44,25 +34,11 @@
       }),
       onFinish: () => {
         queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
-
-        if (!hasExistingMessages && !titleUpdated) {
-          const firstUserMsg = chat.messages.find((m) => m.role === "user");
-          if (firstUserMsg) {
-            const text = firstUserMsg.parts
-              .filter(isTextUIPart)
-              .map((p) => p.text)
-              .join("");
-            const title = text.slice(0, 50).trim() || "New Chat";
-            updateTitleMutation.mutate({ slug: data.slug, threadId, title });
-            titleUpdated = true;
-          }
-        }
       },
     })
   );
 
   $effect(() => {
-    const tid = threadId;
     const msgs = messagesQuery.data?.messages;
     if (msgs && msgs.length > 0 && chat.messages.length === 0) {
       chat.messages = msgs;
@@ -89,14 +65,6 @@
           }
         });
       }
-    }
-  });
-
-  onMount(() => {
-    const state = history.state satisfies Record<string, unknown> | null;
-    if (state && "initialMessage" in state && typeof state.initialMessage === "string") {
-      chat.sendMessage({ text: state.initialMessage, files: [] });
-      history.replaceState({}, "");
     }
   });
 </script>
@@ -170,7 +138,6 @@
               </Avatar.Fallback>
             </Avatar.Root>
             <div class="flex min-w-0 flex-1 flex-col gap-1">
-              <span class="text-sm font-medium">Assistant</span>
               <Loader variant="typing" />
             </div>
           </div>

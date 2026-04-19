@@ -1,34 +1,157 @@
 <script lang="ts">
+  import { Chat } from "@ai-sdk/svelte";
   import BotIcon from "@lucide/svelte/icons/bot";
+  import * as Message from "@repo/ui/ai-elements/message";
   import * as PromptInput from "@repo/ui/ai-elements/prompt-input";
+  import * as Avatar from "@repo/ui/avatar";
+  import { Loader } from "@repo/ui/prompt-kit/loader";
+  import { Spinner } from "@repo/ui/spinner";
+  import { useQueryClient } from "@tanstack/svelte-query";
+  import { DefaultChatTransport, isTextUIPart } from "ai";
 
   import { goto } from "$app/navigation";
+  import { orpc } from "$lib/orpc_client";
 
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+  const queryClient = useQueryClient();
+
+  let chat = $state<Chat | null>(null);
+  let threadId = $state<string | null>(null);
+  let messagesContainer = $state<HTMLDivElement | null>(null);
+  let navigated = $state(false);
 
   function handleSubmit(message: PromptInput.PromptInputMessage) {
-    const threadId = crypto.randomUUID();
-    goto(`/${data.slug}/chats/${threadId}`, {
-      state: { initialMessage: message.text },
+    const tid = crypto.randomUUID();
+    threadId = tid;
+    navigated = false;
+    chat = new Chat({
+      transport: new DefaultChatTransport({
+        api: `/api/ai/${data.slug}/shop-assistant`,
+        body: { threadId: tid },
+      }),
+      onFinish: () => {
+        if (!navigated) {
+          navigated = true;
+          goto(`/${data.slug}/chats/${tid}`).then(() =>
+            queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() })
+          );
+        }
+      },
     });
+    chat.sendMessage({ text: message.text, files: message.files });
   }
+
+  $effect.pre(() => {
+    chat?.messages;
+    chat?.status;
+    if (messagesContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+      if (scrollHeight - scrollTop - clientHeight < 250) {
+        requestAnimationFrame(() => {
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        });
+      }
+    }
+  });
 </script>
 
 <div class="flex flex-1 flex-col overflow-hidden">
-  <div class="flex flex-1 flex-col items-center justify-center gap-4 p-4 text-center">
-    <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-      <BotIcon class="text-primary size-6" />
+  {#if chat && chat.messages.length > 0}
+    <div class="flex-1 overflow-y-auto" bind:this={messagesContainer}>
+      <div class="mx-auto max-w-4xl space-y-4 p-4">
+        {#each chat.messages as message (message.id)}
+          {#if message.role === "user"}
+            {@const text = message.parts
+              .filter(isTextUIPart)
+              .map((p) => p.text)
+              .join("")}
+            {@const attachments = message.parts.filter((p) => p.type === "file")}
+            <Message.Message from="user">
+              <div class="mb-4 flex flex-row-reverse gap-3">
+                <Avatar.Root class="size-8 shrink-0">
+                  <Avatar.Image src={data.user.image ?? undefined} alt={data.user.name} />
+                  <Avatar.Fallback>
+                    {data.user.name.charAt(0).toUpperCase()}
+                  </Avatar.Fallback>
+                </Avatar.Root>
+                <div class="flex min-w-0 flex-1 flex-col items-end gap-1">
+                  <Message.MessageContent>
+                    <Message.MessageResponse content={text} />
+                  </Message.MessageContent>
+                  {#if attachments.length > 0}
+                    <Message.MessageAttachments>
+                      {#each attachments as attachment (attachment.url)}
+                        <Message.MessageAttachment
+                          data={{
+                            type: "file",
+                            url: attachment.url,
+                            mediaType: attachment.mediaType,
+                            filename: attachment.filename,
+                          }}
+                        />
+                      {/each}
+                    </Message.MessageAttachments>
+                  {/if}
+                </div>
+              </div>
+            </Message.Message>
+          {:else if message.role === "assistant"}
+            {@const text = message.parts
+              .filter(isTextUIPart)
+              .map((p) => p.text)
+              .join("")}
+            <Message.Message from="assistant">
+              <div class="mb-4 flex gap-3">
+                <Avatar.Root class="size-8 shrink-0">
+                  <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+                    AI
+                  </Avatar.Fallback>
+                </Avatar.Root>
+                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                  <Message.MessageContent>
+                    <Message.MessageResponse content={text} />
+                  </Message.MessageContent>
+                </div>
+              </div>
+            </Message.Message>
+          {/if}
+        {/each}
+        {#if chat.status === "submitted"}
+          <div class="mb-4 flex gap-3">
+            <Avatar.Root class="size-8 shrink-0">
+              <Avatar.Fallback class="bg-primary text-primary-foreground text-xs">
+                AI
+              </Avatar.Fallback>
+            </Avatar.Root>
+            <div class="flex min-w-0 flex-1 flex-col gap-1">
+              <Loader variant="typing" />
+            </div>
+          </div>
+        {/if}
+      </div>
     </div>
-    <div class="flex max-w-md flex-col gap-2">
-      <h2 class="text-lg font-semibold">How can I help you today?</h2>
-      <p class="text-muted-foreground text-sm">
-        I can help you manage your inventory, analyze sales data, create reports, and answer
-        questions about your shop.
-      </p>
+  {:else if chat && chat.status === "submitted"}
+    <div class="flex flex-1 items-center justify-center">
+      <Spinner class="text-muted-foreground size-8" />
     </div>
-  </div>
+  {:else}
+    <div class="flex flex-1 flex-col items-center justify-center gap-4 p-4 text-center">
+      <div class="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+        <BotIcon class="text-primary size-6" />
+      </div>
+      <div class="flex max-w-md flex-col gap-2">
+        <h2 class="text-lg font-semibold">How can I help you today?</h2>
+        <p class="text-muted-foreground text-sm">
+          I can help you manage your inventory, analyze sales data, create reports, and answer
+          questions about your shop.
+        </p>
+      </div>
+    </div>
+  {/if}
 
   <div class="mx-auto w-full max-w-4xl p-4 pt-0">
     <PromptInput.Root accept="image/*,.pdf" globalDrop maxFiles={5} onSubmit={handleSubmit}>
@@ -47,7 +170,7 @@
           </PromptInput.ActionMenu>
           <PromptInput.Textarea placeholder="Type a message..." class="flex-1" />
         </PromptInput.Tools>
-        <PromptInput.Submit />
+        <PromptInput.Submit status={chat?.status} onStop={() => chat?.stop()} />
       </PromptInput.Toolbar>
     </PromptInput.Root>
     <p class="text-muted-foreground mt-2 text-center text-xs">

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { createShopMemory } from "$lib/server/mastra/_lib/memory";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -23,7 +23,7 @@ export const listThreadsHandler = os
 
     const items = result.threads.map((thread) => ({
       id: thread.id,
-      title: thread.title ?? "New Chat",
+      title: thread.title || "New Chat",
       updatedAt: thread.updatedAt,
     }));
 
