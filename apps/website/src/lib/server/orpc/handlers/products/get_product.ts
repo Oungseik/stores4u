@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { os, shopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import { os, shopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
 
 const input = z
   .object({
@@ -18,9 +17,8 @@ export const getProductHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(shopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const product = await shopDb.query.product.findFirst({
       where: { id: input.id, barcode: input.barcode, sku: input.sku },
       with: {

@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -11,9 +10,8 @@ export const getSuppliersHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const productSuppliers = await shopDb.query.productSupplier.findMany({
       where: {
         productId: input.productId,

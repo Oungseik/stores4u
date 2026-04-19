@@ -1,8 +1,12 @@
 import { ORPCError } from "@orpc/server";
 import { purchaseInvoiceFile } from "@repo/db";
 import { z } from "zod";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
 
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
@@ -17,7 +21,8 @@ export const uploadInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const file = input.file;
 
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
@@ -41,7 +46,6 @@ export const uploadInvoiceFileHandler = os
     const objectPath = getObjectUrl(objectKey);
     const now = new Date();
 
-    const shopDb = getShopDb(context.shop);
     const result = await shopDb.insert(purchaseInvoiceFile).values({
       objectPath,
       filename: file.name,

@@ -1,8 +1,12 @@
 import { ORPCError } from "@orpc/server";
 import { product, productCategory, productImage } from "@repo/db";
 import { z } from "zod";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -22,9 +26,8 @@ export const createProductHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
-    const shopDb = getShopDb(context.shop);
-
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const allImages = input.images ?? (input.image ? [input.image] : []);
 
     const inserted = await shopDb

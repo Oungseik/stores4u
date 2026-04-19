@@ -11,8 +11,12 @@ import {
   sql,
 } from "@repo/db";
 import { z } from "zod";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 
 const input = z.object({
   slug: z.string().min(1).max(100),
@@ -41,8 +45,8 @@ export const dashboardStatsHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ context }) => {
-    const shopDb = getShopDb(context.shop);
+  .use(shopDbMiddleware)
+  .handler(async ({ context: { shopDb } }) => {
     const now = new Date();
     const todayStart = getStartOfDay(now);
     const weekStart = getStartOfWeek(now);

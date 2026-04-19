@@ -2,8 +2,12 @@ import { ORPCError } from "@orpc/server";
 import { image } from "@repo/db";
 import sharp from "sharp";
 import { z } from "zod";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { getShopDb } from "$lib/server/shop_db";
+import {
+  authMiddleware,
+  os,
+  protectedShopMiddleware,
+  shopDbMiddleware,
+} from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
 import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";
 
@@ -18,7 +22,8 @@ export const uploadHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input, context }) => {
+  .use(shopDbMiddleware)
+  .handler(async ({ input, context: { shopDb } }) => {
     const file = input.file;
 
     if (file.size > MAX_FILE_SIZE) {
@@ -57,7 +62,6 @@ export const uploadHandler = os
 
     const objectPath = getObjectUrl(objectKey);
 
-    const shopDb = getShopDb(context.shop);
     await shopDb.insert(image).values({
       objectPath,
       filename: file.name,
