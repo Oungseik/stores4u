@@ -1,6 +1,7 @@
 <script lang="ts">
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import BotIcon from "@lucide/svelte/icons/bot";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MessageSquareIcon from "@lucide/svelte/icons/message-square";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -44,9 +45,21 @@
     };
     currentPath: string;
     chats?: Chat[];
+    hasNextPage?: boolean;
+    fetchNextPage?: () => Promise<unknown>;
+    isFetchingNextPage?: boolean;
   }
 
-  let { shop, user, currentPath, chats = [], ...restProps }: Props = $props();
+  let {
+    shop,
+    user,
+    currentPath,
+    chats = [],
+    hasNextPage = false,
+    fetchNextPage,
+    isFetchingNextPage = false,
+    ...restProps
+  }: Props = $props();
 
   const sidebar = useSidebar();
 
@@ -242,6 +255,23 @@
                 </DropdownMenu.Root>
               </Sidebar.MenuItem>
             {/each}
+            {#if hasNextPage}
+              <Sidebar.MenuItem>
+                <Button
+                  variant="ghost"
+                  class="w-full justify-center text-xs"
+                  onclick={() => fetchNextPage?.()}
+                  disabled={isFetchingNextPage}
+                >
+                  {#if isFetchingNextPage}
+                    <Loader2Icon class="mr-1 size-3 animate-spin" />
+                    Loading...
+                  {:else}
+                    Load more
+                  {/if}
+                </Button>
+              </Sidebar.MenuItem>
+            {/if}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>

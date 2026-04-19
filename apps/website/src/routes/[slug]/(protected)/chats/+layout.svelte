@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Sidebar from "@repo/ui/sidebar";
-  import { createQuery } from "@tanstack/svelte-query";
+  import { createInfiniteQuery } from "@tanstack/svelte-query";
 
   import { page } from "$app/state";
   import { orpc } from "$lib/orpc_client";
@@ -10,11 +10,18 @@
 
   let { data, children }: LayoutProps = $props();
 
-  let threadsQuery = createQuery(() =>
-    orpc.threads.list.queryOptions({
-      input: { slug: data.slug },
+  let threadsQuery = createInfiniteQuery(() =>
+    orpc.threads.list.infiniteOptions({
+      initialPageParam: 0 as number | undefined,
+      input: (pageParam) => ({
+        slug: data.slug,
+        page: pageParam,
+      }),
+      getNextPageParam: (lastPage, allPages) => (lastPage.hasMore ? allPages.length : undefined),
     })
   );
+
+  let allThreads = $derived(threadsQuery.data?.pages.flatMap((p) => p.items) ?? []);
 </script>
 
 <Sidebar.Provider
@@ -26,7 +33,10 @@
     shop={{ id: data.id, name: data.name, slug: data.slug, logo: data.logo }}
     user={data.user}
     currentPath={page.url.pathname}
-    chats={threadsQuery.data?.items ?? []}
+    chats={allThreads}
+    hasNextPage={threadsQuery.hasNextPage}
+    fetchNextPage={threadsQuery.fetchNextPage}
+    isFetchingNextPage={threadsQuery.isFetchingNextPage}
   />
   <Sidebar.Inset>
     <div class="flex h-full flex-1 flex-col overflow-hidden">
