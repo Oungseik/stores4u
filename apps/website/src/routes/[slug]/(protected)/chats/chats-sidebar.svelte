@@ -12,6 +12,7 @@
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { Input } from "@repo/ui/input";
+  import { LightSwitch } from "@repo/ui/light-switch";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
@@ -239,7 +240,7 @@
 
   <Sidebar.Footer>
     <Sidebar.Menu>
-      <Sidebar.MenuItem>
+      <Sidebar.MenuItem class="flex items-center gap-2">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
             {#snippet child({ props }: { props: Record<string, unknown> })}
@@ -306,6 +307,7 @@
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Root>
+        <LightSwitch />
       </Sidebar.MenuItem>
     </Sidebar.Menu>
   </Sidebar.Footer>
