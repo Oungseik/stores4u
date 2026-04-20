@@ -19,7 +19,7 @@
 	)}
 	{...props}
 >
-	<Response class="grid gap-2">
+	<Response class="grid gap-2 !text-muted-foreground">
 		{@render children?.()}
 	</Response>
 </CollapsibleContent>
