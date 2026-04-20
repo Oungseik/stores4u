@@ -1,15 +1,13 @@
 <script lang="ts">
-  import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import BotIcon from "@lucide/svelte/icons/bot";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
-  import MessageSquareIcon from "@lucide/svelte/icons/message-square";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import TrashIcon from "@lucide/svelte/icons/trash";
   import * as Avatar from "@repo/ui/avatar";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as Dialog from "@repo/ui/dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
@@ -68,8 +66,6 @@
   const filteredChats = $derived(
     chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
-  const isActive = (href: string) => currentPath === href || currentPath.startsWith(href + "/");
 
   const queryClient = useQueryClient();
 
@@ -130,7 +126,7 @@
       <Sidebar.MenuItem>
         <Sidebar.MenuButton size="lg" class="group-data-[collapsible=icon]:!p-1.5">
           {#snippet child({ props })}
-            <a href={`/${shop.slug}`} {...props}>
+            <a href={`/${shop.slug}/dashboard`} {...props}>
               <div
                 class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
               >
@@ -155,51 +151,14 @@
     <ScrollArea class="h-full">
       <Sidebar.Group>
         <Sidebar.GroupContent>
-          <a href={`/${shop.slug}/chats`} class="block">
-            <Button variant="outline" class="w-full justify-start gap-2">
+          <Sidebar.Menu>
+            <a
+              href={`/${shop.slug}/chats`}
+              class={buttonVariants({ variant: "outline", class: "w-full" })}
+            >
               <PlusIcon class="size-4" />
               <span>New Chat</span>
-            </Button>
-          </a>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>AI Assistant</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton tooltipContent="Chats" isActive={isActive(`/${shop.slug}/chats`)}>
-                {#snippet child({ props })}
-                  <a
-                    href={`/${shop.slug}/chats`}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <MessageSquareIcon class="size-4" />
-                    <span>Chats</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Back to dashboard"
-                isActive={isActive(`/${shop.slug}/dashboard`)}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href={`/${shop.slug}/dashboard`}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <ArrowLeftIcon class="size-4" />
-                    <span>Back to dashboard</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+            </a>
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
