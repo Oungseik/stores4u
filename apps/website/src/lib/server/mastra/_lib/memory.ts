@@ -26,6 +26,19 @@ export function createShopMemory(slug: string): Memory {
     options: {
       lastMessages: 20,
       generateTitle: true,
+      observationalMemory: {
+        model: "openrouter/deepseek/deepseek-v3.2",
+        scope: "thread",
+        observation: {
+          threadTitle: true,
+          instruction:
+            "Prioritize capturing supplier names, invoice details, product names/quantities/prices, shop preferences, and business operations. Ignore general chit-chat.",
+        },
+        reflection: {
+          instruction:
+            "Consolidate related shop operations together. Preserve specific supplier details, pricing, dates, and invoice numbers.",
+        },
+      },
     },
   });
 
