@@ -25,7 +25,6 @@
   let threadId = $derived(params.threadId);
 
   let messagesContainer = $state<HTMLDivElement | null>(null);
-  let hasExistingMessages = $state(false);
 
   const queryClient = useQueryClient();
 
@@ -51,7 +50,6 @@
     const msgs = messagesQuery.data?.messages;
     if (msgs && msgs.length > 0 && chat.messages.length === 0) {
       chat.messages = msgs;
-      hasExistingMessages = true;
     }
   });
 
@@ -195,6 +193,7 @@
       <Spinner class="text-muted-foreground size-8" />
     </div>
   {:else}
+    <!-- TODO fix this, we need optimistic update when the url change -->
     <div class="flex flex-1 flex-col items-center justify-center gap-4 p-4 text-center">
       <p class="text-muted-foreground text-sm">Send a message to start the conversation.</p>
     </div>

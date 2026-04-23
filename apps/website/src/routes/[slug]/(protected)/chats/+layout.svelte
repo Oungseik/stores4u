@@ -18,6 +18,11 @@
         page: pageParam,
       }),
       getNextPageParam: (lastPage, allPages) => (lastPage.hasMore ? allPages.length : undefined),
+      refetchInterval: (query) => {
+        const items = query.state.data?.pages.flatMap((p) => p.items) ?? [];
+        if (items.some((t) => t.title === "New Chat")) return 3000;
+        return false;
+      },
     })
   );
 
