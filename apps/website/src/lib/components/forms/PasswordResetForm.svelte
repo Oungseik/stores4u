@@ -22,7 +22,7 @@
     defaultValues: { email: email ?? "" },
     onSubmit: async ({ value }) => {
       isSubmitting = true;
-      await authClient.forgetPassword.emailOtp(
+      await authClient.emailOtp.requestPasswordReset(
         { email: value.email },
         {
           onSuccess: () => {
