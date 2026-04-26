@@ -19,11 +19,12 @@
 		class: className,
 		tabindex = -1,
 		children,
-		...rest
+		// ...rest
 	}: CopyButtonProps = $props();
 
 	// this way if the user passes text then the button will be the default size
-	if (size === "icon" && children) {
+	// svelte-ignore state_referenced_locally
+		if (size === "icon" && children) {
 		size = "default";
 	}
 

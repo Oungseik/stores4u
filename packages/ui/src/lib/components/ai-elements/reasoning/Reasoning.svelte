@@ -28,7 +28,8 @@
 	let AUTO_CLOSE_DELAY = 1000;
 	let MS_IN_S = 1000;
 
-	// Create the reasoning context
+	// Create the reasoning context with initial (non-reactive) values
+	// svelte-ignore state_referenced_locally
 	let reasoningContext = new ReasoningContext({
 		isStreaming,
 		isOpen: open ?? defaultOpen,
@@ -36,7 +37,7 @@
 	});
 
 	// Set up controllable state for open
-	let isOpen = $state(open ?? defaultOpen);
+	let isOpen = $derived(open ?? defaultOpen);
 	let currentDuration = $state(duration ?? 0);
 	let hasAutoClosed = $state(false);
 	let startTime = $state<number | null>(null);
