@@ -5,6 +5,10 @@ yarn.lock
 bun.lock
 bun.lockb
 
-# Miscellaneous
-/static/
+static/
+src/lib/components/ui
+lib/hooks
 /drizzle/
+
+*.ts
+*.js

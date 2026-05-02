@@ -1,0 +1,12 @@
+{
+  "extends": ["../../biome.json"],
+  "files": {
+    "includes": [
+      "!**/*.html",
+      "!**/*.svelte",
+      "!**/node_modules",
+      "!build",
+      "!.svelte-kit"
+    ]
+  }
+}
