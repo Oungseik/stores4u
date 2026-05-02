@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "@fontsource/inter";
   import { ConfirmDeleteDialog } from "@repo/ui/confirm-delete-dialog";
   import { Toaster } from "@repo/ui/sonner";
   import { QueryClientProvider, dehydrate } from "@tanstack/svelte-query";

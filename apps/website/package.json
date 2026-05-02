@@ -56,7 +56,6 @@
   },
   "dependencies": {
     "@ai-sdk/svelte": "^4.0.172",
-    "@fontsource/inter": "^5.2.8",
     "@inlang/paraglide-js": "^2.18.0",
     "@internationalized/date": "^3.12.1",
     "@libsql/client": "^0.17.3",
