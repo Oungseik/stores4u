@@ -23,8 +23,6 @@
 		}
 
 		confirm() {
-			if (this.loading) return;
-
 			if (this.options?.input) {
 				if (this.inputText !== this.options.input.confirmationText) {
 					return;

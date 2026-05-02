@@ -1,18 +1,24 @@
 <script lang="ts">
-	import { Button, type ButtonProps, buttonVariants } from '@lib/components/ui/button/index.js';
-	import { cn } from '@lib/utils.js';
 	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
+	import {
+		buttonVariants,
+		type ButtonVariant,
+		type ButtonSize
+	} from '@lib/components/ui/button/index.js';
+	import { cn } from '@lib/utils.js';
+	import { Spinner } from '@lib/components/ui/spinner';
 
 	let {
 		ref = $bindable(null),
-		variant = 'default',
 		class: className,
+		variant = 'default',
+		size = 'default',
 		loading = false,
-		disabled = undefined,
 		children,
 		...restProps
 	}: AlertDialogPrimitive.ActionProps & {
-		variant?: ButtonProps['variant'];
+		variant?: ButtonVariant;
+		size?: ButtonSize;
 		loading?: boolean;
 	} = $props();
 </script>
@@ -20,13 +26,11 @@
 <AlertDialogPrimitive.Action
 	bind:ref
 	data-slot="alert-dialog-action"
-	class={cn(buttonVariants({ variant }), className)}
-	disabled={loading || disabled}
+	class={cn(buttonVariants({ variant, size }), 'cn-alert-dialog-action', className)}
 	{...restProps}
 >
-	{#snippet child({ props })}
-		<Button {...props}>
-			{@render children?.()}
-		</Button>
-	{/snippet}
+	{#if loading}
+		<Spinner data-icon="inline-start" />
+	{/if}
+	{@render children?.()}
 </AlertDialogPrimitive.Action>
