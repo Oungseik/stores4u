@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import { form, getRequestEvent } from "$app/server";
+import { assertAuth } from "$lib/remote/auth";
 import { db } from "$lib/server/db";
 import { shop } from "$lib/server/db/schema";
 import { createShopDatabase, deleteShopDatabase } from "$lib/server/shop_db";
-import { assertAuth } from "$lib/remote/auth";
 import { shopFormSchema } from "$lib/types/shop";
 
 export const createShop = form(shopFormSchema, async (input) => {
@@ -15,7 +15,7 @@ export const createShop = form(shopFormSchema, async (input) => {
   }
 
   const existingSlug = await db.query.shop.findFirst({
-    where: eq(shop.slug, input.slug),
+    where: { slug: input.slug },
     columns: { id: true },
   });
   if (existingSlug) {
@@ -23,7 +23,7 @@ export const createShop = form(shopFormSchema, async (input) => {
   }
 
   const existingUserShop = await db.query.shop.findFirst({
-    where: eq(shop.userId, locals.session.userId),
+    where: { userId: locals.session.userId },
     columns: { id: true },
   });
   if (existingUserShop) {
