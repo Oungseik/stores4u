@@ -396,7 +396,7 @@
             <DropdownMenu.Separator />
             <DropdownMenu.Item
               onclick={() => {
-                authClient.signOut().then(() => (window.location.href = "/"));
+                authClient.signOut().then(() => (window.location.href = "/signin"));
               }}
             >
               <LogOutIcon class="size-4" />

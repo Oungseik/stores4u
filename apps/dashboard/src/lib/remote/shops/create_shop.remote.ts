@@ -48,5 +48,5 @@ export const createShop = form(shopCreateSchema, async (input) => {
     return { success: false, message: "Failed to create shop database. Please try again." };
   }
 
-  redirect(303, `/shop/${input.slug}`);
+  redirect(303, `/shops/${input.slug}`);
 });
