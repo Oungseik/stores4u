@@ -5,7 +5,7 @@ import adapter from "svelte-adapter-bun";
 const config = {
   preprocess: [vitePreprocess()],
   compilerOptions: {
-    runes: ({ filename }) => (filename.split(/[/\\]/).includes('node_modules') ? undefined : true)
+    runes: ({ filename }) => (filename.split(/[/\\]/).includes("node_modules") ? undefined : true),
   },
   kit: {
     adapter: adapter(),
@@ -17,9 +17,9 @@ const config = {
     typescript: {
       config: (config) => ({
         ...config,
-        include: [...config.include, '../drizzle.config.ts']
-      })
-    }
+        include: [...config.include, "../drizzle.config.ts"],
+      }),
+    },
   },
   vitePlugin: { inspector: true },
 };
