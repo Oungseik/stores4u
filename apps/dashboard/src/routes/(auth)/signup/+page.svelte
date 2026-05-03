@@ -55,10 +55,14 @@
   }));
 </script>
 
-<div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+<div class="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
-    <a href="/" class="flex items-center gap-2 self-center font-medium text-xl">
-      S4
+    <a href="/" class="flex items-center gap-2 self-center">
+      <div
+        class="flex size-8 items-center justify-center rounded-md bg-zinc-900 text-sm font-bold text-white"
+      >
+        S4
+      </div>
     </a>
 
     <Card.Root>
@@ -180,10 +184,10 @@
 
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
-            <div class="border-border w-full border-t"></div>
+            <div class="w-full border-t border-border"></div>
           </div>
           <div class="relative flex justify-center text-xs uppercase">
-            <span class="bg-background text-muted-foreground px-2"> Or continue with </span>
+            <span class="bg-background px-2 text-muted-foreground"> Or continue with </span>
           </div>
         </div>
 
