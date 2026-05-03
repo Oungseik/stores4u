@@ -53,7 +53,7 @@
             <p class="mt-4 text-sm text-muted-foreground">
               You don't have a shop yet. Create one to get started.
             </p>
-            <Button onclick={() => goto("/shop/setup")} class="mt-6">
+            <Button onclick={() => goto("/shops/setup")} class="mt-6">
               <PlusIcon class="size-4" />
               Create Your First Shop
             </Button>
@@ -86,7 +86,7 @@
           <button
             type="button"
             class="cursor-pointer text-left"
-            onclick={() => goto("/shop/setup")}
+            onclick={() => goto("/shops/setup")}
           >
             <Card.Root
               class="border-dashed transition-colors hover:border-primary/50 hover:bg-accent/50"
