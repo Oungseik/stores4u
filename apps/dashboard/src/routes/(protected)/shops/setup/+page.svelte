@@ -30,13 +30,14 @@
       </Card.Header>
       <Card.Content>
         <form
+          onchange={() => createShop.validate()}
           {...createShop.preflight(shopCreateSchema).enhance(async ({ submit }) => {
             if (await submit()) {
               const result = createShop.result;
-              if (result?.success) {
+              if (!result) {
                 return void toast.success("Shop created successfully!");
               }
-              toast.error(result?.message || "Failed to create shop.");
+              return void toast.error(result?.message || "Failed to create shop.");
             }
           })}
           class="space-y-6"
@@ -48,9 +49,9 @@
               {...createShop.fields.name.as("text")}
               placeholder="My Awesome Shop"
             />
-            {#each createShop.fields.name.issues() as issue}
-              <p class="text-sm text-destructive">{issue.message}</p>
-            {/each}
+            <p class="text-sm text-destructive">
+              {createShop.fields.name.issues()?.at(0)?.message}
+            </p>
           </div>
 
           <div class="space-y-2">
@@ -71,9 +72,9 @@
             <p class="text-xs text-muted-foreground">
               Your shop will be accessible at /shops/your-slug
             </p>
-            {#each createShop.fields.slug.issues() as issue}
-              <p class="text-sm text-destructive">{issue.message}</p>
-            {/each}
+            <p class="text-sm text-destructive">
+              {createShop.fields.slug.issues()?.at(0)?.message}
+            </p>
           </div>
 
           <Button disabled={!!createShop.pending} type="submit" class="w-full">
