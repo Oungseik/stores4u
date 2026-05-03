@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { form, getRequestEvent } from "$app/server";
 import { assertAuth } from "$lib/remote/auth";
 import { db } from "$lib/server/db";
-import { shop } from "$lib/server/db/schema";
+import { member, organization } from "$lib/server/db/schema";
 import { createShopDatabase, deleteShopDatabase } from "$lib/server/shop_db";
 import { shopCreateSchema } from "$lib/types/shop";
 
@@ -15,7 +15,7 @@ export const createShop = form(shopCreateSchema, async (input) => {
     return { success: false, message: 'Slug "parent" is reserved' };
   }
 
-  const existingSlug = await db.query.shop.findFirst({
+  const existingSlug = await db.query.organization.findFirst({
     where: { slug: input.slug },
     columns: { id: true },
   });
@@ -23,27 +23,25 @@ export const createShop = form(shopCreateSchema, async (input) => {
     return { success: false, message: `Slug "${input.slug}" is already taken` };
   }
 
-  const existingUserShop = await db.query.shop.findFirst({
-    where: { userId: locals.session.userId },
-    columns: { id: true },
-  });
-  if (existingUserShop) {
-    return { success: false, message: "You can only own one shop" };
-  }
-
-  const shopId = Bun.randomUUIDv7();
-  await db.insert(shop).values({
+  const orgId = Bun.randomUUIDv7();
+  await db.insert(organization).values({
+    id: orgId,
     name: input.name,
     slug: input.slug,
-    id: shopId,
+  });
+
+  await db.insert(member).values({
+    id: Bun.randomUUIDv7(),
+    organizationId: orgId,
     userId: locals.session.userId,
+    role: "owner",
   });
 
   try {
     const url = await createShopDatabase(input.slug);
-    await db.update(shop).set({ tursoDbUrl: url }).where(eq(shop.id, shopId));
+    await db.update(organization).set({ tursoDbUrl: url }).where(eq(organization.id, orgId));
   } catch {
-    await db.delete(shop).where(eq(shop.id, shopId));
+    await db.delete(organization).where(eq(organization.id, orgId));
     await deleteShopDatabase(input.slug).catch(() => {});
     return { success: false, message: "Failed to create shop database. Please try again." };
   }

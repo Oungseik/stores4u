@@ -7,17 +7,19 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
     return error(401, "Unauthorized");
   }
 
-  const shop = await db.query.shop.findFirst({
-    where: { slug: params.slug, userId: locals.session.userId },
-    with: { info: true },
+  const userId = locals.session.userId;
+
+  const org = await db.query.organization.findFirst({
+    where: { slug: params.slug },
+    with: { shopInfo: true, members: true },
   });
 
-  if (!shop) {
+  if (!org || !org.members.some((m) => m.userId === userId)) {
     return error(404, "Shop not found");
   }
 
   return {
-    shop,
+    organization: org,
     user: locals.user,
   };
 };

@@ -7,16 +7,16 @@
   import type { LayoutProps } from "./$types";
   import AdminSidebar from "./admin-sidebar.svelte";
 
-  let { children, data: shopData }: LayoutProps = $props();
-  const shop = $derived(shopData.shop);
-  const user = $derived(shopData.user);
+  let { children, data }: LayoutProps = $props();
+  const organization = $derived(data.organization);
+  const user = $derived(data.user);
 </script>
 
-{#if shop}
+{#if organization}
   <Sidebar.Provider
     style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
   >
-    <AdminSidebar variant="sidebar" {shop} {user} currentPath={page.url.pathname} />
+    <AdminSidebar variant="sidebar" {organization} {user} currentPath={page.url.pathname} />
     <Sidebar.Inset class="overflow-hidden">
       <div class="flex flex-1 flex-col overflow-hidden">
         {@render children?.()}
@@ -24,7 +24,6 @@
     </Sidebar.Inset>
   </Sidebar.Provider>
 {:else}
-  <!-- Fallback while shop data is loading -->
   <div class="flex h-screen items-center justify-center">
     <div class="text-center">
       <Spinner class="mx-auto mb-4 size-8 text-primary" />

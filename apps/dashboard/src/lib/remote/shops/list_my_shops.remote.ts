@@ -16,18 +16,21 @@ export const listMyShops = query(listMyShopsSchema, async (input) => {
 
   const { cursor, limit = 20 } = input;
 
-  const items = await db.query.shop.findMany({
-    where: { userId: locals.session.userId, id: cursor ? { gt: cursor } : undefined },
-    with: { info: true },
+  const shops = await db.query.organization.findMany({
+    where: {
+      id: cursor ? { gt: cursor } : undefined,
+      members: { userId: locals.session.userId },
+    },
+    with: { shopInfo: true },
     orderBy: { id: "asc" },
     limit: limit + 1,
   });
 
   let nextCursor: string | undefined;
-  if (items.length > limit) {
-    items.pop();
-    nextCursor = items[items.length - 1]?.id;
+  if (shops.length > limit) {
+    shops.pop();
+    nextCursor = shops[shops.length - 1]?.id;
   }
 
-  return { items, nextCursor };
+  return { items: shops, nextCursor };
 });

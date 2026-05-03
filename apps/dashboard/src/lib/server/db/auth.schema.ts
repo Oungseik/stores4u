@@ -1,131 +1,144 @@
-import { COUNTRIES } from "@repo/config";
-import { defineRelations, sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("emailVerified", { mode: "boolean" }).notNull().default(false),
+  emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
   image: text("image"),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-});
-
-export const session = sqliteTable("session", {
-  id: text("id").primaryKey(),
-  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
-  token: text("token").notNull().unique(),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  ipAddress: text("ipAddress"),
-  userAgent: text("userAgent"),
-  userId: text("userId")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-});
-
-export const account = sqliteTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("accountId").notNull(),
-  providerId: text("providerId").notNull(),
-  userId: text("userId")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  accessToken: text("accessToken"),
-  refreshToken: text("refreshToken"),
-  idToken: text("idToken"),
-  accessTokenExpiresAt: integer("accessTokenExpiresAt", { mode: "timestamp_ms" }),
-  refreshTokenExpiresAt: integer("refreshTokenExpiresAt", { mode: "timestamp_ms" }),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
 });
 
-export const verification = sqliteTable("verification", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-});
+export const session = sqliteTable(
+  "session",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    token: text("token").notNull().unique(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (t) => [index("session_user_id_idx").on(t.userId)],
+);
 
-export const shop = sqliteTable("shop", {
+export const account = sqliteTable(
+  "account",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp_ms" }),
+    refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp_ms" }),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+  },
+  (t) => [
+    index("account_user_id_idx").on(t.userId),
+    index("account_provider_account_idx").on(t.providerId, t.accountId),
+  ],
+);
+
+export const verification = sqliteTable(
+  "verification",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+  },
+  (t) => [index("verification_identifier_value_idx").on(t.identifier, t.value)],
+);
+
+export const organization = sqliteTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
-  infoId: text("infoId").references(() => shopInfo.id),
-  tursoDbUrl: text("tursoDbUrl"),
-  tursoDbToken: text("tursoDbToken"), // Reserved: per-shop DB auth token for future multi-tenant Turso isolation
-  isActive: integer("isActive", { mode: "boolean" }).default(true),
-  userId: text("userId")
-    .notNull()
-    .unique()
-    .references(() => user.id),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  logo: text("logo"),
+  tursoDbUrl: text("turso_db_url"),
+  tursoDbToken: text("turso_db_token"),
+  isActive: integer("is_active", { mode: "boolean" }).default(true),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
 });
 
-export const shopInfo = sqliteTable("shopInfo", {
-  id: text("id").primaryKey().notNull(),
-  logo: text("logo").notNull(),
-  title: text("title").notNull(),
-  address: text("address").notNull(),
-  city: text("city").notNull(),
-  state: text("state").notNull(),
-  zipCode: text("zipCode").notNull(),
-  country: text("country", { enum: COUNTRIES }).notNull(),
-  phone: text("phone").notNull(),
-  email: text("email").notNull(),
-  taxId: text("taxId"),
-  createdAt: integer("createdAt", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(cast(unixepoch() as int))`),
-  updatedAt: integer("updatedAt", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(cast(unixepoch() as int))`),
-});
+export const member = sqliteTable(
+  "member",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: text("role").notNull().default("member"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+  },
+  (t) => [
+    index("member_user_id_id_idx").on(t.userId, t.id),
+    index("member_organization_id_user_id_idx").on(t.organizationId, t.userId),
+  ],
+);
 
-// Relations
-export const relations = defineRelations({ user, session, account, shop, shopInfo }, (r) => ({
-  user: {
-    sessions: r.many.session(),
-    accounts: r.many.account(),
-    shops: r.many.shop(),
+export const invitation = sqliteTable(
+  "invitation",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    status: text("status").notNull().default("pending"),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
   },
-  session: {
-    user: r.one.user({ from: r.session.userId, to: r.user.id }),
-  },
-  account: {
-    user: r.one.user({ from: r.account.userId, to: r.user.id }),
-  },
-  shop: {
-    user: r.one.user({ from: r.shop.userId, to: r.user.id }),
-    info: r.one.shopInfo({ from: r.shop.infoId, to: r.shopInfo.id }),
-  },
-  shopInfo: {
-    shop: r.one.shop({ from: r.shopInfo.id, to: r.shop.infoId }),
-  },
-}));
+  (t) => [
+    index("invitation_organization_id_idx").on(t.organizationId),
+    index("invitation_inviter_id_idx").on(t.inviterId),
+  ],
+);
