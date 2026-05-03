@@ -168,7 +168,7 @@
     </ScrollArea>
 
     <PromptInput.Root onSubmit={handleSubmit} class="mx-auto my-2 w-92">
-      <PromptInput.Toolbar>
+      <PromptInput.Toolbar class="items-end">
         <PromptInput.Textarea bind:ref={textareaRef} placeholder="Tell me about your shop..." />
         <PromptInput.Submit status={chat.status} onStop={() => chat.stop()} />
       </PromptInput.Toolbar>
