@@ -4,71 +4,10 @@
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
-  import { createForm } from "@tanstack/svelte-form";
   import { toast } from "svelte-sonner";
-  import z from "zod";
 
-  import { goto } from "$app/navigation";
   import { createShop } from "$lib/remote/shops/create_shop.remote";
-  import { actionResultSchema } from "$lib/types/shop";
-
-  let isSubmitting = $state(false);
-
-  const nameField = z.string().min(1, "Shop name is required").max(100);
-  const slugField = z
-    .string()
-    .min(1, "Slug is required")
-    .max(100)
-    .regex(/^[a-z0-9-]+$/, "Only lowercase letters, numbers, and hyphens");
-
-  const shopForm = createForm(() => ({
-    defaultValues: {
-      name: "",
-      slug: "",
-    },
-    onSubmit: async ({ value }) => {
-      isSubmitting = true;
-      try {
-        const formData = new FormData();
-        formData.append("name", value.name);
-        formData.append("slug", value.slug);
-
-        const response = await fetch(createShop.action, {
-          method: "POST",
-          body: formData,
-        });
-
-        const parsed = actionResultSchema.safeParse(await response.json());
-        if (!parsed.success) {
-          toast.error("Invalid response from server.");
-          return;
-        }
-        const result = parsed.data;
-
-        if (result.data?.success && result.data.slug) {
-          toast.success("Shop created successfully!");
-          goto(`/shop/${result.data.slug}`);
-        } else {
-          toast.error(result.data?.message || "Failed to create shop.");
-        }
-      } catch {
-        toast.error("Failed to create shop. Please try again.");
-      } finally {
-        isSubmitting = false;
-      }
-    },
-  }));
-
-  function generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-  }
-
-  function handleNameChange(nameValue: string) {
-    shopForm.setFieldValue("slug", generateSlug(nameValue));
-  }
+  import { shopCreateSchema } from "$lib/types/shop";
 </script>
 
 <div class="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
@@ -80,76 +19,47 @@
       </Card.Header>
       <Card.Content>
         <form
+          {...createShop.preflight(shopCreateSchema).enhance(async ({ submit }) => {
+            if (await submit()) {
+              const result = createShop.result;
+              if (result?.success) {
+                return void toast.success("Shop created successfully!");
+              }
+              toast.error(result?.message || "Failed to create shop.");
+            }
+          })}
           class="space-y-6"
-          {...createShop}
-          onsubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            shopForm.handleSubmit();
-          }}
         >
           <div class="space-y-4">
-            <shopForm.Field
-              name="name"
-              validators={{
-                onChange: ({ value }) => nameField.safeParse(value).error?.issues.at(0)?.message,
-              }}
-            >
-              {#snippet children(field)}
-                <div class="space-y-2">
-                  <Label for={field.name}>Shop Name *</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    type="text"
-                    onblur={field.handleBlur}
-                    onchange={(e) => {
-                      const v = e.currentTarget.value;
-                      field.handleChange(v);
-                      handleNameChange(v);
-                    }}
-                    placeholder="My Awesome Shop"
-                    required
-                  />
-                  {#if field.state.meta.errors.length}
-                    <p class="text-sm text-red-500">{field.state.meta.errors}</p>
-                  {/if}
-                </div>
-              {/snippet}
-            </shopForm.Field>
+            <div class="space-y-2">
+              <Label for="shop-name">Shop Name *</Label>
+              <Input
+                id="shop-name"
+                {...createShop.fields.name.as("text")}
+                placeholder="My Awesome Shop"
+              />
+              {#each createShop.fields.name.issues() as issue}
+                <p class="text-sm text-red-500">{issue.message}</p>
+              {/each}
+            </div>
 
-            <shopForm.Field
-              name="slug"
-              validators={{
-                onChange: ({ value }) => slugField.safeParse(value).error?.issues.at(0)?.message,
-              }}
-            >
-              {#snippet children(field)}
-                <div class="space-y-2">
-                  <Label for={field.name}>Slug *</Label>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    type="text"
-                    onblur={field.handleBlur}
-                    onchange={(e) => field.handleChange(e.currentTarget.value)}
-                    placeholder="my-awesome-shop"
-                    required
-                  />
-                  <p class="text-xs text-muted-foreground">Used in your shop URL</p>
-                  {#if field.state.meta.errors.length}
-                    <p class="text-sm text-red-500">{field.state.meta.errors}</p>
-                  {/if}
-                </div>
-              {/snippet}
-            </shopForm.Field>
+            <div class="space-y-2">
+              <Label for="shop-slug">Slug *</Label>
+              <Input
+                id="shop-slug"
+                {...createShop.fields.slug.as("text")}
+                placeholder="my-awesome-shop"
+              />
+              <p class="text-xs text-muted-foreground">Used in your shop URL</p>
+              {#each createShop.fields.slug.issues() as issue}
+                <p class="text-sm text-red-500">{issue.message}</p>
+              {/each}
+            </div>
           </div>
 
           <div class="pt-4">
-            <Button disabled={isSubmitting} type="submit" class="w-full">
-              {#if isSubmitting}
+            <Button disabled={!!createShop.pending} type="submit" class="w-full">
+              {#if createShop.pending}
                 <Loader2Icon class="animate-spin" />
               {:else}
                 Create Shop

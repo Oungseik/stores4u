@@ -1,3 +1,4 @@
+import { redirect } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 import { form, getRequestEvent } from "$app/server";
 import { assertAuth } from "$lib/remote/auth";
@@ -47,5 +48,5 @@ export const createShop = form(shopCreateSchema, async (input) => {
     return { success: false, message: "Failed to create shop database. Please try again." };
   }
 
-  return { success: true, message: "Shop created successfully", slug: input.slug };
+  redirect(303, `/shop/${input.slug}`);
 });
