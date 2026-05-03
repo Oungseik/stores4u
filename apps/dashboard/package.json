@@ -27,7 +27,6 @@
     "@eslint/compat": "^2.0.4",
     "@eslint/js": "^10.0.1",
     "@libsql/client": "^0.17.2",
-    "svelte-adapter-bun": "^1.0.1",
     "@sveltejs/kit": "^2.57.0",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tailwindcss/forms": "^0.5.11",
@@ -37,6 +36,7 @@
     "@types/node": "^24",
     "@vitest/browser-playwright": "^4.1.3",
     "better-auth": "~1.4.21",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "1.0.0-beta.20",
     "drizzle-orm": "1.0.0-beta.20",
     "eslint": "^10.2.0",
@@ -48,12 +48,17 @@
     "prettier-plugin-svelte": "^3.5.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "svelte": "^5.55.2",
+    "svelte-adapter-bun": "^1.0.1",
     "svelte-check": "^4.4.6",
     "tailwindcss": "^4.2.2",
+    "tw-animate-css": "^1.4.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1",
     "vite": "^8.0.7",
     "vitest": "^4.1.3",
     "vitest-browser-svelte": "^2.1.0"
+  },
+  "dependencies": {
+    "@tursodatabase/sync": "^0.5.3"
   }
 }

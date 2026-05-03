@@ -1,11 +1,16 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import * as schema from './schema';
-import { env } from '$env/dynamic/private';
+import { connect } from "@tursodatabase/sync";
+import { drizzle } from "drizzle-orm/tursodatabase/database";
+import { DASHBOARD_DB_PATH, DASHBOARD_DB_TOKEN, DASHBOARD_DB_URL } from "$env/static/private";
+import * as schema from "./schema";
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
-if (!env.DATABASE_AUTH_TOKEN) throw new Error('DATABASE_AUTH_TOKEN is not set');
+export const client = await connect({
+  path: DASHBOARD_DB_PATH,
+  url: DASHBOARD_DB_URL,
+  authToken: DASHBOARD_DB_TOKEN,
+  partialSyncExperimental: {
+    bootstrapStrategy: { kind: "prefix", length: 128 * 1024 },
+    prefetch: true,
+  },
+});
 
-const client = createClient({ url: env.DATABASE_URL, authToken: env.DATABASE_AUTH_TOKEN });
-
-export const db = drizzle(client, { schema });
+export const db = drizzle({ client: client, schema });
