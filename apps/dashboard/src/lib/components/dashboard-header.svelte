@@ -14,7 +14,7 @@
   const { breadcrumbs, actions }: Props = $props();
 </script>
 
-<div class="flex flex-col gap-4 p-4">
+<div class="flex flex-col gap-4 p-4 md:px-6">
   <div class="flex h-9 items-center justify-between">
     <div class="flex min-w-0 flex-1 items-center gap-1 lg:gap-2">
       <Sidebar.Trigger class="-ms-1 shrink-0" />
