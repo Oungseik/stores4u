@@ -8,5 +8,6 @@ export const getMyShops = query(async () => {
 
   return db.query.shop.findMany({
     where: { userId: locals.session.userId },
+    with: { info: true },
   });
 });
