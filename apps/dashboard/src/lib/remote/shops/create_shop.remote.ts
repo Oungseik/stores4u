@@ -4,9 +4,9 @@ import { assertAuth } from "$lib/remote/auth";
 import { db } from "$lib/server/db";
 import { shop } from "$lib/server/db/schema";
 import { createShopDatabase, deleteShopDatabase } from "$lib/server/shop_db";
-import { shopFormSchema } from "$lib/types/shop";
+import { shopCreateSchema } from "$lib/types/shop";
 
-export const createShop = form(shopFormSchema, async (input) => {
+export const createShop = form(shopCreateSchema, async (input) => {
   const { locals } = getRequestEvent();
   assertAuth(locals);
 
@@ -32,7 +32,8 @@ export const createShop = form(shopFormSchema, async (input) => {
 
   const shopId = Bun.randomUUIDv7();
   await db.insert(shop).values({
-    ...input,
+    name: input.name,
+    slug: input.slug,
     id: shopId,
     userId: locals.session.userId,
   });

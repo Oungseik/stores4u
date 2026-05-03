@@ -1,3 +1,4 @@
+import { COUNTRIES } from "@repo/config";
 import { defineRelations, sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
@@ -71,18 +72,7 @@ export const shop = sqliteTable("shop", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
-  logo: text("logo"),
-  heroImage: text("heroImage"),
-  title: text("title"),
-  description: text("description"),
-  address: text("address").notNull(),
-  city: text("city").notNull(),
-  state: text("state"),
-  zipCode: text("zipCode"),
-  country: text("country").notNull(),
-  phone: text("phone").notNull(),
-  email: text("email"),
-  taxId: text("taxId"),
+  infoId: text("infoId").references(() => shopInfo.id),
   tursoDbUrl: text("tursoDbUrl"),
   tursoDbToken: text("tursoDbToken"), // Reserved: per-shop DB auth token for future multi-tenant Turso isolation
   isActive: integer("isActive", { mode: "boolean" }).default(true),
@@ -98,8 +88,28 @@ export const shop = sqliteTable("shop", {
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
 });
 
+export const shopInfo = sqliteTable("shopInfo", {
+  id: text("id").primaryKey().notNull(),
+  logo: text("logo").notNull(),
+  title: text("title").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zipCode").notNull(),
+  country: text("country", { enum: COUNTRIES }).notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  taxId: text("taxId"),
+  createdAt: integer("createdAt", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(cast(unixepoch() as int))`),
+  updatedAt: integer("updatedAt", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(cast(unixepoch() as int))`),
+});
+
 // Relations
-export const relations = defineRelations({ user, session, account, shop }, (r) => ({
+export const relations = defineRelations({ user, session, account, shop, shopInfo }, (r) => ({
   user: {
     sessions: r.many.session(),
     accounts: r.many.account(),
@@ -113,5 +123,9 @@ export const relations = defineRelations({ user, session, account, shop }, (r) =
   },
   shop: {
     user: r.one.user({ from: r.shop.userId, to: r.user.id }),
+    info: r.one.shopInfo({ from: r.shop.infoId, to: r.shopInfo.id }),
+  },
+  shopInfo: {
+    shop: r.one.shop({ from: r.shopInfo.id, to: r.shop.infoId }),
   },
 }));
