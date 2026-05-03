@@ -15,6 +15,7 @@ const config = {
     env: { dir: "../../" },
     experimental: {
       remoteFunctions: true,
+      instrumentation: { server: true },
     },
     alias: {
       "@lib": "../../packages/ui/src/lib",
