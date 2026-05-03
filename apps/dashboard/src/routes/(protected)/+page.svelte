@@ -1,14 +1,20 @@
 <script lang="ts">
+  import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import StoreIcon from "@lucide/svelte/icons/store";
+  import AlertTriangleIcon from "@lucide/svelte/icons/triangle-alert";
+  import { Alert, AlertDescription, AlertTitle } from "@repo/ui/alert";
+  import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar";
+  import { Badge } from "@repo/ui/badge";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Skeleton } from "@repo/ui/skeleton";
 
   import { goto } from "$app/navigation";
-  import { getMyShops } from "$lib/remote/shops/get_my_shops.remote";
+  import { listMyShops } from "$lib/remote/shops/list_my_shops.remote";
 
-  const shops = getMyShops();
+  let shopsQuery = $state(listMyShops());
+  let hasShop = $state(false);
 
   function formatDate(date: Date | number): string {
     const d = typeof date === "number" ? new Date(date) : date;
@@ -20,96 +26,199 @@
   }
 </script>
 
-<div class="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
-  <div class="w-full max-w-2xl space-y-8">
-    <div class="text-center">
-      <h1 class="text-2xl font-semibold tracking-tight">Your Shops</h1>
-      <p class="mt-1 text-sm text-muted-foreground">Select a shop to manage or create a new one.</p>
+<div class="min-h-svh bg-background">
+  <div class="mx-auto max-w-5xl px-6 py-10">
+    <div class="mb-8 flex items-center justify-between">
+      <h1 class="text-3xl font-semibold tracking-tight">Your Shops</h1>
+      <Button
+        disabled={hasShop}
+        title={hasShop ? "You can only create one shop at this time." : undefined}
+        onclick={() => goto("/shops/setup")}
+      >
+        <PlusIcon class="size-4" />
+        Create Shop
+      </Button>
     </div>
 
-    {#await shops}
-      <!-- Loading state -->
-      <div class="grid gap-4 sm:grid-cols-2">
+    {#await shopsQuery}
+      <div class="space-y-4">
         {#each Array(2) as _, i (i)}
-          <Card.Root>
-            <Card.Header>
-              <Skeleton class="h-5 w-3/4" />
-              <Skeleton class="h-4 w-1/2" />
-            </Card.Header>
-            <Card.Content>
-              <Skeleton class="h-4 w-1/3" />
+          <Card.Root class="stagger-item" style="--stagger-delay: {i * 50}ms">
+            <Card.Content class="flex items-center gap-4">
+              <Skeleton class="size-10 rounded-full" />
+              <div class="flex-1 space-y-2">
+                <Skeleton class="h-5 w-1/3" />
+                <Skeleton class="h-4 w-1/4" />
+                <div class="flex gap-2">
+                  <Skeleton class="h-4 w-16" />
+                  <Skeleton class="h-4 w-20" />
+                </div>
+              </div>
+              <Skeleton class="h-9 w-24" />
             </Card.Content>
           </Card.Root>
         {/each}
       </div>
-    {:then shopsList}
+    {:then { items: shopsList }}
+      {((hasShop = shopsList.length > 0), "")}
+
       {#if shopsList.length === 0}
-        <!-- Empty state -->
-        <Card.Root class="border-dashed">
-          <Card.Content class="flex flex-col items-center justify-center py-12">
-            <div class="flex size-12 items-center justify-center rounded-full bg-muted">
-              <StoreIcon class="size-6 text-muted-foreground" />
+        <div class="stagger-item flex flex-col items-center justify-center py-20">
+          <div class="flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <StoreIcon class="size-6 text-primary" />
+          </div>
+          <h2 class="mt-4 text-xl font-semibold">You haven't created a shop yet</h2>
+          <p class="mt-1 max-w-sm text-center text-sm text-muted-foreground">
+            Set up your first shop to start managing products, orders, and customers.
+          </p>
+          <Button onclick={() => goto("/shops/setup")} class="mt-6">
+            <PlusIcon class="size-4" />
+            Create Your First Shop
+          </Button>
+        </div>
+      {:else if shopsList.length === 1}
+        {@const shop = shopsList[0]}
+        <Card.Root
+          class="stagger-item group transition-all hover:-translate-y-px hover:border-primary/50 hover:shadow-md"
+        >
+          <Card.Content class="flex items-center gap-4">
+            <Avatar class="size-10">
+              <AvatarImage src={shop.info?.logo ?? undefined} alt={shop.name} />
+              <AvatarFallback class="text-sm font-medium">
+                {shop.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-xl font-semibold">{shop.name}</h2>
+              <p class="text-sm text-muted-foreground">/{shop.slug}</p>
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <Badge variant={shop.isActive ? "default" : "secondary"}>
+                  {shop.isActive ? "Active" : "Inactive"}
+                </Badge>
+                {#if shop.info}
+                  <span class="text-xs text-muted-foreground">
+                    {shop.info.city}, {shop.info.country}
+                  </span>
+                {/if}
+                <span class="text-xs text-muted-foreground">
+                  Created {formatDate(shop.createdAt)}
+                </span>
+              </div>
             </div>
-            <p class="mt-4 text-sm text-muted-foreground">
-              You don't have a shop yet. Create one to get started.
-            </p>
-            <Button onclick={() => goto("/shops/setup")} class="mt-6">
-              <PlusIcon class="size-4" />
-              Create Your First Shop
+            <Button onclick={() => goto(`/shop/${shop.slug}`)}>
+              Enter Shop
+              <ArrowRightIcon class="size-4" />
             </Button>
           </Card.Content>
         </Card.Root>
       {:else}
-        <!-- Shop cards -->
-        <div class="grid gap-4 sm:grid-cols-2">
-          {#each shopsList as shop (shop.id)}
-            <button
-              type="button"
-              class="cursor-pointer text-left"
-              onclick={() => goto(`/shop/${shop.slug}`)}
-            >
-              <Card.Root class="transition-colors hover:border-primary/50 hover:bg-accent/50">
-                <Card.Header>
-                  <Card.Title>{shop.name}</Card.Title>
-                  <Card.Description>/{shop.slug}</Card.Description>
-                </Card.Header>
-                <Card.Content>
-                  <p class="text-xs text-muted-foreground">
-                    Created {formatDate(shop.createdAt)}
-                  </p>
-                </Card.Content>
-              </Card.Root>
-            </button>
-          {/each}
-
-          <!-- Create new shop card -->
-          <button
-            type="button"
-            class="cursor-pointer text-left"
-            onclick={() => goto("/shops/setup")}
-          >
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {#each shopsList as shop, i (shop.id)}
             <Card.Root
-              class="border-dashed transition-colors hover:border-primary/50 hover:bg-accent/50"
+              class="stagger-item group cursor-pointer transition-all hover:-translate-y-px hover:border-primary/50 hover:shadow-md"
+              style="--stagger-delay: {i * 50}ms"
+              role="button"
+              tabindex={0}
+              onclick={() => goto(`/shop/${shop.slug}`)}
+              onkeydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  goto(`/shop/${shop.slug}`);
+                }
+              }}
             >
-              <Card.Content class="flex flex-col items-center justify-center py-10">
-                <div class="flex size-10 items-center justify-center rounded-full bg-muted">
-                  <PlusIcon class="size-5 text-muted-foreground" />
+              <Card.Content class="flex items-center gap-4">
+                <Avatar class="size-10">
+                  <AvatarImage src={shop.info?.logo ?? undefined} alt={shop.name} />
+                  <AvatarFallback class="text-sm font-medium">
+                    {shop.name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div class="min-w-0 flex-1">
+                  <h3 class="text-lg font-semibold">{shop.name}</h3>
+                  <p class="text-sm text-muted-foreground">/{shop.slug}</p>
+                  <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <Badge variant={shop.isActive ? "default" : "secondary"}>
+                      {shop.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                    {#if shop.info}
+                      <span class="text-xs text-muted-foreground">
+                        {shop.info.city}, {shop.info.country}
+                      </span>
+                    {/if}
+                    <span class="text-xs text-muted-foreground">
+                      Created {formatDate(shop.createdAt)}
+                    </span>
+                  </div>
                 </div>
-                <p class="mt-3 text-sm font-medium">Create New Shop</p>
               </Card.Content>
             </Card.Root>
-          </button>
+          {/each}
+
+          <Card.Root
+            class="stagger-item group cursor-pointer border-dashed transition-all hover:-translate-y-px hover:border-primary/50 hover:shadow-md"
+            style="--stagger-delay: {shopsList.length * 50}ms"
+            role="button"
+            tabindex={0}
+            onclick={() => goto("/shops/setup")}
+            onkeydown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goto("/shops/setup");
+              }
+            }}
+          >
+            <Card.Content class="flex flex-col items-center justify-center gap-3 py-8">
+              <div class="flex size-10 items-center justify-center rounded-full bg-muted">
+                <PlusIcon class="size-5 text-muted-foreground" />
+              </div>
+              <p class="text-sm font-medium">Create New Shop</p>
+            </Card.Content>
+          </Card.Root>
         </div>
       {/if}
     {:catch error}
-      <!-- Error state -->
-      <Card.Root class="border-destructive/50">
-        <Card.Content class="py-8 text-center">
-          <p class="text-sm text-destructive">
-            {error instanceof Error ? error.message : "Failed to load shops. Please try again."}
-          </p>
-        </Card.Content>
-      </Card.Root>
+      {((hasShop = false), "")}
+      <Alert variant="destructive" class="stagger-item">
+        <AlertTriangleIcon class="size-4" />
+        <AlertTitle>Error loading shops</AlertTitle>
+        <AlertDescription class="mt-2 flex flex-col gap-3">
+          <span>
+            {error instanceof Error
+              ? error.message
+              : "Failed to load your shops. Please try again."}
+          </span>
+          <Button variant="outline" size="sm" class="w-fit" onclick={listMyShops().refresh}
+            >Try Again</Button
+          >
+        </AlertDescription>
+      </Alert>
     {/await}
   </div>
 </div>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .stagger-item {
+    opacity: 0;
+    animation: fadeInUp 150ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation-delay: var(--stagger-delay, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stagger-item {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>
