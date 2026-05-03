@@ -84,7 +84,7 @@ export const shop = sqliteTable("shop", {
   email: text("email"),
   taxId: text("taxId"),
   tursoDbUrl: text("tursoDbUrl"),
-  tursoDbToken: text("tursoDbToken"),
+  tursoDbToken: text("tursoDbToken"), // Reserved: per-shop DB auth token for future multi-tenant Turso isolation
   isActive: integer("isActive", { mode: "boolean" }).default(true),
   userId: text("userId")
     .notNull()
@@ -99,22 +99,19 @@ export const shop = sqliteTable("shop", {
 });
 
 // Relations
-export const relations = defineRelations(
-  { user, session, account, shop },
-  (r) => ({
-    user: {
-      sessions: r.many.session(),
-      accounts: r.many.account(),
-      shops: r.many.shop(),
-    },
-    session: {
-      user: r.one.user({ from: r.session.userId, to: r.user.id }),
-    },
-    account: {
-      user: r.one.user({ from: r.account.userId, to: r.user.id }),
-    },
-    shop: {
-      user: r.one.user({ from: r.shop.userId, to: r.user.id }),
-    },
-  }),
-);
+export const relations = defineRelations({ user, session, account, shop }, (r) => ({
+  user: {
+    sessions: r.many.session(),
+    accounts: r.many.account(),
+    shops: r.many.shop(),
+  },
+  session: {
+    user: r.one.user({ from: r.session.userId, to: r.user.id }),
+  },
+  account: {
+    user: r.one.user({ from: r.account.userId, to: r.user.id }),
+  },
+  shop: {
+    user: r.one.user({ from: r.shop.userId, to: r.user.id }),
+  },
+}));

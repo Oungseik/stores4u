@@ -13,4 +13,4 @@ export const client = await connect({
   },
 });
 
-export const db = drizzle({ client: client, schema });
+export const db = drizzle({ client: client, schema, relations: schema.relations });
