@@ -14,3 +14,12 @@ export function getCountryName(code: CountryCode, locale = "en"): string | undef
     return code;
   }
 }
+
+export function formatDate(date: Date | number): string {
+  const d = typeof date === "number" ? new Date(date) : date;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
