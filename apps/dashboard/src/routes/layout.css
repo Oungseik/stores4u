@@ -5,7 +5,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@source "../../../packages/ui/src/**/*.{html,js,svelte,ts}";
+@source "../../../../packages/ui/src/**/*.{html,js,svelte,ts}";
 
 :root {
   --background: oklch(0.973 0.0133 286.1503);
