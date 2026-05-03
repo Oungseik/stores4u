@@ -1,12 +1,14 @@
 import { error } from "@sveltejs/kit";
-import type { Session, User } from "better-auth";
 import { db } from "$lib/server/db";
 import type { member, organization } from "$lib/server/db/schema";
 
-type AuthLocals = { session: Session; user: User };
+type AuthLocals = App.Locals & {
+  session: NonNullable<App.Locals["session"]>;
+  user: NonNullable<App.Locals["user"]>;
+};
 
-export function assertAuth(locals: App.Locals): asserts locals is AuthLocals & App.Locals {
-  if (!locals.session) {
+export function assertAuth(locals: App.Locals): asserts locals is AuthLocals {
+  if (!locals.session || !locals.user) {
     error(401, "Unauthorized");
   }
 }
