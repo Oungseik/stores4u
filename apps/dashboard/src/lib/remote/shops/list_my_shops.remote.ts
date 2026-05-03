@@ -17,11 +17,37 @@ export const listMyShops = query(listMyShopsSchema, async (input) => {
   const { cursor, limit = 20 } = input;
 
   const shops = await db.query.organization.findMany({
+    columns: {
+      id: true,
+      name: true,
+      slug: true,
+      logo: true,
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
+    },
     where: {
       id: cursor ? { gt: cursor } : undefined,
       members: { userId: locals.session.userId },
     },
-    with: { shopInfo: true },
+    with: {
+      shopInfo: {
+        columns: {
+          organizationId: true,
+          logo: true,
+          title: true,
+          address: true,
+          city: true,
+          state: true,
+          zipCode: true,
+          country: true,
+          phone: true,
+          email: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
     orderBy: { id: "asc" },
     limit: limit + 1,
   });
