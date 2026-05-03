@@ -38,13 +38,15 @@
         {#each Array(2) as _, i (i)}
           <Card.Root>
             <Card.Content class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-              <Skeleton class="size-10 rounded-full" />
-              <div class="min-w-0 flex-1 space-y-2">
-                <Skeleton class="h-5 w-1/3" />
-                <Skeleton class="h-4 w-1/4" />
-                <div class="flex gap-2">
-                  <Skeleton class="h-4 w-16" />
-                  <Skeleton class="h-4 w-20" />
+              <div class="flex items-start gap-4 flex-1">
+                <Skeleton class="size-10 rounded-full" />
+                <div class="min-w-0 flex-1 space-y-2">
+                  <Skeleton class="h-5 w-1/3" />
+                  <Skeleton class="h-4 w-1/4" />
+                  <div class="flex gap-2">
+                    <Skeleton class="h-4 w-16" />
+                    <Skeleton class="h-4 w-20" />
+                  </div>
                 </div>
               </div>
               <Skeleton class="h-9 w-full sm:w-24" />
@@ -71,27 +73,29 @@
         {@const shop = shopsList[0]}
         <Card.Root class="group transition-shadow hover:shadow-md">
           <Card.Content class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-            <Avatar class="size-10">
-              <AvatarImage src={shop.info?.logo ?? undefined} alt={shop.name} />
-              <AvatarFallback class="text-sm font-medium">
-                {shop.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div class="min-w-0 flex-1">
-              <h2 class="text-xl font-semibold">{shop.name}</h2>
-              <p class="text-sm text-muted-foreground">/{shop.slug}</p>
-              <div class="mt-2 flex flex-wrap items-center gap-2">
-                <Badge variant={shop.isActive ? "default" : "secondary"}>
-                  {shop.isActive ? "Active" : "Inactive"}
-                </Badge>
-                {#if shop.info}
+            <div class="flex items-start gap-4 flex-1">
+              <Avatar class="size-10">
+                <AvatarImage src={shop.info?.logo ?? undefined} alt={shop.name} />
+                <AvatarFallback class="text-sm font-medium">
+                  {shop.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div class="min-w-0 flex-1">
+                <h2 class="text-xl font-semibold">{shop.name}</h2>
+                <p class="text-sm text-muted-foreground">/{shop.slug}</p>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                  <Badge variant={shop.isActive ? "default" : "secondary"}>
+                    {shop.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                  {#if shop.info}
+                    <span class="text-xs text-muted-foreground">
+                      {shop.info.city}, {shop.info.country}
+                    </span>
+                  {/if}
                   <span class="text-xs text-muted-foreground">
-                    {shop.info.city}, {shop.info.country}
+                    Created {formatDate(shop.createdAt)}
                   </span>
-                {/if}
-                <span class="text-xs text-muted-foreground">
-                  Created {formatDate(shop.createdAt)}
-                </span>
+                </div>
               </div>
             </div>
             <a href="/shops/{shop.slug}" class={buttonVariants({ class: "w-full sm:w-auto" })}>
@@ -108,7 +112,7 @@
               class="group block cursor-pointer rounded-xl transition-all hover:-translate-y-px hover:border-primary/50 hover:shadow-md"
             >
               <Card.Root class="h-full">
-                <Card.Content class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+                <Card.Content class="flex items-start gap-3 p-4">
                   <Avatar class="size-10">
                     <AvatarImage src={shop.info?.logo ?? undefined} alt={shop.name} />
                     <AvatarFallback class="text-sm font-medium">
