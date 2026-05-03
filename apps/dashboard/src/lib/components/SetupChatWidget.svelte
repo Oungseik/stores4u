@@ -27,7 +27,7 @@
   let textareaRef: HTMLTextAreaElement | null = $state(null);
 
   const chat = new Chat({
-    transport: new DefaultChatTransport({ api: "/setup/api/chat" }),
+    transport: new DefaultChatTransport({ api: "/api/v1/chat" }),
     onFinish: ({ message }) => {
       for (const part of message.parts) {
         if (isToolUIPart(part) && part.state === "output-available" && part.output) {
