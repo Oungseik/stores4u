@@ -31,13 +31,11 @@
   }
 
   interface Props extends ComponentProps<typeof Sidebar.Root> {
-    shop: {
+    organization: {
       id: string;
       name: string;
       slug: string;
-      info?: {
-        logo?: string | null;
-      } | null;
+      logo?: string | null;
     };
     user: {
       name: string;
@@ -47,29 +45,29 @@
     currentPath: string;
   }
 
-  let { shop, user, currentPath, ...restProps }: Props = $props();
+  let { organization, user, currentPath, ...restProps }: Props = $props();
 
   const sidebar = useSidebar();
 
   const mainNavItems: NavItem[] = $derived([
     {
       title: "Dashboard",
-      href: `/shops/${shop.slug}`,
+      href: `/shops/${organization.slug}`,
       icon: LayoutDashboard,
     },
     {
       title: "Checkout",
-      href: `/shops/${shop.slug}/checkout`,
+      href: `/shops/${organization.slug}/checkout`,
       icon: ScanBarcodeIcon,
     },
     {
       title: "Orders",
-      href: `/shops/${shop.slug}/orders`,
+      href: `/shops/${organization.slug}/orders`,
       icon: ClipboardListIcon,
     },
     {
       title: "Integrations",
-      href: `/shops/${shop.slug}/integrations`,
+      href: `/shops/${organization.slug}/integrations`,
       icon: LinkIcon,
     },
   ]);
@@ -77,7 +75,7 @@
   const aiAssistantNavItems: NavItem[] = $derived([
     {
       title: "Chats",
-      href: `/shops/${shop.slug}/chats`,
+      href: `/shops/${organization.slug}/chats`,
       icon: MessageSquareIcon,
     },
   ]);
@@ -85,7 +83,7 @@
   const secondaryNavItems: NavItem[] = $derived([
     {
       title: "Settings",
-      href: `/shops/${shop.slug}/settings`,
+      href: `/shops/${organization.slug}/settings`,
       icon: SettingsIcon,
     },
   ]);
@@ -99,14 +97,14 @@
       <Sidebar.MenuItem>
         <Sidebar.MenuButton size="lg" class="group-data-[collapsible=icon]:!p-1.5">
           {#snippet child({ props })}
-            <a href={`/shops/${shop.slug}`} {...props}>
+            <a href={`/shops/${organization.slug}`} {...props}>
               <div
                 class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
               >
-                {#if shop.info?.logo}
+                {#if organization.logo}
                   <img
-                    src={shop.info.logo}
-                    alt={shop.name}
+                    src={organization.logo}
+                    alt={organization.name}
                     class="size-full rounded-lg object-cover"
                   />
                 {:else}
@@ -114,7 +112,7 @@
                 {/if}
               </div>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{shop.name}</span>
+                <span class="truncate font-semibold">{organization.name}</span>
                 <span class="truncate text-xs opacity-60">Admin Dashboard</span>
               </div>
             </a>
@@ -158,11 +156,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 tooltipContent="All Products"
-                isActive={isActive(`/shops/${shop.slug}/products`)}
+                isActive={isActive(`/shops/${organization.slug}/products`)}
               >
                 {#snippet child({ props })}
                   <a
-                    href={`/shops/${shop.slug}/products`}
+                    href={`/shops/${organization.slug}/products`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
@@ -176,11 +174,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 tooltipContent="Categories"
-                isActive={isActive(`/shops/${shop.slug}/products/categories`)}
+                isActive={isActive(`/shops/${organization.slug}/products/categories`)}
               >
                 {#snippet child({ props })}
                   <a
-                    href={`/shops/${shop.slug}/products/categories`}
+                    href={`/shops/${organization.slug}/products/categories`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
@@ -202,11 +200,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 tooltipContent="Invoices"
-                isActive={isActive(`/shops/${shop.slug}/purchases/invoices`)}
+                isActive={isActive(`/shops/${organization.slug}/purchases/invoices`)}
               >
                 {#snippet child({ props })}
                   <a
-                    href={`/shops/${shop.slug}/purchases/invoices`}
+                    href={`/shops/${organization.slug}/purchases/invoices`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
@@ -220,11 +218,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 tooltipContent="Suppliers"
-                isActive={isActive(`/shops/${shop.slug}/purchases/suppliers`)}
+                isActive={isActive(`/shops/${organization.slug}/purchases/suppliers`)}
               >
                 {#snippet child({ props })}
                   <a
-                    href={`/shops/${shop.slug}/purchases/suppliers`}
+                    href={`/shops/${organization.slug}/purchases/suppliers`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
@@ -246,11 +244,11 @@
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 tooltipContent="Movements"
-                isActive={isActive(`/shops/${shop.slug}/inventory/movements`)}
+                isActive={isActive(`/shops/${organization.slug}/inventory/movements`)}
               >
                 {#snippet child({ props })}
                   <a
-                    href={`/shops/${shop.slug}/inventory/movements`}
+                    href={`/shops/${organization.slug}/inventory/movements`}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
