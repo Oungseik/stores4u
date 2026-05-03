@@ -60,10 +60,18 @@
     "vitest-browser-svelte": "^2.1.0"
   },
   "dependencies": {
+    "@ai-sdk/svelte": "^4.0.172",
     "@lucide/svelte": "^1.14.0",
+    "@mastra/ai-sdk": "^1.4.1",
+    "@mastra/core": "^1.30.0",
+    "@openrouter/sdk": "^0.12.24",
+    "@repo/config": "workspace:*",
+    "@repo/db": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tanstack/svelte-form": "^1.29.1",
+    "@tursodatabase/api": "^2.0.0",
     "@tursodatabase/sync": "^0.5.3",
+    "ai": "^6.0.172",
     "runed": "^0.37.1",
     "svelte-sonner": "^1.1.1",
     "zod": "^4.4.1"

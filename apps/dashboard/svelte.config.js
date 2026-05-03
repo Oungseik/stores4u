@@ -6,10 +6,16 @@ const config = {
   preprocess: [vitePreprocess()],
   compilerOptions: {
     runes: ({ filename }) => (filename.split(/[/\\]/).includes("node_modules") ? undefined : true),
+    experimental: {
+      async: true,
+    },
   },
   kit: {
     adapter: adapter(),
     env: { dir: "../../" },
+    experimental: {
+      remoteFunctions: true,
+    },
     alias: {
       "@lib": "../../packages/ui/src/lib",
       "@lib/*": "../../packages/ui/src/lib/*",
