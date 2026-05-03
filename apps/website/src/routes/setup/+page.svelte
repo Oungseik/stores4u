@@ -637,7 +637,7 @@
         </Button>
       </div>
 
-      <ScrollArea bind:viewportRef={messagesContainer} class="flex-1">
+      <ScrollArea bind:viewportRef={messagesContainer} class="min-h-0 flex-1">
         {#if chat.messages.length > 0}
           <div class="space-y-4 p-4">
             {#each chat.messages as message (message.id)}
@@ -645,7 +645,8 @@
                 {@const text = message.parts
                   .filter(isTextUIPart)
                   .map((p) => p.text)
-                  .join("")}
+                  .join("")
+                  .replace(/\n/g, "\n\n")}
                 <Message.Message from="user">
                   <Message.MessageContent>
                     <Message.MessageResponse content={text} />
