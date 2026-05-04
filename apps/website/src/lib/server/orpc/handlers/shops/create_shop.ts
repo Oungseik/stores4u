@@ -1,6 +1,5 @@
 import { ORPCError } from "@orpc/server";
 import { eq, shop } from "@repo/website-auth";
-import { COUNTRIES } from "@repo/config";
 import { z } from "zod";
 import { db } from "$lib/server/auth_db";
 import { logger } from "$lib/server/logger";
@@ -14,17 +13,6 @@ const input = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
-  title: z.string().max(200).optional(),
-  description: z.string().max(1000).optional(),
-  address: z.string().min(1).max(200),
-  city: z.string().min(1).max(100),
-  phone: z.string().min(1).max(50),
-  state: z.string().max(100).optional(),
-  zipCode: z.string().max(20).optional(),
-  email: z.email().max(200).optional(),
-  country: z.enum(COUNTRIES).optional(),
-  logo: z.string().max(500).optional(),
-  heroImage: z.string().max(500).optional(),
 });
 
 export const createShopHandler = os
@@ -54,7 +42,14 @@ export const createShopHandler = os
       });
     }
 
-    const shopInfo = { ...input, id: Bun.randomUUIDv7(), userId: context.session.user.id };
+    const shopInfo = {
+      ...input,
+      id: Bun.randomUUIDv7(),
+      userId: context.session.user.id,
+      address: "",
+      city: "",
+      phone: "",
+    };
     const result = await db.insert(shop).values(shopInfo);
 
     if (!result.rowsAffected) {
