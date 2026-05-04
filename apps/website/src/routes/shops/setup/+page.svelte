@@ -68,16 +68,11 @@
 <div class="bg-background flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
   <div class="w-full max-w-lg">
     <a
-      href="/"
+      href="/shops"
       class="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
     >
       <ArrowLeftIcon class="size-4" />
       Back to shops
-    </a>
-
-    <a href="/" class="mb-6 flex items-center gap-2 self-center font-medium">
-      <img src="/logo.svg" class="size-5" alt="logo" />
-      <span>{PUBLIC_DOMAIN}</span>
     </a>
 
     <Card.Root>
