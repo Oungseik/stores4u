@@ -1,5 +1,5 @@
 import { error, redirect } from "@sveltejs/kit";
-import { db } from "$lib/server/auth_db";
+import { db } from "$lib/server/db";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ params, locals, url }) => {

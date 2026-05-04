@@ -1,4 +1,4 @@
-import { db as authDb } from "$lib/server/auth_db";
+import { db as authDb } from "$lib/server/db";
 import { getShopDb } from "$lib/server/shop_db";
 import { extractObjectKey, getObjectStream } from "$lib/server/storage";
 

@@ -35,4 +35,6 @@ yarn-error.log*
 **/_generated
 
 databases
+data
+*.db
 result

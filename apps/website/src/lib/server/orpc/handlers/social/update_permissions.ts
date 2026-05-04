@@ -1,8 +1,8 @@
 import { ORPCError } from "@orpc/server";
-import { eq, socialConnection } from "@repo/website-auth";
+import { db, socialConnection } from "$lib/server/db";
+import { eq } from "drizzle-orm";
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { z } from "zod";
-import { db } from "$lib/server/auth_db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const permissionsSchema = z.object({

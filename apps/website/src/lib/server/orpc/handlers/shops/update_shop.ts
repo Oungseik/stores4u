@@ -1,7 +1,7 @@
-import { eq, shop } from "@repo/website-auth";
+import { db, shop } from "$lib/server/db";
+import { eq } from "drizzle-orm";
 import { COUNTRIES } from "@repo/config";
 import { z } from "zod";
-import { db } from "$lib/server/auth_db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 

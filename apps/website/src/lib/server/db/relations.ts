@@ -1,5 +1,5 @@
 import { defineRelations } from "drizzle-orm";
-import { account, session, shop, socialConnection, twoFactor, user } from "./auth";
+import { account, session, shop, socialConnection, twoFactor, user } from "./auth.schema";
 
 export const relations = defineRelations(
   {

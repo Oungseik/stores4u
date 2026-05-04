@@ -1,8 +1,8 @@
 import { ORPCError } from "@orpc/server";
-import { eq, user } from "@repo/website-auth";
+import { db, user } from "$lib/server/db";
+import { eq } from "drizzle-orm";
 import sharp from "sharp";
 import { z } from "zod";
-import { db } from "$lib/server/auth_db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
 import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";

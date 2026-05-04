@@ -1,5 +1,6 @@
 /// <reference types="@sveltejs/kit" />
 import type { Logger } from "$lib/server/logger";
+import type { Session, User } from "$lib/server/auth";
 
 declare global {
   namespace App {
@@ -7,26 +8,8 @@ declare global {
     interface Locals {
       logger: Logger;
       session?: {
-        session: {
-          id: string;
-          userId: string;
-          expiresAt: Date;
-          createdAt: Date;
-          updatedAt: Date;
-          token: string;
-          ipAddress?: string | null;
-          userAgent?: string | null;
-        };
-        user: {
-          id: string;
-          email: string;
-          emailVerified: boolean;
-          name: string;
-          createdAt: Date;
-          updatedAt: Date;
-          image?: string | null;
-          twoFactorEnabled?: boolean | null;
-        };
+        session: Session;
+        user: User;
       } | null;
     }
     // interface PageData {}

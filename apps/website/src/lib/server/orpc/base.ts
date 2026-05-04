@@ -1,6 +1,6 @@
 import { os as base, ORPCError } from "@orpc/server";
-import type { ShopSelect } from "@repo/website-auth";
-import { db as authDb } from "$lib/server/auth_db";
+import type { ShopSelect } from "$lib/server/db";
+import { db as authDb } from "$lib/server/db";
 import { getShopDb } from "$lib/server/shop_db";
 
 type Context = {

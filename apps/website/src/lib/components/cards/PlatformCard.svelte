@@ -11,8 +11,9 @@
   import * as Dialog from "@repo/ui/dialog";
   import { Label } from "@repo/ui/label";
   import { Switch } from "@repo/ui/switch";
-  import type { SocialConnectionSelect } from "@repo/website-auth";
   import { siFacebook, siTelegram, siTiktok, siViber } from "simple-icons";
+
+  import type { SocialConnectionSelect } from "$lib/server/db";
 
   export interface Integration {
     id: string;

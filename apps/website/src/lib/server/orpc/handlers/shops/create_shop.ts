@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
-import { eq, shop } from "@repo/website-auth";
+import { db, shop } from "$lib/server/db";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "$lib/server/auth_db";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 import { createShopDatabase } from "$lib/server/shop_db";
@@ -52,7 +52,7 @@ export const createShopHandler = os
     };
     const result = await db.insert(shop).values(shopInfo);
 
-    if (!result.rowsAffected) {
+    if (!result.changes) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: `Failed to create shop "${input.name}"`,
       });

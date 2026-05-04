@@ -1,5 +1,5 @@
-import { account, eq } from "@repo/website-auth";
-import { db } from "$lib/server/auth_db";
+import { account, db } from "$lib/server/db";
+import { eq } from "drizzle-orm";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 
 export const listAccountsHandler = os

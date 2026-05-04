@@ -1,4 +1,23 @@
-import type { Transporter } from "nodemailer";
+import { createTransport, type Transporter } from "nodemailer";
+
+export interface SmtpConfig {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+}
+
+export const createTransporter = (config: SmtpConfig) => {
+  return createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.port === 465,
+    auth: {
+      user: config.user,
+      pass: config.pass,
+    },
+  });
+};
 
 export const createEmailCallbacks = (transporter: Transporter, noReplyEmail: string) => {
   return {
@@ -10,7 +29,6 @@ export const createEmailCallbacks = (transporter: Transporter, noReplyEmail: str
         html: `verify your email with ${url}`,
       });
     },
-
     sendVerificationOTP: async ({
       email,
       otp,
@@ -29,7 +47,6 @@ export const createEmailCallbacks = (transporter: Transporter, noReplyEmail: str
         });
       }
     },
-
     sendTwoFactorOTP: async ({ user, otp }: { user: { email: string }; otp: string }) => {
       await transporter.sendMail({
         from: noReplyEmail,
