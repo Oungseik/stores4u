@@ -79,6 +79,7 @@
     "@tanstack/svelte-form": "^1.29.1",
     "@tursodatabase/api": "^2.0.0",
     "@tursodatabase/sync": "^0.5.3",
+    "lru-cache": "^11.1.0",
     "ai": "^6.0.172",
     "import-in-the-middle": "^3.0.1",
     "mode-watcher": "^1.1.0",

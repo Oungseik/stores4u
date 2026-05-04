@@ -43,8 +43,7 @@ export function createColumns(
     {
       accessorKey: "priceCents",
       header: "Price",
-      cell: ({ row }) =>
-        renderComponent(PriceCell, { cents: row.original.priceCents, country }),
+      cell: ({ row }) => renderComponent(PriceCell, { cents: row.original.priceCents, country }),
     },
     {
       accessorKey: "stock",

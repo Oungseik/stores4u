@@ -13,7 +13,14 @@
 
 <div class="flex items-center gap-2">
   <span
-    class={["font-medium", isOutOfStock ? "text-red-700 dark:text-red-400" : isLowStock ? "text-amber-700 dark:text-amber-400" : ""]}
+    class={[
+      "font-medium",
+      isOutOfStock
+        ? "text-red-700 dark:text-red-400"
+        : isLowStock
+          ? "text-amber-700 dark:text-amber-400"
+          : "",
+    ]}
   >
     {stock}
   </span>

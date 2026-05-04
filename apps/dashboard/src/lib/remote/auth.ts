@@ -45,10 +45,7 @@ export async function assertShopAccess(
   return { member: mem, organization: org };
 }
 
-export async function assertShopAccessFromParams(
-  locals: App.Locals,
-  minimumRole?: Role,
-) {
+export async function assertShopAccessFromParams(locals: App.Locals, minimumRole?: Role) {
   const { params } = getRequestEvent();
   if (!params.slug) {
     error(400, "Missing shop slug");

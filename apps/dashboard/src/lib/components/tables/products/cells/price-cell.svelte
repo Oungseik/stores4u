@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CountryCode } from "@repo/config";
+
   import { formatPrice } from "$lib/utils/format-price";
 
   type Props = {

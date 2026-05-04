@@ -9,7 +9,7 @@ export const listCategories = query(listCategoriesSchema, async () => {
   const { locals } = getRequestEvent();
   const { organization } = await assertShopAccessFromParams(locals);
 
-  const shopDb = getShopDb({ slug: organization.slug });
+  const shopDb = await getShopDb({ slug: organization.slug });
 
   const categories = await shopDb.query.category.findMany({
     columns: { id: true, name: true },

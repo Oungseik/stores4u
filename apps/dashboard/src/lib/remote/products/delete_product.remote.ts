@@ -11,7 +11,7 @@ export const deleteProduct = command(deleteProductSchema, async (input) => {
   const { locals } = getRequestEvent();
   const { organization } = await assertShopAccessFromParams(locals);
 
-  const shopDb = getShopDb({ slug: organization.slug });
+  const shopDb = await getShopDb({ slug: organization.slug });
   await shopDb.delete(product).where(eq(product.id, input.id));
 
   return { success: true };

@@ -49,7 +49,7 @@
         {value}
       {/if}
     </div>
-    <p class="text-muted-foreground text-xs">{description}</p>
+    <p class="text-xs text-muted-foreground">{description}</p>
   </Card.Content>
   {#if footer}
     <Card.Footer class="pt-0">

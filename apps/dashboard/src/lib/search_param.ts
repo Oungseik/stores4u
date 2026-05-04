@@ -14,9 +14,8 @@ export const productsFilterSchema = createSearchParamsSchema({
     default: [],
   },
   view: { type: "string", default: "card" },
-  page: { type: "number", default: 1 },
-  pageSize: { type: "number", default: 20 },
+  cursor: { type: "string", default: undefined },
 }) as StandardSchemaV1<
   unknown,
-  { search: string; categories: string[]; view: ProductsView; page: number; pageSize: number }
+  { search: string; categories: string[]; view: ProductsView; cursor: string | undefined }
 >;
