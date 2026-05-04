@@ -3,8 +3,23 @@
 
   let mounted = $state(false);
 
+  interface FloatingParticle {
+    left: number;
+    top: number;
+    duration: number;
+    delay: number;
+  }
+
+  let floatingParticles = $state<FloatingParticle[]>([]);
+
   onMount(() => {
     mounted = true;
+    floatingParticles = Array.from({ length: 20 }, () => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: 10 + Math.random() * 20,
+      delay: Math.random() * 5,
+    }));
   });
 </script>
 
@@ -43,14 +58,14 @@
 
   <!-- Floating particles -->
   <div class="absolute inset-0">
-    {#each Array(20) as _, i (i)}
+    {#each floatingParticles as p}
       <div
         class="bg-primary/20 animate-float absolute h-1 w-1 rounded-full"
         style="
-          left: {Math.random() * 100}%;
-          top: {Math.random() * 100}%;
-          animation-duration: {10 + Math.random() * 20}s;
-          animation-delay: {Math.random() * 5}s;
+          left: {p.left}%;
+          top: {p.top}%;
+          animation-duration: {p.duration}s;
+          animation-delay: {p.delay}s;
         "
       ></div>
     {/each}
