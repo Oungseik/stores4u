@@ -40,26 +40,11 @@ export const updateShopHandler = os
       .where(eq(shop.id, context.shop.id));
 
     // Upsert shopInfo
-    await db
-      .insert(shopInfo)
-      .values({
-        shopId: context.shop.id,
-        title: input.title ?? "",
-        description: input.description ?? null,
-        heroImage: input.heroImage ?? null,
-        address: input.address,
-        city: input.city,
-        state: input.state,
-        zipCode: input.zipCode,
-        country: input.country,
-        phone: input.phone,
-        email: input.email,
-        taxId: input.taxId ?? null,
-        logo: input.logo ?? null,
-      })
-      .onConflictDoUpdate({
-        target: shopInfo.shopId,
-        set: {
+    if (context.shop.shopInfoId) {
+      // Update existing shopInfo
+      await db
+        .update(shopInfo)
+        .set({
           title: input.title ?? "",
           description: input.description ?? null,
           heroImage: input.heroImage ?? null,
@@ -72,8 +57,29 @@ export const updateShopHandler = os
           email: input.email,
           taxId: input.taxId ?? null,
           logo: input.logo ?? null,
-        },
+          updatedAt: new Date(),
+        })
+        .where(eq(shopInfo.id, context.shop.shopInfoId));
+    } else {
+      // Create new shopInfo and link to shop
+      const infoId = Bun.randomUUIDv7();
+      await db.insert(shopInfo).values({
+        id: infoId,
+        title: input.title ?? "",
+        description: input.description ?? null,
+        heroImage: input.heroImage ?? null,
+        address: input.address,
+        city: input.city,
+        state: input.state,
+        zipCode: input.zipCode,
+        country: input.country,
+        phone: input.phone,
+        email: input.email,
+        taxId: input.taxId ?? null,
+        logo: input.logo ?? null,
       });
+      await db.update(shop).set({ shopInfoId: infoId }).where(eq(shop.id, context.shop.id));
+    }
 
     // Clean up old images
     if (oldLogo && oldLogo !== input.logo) {

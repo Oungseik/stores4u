@@ -48,8 +48,7 @@ export const createShopHandler = os
     }
 
     try {
-      const url = await createShopDatabase(input.slug);
-      await db.update(shop).set({ tursoDbUrl: url }).where(eq(shop.id, newShopData.id));
+      await createShopDatabase(input.slug);
     } catch (e) {
       logger.error({ err: e, shopSlug: input.slug }, "Failed to create shop database");
       await db.delete(shop).where(eq(shop.id, newShopData.id));

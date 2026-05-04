@@ -1,5 +1,5 @@
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { connect } from "@tursodatabase/database";
+import { drizzle } from "drizzle-orm/tursodatabase/database";
 import {
   category,
   image,
@@ -41,8 +41,8 @@ const schema = {
   taxSettings,
 };
 
-export const connectRemote = (url: string, authToken: string) => {
-  const client = createClient({ url, authToken });
+export const connectLocal = async (path: string) => {
+  const client = await connect(path);
   return drizzle({ client, schema, relations });
 };
 

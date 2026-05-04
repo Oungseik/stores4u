@@ -1,5 +1,6 @@
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
+import { shopInfo } from "./shop-info.schema";
 
 export const shopRoles = ["OWNER", "ADMIN", "MEMBER"] as const;
 export type ShopRole = (typeof shopRoles)[number];
@@ -90,15 +91,19 @@ export const twoFactor = sqliteTable(
 export const shop = sqliteTable(
   "shop",
   {
-    id: text("id").primaryKey().$defaultFn(Bun.randomUUIDv7),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => (typeof Bun !== "undefined" ? Bun.randomUUIDv7() : crypto.randomUUID())),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     logo: text("logo"),
-    tursoDbUrl: text("turso_db_url"),
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    shopInfoId: text("shop_info_id").references(() => shopInfo.id, {
+      onDelete: "set null",
+    }),
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),
@@ -115,7 +120,9 @@ export type ShopInsert = typeof shop.$inferInsert;
 export const socialConnection = sqliteTable(
   "social_connection",
   {
-    id: text("id").primaryKey().$defaultFn(Bun.randomUUIDv7),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => (typeof Bun !== "undefined" ? Bun.randomUUIDv7() : crypto.randomUUID())),
     shopId: text("shop_id")
       .notNull()
       .references(() => shop.id, { onDelete: "cascade" }),

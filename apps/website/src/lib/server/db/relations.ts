@@ -31,13 +31,13 @@ export const relations = defineRelations(
     shop: {
       user: r.one.user({ from: r.shop.userId, to: r.user.id }),
       socialConnections: r.many.socialConnection(),
-      shopInfo: r.one.shopInfo({ from: r.shop.id, to: r.shopInfo.shopId }),
+      shopInfo: r.one.shopInfo({ from: r.shop.shopInfoId, to: r.shopInfo.id }),
     },
     socialConnection: {
       shop: r.one.shop({ from: r.socialConnection.shopId, to: r.shop.id }),
     },
     shopInfo: {
-      shop: r.one.shop({ from: r.shopInfo.shopId, to: r.shop.id }),
+      shop: r.one.shop({ from: r.shopInfo.id, to: r.shop.shopInfoId }),
     },
   }),
 );

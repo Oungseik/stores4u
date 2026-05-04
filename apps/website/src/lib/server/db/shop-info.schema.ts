@@ -1,11 +1,10 @@
 import { COUNTRIES } from "@repo/config";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { shop } from "./auth.schema";
 
 export const shopInfo = sqliteTable("shopInfo", {
-  shopId: text("shop_id")
+  id: text("id")
     .primaryKey()
-    .references(() => shop.id, { onDelete: "cascade" }),
+    .$defaultFn(() => (typeof Bun !== "undefined" ? Bun.randomUUIDv7() : crypto.randomUUID())),
   logo: text("logo"),
   title: text("title").notNull(),
   description: text("description"),

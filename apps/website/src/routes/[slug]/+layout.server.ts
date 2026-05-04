@@ -33,7 +33,6 @@ export const load: LayoutServerLoad = async ({ params, locals, url }) => {
     phone: shop.shopInfo?.phone ?? null,
     email: shop.shopInfo?.email ?? null,
     taxId: shop.shopInfo?.taxId ?? null,
-    tursoDbUrl: undefined,
     user: locals.session.user,
     session: locals.session.session,
   };
