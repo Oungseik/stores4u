@@ -1,4 +1,4 @@
-import { eq, orderItem } from "@repo/db";
+import { eq, orderItem } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

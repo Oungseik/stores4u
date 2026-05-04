@@ -1,4 +1,4 @@
-import { taxSettings } from "@repo/db";
+import { taxSettings } from "@repo/perstore-db";
 import { z } from "zod";
 
 import {

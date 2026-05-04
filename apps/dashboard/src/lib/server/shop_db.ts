@@ -1,4 +1,4 @@
-import { connectRemote } from "@repo/db";
+import { connectRemote } from "@repo/perstore-db";
 import {
   TURSO_GROUP,
   TURSO_GROUP_AUTH_TOKEN,

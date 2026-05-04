@@ -1,4 +1,4 @@
-import { eq, image, product, productImage } from "@repo/db";
+import { eq, image, product, productImage } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

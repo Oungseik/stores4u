@@ -9,7 +9,7 @@ import {
   product,
   purchaseInvoiceFile,
   sql,
-} from "@repo/db";
+} from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

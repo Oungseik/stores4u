@@ -26,7 +26,7 @@
         "@opentelemetry/sdk-node": "^0.216.0",
         "@opentelemetry/semantic-conventions": "^1.40.0",
         "@repo/config": "workspace:*",
-        "@repo/db": "workspace:*",
+        "@repo/perstore-db": "workspace:*",
         "@repo/ui": "workspace:*",
         "@tanstack/svelte-form": "^1.29.1",
         "@tursodatabase/api": "^2.0.0",
@@ -105,7 +105,7 @@
         "@orpc/server": "^1.14.0",
         "@orpc/tanstack-query": "^1.14.0",
         "@repo/config": "workspace:*",
-        "@repo/db": "workspace:*",
+        "@repo/perstore-db": "workspace:*",
         "@repo/ui": "workspace:*",
         "@repo/website-auth": "workspace:*",
         "@tanstack/svelte-form": "^1.29.1",
@@ -186,7 +186,7 @@
       },
     },
     "packages/perstore-db": {
-      "name": "@repo/db",
+      "name": "@repo/perstore-db",
       "dependencies": {
         "@libsql/client": "^0.17.3",
         "@tursodatabase/api": "^2.0.0",
@@ -1053,7 +1053,7 @@
 
     "@repo/config": ["@repo/config@workspace:packages/config"],
 
-    "@repo/db": ["@repo/db@workspace:packages/perstore-db"],
+    "@repo/perstore-db": ["@repo/perstore-db@workspace:packages/perstore-db"],
 
     "@repo/ui": ["@repo/ui@workspace:packages/ui"],
 

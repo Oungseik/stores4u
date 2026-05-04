@@ -1,4 +1,4 @@
-import { count, gte, order, sql } from "@repo/db";
+import { count, gte, order, sql } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

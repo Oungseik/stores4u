@@ -5,7 +5,7 @@
   import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
-  import type { MovementType } from "@repo/db";
+  import type { MovementType } from "@repo/perstore-db";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";

@@ -78,7 +78,7 @@
     "@orpc/server": "^1.14.0",
     "@orpc/tanstack-query": "^1.14.0",
     "@repo/config": "workspace:*",
-    "@repo/db": "workspace:*",
+    "@repo/perstore-db": "workspace:*",
     "@repo/ui": "workspace:*",
     "@repo/website-auth": "workspace:*",
     "@tanstack/svelte-form": "^1.29.1",

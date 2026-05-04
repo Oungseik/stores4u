@@ -1,5 +1,5 @@
 import { Agent } from "@mastra/core/agent";
-import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/db";
+import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "@repo/perstore-db";
 import { prepareImages } from "../_lib/image-utils";
 
 export const invoiceExtractionAgent = new Agent({

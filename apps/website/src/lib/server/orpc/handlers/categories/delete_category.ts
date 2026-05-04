@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { category, eq, productCategory } from "@repo/db";
+import { category, eq, productCategory } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

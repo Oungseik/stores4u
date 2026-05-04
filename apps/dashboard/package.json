@@ -73,7 +73,7 @@
     "@opentelemetry/sdk-node": "^0.216.0",
     "@opentelemetry/semantic-conventions": "^1.40.0",
     "@repo/config": "workspace:*",
-    "@repo/db": "workspace:*",
+    "@repo/perstore-db": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tanstack/svelte-form": "^1.29.1",
     "@tursodatabase/api": "^2.0.0",

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { eq, inventoryMovement, product, sql } from "@repo/db";
+import { eq, inventoryMovement, product, sql } from "@repo/perstore-db";
 import { z } from "zod";
 
 import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";

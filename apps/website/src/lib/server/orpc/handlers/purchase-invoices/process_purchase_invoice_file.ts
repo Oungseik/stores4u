@@ -4,7 +4,7 @@ import {
   eq,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
-} from "@repo/db";
+} from "@repo/perstore-db";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
 import type { InvoiceVerificationResult } from "$lib/server/mastra/_lib/image-utils";

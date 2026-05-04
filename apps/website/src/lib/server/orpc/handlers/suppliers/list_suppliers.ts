@@ -1,4 +1,4 @@
-import { eq, purchaseInvoice, sql } from "@repo/db";
+import { eq, purchaseInvoice, sql } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

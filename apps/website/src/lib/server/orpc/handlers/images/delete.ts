@@ -1,4 +1,4 @@
-import { eq, image } from "@repo/db";
+import { eq, image } from "@repo/perstore-db";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
 import {

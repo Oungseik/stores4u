@@ -1,4 +1,4 @@
-import { and, eq, gte, inventoryMovement, order, sql } from "@repo/db";
+import { and, eq, gte, inventoryMovement, order, sql } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

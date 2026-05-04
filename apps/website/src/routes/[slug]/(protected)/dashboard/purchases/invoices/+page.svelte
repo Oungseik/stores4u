@@ -10,7 +10,7 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UploadIcon from "@lucide/svelte/icons/upload";
-  import type { PurchaseInvoiceFileStatus } from "@repo/db";
+  import type { PurchaseInvoiceFileStatus } from "@repo/perstore-db";
   import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";

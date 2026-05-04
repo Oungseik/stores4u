@@ -31,7 +31,7 @@ COUNT=0
 for db_file in "$DIR"/*.db; do
   [ -f "$db_file" ] || continue
   echo "Migrating: $db_file"
-  DATABASE_URL="$db_file" bun run --filter @repo/db db:migrate &
+  DATABASE_URL="$db_file" bun run --filter @repo/perstore-db db:migrate &
   PIDS+=($!)
   ((COUNT++))
 

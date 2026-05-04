@@ -5,7 +5,7 @@ import {
   purchaseInvoice,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
-} from "@repo/db";
+} from "@repo/perstore-db";
 import { z } from "zod";
 import { logger } from "$lib/server/logger";
 import {

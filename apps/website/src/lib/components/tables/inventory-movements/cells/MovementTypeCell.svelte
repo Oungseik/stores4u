@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MovementType } from "@repo/db";
+  import type { MovementType } from "@repo/perstore-db";
 
   type Props = {
     movementType: MovementType;

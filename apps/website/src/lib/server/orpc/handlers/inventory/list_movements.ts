@@ -1,4 +1,4 @@
-import { movementTypes } from "@repo/db";
+import { movementTypes } from "@repo/perstore-db";
 import { z } from "zod";
 
 import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";

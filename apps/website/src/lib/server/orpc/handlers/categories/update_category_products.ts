@@ -1,4 +1,4 @@
-import { eq, productCategory } from "@repo/db";
+import { eq, productCategory } from "@repo/perstore-db";
 import { z } from "zod";
 import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
 

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { eq, productSupplier, purchaseInvoice, sql, supplier } from "@repo/db";
+import { eq, productSupplier, purchaseInvoice, sql, supplier } from "@repo/perstore-db";
 import { z } from "zod";
 import {
   authMiddleware,

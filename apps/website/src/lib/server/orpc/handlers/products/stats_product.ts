@@ -1,4 +1,4 @@
-import { and, eq, inventoryMovement, orderItem, sql } from "@repo/db";
+import { and, eq, inventoryMovement, orderItem, sql } from "@repo/perstore-db";
 import { z } from "zod";
 import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
 
