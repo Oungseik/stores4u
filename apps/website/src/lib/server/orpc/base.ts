@@ -29,7 +29,7 @@ type Context = {
       image?: string | null;
     };
   } | null;
-  shopDb?: ReturnType<typeof getShopDb>;
+  shopDb?: Awaited<ReturnType<typeof getShopDb>>;
   shop?: ShopWithInfo;
   shopId?: string;
 };
@@ -98,7 +98,7 @@ Object.defineProperty(protectedShopMiddleware, "name", { value: "protected_shop_
 export const shopDbMiddleware = os
   .$context<{ shop: ShopWithInfo }>()
   .middleware(async ({ context, next }) => {
-    const shopDb = getShopDb({ slug: context.shop.slug });
+    const shopDb = await getShopDb({ slug: context.shop.slug });
 
     return next({ context: { ...context, shopDb } });
   });

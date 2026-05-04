@@ -127,7 +127,7 @@
       <Sidebar.MenuItem>
         <Sidebar.MenuButton size="lg" class="group-data-[collapsible=icon]:!p-1.5">
           {#snippet child({ props })}
-            <a href={`/${shop.slug}/dashboard`} {...props}>
+            <a href={`/${shop.slug}`} {...props}>
               <div
                 class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
               >
@@ -290,7 +290,7 @@
             <DropdownMenu.Group>
               <DropdownMenu.Item>
                 {#snippet child({ props })}
-                  <a href={`/${shop.slug}/dashboard/settings`} {...props}>
+                  <a href={`/${shop.slug}/settings`} {...props}>
                     <SettingsIcon class="size-4" />
                     Settings
                   </a>

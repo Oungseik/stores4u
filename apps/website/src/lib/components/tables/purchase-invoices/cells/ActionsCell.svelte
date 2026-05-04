@@ -41,7 +41,7 @@
       <EyeIcon class="mr-2 size-4" />
       View Details
     </DropdownMenu.Item>
-    <DropdownMenu.Item onclick={() => goto(`/${slug}/dashboard/purchases/invoices/${id}/edit`)}>
+    <DropdownMenu.Item onclick={() => goto(`/${slug}/purchases/invoices/${id}/edit`)}>
       <PencilIcon class="size-4" />
       Edit
     </DropdownMenu.Item>

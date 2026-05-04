@@ -23,7 +23,7 @@
 
   import type { PageProps } from "./$types";
 
-  let { data }: PageProps = $props();
+  let { data, params }: PageProps = $props();
   const queryClient = useQueryClient();
 
   let chat = $state<Chat | null>(null);
@@ -35,13 +35,13 @@
     navigated = false;
     chat = new Chat({
       transport: new DefaultChatTransport({
-        api: `/api/ai/${data.slug}/shop-assistant`,
+        api: `/api/ai/${params.slug}/shop-assistant`,
         body: { threadId: tid },
       }),
       onFinish: () => {
         if (!navigated) {
           navigated = true;
-          goto(`/${data.slug}/chats/${tid}`).then(() =>
+          goto(`/${params.slug}/chats/${tid}`).then(() =>
             queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() })
           );
         }
