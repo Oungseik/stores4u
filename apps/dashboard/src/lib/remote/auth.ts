@@ -1,4 +1,5 @@
 import { error } from "@sveltejs/kit";
+import { getRequestEvent } from "$app/server";
 import { db } from "$lib/server/db";
 import type { member, organization } from "$lib/server/db/schema";
 
@@ -42,4 +43,15 @@ export async function assertShopAccess(
   }
 
   return { member: mem, organization: org };
+}
+
+export async function assertShopAccessFromParams(
+  locals: App.Locals,
+  minimumRole?: Role,
+) {
+  const { params } = getRequestEvent();
+  if (!params.slug) {
+    error(400, "Missing shop slug");
+  }
+  return assertShopAccess(locals, params.slug, minimumRole);
 }
