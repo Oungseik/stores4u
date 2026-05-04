@@ -1,4 +1,4 @@
-import type { CountryCode } from "@repo/config";
+import { type CountryCode, currency } from "@repo/config";
 
 /**
  * Get the full country name from a two-letter ISO country code.
@@ -22,4 +22,30 @@ export function formatDate(date: Date | number): string {
     month: "short",
     day: "numeric",
   });
+}
+
+export function formatPrice(
+  cents: number,
+  country?: CountryCode | null,
+  compactEnabled = true,
+): string {
+  const amount = cents / 100;
+  const compact = compactEnabled && Math.abs(amount) >= 1_000_000;
+
+  const formatted = new Intl.NumberFormat(undefined, {
+    style: "decimal",
+    ...(compact
+      ? { notation: "compact" as const, maximumFractionDigits: 2 }
+      : { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+  }).format(amount);
+
+  if (!country) return formatted;
+
+  const config = currency[country];
+  if (config.prefix) {
+    if (formatted.startsWith("-")) return `-${config.prefix}${formatted.slice(1)}`;
+    return `${config.prefix}${formatted}`;
+  }
+  if (config.suffix) return `${formatted} ${config.suffix}`;
+  return formatted;
 }
