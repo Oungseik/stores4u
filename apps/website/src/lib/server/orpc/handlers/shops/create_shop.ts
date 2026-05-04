@@ -33,15 +33,13 @@ export const createShopHandler = os
       });
     }
 
-    const shopInfo = {
-      ...input,
+    const newShopData = {
       id: Bun.randomUUIDv7(),
+      name: input.name,
+      slug: input.slug,
       userId: context.session.user.id,
-      address: "",
-      city: "",
-      phone: "",
     };
-    const result = await db.insert(shop).values(shopInfo);
+    const result = await db.insert(shop).values(newShopData);
 
     if (!result.changes) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -51,14 +49,14 @@ export const createShopHandler = os
 
     try {
       const url = await createShopDatabase(input.slug);
-      await db.update(shop).set({ tursoDbUrl: url }).where(eq(shop.id, shopInfo.id));
+      await db.update(shop).set({ tursoDbUrl: url }).where(eq(shop.id, newShopData.id));
     } catch (e) {
       logger.error({ err: e, shopSlug: input.slug }, "Failed to create shop database");
-      await db.delete(shop).where(eq(shop.id, shopInfo.id));
+      await db.delete(shop).where(eq(shop.id, newShopData.id));
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create shop database. Please try again.",
       });
     }
 
-    return shopInfo;
+    return newShopData;
   });

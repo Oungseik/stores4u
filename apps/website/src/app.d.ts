@@ -16,9 +16,4 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
-
-  var $client: RouterClient<typeof router> | undefined;
-  interface Window {
-    dehydrated: DehydratedState;
-  }
 }

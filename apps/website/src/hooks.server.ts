@@ -5,10 +5,7 @@ import { building } from "$app/environment";
 import { paraglideMiddleware } from "$lib/paraglide/server";
 import { auth } from "$lib/server/auth";
 import { logger } from "$lib/server/logger";
-import { client } from "$lib/server/orpc/router";
 import { rateLimiter } from "$lib/server/rate-limit";
-
-globalThis.$client = client;
 
 const handleParaglide: Handle = ({ event, resolve }) =>
   paraglideMiddleware(event.request, ({ request, locale }) => {

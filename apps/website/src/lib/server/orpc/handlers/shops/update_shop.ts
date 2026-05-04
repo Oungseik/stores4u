@@ -1,4 +1,4 @@
-import { db, shop } from "$lib/server/db";
+import { db, shop, shopInfo } from "$lib/server/db";
 import { eq } from "drizzle-orm";
 import { COUNTRIES } from "@repo/config";
 import { z } from "zod";
@@ -13,9 +13,9 @@ const input = z.object({
   address: z.string().min(1).max(200),
   city: z.string().min(1).max(100),
   phone: z.string().min(1).max(50),
-  state: z.string().max(100).optional(),
-  zipCode: z.string().max(20).optional(),
-  email: z.email().max(200).optional(),
+  state: z.string().min(1).max(100),
+  zipCode: z.string().min(1).max(20),
+  email: z.email().max(200),
   taxId: z.string().max(100).optional(),
   country: z.enum(COUNTRIES),
   logo: z.string().max(500).optional(),
@@ -28,14 +28,25 @@ export const updateShopHandler = os
   .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
     const oldLogo = context.shop.logo;
-    const oldHeroImage = context.shop.heroImage;
+    const oldHeroImage = context.shop.shopInfo?.heroImage;
 
+    // Update core shop fields
     await db
       .update(shop)
       .set({
         name: input.name,
-        title: input.title ?? null,
+        logo: input.logo,
+      })
+      .where(eq(shop.id, context.shop.id));
+
+    // Upsert shopInfo
+    await db
+      .insert(shopInfo)
+      .values({
+        shopId: context.shop.id,
+        title: input.title ?? "",
         description: input.description ?? null,
+        heroImage: input.heroImage ?? null,
         address: input.address,
         city: input.city,
         state: input.state,
@@ -43,12 +54,28 @@ export const updateShopHandler = os
         country: input.country,
         phone: input.phone,
         email: input.email,
-        taxId: input.taxId,
-        logo: input.logo,
-        heroImage: input.heroImage,
+        taxId: input.taxId ?? null,
+        logo: input.logo ?? null,
       })
-      .where(eq(shop.id, context.shop.id));
+      .onConflictDoUpdate({
+        target: shopInfo.shopId,
+        set: {
+          title: input.title ?? "",
+          description: input.description ?? null,
+          heroImage: input.heroImage ?? null,
+          address: input.address,
+          city: input.city,
+          state: input.state,
+          zipCode: input.zipCode,
+          country: input.country,
+          phone: input.phone,
+          email: input.email,
+          taxId: input.taxId ?? null,
+          logo: input.logo ?? null,
+        },
+      });
 
+    // Clean up old images
     if (oldLogo && oldLogo !== input.logo) {
       const oldLogoKey = extractObjectKey(oldLogo);
       if (oldLogoKey) {

@@ -1,7 +1,7 @@
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { BatchLinkPlugin } from "@orpc/client/plugins";
-
+import type { RouterClient } from "@orpc/server";
 import {
   createTanstackQueryUtils,
   TANSTACK_QUERY_OPERATION_CONTEXT_SYMBOL,
@@ -29,5 +29,5 @@ const link = new RPCLink({
   ],
 });
 
-const client = createORPCClient(link);
+const client: RouterClient<Router> = createORPCClient(link);
 export const orpc = createTanstackQueryUtils(client);

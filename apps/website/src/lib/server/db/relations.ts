@@ -1,5 +1,6 @@
 import { defineRelations } from "drizzle-orm";
 import { account, session, shop, socialConnection, twoFactor, user } from "./auth.schema";
+import { shopInfo } from "./shop-info.schema";
 
 export const relations = defineRelations(
   {
@@ -9,6 +10,7 @@ export const relations = defineRelations(
     twoFactor,
     shop,
     socialConnection,
+    shopInfo,
   },
   (r) => ({
     user: {
@@ -29,9 +31,13 @@ export const relations = defineRelations(
     shop: {
       user: r.one.user({ from: r.shop.userId, to: r.user.id }),
       socialConnections: r.many.socialConnection(),
+      shopInfo: r.one.shopInfo({ from: r.shop.id, to: r.shopInfo.shopId }),
     },
     socialConnection: {
       shop: r.one.shop({ from: r.socialConnection.shopId, to: r.shop.id }),
+    },
+    shopInfo: {
+      shop: r.one.shop({ from: r.shopInfo.shopId, to: r.shop.id }),
     },
   }),
 );
