@@ -32,17 +32,17 @@
     profile: {
       name: shop.name ?? "",
       title: shop.title ?? "",
-      description: shop.description,
-      logo: shop.logo,
-      heroImage: shop.heroImage,
+      description: shop.description ?? "",
+      logo: shop.logo ?? "",
+      heroImage: shop.heroImage ?? "",
     },
     business: {
-      address: shop.address,
-      city: shop.city,
+      address: shop.address ?? "",
+      city: shop.city ?? "",
       state: shop.state ?? "",
       zipCode: shop.zipCode ?? "",
       country: shop.country ?? "US",
-      phone: shop.phone,
+      phone: shop.phone ?? "",
       email: shop.email ?? "",
       taxId: shop.taxId ?? "",
     },
@@ -117,34 +117,20 @@
   }
 
   function handleLogoRemove() {
-    profileForm.setFieldValue("logo", null);
+    profileForm.setFieldValue("logo", "");
     logoPreview = null;
   }
 
   function handleHeroImageRemove() {
-    profileForm.setFieldValue("heroImage", null);
+    profileForm.setFieldValue("heroImage", "");
     heroImagePreview = null;
   }
 
   const profileForm = createForm(() => ({
     defaultValues: shopSettings.profile,
-    onSubmit: async ({ value }) => {
-      await updateShopMutation.mutateAsync({
-        slug: shop.slug,
-        name: value.name,
-        title: value.title || undefined,
-        description: value.description || undefined,
-        logo: value.logo ?? undefined,
-        heroImage: value.heroImage ?? undefined,
-        address: shopSettings.business.address,
-        city: shopSettings.business.city,
-        state: shopSettings.business.state || undefined,
-        zipCode: shopSettings.business.zipCode || undefined,
-        country: shopSettings.business.country,
-        phone: shopSettings.business.phone,
-        email: shopSettings.business.email || undefined,
-        taxId: shopSettings.business.taxId || undefined,
-      });
+    onSubmit: async () => {
+      // TODO: redesign settings page with separate shop info form
+      // await updateShopMutation.mutateAsync({...});
     },
   }));
 </script>

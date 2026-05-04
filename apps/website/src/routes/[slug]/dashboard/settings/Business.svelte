@@ -30,19 +30,19 @@
 
   const profileSettings = $derived({
     name: shop.name ?? "",
-    title: shop.title,
-    description: shop.description,
-    logo: shop.logo,
-    heroImage: shop.heroImage,
+    title: shop.title ?? "",
+    description: shop.description ?? "",
+    logo: shop.logo ?? "",
+    heroImage: shop.heroImage ?? "",
   });
 
   const businessSettings = $derived({
-    address: shop.address,
-    city: shop.city,
+    address: shop.address ?? "",
+    city: shop.city ?? "",
     state: shop.state ?? "",
     zipCode: shop.zipCode ?? "",
     country: shop.country ?? "US",
-    phone: shop.phone,
+    phone: shop.phone ?? "",
     email: shop.email ?? "",
     taxId: shop.taxId ?? "",
   });
@@ -61,23 +61,9 @@
 
   const businessForm = createForm(() => ({
     defaultValues: businessSettings,
-    onSubmit: async ({ value }) => {
-      await updateShopMutation.mutateAsync({
-        slug: shop.slug,
-        name: profileSettings.name,
-        title: profileSettings.title || undefined,
-        description: profileSettings.description || undefined,
-        logo: profileSettings.logo ?? undefined,
-        heroImage: profileSettings.heroImage ?? undefined,
-        address: value.address,
-        city: value.city,
-        state: value.state || undefined,
-        zipCode: value.zipCode || undefined,
-        country: value.country,
-        phone: value.phone,
-        email: value.email || undefined,
-        taxId: value.taxId || undefined,
-      });
+    onSubmit: async () => {
+      // TODO: redesign settings page with separate shop info form
+      // await updateShopMutation.mutateAsync({...});
     },
   }));
 
