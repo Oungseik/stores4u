@@ -33,15 +33,6 @@ export const createShopHandler = os
       });
     }
 
-    const userHasShop = await db.query.shop.findFirst({
-      where: { userId: context.session.user.id },
-    });
-    if (userHasShop) {
-      throw new ORPCError("BAD_REQUEST", {
-        message: "You can only own one shop",
-      });
-    }
-
     const shopInfo = {
       ...input,
       id: Bun.randomUUIDv7(),
