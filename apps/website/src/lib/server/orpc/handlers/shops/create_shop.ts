@@ -5,6 +5,7 @@ import { z } from "zod";
 import { logger } from "$lib/server/logger";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 import { createShopDatabase } from "$lib/server/shop_db";
+import { CURRENCIES } from "@repo/config";
 
 const input = z.object({
   name: z.string().min(1).max(100),
@@ -13,6 +14,7 @@ const input = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
+  currency: z.enum(CURRENCIES).default("USD"),
 });
 
 export const createShopHandler = os
@@ -38,6 +40,7 @@ export const createShopHandler = os
       name: input.name,
       slug: input.slug,
       userId: context.session.user.id,
+      currency: input.currency,
     };
     const result = await db.insert(shop).values(newShopData);
 

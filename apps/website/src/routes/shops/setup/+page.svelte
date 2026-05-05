@@ -1,10 +1,12 @@
 <script lang="ts">
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import { CURRENCIES, type CurrencyCode } from "@repo/config";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import * as Select from "@repo/ui/select";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
@@ -21,16 +23,21 @@
       .min(1, "Slug is required")
       .max(100)
       .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
+    currency: z.enum(CURRENCIES).default("USD"),
   });
 
   let isSubmitting = $state(false);
 
   const form = createForm(() => ({
-    defaultValues: { name: "", slug: "" },
+    defaultValues: { name: "", slug: "", currency: "USD" as CurrencyCode },
     onSubmit: async ({ value }) => {
       isSubmitting = true;
       try {
-        await createShopMutation.mutateAsync({ name: value.name, slug: value.slug });
+        await createShopMutation.mutateAsync({
+          name: value.name,
+          slug: value.slug,
+          currency: value.currency,
+        });
         goto(`/${value.slug}`);
       } catch (error) {
         isSubmitting = false;
@@ -63,6 +70,17 @@
   function handleNameChange(nameValue: string) {
     form.setFieldValue("slug", generateSlug(nameValue));
   }
+
+  const currencies = CURRENCIES.map((code) => {
+    const formatter = new Intl.NumberFormat("en", {
+      style: "currency",
+      currency: code,
+      currencyDisplay: "name",
+    });
+    const parts = formatter.formatToParts(0);
+    const name = parts.find((p) => p.type === "currency")?.value ?? code;
+    return { value: code, label: `${name} (${code})` };
+  });
 </script>
 
 <div class="bg-background flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
@@ -152,6 +170,38 @@
                 <p class="text-muted-foreground text-xs">
                   Your shop will be accessible at /{field.state.value || "your-slug"}
                 </p>
+                {#if field.state.meta.errors.length}
+                  <p class="text-destructive text-sm">{field.state.meta.errors}</p>
+                {/if}
+              </div>
+            {/snippet}
+          </form.Field>
+
+          <form.Field
+            name="currency"
+            validators={{
+              onChange: ({ value }) =>
+                schema.shape.currency.safeParse(value).error?.issues.at(0)?.message,
+            }}
+          >
+            {#snippet children(field)}
+              <div class="space-y-2">
+                <Label for={field.name}>Currency</Label>
+                <Select.Root
+                  type="single"
+                  value={field.state.value}
+                  onValueChange={(value) => field.handleChange(value as CurrencyCode)}
+                >
+                  <Select.Trigger class="w-full sm:w-[300px]">
+                    {currencies.find((c) => c.value === field.state.value)?.label ??
+                      "Select currency"}
+                  </Select.Trigger>
+                  <Select.Content>
+                    {#each currencies as curr}
+                      <Select.Item value={curr.value}>{curr.label}</Select.Item>
+                    {/each}
+                  </Select.Content>
+                </Select.Root>
                 {#if field.state.meta.errors.length}
                   <p class="text-destructive text-sm">{field.state.meta.errors}</p>
                 {/if}
