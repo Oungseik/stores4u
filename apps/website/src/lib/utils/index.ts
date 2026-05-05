@@ -38,7 +38,7 @@ export function formatPrice(
   compactEnabled = true,
 ): string {
   const amount = cents / 100;
-  const compact = compactEnabled && Math.abs(amount) >= 1_000_000;
+  const compact = compactEnabled && Math.abs(amount) >= threshold;
 
   const formatted = new Intl.NumberFormat(undefined, {
     style: "decimal",

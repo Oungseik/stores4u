@@ -15,6 +15,7 @@
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
+  import { scaleUtc } from "d3-scale";
   import { curveMonotoneX } from "d3-shape";
   import { Area, AreaChart, ChartClipPath } from "layerchart";
   import { cubicInOut } from "svelte/easing";
@@ -29,8 +30,8 @@
 
   let trendDays = $state(7);
 
-  function formatTrendDate(dateStr: string): string {
-    const d = new Date(dateStr + "T00:00:00");
+  function formatTrendDate(dateInput: Date | string): string {
+    const d = typeof dateInput === "string" ? new Date(dateInput + "T00:00:00") : dateInput;
     return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
 
@@ -65,11 +66,11 @@
 
   function formatCentsCompact(cents: number): string {
     const value = cents / 100;
-    if (!shop.country) return value.toLocaleString(undefined, { notation: "compact" });
+    if (!shop.currency) return value.toLocaleString(undefined, { notation: "compact" });
     try {
       return new Intl.NumberFormat(undefined, {
         style: "currency",
-        currency: shop.country,
+        currency: shop.currency,
         notation: "compact",
         compactDisplay: "short",
         minimumFractionDigits: 0,
@@ -124,7 +125,7 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                {formatPrice(statsQuery.data.revenue.today.totalCents, shop.country)}
+                {formatPrice(statsQuery.data.revenue.today.totalCents, shop.currency)}
               </div>
               <p class="text-muted-foreground text-xs">
                 {formatNumber(statsQuery.data.revenue.today.count)} orders
@@ -143,7 +144,7 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                {formatPrice(statsQuery.data.revenue.thisMonth.totalCents, shop.country)}
+                {formatPrice(statsQuery.data.revenue.thisMonth.totalCents, shop.currency)}
               </div>
               <div class="text-muted-foreground flex items-center gap-1 text-xs">
                 {#if statsQuery.data.revenue.vsLastWeek >= 0}
@@ -169,10 +170,10 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                {formatPrice(statsQuery.data.grossProfit.todayCents, shop.country)}
+                {formatPrice(statsQuery.data.grossProfit.todayCents, shop.currency)}
               </div>
               <p class="text-muted-foreground text-xs">
-                Month: {formatPrice(statsQuery.data.grossProfit.thisMonthCents, shop.country)}
+                Month: {formatPrice(statsQuery.data.grossProfit.thisMonthCents, shop.currency)}
               </p>
             </Card.Content>
           </Card.Root>
@@ -188,7 +189,7 @@
             </Card.Header>
             <Card.Content>
               <div class="text-2xl font-bold">
-                {formatPrice(statsQuery.data.products.inventoryValueRetailCents, shop.country)}
+                {formatPrice(statsQuery.data.products.inventoryValueRetailCents, shop.currency)}
               </div>
               <p class="text-muted-foreground text-xs">
                 {statsQuery.data.products.total} products
@@ -231,9 +232,13 @@
             class="!aspect-[32/9] w-full overflow-hidden"
           >
             <AreaChart
-              data={revenueTrendQuery.data.days}
+              data={revenueTrendQuery.data.days.map((d) => ({
+                ...d,
+                date: new Date(d.date + "T00:00:00"),
+              }))}
               x="date"
               y="revenueCents"
+              xScale={scaleUtc()}
               yDomain={chartYDomain}
               series={[
                 { key: "revenueCents", label: "Revenue", color: "var(--chart-1)" },
@@ -244,7 +249,7 @@
               tooltipContext
               props={{
                 xAxis: {
-                  format: (d: string) => formatTrendDate(d),
+                  format: (d: Date | string) => formatTrendDate(d),
                 },
                 yAxis: {
                   format: (d: number) => formatCentsCompact(d),
@@ -282,7 +287,7 @@
                 </ChartClipPath>
               {/snippet}
               {#snippet tooltip()}
-                <Chart.Tooltip labelFormatter={(d: string) => formatTrendDate(d)}>
+                <Chart.Tooltip labelFormatter={(d: Date | string) => formatTrendDate(d)}>
                   {#snippet formatter({ value, name, item })}
                     <div
                       style="--color-bg: {item.color}; --color-border: {item.color};"
@@ -294,7 +299,7 @@
                       <div class="flex flex-1 justify-between leading-none">
                         <span class="text-muted-foreground">{name}</span>
                         <span class="text-foreground font-mono font-medium tabular-nums">
-                          {formatPrice(value as number, shop.country)}
+                          {formatPrice(value as number, shop.currency)}
                         </span>
                       </div>
                     </div>
