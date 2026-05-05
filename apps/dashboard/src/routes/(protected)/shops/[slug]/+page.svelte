@@ -268,6 +268,7 @@
                   tooltipContext
                   props={{
                     xAxis: {
+                      ticks: trendDays === 7 ? 7 : undefined,
                       format: (d: Date | string) => formatTrendDate(d),
                     },
                     yAxis: {
