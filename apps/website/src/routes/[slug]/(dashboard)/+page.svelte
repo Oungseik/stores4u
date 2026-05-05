@@ -64,23 +64,6 @@
     cost: { label: "Cost", color: "var(--chart-3)" },
   } satisfies Chart.ChartConfig;
 
-  function formatCentsCompact(cents: number): string {
-    const value = cents / 100;
-    if (!shop.currency) return value.toLocaleString(undefined, { notation: "compact" });
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: shop.currency,
-        notation: "compact",
-        compactDisplay: "short",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 1,
-      }).format(value);
-    } catch {
-      return value.toLocaleString(undefined, { notation: "compact" });
-    }
-  }
-
   function formatNumber(n: number): string {
     return n.toLocaleString();
   }
@@ -229,7 +212,7 @@
         {:else if revenueTrendQuery.data}
           <Chart.Container
             config={revenueChartConfig}
-            class="!aspect-[32/9] w-full overflow-hidden"
+            class="aspect-auto h-[250px] w-full"
           >
             <AreaChart
               data={revenueTrendQuery.data.days.map((d) => ({
@@ -253,7 +236,7 @@
                   format: (d: Date | string) => formatTrendDate(d),
                 },
                 yAxis: {
-                  format: (d: number) => formatCentsCompact(d),
+                  format: (d: number) => formatPrice(d, shop.currency),
                 },
               }}
             >

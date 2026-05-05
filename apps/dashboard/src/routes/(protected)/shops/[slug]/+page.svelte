@@ -8,7 +8,7 @@
   import * as Chart from "@repo/ui/chart";
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
-  import { scaleUtc } from "d3-scale";
+  import { scaleTime } from "d3-scale";
   import { curveMonotoneX } from "d3-shape";
   import { Area, AreaChart, ChartClipPath } from "layerchart";
 
@@ -246,17 +246,14 @@
             {#if !revenueTrendQuery.ready}
               <Skeleton class="aspect-[32/9] w-full" />
             {:else}
-              <Chart.Container
-                config={revenueChartConfig}
-                class="!aspect-[32/9] w-full overflow-hidden"
-              >
+              <Chart.Container config={revenueChartConfig} class="aspect-auto h-[250px] w-full">
                 <AreaChart
                   data={revenueTrendQuery.current.days.map((d) => ({
                     ...d,
                     date: new Date(d.date + "T00:00:00"),
                   }))}
                   x="date"
-                  xScale={scaleUtc()}
+                  xScale={scaleTime()}
                   y="revenueCents"
                   yDomain={chartYDomain}
                   series={[
