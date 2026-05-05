@@ -238,7 +238,7 @@
                   >
                     <MoreVerticalIcon class="size-4" />
                   </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end">
+                  <DropdownMenu.Content align="end" class="min-w-max">
                     <DropdownMenu.Item onclick={() => handleManageProducts(category)}>
                       <ListPlusIcon class="size-4" />
                       Manage Products
