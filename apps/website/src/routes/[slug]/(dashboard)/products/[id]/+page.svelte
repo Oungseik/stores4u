@@ -88,17 +88,17 @@
       </Alert.Root>
     {/if}
 
-    <ProductHero {product} {hasLowStock} {isOutOfStock} country={shop.country} />
+    <ProductHero {product} {hasLowStock} {isOutOfStock} currency={shop.currency} />
 
     <div class="border-t"></div>
 
     <PerformanceMetrics
       isLoading={statsQuery.isLoading}
       stats={statsQuery.data}
-      country={shop.country}
+      currency={shop.currency}
     />
 
-    <InventoryTab slug={params.slug} productId={params.id} country={shop.country} />
+    <InventoryTab slug={params.slug} productId={params.id} currency={shop.currency} />
   {/if}
 
   {#if product}

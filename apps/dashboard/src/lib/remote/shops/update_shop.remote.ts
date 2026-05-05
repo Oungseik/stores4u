@@ -33,6 +33,7 @@ export const updateShop = form(shopUpdateSchema, async (input) => {
     state: input.state,
     zipCode: input.zipCode,
     country: input.country,
+    currency: input.currency,
     phone: input.phone,
     email: input.email,
     taxId: input.taxId,

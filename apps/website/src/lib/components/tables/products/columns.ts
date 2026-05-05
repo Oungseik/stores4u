@@ -1,4 +1,4 @@
-import type { CountryCode } from "@repo/config";
+import type { CurrencyCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
@@ -19,7 +19,7 @@ export type ProductItem = {
 };
 
 export function createColumns(
-  country: CountryCode | null,
+  currency: CurrencyCode | null,
   slug: string,
   onDelete?: (id: string) => void,
   onAdjustStock?: (id: string, name: string, stock: number) => void,
@@ -44,7 +44,7 @@ export function createColumns(
       accessorKey: "priceCents",
       header: "Price",
       cell: ({ row }) => {
-        return renderComponent(PriceCell, { cents: row.original.priceCents, country });
+        return renderComponent(PriceCell, { cents: row.original.priceCents, currency });
       },
     },
     {
@@ -54,7 +54,7 @@ export function createColumns(
         return renderComponent(LastCostCell, {
           lastCostCents: row.original.lastCostCents,
           priceCents: row.original.priceCents,
-          country,
+          currency,
         });
       },
     },

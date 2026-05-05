@@ -35,7 +35,7 @@
     orpc.products.checkout.mutationOptions({
       onSuccess: (result) => {
         toast.success(
-          `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.country)}`
+          `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.currency)}`
         );
         cart = [];
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
@@ -232,7 +232,7 @@
         <ProductResults
           products={productSearch.data?.items ?? []}
           isLoading={isSearching}
-          country={shop.country}
+          currency={shop.currency}
           {searchQuery}
           onSelect={handleProductSelect}
         />
@@ -275,7 +275,7 @@
                       {item.name}
                     </p>
                     <span class="text-muted-foreground text-xs tabular-nums">
-                      {formatPrice(item.priceCents * item.quantity, shop.country)}
+                      {formatPrice(item.priceCents * item.quantity, shop.currency)}
                     </span>
                   </div>
 
@@ -336,7 +336,7 @@
           </div>
           <div>
             <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <span class="text-lg font-bold">{formatPrice(totalCents, shop.country)}</span>
+            <span class="text-lg font-bold">{formatPrice(totalCents, shop.currency)}</span>
           </div>
         </div>
       </div>

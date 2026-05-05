@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { CountryCode } from "@repo/config";
+  import type { CurrencyCode } from "@repo/config";
 
   import { formatPrice } from "$lib/utils";
 
   type Props = {
     lastCostCents: number | null;
     priceCents: number;
-    country: CountryCode | null;
+    currency: CurrencyCode | null;
   };
 
-  const { lastCostCents, priceCents, country }: Props = $props();
+  const { lastCostCents, priceCents, currency }: Props = $props();
 
   const marginPercent = $derived(
     lastCostCents && lastCostCents > 0
@@ -30,7 +30,7 @@
 
 {#if lastCostCents != null}
   <div class="flex items-center gap-1.5">
-    <span class="text-muted-foreground text-sm">{formatPrice(lastCostCents, country)}</span>
+    <span class="text-muted-foreground text-sm">{formatPrice(lastCostCents, currency)}</span>
     {#if marginPercent != null}
       <span
         class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {marginClass}"

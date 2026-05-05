@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { CountryCode } from "@repo/config";
+  import type { CurrencyCode } from "@repo/config";
 
   import { formatPrice } from "$lib/utils";
 
   type Props = {
     cents: number;
-    country: CountryCode | null;
+    currency: CurrencyCode | null;
   };
 
-  const { cents, country }: Props = $props();
+  const { cents, currency }: Props = $props();
 </script>
 
 <span class="font-medium">
-  {formatPrice(cents, country)}
+  {formatPrice(cents, currency)}
 </span>

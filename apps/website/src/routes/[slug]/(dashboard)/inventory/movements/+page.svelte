@@ -58,7 +58,7 @@
     (movements.data?.pages.flatMap((page) => page.items) ?? []) satisfies MovementItem[]
   );
 
-  const columns = $derived(createColumns(shop.country));
+  const columns = $derived(createColumns(shop.currency));
 
   const hasFilters = $derived(
     searchParams.search.length > 0 ||
@@ -232,12 +232,12 @@
                   {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
                     {#if movement.unitPriceCents !== null}
                       <p class="text-muted-foreground text-xs">
-                        {formatPrice(movement.unitPriceCents, shop.country)}
+                        {formatPrice(movement.unitPriceCents, shop.currency)}
                       </p>
                     {/if}
                   {:else if movement.unitCostCents !== null}
                     <p class="text-muted-foreground text-xs">
-                      {formatPrice(movement.unitCostCents, shop.country)}
+                      {formatPrice(movement.unitCostCents, shop.currency)}
                     </p>
                   {/if}
                 </div>

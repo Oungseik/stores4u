@@ -41,6 +41,7 @@ export const listMyShops = query(listMyShopsSchema, async (input) => {
           state: true,
           zipCode: true,
           country: true,
+          currency: true,
           phone: true,
           email: true,
           createdAt: true,

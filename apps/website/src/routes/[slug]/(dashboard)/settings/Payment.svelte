@@ -1,6 +1,7 @@
 <script lang="ts">
   import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import SaveIcon from "@lucide/svelte/icons/save";
+  import { CURRENCIES, type CurrencyCode } from "@repo/config";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
@@ -26,14 +27,16 @@
     },
   }));
 
-  const currencies = [
-    { value: "USD", label: "US Dollar ($)" },
-    { value: "EUR", label: "Euro (€)" },
-    { value: "GBP", label: "British Pound (£)" },
-    { value: "CAD", label: "Canadian Dollar (C$)" },
-    { value: "AUD", label: "Australian Dollar (A$)" },
-    { value: "JPY", label: "Japanese Yen (¥)" },
-  ];
+  const currencies = CURRENCIES.map((code) => {
+    const formatter = new Intl.NumberFormat("en", {
+      style: "currency",
+      currency: code,
+      currencyDisplay: "name",
+    });
+    const parts = formatter.formatToParts(0);
+    const name = parts.find((p) => p.type === "currency")?.value ?? code;
+    return { value: code, label: `${name} (${code})` };
+  });
 </script>
 
 <Card.Root>

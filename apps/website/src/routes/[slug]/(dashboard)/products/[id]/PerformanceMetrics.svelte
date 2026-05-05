@@ -4,7 +4,7 @@
   import PackageIcon from "@lucide/svelte/icons/package";
   import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
   import TruckIcon from "@lucide/svelte/icons/truck";
-  import { type CountryCode } from "@repo/config";
+  import { type CurrencyCode } from "@repo/config";
   import * as Card from "@repo/ui/card";
   import { Skeleton } from "@repo/ui/skeleton";
 
@@ -30,10 +30,10 @@
   interface Props {
     isLoading: boolean;
     stats: ProductStats | undefined;
-    country?: CountryCode | null;
+    currency?: CurrencyCode | null;
   }
 
-  let { isLoading, stats, country = null }: Props = $props();
+  let { isLoading, stats, currency = null }: Props = $props();
 </script>
 
 <section class="space-y-6">
@@ -75,7 +75,7 @@
         <StatsCard
           title="Total Revenue"
           price={stats.sales.totalRevenueCents}
-          {country}
+          {currency}
           description="Total revenue generated"
           icon={DollarSignIcon}
           iconBgClass="bg-emerald-500/10"
@@ -106,7 +106,7 @@
         <StatsCard
           title="Estimated Profit"
           price={stats.profit.estimatedProfitCents}
-          {country}
+          {currency}
           description="Estimated profit"
           icon={DollarSignIcon}
           iconBgClass="bg-purple-500/10"

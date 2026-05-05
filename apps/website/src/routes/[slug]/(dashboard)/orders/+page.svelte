@@ -190,7 +190,7 @@
             <StatsCard
               title={card.title}
               price={card.stats.totalCents}
-              country={shop.country}
+              currency={shop.currency}
               priceClass="text-2xl font-bold"
               description={card.description}
               icon={card.icon}
@@ -267,7 +267,7 @@
 
                   <div class="shrink-0 text-right">
                     <p class="text-sm font-semibold">
-                      {formatPrice(order.totalCents, shop.country)}
+                      {formatPrice(order.totalCents, shop.currency)}
                     </p>
                     <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
                   </div>
@@ -357,7 +357,7 @@
                     </div>
                     <div class="text-right">
                       <p class="text-muted-foreground text-xs">x {item.qty}</p>
-                      {formatPrice(item.lineTotalCents, shop.country)}
+                      {formatPrice(item.lineTotalCents, shop.currency)}
                     </div>
                   </div>
                 {/each}
@@ -371,19 +371,19 @@
               <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Subtotal</span>
-                  {formatPrice(order.subtotalCents, shop.country)}
+                  {formatPrice(order.subtotalCents, shop.currency)}
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Discount</span>
-                  {formatPrice(order.discountCents, shop.country)}
+                  {formatPrice(order.discountCents, shop.currency)}
                 </div>
                 <div class="flex justify-between">
                   <span class="text-muted-foreground">Shipping (Local pickup)</span>
-                  {formatPrice(0, shop.country)}
+                  {formatPrice(0, shop.currency)}
                 </div>
                 <div class="flex justify-between border-t pt-2 font-semibold">
                   <span>Total</span>
-                  {formatPrice(order.totalCents, shop.country)}
+                  {formatPrice(order.totalCents, shop.currency)}
                 </div>
                 <div class="flex justify-between text-xs">
                   <span class="text-muted-foreground">Payment Status</span>

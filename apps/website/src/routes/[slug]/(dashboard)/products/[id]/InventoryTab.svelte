@@ -5,7 +5,7 @@
   import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
-  import type { CountryCode } from "@repo/config";
+  import type { CurrencyCode } from "@repo/config";
   import type { MovementType } from "@repo/perstore-db";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
@@ -30,10 +30,10 @@
   interface Props {
     slug: string;
     productId: string;
-    country: CountryCode | null;
+    currency: CurrencyCode | null;
   }
 
-  let { slug, productId, country }: Props = $props();
+  let { slug, productId, currency }: Props = $props();
 
   const searchParams = useSearchParams(inventoryMovementsFilterSchema, { noScroll: true });
   const debouncedDateFrom = new Debounced(() => searchParams.dateFrom, 300);
@@ -60,7 +60,7 @@
     (movementsQuery.data?.pages.flatMap((page) => page.items) ?? []) satisfies MovementItem[]
   );
 
-  const columns = $derived(createColumns(country));
+  const columns = $derived(createColumns(currency));
 
   const hasFilters = $derived(
     searchParams.dateFrom.length > 0 ||
@@ -209,12 +209,12 @@
                 {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
                   {#if movement.unitPriceCents !== null}
                     <p class="text-muted-foreground text-xs">
-                      {formatPrice(movement.unitPriceCents, country)}
+                      {formatPrice(movement.unitPriceCents, currency)}
                     </p>
                   {/if}
                 {:else if movement.unitCostCents !== null}
                   <p class="text-muted-foreground text-xs">
-                    {formatPrice(movement.unitCostCents, country)}
+                    {formatPrice(movement.unitCostCents, currency)}
                   </p>
                 {/if}
               </div>

@@ -49,7 +49,7 @@
 
   const supplier = $derived(supplierQuery.data);
 
-  const columns = $derived(createColumns(shop.country));
+  const columns = $derived(createColumns(shop.currency));
 
   const invoices = createInfiniteQuery(() =>
     orpc.purchaseInvoices.list.infiniteOptions({

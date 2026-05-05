@@ -1,6 +1,6 @@
 import { db, shop, shopInfo } from "$lib/server/db";
 import { eq } from "drizzle-orm";
-import { COUNTRIES } from "@repo/config";
+import { COUNTRIES, CURRENCIES } from "@repo/config";
 import { z } from "zod";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
@@ -18,6 +18,7 @@ const input = z.object({
   email: z.email().max(200),
   taxId: z.string().max(100).optional(),
   country: z.enum(COUNTRIES),
+  currency: z.enum(CURRENCIES),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
 });
@@ -53,6 +54,7 @@ export const updateShopHandler = os
           state: input.state,
           zipCode: input.zipCode,
           country: input.country,
+          currency: input.currency,
           phone: input.phone,
           email: input.email,
           taxId: input.taxId ?? null,
@@ -73,6 +75,7 @@ export const updateShopHandler = os
         state: input.state,
         zipCode: input.zipCode,
         country: input.country,
+        currency: input.currency,
         phone: input.phone,
         email: input.email,
         taxId: input.taxId ?? null,

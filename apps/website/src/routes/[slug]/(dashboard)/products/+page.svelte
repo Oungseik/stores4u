@@ -109,7 +109,7 @@
 
   const columns = $derived(
     createColumns(
-      shop.country,
+      shop.currency,
       params.slug,
       handleDeleteProduct,
       handleAdjustProduct,
@@ -214,7 +214,7 @@
           iconBgClass="bg-emerald-500/10"
           iconTextClass="text-emerald-600"
           price={productStats.data.inventoryValueRetailCents}
-          country={shop.country}
+          currency={shop.currency}
         />
       </div>
     </div>
@@ -396,14 +396,14 @@
                 <div class="flex flex-col gap-0.5">
                   <div class="flex items-center justify-between gap-1">
                     <span class="text-sm font-semibold">
-                      {formatPrice(product.priceCents, shop.country)}
+                      {formatPrice(product.priceCents, shop.currency)}
                     </span>
                     <span class="text-muted-foreground text-xs">{product.stock} left</span>
                   </div>
                   {#if product.lastCostCents != null && marginPercent != null}
                     <div class="flex items-center gap-1.5">
                       <span class="text-muted-foreground text-xs">
-                        Cost {formatPrice(product.lastCostCents, shop.country)}
+                        Cost {formatPrice(product.lastCostCents, shop.currency)}
                       </span>
                       <span
                         class={[

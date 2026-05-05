@@ -32,12 +32,12 @@
 
 <DropdownMenu.Root>
   <DropdownMenu.Trigger
-    class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
+    class={buttonVariants({ variant: "ghost" })}
     onclick={(e) => e.stopPropagation()}
   >
     <MoreVerticalIcon class="size-4" />
   </DropdownMenu.Trigger>
-  <DropdownMenu.Content align="end">
+  <DropdownMenu.Content align="end" class="min-w-max">
     <DropdownMenu.Item onclick={() => onManageProducts(category)}>
       <ListPlusIcon class="size-4" />
       Manage Products

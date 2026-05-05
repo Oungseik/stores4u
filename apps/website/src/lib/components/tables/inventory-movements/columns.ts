@@ -1,4 +1,4 @@
-import type { CountryCode } from "@repo/config";
+import type { CurrencyCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
@@ -28,7 +28,7 @@ export type MovementItem = {
   purchaseInvoiceNumber: string | null;
 };
 
-export function createColumns(country: CountryCode | null): ColumnDef<MovementItem>[] {
+export function createColumns(currency: CurrencyCode | null): ColumnDef<MovementItem>[] {
   return [
     {
       accessorKey: "productName",
@@ -62,7 +62,7 @@ export function createColumns(country: CountryCode | null): ColumnDef<MovementIt
           movementType: row.original.movementType,
           unitCostCents: row.original.unitCostCents,
           unitPriceCents: row.original.unitPriceCents,
-          country,
+          currency,
         });
       },
     },

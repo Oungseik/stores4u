@@ -211,7 +211,7 @@
                 <div>
                   <p class="text-muted-foreground text-xs">Total Purchases</p>
                   <p class="font-semibold">
-                    {formatPrice(supplier.totalPurchases, shop.country)}
+                    {formatPrice(supplier.totalPurchases, shop.currency)}
                   </p>
                 </div>
                 <div class="text-right">

@@ -1,4 +1,4 @@
-import { COUNTRIES } from "@repo/config";
+import { COUNTRIES, CURRENCIES } from "@repo/config";
 import { z } from "zod";
 
 export const shopCreateSchema = z.object({
@@ -23,6 +23,7 @@ export const shopUpdateSchema = z.object({
   state: z.string().min(1),
   zipCode: z.string().min(1),
   country: z.enum(COUNTRIES),
+  currency: z.enum(CURRENCIES),
   phone: z.string().min(1),
   email: z.email(),
   taxId: z.string().optional(),

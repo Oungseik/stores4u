@@ -1,6 +1,6 @@
 <script lang="ts">
   import BarcodeIcon from "@lucide/svelte/icons/barcode";
-  import { type CountryCode } from "@repo/config";
+  import { type CurrencyCode } from "@repo/config";
   import { Badge } from "@repo/ui/badge";
 
   import ProductImageGallery from "$lib/components/ProductImageGallery.svelte";
@@ -23,10 +23,10 @@
     };
     hasLowStock: boolean;
     isOutOfStock: boolean;
-    country?: CountryCode | null;
+    currency?: CurrencyCode | null;
   }
 
-  let { product, hasLowStock, isOutOfStock, country = null }: Props = $props();
+  let { product, hasLowStock, isOutOfStock, currency = null }: Props = $props();
 
   function formatUom(uom: string): string {
     const map: Record<string, string> = {
@@ -66,7 +66,7 @@
 
     <div class="flex flex-wrap items-center gap-4">
       <span class="text-3xl font-bold">
-        {formatPrice(product.priceCents, country)}
+        {formatPrice(product.priceCents, currency)}
       </span>
       {#if isOutOfStock}
         <Badge variant="destructive" class="text-sm">Out of Stock</Badge>
@@ -102,7 +102,7 @@
         <div>
           <p class="text-muted-foreground">Price</p>
           <p class="font-medium">
-            {formatPrice(product.priceCents, country)}
+            {formatPrice(product.priceCents, currency)}
           </p>
         </div>
         <div>
