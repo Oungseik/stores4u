@@ -51,6 +51,8 @@
     items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
   );
 
+  const hasUnmatchedItems = $derived(items.some((i) => !i.productId));
+
   function addItem() {
     const newItemId = `item-${Date.now()}`;
     items = [
@@ -114,17 +116,24 @@
 </script>
 
 <Card.Root class="pb-0">
-  <Card.Header class="flex flex-row items-center justify-between">
+  <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <PackageIcon class="size-4" />
       Items ({items.length})
     </Card.Title>
-    <div class="flex gap-2">
-      <Button variant="outline" size="sm" onclick={addItem}>
-        <PlusIcon class="size-4" />
-        Add Item
-      </Button>
-    </div>
+    {#if hasUnmatchedItems}
+      <Card.Description class="text-amber-700 dark:text-amber-400">
+        Highlighted items are not matched to a product.
+      </Card.Description>
+    {/if}
+    <Card.Action>
+      <div class="flex gap-2">
+        <Button variant="outline" size="sm" onclick={addItem}>
+          <PlusIcon class="size-4" />
+          Add Item
+        </Button>
+      </div>
+    </Card.Action>
   </Card.Header>
   <Card.Content class="p-0">
     {#if items.length === 0}
