@@ -1,7 +1,6 @@
 <script lang="ts">
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import CheckIcon from "@lucide/svelte/icons/check";
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import InfoIcon from "@lucide/svelte/icons/info";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
@@ -454,32 +453,10 @@
     </div>
   {:else}
     <div class="grid gap-6 lg:grid-cols-2">
-      <Card.Root class="h-fit lg:hidden">
-        <Card.Header>
-          <Card.Title>Invoice Preview</Card.Title>
-          <Card.Description>View original document on larger screen.</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          {#if invoiceFileQuery.data.imageUrl}
-            <a
-              href={invoiceFileQuery.data.imageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-              <DownloadIcon class="size-4" />
-              Download Invoice
-            </a>
-          {:else}
-            <p class="text-muted-foreground text-sm">Unable to load invoice file.</p>
-          {/if}
-        </Card.Content>
-      </Card.Root>
-
       <InvoicePreviewCard
-        class="hidden lg:block"
         imageUrl={invoiceFileQuery.data.imageUrl}
         fileType={invoiceFileQuery.data.fileType}
+        onDownload={() => window.open(invoiceFileQuery.data.imageUrl ?? undefined, "_blank")}
       />
 
       <div class="flex flex-col gap-6 lg:col-start-1 lg:col-end-2 lg:row-start-1">
