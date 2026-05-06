@@ -1,4 +1,4 @@
-import { type CountryCode, type CurrencyCode, currency as currencyConfig } from "@repo/config";
+import { type CountryCode, type CurrencyCode } from "@repo/config";
 
 export function getSeparator(locale: Intl.LocalesArgument, separatorType: "decimal" | "group") {
   const numberWithGroupAndDecimal = 10000.1;
@@ -34,7 +34,7 @@ export function getCountryName(code: CountryCode, locale = "en"): string | undef
 
 export function formatPrice(
   cents: number,
-  currency?: CurrencyCode | null,
+  currency: CurrencyCode,
   compactEnabled = true,
   threshold = 1_000_000,
 ): string {
@@ -48,15 +48,7 @@ export function formatPrice(
       : { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
   }).format(amount);
 
-  if (!currency) return formatted;
-
-  const entry = Object.values(currencyConfig).find((c) => c.code === currency);
-  if (entry?.prefix) {
-    if (formatted.startsWith("-")) return `-${entry.prefix}${formatted.slice(1)}`;
-    return `${entry.prefix}${formatted}`;
-  }
-  if (entry?.suffix) return `${formatted} ${entry.suffix}`;
-  return formatted;
+  return `${formatted} ${currency}`;
 }
 
 export function formatNumber(value: number, fraction = 2): string {

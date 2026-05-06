@@ -6,12 +6,6 @@ export const CURRENCIES = ["MMK", "THB", "USD"] as const;
 
 export type CurrencyCode = (typeof CURRENCIES)[number];
 
-export const currency: Record<CountryCode, { prefix?: string; suffix?: string; code: string }> = {
-  MM: { suffix: "MMK", code: "MMK" },
-  TH: { prefix: "฿", code: "THB" },
-  US: { prefix: "$", code: "USD" },
-};
-
 export const config = {
   lowStockThreshold: 10,
 };
