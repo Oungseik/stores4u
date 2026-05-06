@@ -15,7 +15,7 @@
   import { Skeleton } from "@repo/ui/skeleton";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createQuery } from "@tanstack/svelte-query";
-  import { scaleUtc } from "d3-scale";
+  import { scaleTime } from "d3-scale";
   import { curveMonotoneX } from "d3-shape";
   import { Area, AreaChart, ChartClipPath } from "layerchart";
   import { cubicInOut } from "svelte/easing";
@@ -210,10 +210,7 @@
         {#if revenueTrendQuery.isLoading}
           <Skeleton class="aspect-[32/9] w-full" />
         {:else if revenueTrendQuery.data}
-          <Chart.Container
-            config={revenueChartConfig}
-            class="aspect-auto h-[250px] w-full"
-          >
+          <Chart.Container config={revenueChartConfig} class="aspect-auto h-[250px] w-full">
             <AreaChart
               data={revenueTrendQuery.data.days.map((d) => ({
                 ...d,
@@ -221,7 +218,7 @@
               }))}
               x="date"
               y="revenueCents"
-              xScale={scaleUtc()}
+              xScale={scaleTime()}
               yDomain={chartYDomain}
               series={[
                 { key: "revenueCents", label: "Revenue", color: "var(--chart-1)" },
