@@ -27,7 +27,7 @@ export const getShopHandler = os
       state: shopInfo?.state ?? null,
       zipCode: shopInfo?.zipCode ?? null,
       country: shopInfo?.country ?? null,
-      currency: shopInfo?.currency ?? null,
+      currency: shop.currency,
       phone: shopInfo?.phone ?? null,
       email: shopInfo?.email ?? null,
       taxId: shopInfo?.taxId ?? null,

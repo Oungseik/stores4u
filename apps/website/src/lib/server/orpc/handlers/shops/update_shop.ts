@@ -37,6 +37,7 @@ export const updateShopHandler = os
       .set({
         name: input.name,
         logo: input.logo,
+        currency: input.currency,
       })
       .where(eq(shop.id, context.shop.id));
 
@@ -54,7 +55,6 @@ export const updateShopHandler = os
           state: input.state,
           zipCode: input.zipCode,
           country: input.country,
-          currency: input.currency,
           phone: input.phone,
           email: input.email,
           taxId: input.taxId ?? null,
@@ -75,7 +75,6 @@ export const updateShopHandler = os
         state: input.state,
         zipCode: input.zipCode,
         country: input.country,
-        currency: input.currency,
         phone: input.phone,
         email: input.email,
         taxId: input.taxId ?? null,
