@@ -1,4 +1,4 @@
-import { COUNTRIES, CURRENCIES } from "@repo/config";
+import { COUNTRIES } from "@repo/config";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const shopInfo = sqliteTable("shopInfo", {
@@ -14,7 +14,6 @@ export const shopInfo = sqliteTable("shopInfo", {
   state: text("state").notNull(),
   zipCode: text("zip_code").notNull(),
   country: text("country", { enum: COUNTRIES }).notNull(),
-  currency: text("currency", { enum: CURRENCIES }).notNull(),
   phone: text("phone").notNull(),
   email: text("email").notNull(),
   taxId: text("tax_id"),

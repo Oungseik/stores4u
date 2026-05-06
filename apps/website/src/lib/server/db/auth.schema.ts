@@ -1,4 +1,4 @@
-import { SOCIAL_PLATFORMS } from "@repo/config";
+import { CURRENCIES, SOCIAL_PLATFORMS } from "@repo/config";
 import { index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { shopInfo } from "./shop-info.schema";
 
@@ -96,6 +96,7 @@ export const shop = sqliteTable(
       .$defaultFn(() => (typeof Bun !== "undefined" ? Bun.randomUUIDv7() : crypto.randomUUID())),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
+    currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
     logo: text("logo"),
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
     userId: text("user_id")
