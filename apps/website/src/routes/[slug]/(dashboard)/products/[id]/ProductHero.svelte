@@ -23,10 +23,10 @@
     };
     hasLowStock: boolean;
     isOutOfStock: boolean;
-    currency?: CurrencyCode | null;
+    currency: CurrencyCode;
   }
 
-  let { product, hasLowStock, isOutOfStock, currency = null }: Props = $props();
+  let { product, hasLowStock, isOutOfStock, currency }: Props = $props();
 
   function formatUom(uom: string): string {
     const map: Record<string, string> = {

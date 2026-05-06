@@ -30,10 +30,10 @@
   interface Props {
     isLoading: boolean;
     stats: ProductStats | undefined;
-    currency?: CurrencyCode | null;
+    currency: CurrencyCode;
   }
 
-  let { isLoading, stats, currency = null }: Props = $props();
+  let { isLoading, stats, currency }: Props = $props();
 </script>
 
 <section class="space-y-6">

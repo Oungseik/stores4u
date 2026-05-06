@@ -30,7 +30,7 @@
   interface Props {
     slug: string;
     productId: string;
-    currency: CurrencyCode | null;
+    currency: CurrencyCode;
   }
 
   let { slug, productId, currency }: Props = $props();
