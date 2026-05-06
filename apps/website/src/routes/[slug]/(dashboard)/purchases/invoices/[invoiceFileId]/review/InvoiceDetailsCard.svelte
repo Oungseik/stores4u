@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { type CurrencyCode } from "@repo/config";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
@@ -16,6 +17,7 @@
     freight = $bindable(0),
     notes = $bindable(""),
     subtotalCents,
+    currency,
   }: {
     invoiceNumber?: string;
     invoiceDate?: string;
@@ -24,6 +26,7 @@
     freight?: number;
     notes?: string;
     subtotalCents: number;
+    currency: CurrencyCode;
   } = $props();
 
   const totalCents = $derived(
@@ -51,7 +54,7 @@
     <div class="space-y-2 rounded-lg border p-4 text-sm">
       <div class="flex items-center justify-between">
         <span class="text-muted-foreground">Subtotal</span>
-        <div class="px-3">{formatPrice(subtotalCents, null, false)}</div>
+        <div class="px-3">{formatPrice(subtotalCents, currency, false)}</div>
       </div>
 
       <div class="flex items-center justify-between">
@@ -73,7 +76,7 @@
 
       <div class="flex items-center justify-between">
         <span class="font-semibold">Total</span>
-        <div class="px-3">{formatPrice(totalCents, null, false)}</div>
+        <div class="px-3">{formatPrice(totalCents, currency, false)}</div>
       </div>
     </div>
 

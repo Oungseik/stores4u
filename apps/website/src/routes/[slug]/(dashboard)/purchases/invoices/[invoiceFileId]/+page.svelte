@@ -19,7 +19,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
   const invoiceFileQuery = createQuery(() =>
     orpc.purchaseInvoices.getFile.queryOptions({
@@ -216,10 +216,10 @@
                       </div>
                       <div class="text-muted-foreground flex items-center gap-2 tabular-nums">
                         <span>{item.quantity} x</span>
-                        <span>{formatPrice(item.unitCostCents)}</span>
+                        <span>{formatPrice(item.unitCostCents, shop.currency)}</span>
                         <span>=</span>
                         <span class="text-foreground font-medium"
-                          >{formatPrice(item.lineTotalCents)}</span
+                          >{formatPrice(item.lineTotalCents, shop.currency)}</span
                         >
                       </div>
                     </div>
@@ -249,30 +249,32 @@
                 <div class="space-y-2 rounded-lg border p-4 text-sm">
                   <div class="flex items-center justify-between">
                     <span class="text-muted-foreground">Subtotal</span>
-                    <div>{formatPrice(extractedInvoice.subtotalCents ?? 0)}</div>
+                    <div>{formatPrice(extractedInvoice.subtotalCents ?? 0, shop.currency)}</div>
                   </div>
                   {#if (extractedInvoice.vatCents ?? 0) > 0}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">VAT</span>
-                      <div>{formatPrice(extractedInvoice.vatCents ?? 0)}</div>
+                      <div>{formatPrice(extractedInvoice.vatCents ?? 0, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if (extractedInvoice.discountCents ?? 0) > 0}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">Discount</span>
-                      <div>{formatPrice(extractedInvoice.discountCents ?? 0)}</div>
+                      <div>{formatPrice(extractedInvoice.discountCents ?? 0, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if (extractedInvoice.freightCents ?? 0) > 0}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">Freight</span>
-                      <div>{formatPrice(extractedInvoice.freightCents ?? 0)}</div>
+                      <div>{formatPrice(extractedInvoice.freightCents ?? 0, shop.currency)}</div>
                     </div>
                   {/if}
                   <Separator />
                   <div class="flex items-center justify-between">
                     <span class="font-semibold">Total</span>
-                    <div class="font-semibold">{formatPrice(extractedInvoice.totalCents ?? 0)}</div>
+                    <div class="font-semibold">
+                      {formatPrice(extractedInvoice.totalCents ?? 0, shop.currency)}
+                    </div>
                   </div>
                 </div>
 
@@ -360,10 +362,10 @@
                       </div>
                       <div class="text-muted-foreground flex items-center gap-2 tabular-nums">
                         <span>{item.qty} x</span>
-                        <span>{formatPrice(item.unitCostCents)}</span>
+                        <span>{formatPrice(item.unitCostCents, shop.currency)}</span>
                         <span>=</span>
                         <span class="text-foreground font-medium"
-                          >{formatPrice(item.lineTotalCents)}</span
+                          >{formatPrice(item.lineTotalCents, shop.currency)}</span
                         >
                       </div>
                     </div>
@@ -393,30 +395,30 @@
                 <div class="space-y-2 rounded-lg border p-4 text-sm">
                   <div class="flex items-center justify-between">
                     <span class="text-muted-foreground">Subtotal</span>
-                    <div>{formatPrice(subtotalCents)}</div>
+                    <div>{formatPrice(subtotalCents, shop.currency)}</div>
                   </div>
                   {#if invoiceQuery.data.vatCents > 0}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">VAT</span>
-                      <div>{formatPrice(invoiceQuery.data.vatCents)}</div>
+                      <div>{formatPrice(invoiceQuery.data.vatCents, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if invoiceQuery.data.discountCents > 0}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">Discount</span>
-                      <div>{formatPrice(invoiceQuery.data.discountCents)}</div>
+                      <div>{formatPrice(invoiceQuery.data.discountCents, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if invoiceQuery.data.freightCents > 0}
                     <div class="flex items-center justify-between">
                       <span class="text-muted-foreground">Freight</span>
-                      <div>{formatPrice(invoiceQuery.data.freightCents)}</div>
+                      <div>{formatPrice(invoiceQuery.data.freightCents, shop.currency)}</div>
                     </div>
                   {/if}
                   <Separator />
                   <div class="flex items-center justify-between">
                     <span class="font-semibold">Total</span>
-                    <div class="font-semibold">{formatPrice(totalCents)}</div>
+                    <div class="font-semibold">{formatPrice(totalCents, shop.currency)}</div>
                   </div>
                 </div>
 

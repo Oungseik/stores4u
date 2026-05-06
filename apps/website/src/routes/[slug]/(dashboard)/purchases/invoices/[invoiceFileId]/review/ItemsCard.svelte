@@ -2,6 +2,7 @@
   import PackageIcon from "@lucide/svelte/icons/package";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
+  import { type CurrencyCode } from "@repo/config";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Dialog from "@repo/ui/dialog";
@@ -32,11 +33,13 @@
     items = $bindable([]),
     products = [],
     slug,
+    currency,
     onProductCreated,
   }: {
     items: InvoiceItem[];
     products: ProductOption[];
     slug: string;
+    currency: CurrencyCode;
     onProductCreated?: (product: { id: string; name: string; sku: string }) => void;
   } = $props();
 
@@ -161,7 +164,7 @@
                 />
                 <span class="text-muted-foreground text-xs">=</span>
                 <span class="min-w-[4rem] font-medium tabular-nums">
-                  {formatPrice(lineTotalsCents[index], null, false)}
+                  {formatPrice(lineTotalsCents[index], currency, false)}
                 </span>
                 <Button
                   variant="ghost"

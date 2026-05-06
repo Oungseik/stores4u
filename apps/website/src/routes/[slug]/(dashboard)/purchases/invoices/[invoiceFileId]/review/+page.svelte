@@ -38,7 +38,7 @@
     items: InvoiceItem[];
   };
 
-  const { params }: PageProps = $props();
+  const { params, data: shop }: PageProps = $props();
 
   const queryClient = useQueryClient();
 
@@ -534,6 +534,7 @@
             bind:items={invoiceData.items}
             {products}
             slug={params.slug}
+            currency={shop.currency}
             onProductCreated={() => {
               queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
             }}
@@ -547,6 +548,7 @@
             bind:freight={invoiceData.freight}
             bind:notes={invoiceData.notes}
             {subtotalCents}
+            currency={shop.currency}
           />
         </div>
       </div>
