@@ -452,14 +452,14 @@
       <Button variant="outline" onclick={() => history.back()}>Go Back</Button>
     </div>
   {:else}
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="grid gap-6 xl:grid-cols-2">
       <InvoicePreviewCard
         imageUrl={invoiceFileQuery.data.imageUrl}
         fileType={invoiceFileQuery.data.fileType}
         onDownload={() => window.open(invoiceFileQuery.data.imageUrl ?? undefined, "_blank")}
       />
 
-      <div class="flex flex-col gap-6 lg:col-start-1 lg:col-end-2 lg:row-start-1">
+      <div class="flex flex-col gap-6 xl:col-start-1 xl:col-end-2 xl:row-start-1">
         {#if isCurrentlyProcessing}
           <div class="bg-primary/5 flex items-center gap-3 rounded-lg border p-4">
             <Loader2Icon class="text-primary size-5 animate-spin" />

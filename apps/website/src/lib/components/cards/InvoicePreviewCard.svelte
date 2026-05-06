@@ -19,7 +19,7 @@
   let open = $state(false);
 
   $effect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
+    const mq = window.matchMedia("(min-width: 1280px)");
     open = mq.matches;
     const handler = (e: MediaQueryListEvent) => {
       open = e.matches;
@@ -29,7 +29,7 @@
   });
 </script>
 
-<Card.Root class="h-fit lg:sticky lg:top-6 lg:col-start-2 lg:col-end-3 lg:row-start-1 {className}">
+<Card.Root class="h-fit xl:sticky xl:top-6 xl:col-start-2 xl:col-end-3 xl:row-start-1 {className}">
   <Card.Header class="flex flex-row items-start justify-between">
     <div>
       <Card.Title>Invoice Preview</Card.Title>
@@ -44,7 +44,7 @@
   </Card.Header>
   <Collapsible.Root bind:open>
     <Collapsible.Trigger
-      class="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-2 text-sm transition-colors lg:hidden"
+      class="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-2 text-sm transition-colors xl:hidden"
     >
       <ChevronsUpDownIcon class="size-4" />
       {open ? "Hide Preview" : "Show Preview"}

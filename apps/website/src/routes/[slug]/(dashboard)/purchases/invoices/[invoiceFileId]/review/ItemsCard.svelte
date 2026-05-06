@@ -149,7 +149,7 @@
       <div class="divide-y">
         {#each items as item, index (item.id)}
           <div class="hover:bg-muted/30 transition-colors">
-            <div class="flex flex-col gap-2 p-3 lg:flex-row lg:items-start">
+            <div class="flex flex-col gap-2 p-3 xl:flex-row xl:items-start">
               <ProductSearchPopover
                 {item}
                 {products}
@@ -172,7 +172,7 @@
                   min={0}
                 />
                 <span class="text-muted-foreground text-xs">=</span>
-                <span class="min-w-[4rem] font-medium tabular-nums">
+                <span class="min-w-[4rem] text-sm font-medium tabular-nums">
                   {formatPrice(lineTotalsCents[index], currency, false)}
                 </span>
                 <Button
