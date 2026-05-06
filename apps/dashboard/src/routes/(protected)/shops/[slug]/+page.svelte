@@ -21,7 +21,7 @@
 
   const { params, data }: PageProps = $props();
 
-  const currency = $derived(data.organization.shopInfo?.currency);
+  const currency = $derived(data.organization.currency);
 
   let trendDays = $state(7);
 
