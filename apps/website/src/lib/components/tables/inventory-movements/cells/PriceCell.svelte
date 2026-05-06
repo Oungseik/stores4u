@@ -8,7 +8,7 @@
     movementType: MovementType;
     unitCostCents: number | null;
     unitPriceCents: number | null;
-    currency: CurrencyCode | null;
+    currency: CurrencyCode;
   };
 
   const { movementType, unitCostCents, unitPriceCents, currency }: Props = $props();

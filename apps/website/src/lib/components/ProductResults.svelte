@@ -19,12 +19,12 @@
   interface Props {
     products: Product[];
     isLoading: boolean;
-    currency?: CurrencyCode | null;
+    currency?: CurrencyCode;
     searchQuery: string;
     onSelect: (product: Product) => void;
   }
 
-  let { products, isLoading, currency, searchQuery, onSelect }: Props = $props();
+  let { products, isLoading, currency = "USD", searchQuery, onSelect }: Props = $props();
 
   function handleSelect(product: Product) {
     onSelect(product);

@@ -13,7 +13,7 @@
     iconBgClass?: string;
     iconTextClass?: string;
     price?: number;
-    currency?: CurrencyCode | null;
+    currency?: CurrencyCode;
     priceClass?: string;
     footer?: Snippet;
   }

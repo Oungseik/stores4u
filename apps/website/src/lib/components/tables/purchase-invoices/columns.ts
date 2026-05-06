@@ -21,7 +21,7 @@ export type PurchaseInvoiceItem = {
   subtotalCents: number;
 };
 
-export function createColumns(currency: CurrencyCode | null): ColumnDef<PurchaseInvoiceItem>[] {
+export function createColumns(currency: CurrencyCode): ColumnDef<PurchaseInvoiceItem>[] {
   return [
     {
       accessorKey: "invoiceNumber",

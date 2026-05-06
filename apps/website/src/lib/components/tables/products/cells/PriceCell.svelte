@@ -5,7 +5,7 @@
 
   type Props = {
     cents: number;
-    currency: CurrencyCode | null;
+    currency: CurrencyCode;
   };
 
   const { cents, currency }: Props = $props();

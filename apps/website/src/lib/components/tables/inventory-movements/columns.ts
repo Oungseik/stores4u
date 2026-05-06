@@ -28,7 +28,7 @@ export type MovementItem = {
   purchaseInvoiceNumber: string | null;
 };
 
-export function createColumns(currency: CurrencyCode | null): ColumnDef<MovementItem>[] {
+export function createColumns(currency: CurrencyCode): ColumnDef<MovementItem>[] {
   return [
     {
       accessorKey: "productName",

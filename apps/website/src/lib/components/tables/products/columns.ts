@@ -19,7 +19,7 @@ export type ProductItem = {
 };
 
 export function createColumns(
-  currency: CurrencyCode | null,
+  currency: CurrencyCode,
   slug: string,
   onDelete?: (id: string) => void,
   onAdjustStock?: (id: string, name: string, stock: number) => void,
