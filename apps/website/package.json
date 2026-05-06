@@ -19,8 +19,8 @@
     "test": "npm run test:unit -- --run",
     "with-env": "dotenv -e ../../.env --",
     "db:push": "bun --bun run with-env drizzle-kit push",
-    "db:generate": "bunx --bun drizzle-kit generate",
-    "db:migrate": "bun run with-env drizzle-kit migrate",
+    "db:generate": "bun --bun with-env drizzle-kit generate",
+    "db:migrate": "bun --bun run with-env drizzle-kit migrate",
     "db:studio": "bun --bun run with-env drizzle-kit studio"
   },
   "devDependencies": {
