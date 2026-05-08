@@ -19,6 +19,16 @@ export const load: LayoutServerLoad = async ({ params, locals, url }) => {
     throw error(404, "Shop not found");
   }
 
+  const shops = await db.query.shop.findMany({
+    where: { userId: locals.session.user.id },
+    columns: { id: true, name: true, slug: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (shops.length === 0) {
+    return redirect(303, "/shops/setup");
+  }
+
   return {
     ...shop,
     // Merge shopInfo fields into flat structure for frontend compatibility
@@ -36,5 +46,6 @@ export const load: LayoutServerLoad = async ({ params, locals, url }) => {
     taxId: shop.shopInfo?.taxId ?? null,
     user: locals.session.user,
     session: locals.session.session,
+    shops,
   };
 };

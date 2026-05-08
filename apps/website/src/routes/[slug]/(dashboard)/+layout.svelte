@@ -7,15 +7,16 @@
   import type { LayoutProps } from "./$types";
   import AdminSidebar from "./admin-sidebar.svelte";
 
-  let { children, data: shop }: LayoutProps = $props();
-  const user = $derived(shop.user);
+  let { children, data }: LayoutProps = $props();
+  const shops = $derived(data.shops);
+  const user = $derived(data.user);
 </script>
 
-{#if shop}
+{#if data}
   <Sidebar.Provider
     style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
   >
-    <AdminSidebar variant="inset" {shop} {user} currentPath={page.url.pathname} />
+    <AdminSidebar variant="inset" shop={data} {shops} {user} currentPath={page.url.pathname} />
     <Sidebar.Inset class="overflow-hidden">
       <!-- <header -->
       <!--   class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear" -->

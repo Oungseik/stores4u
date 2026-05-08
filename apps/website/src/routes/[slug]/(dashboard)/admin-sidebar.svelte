@@ -3,6 +3,7 @@
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   // import BellIcon from "@lucide/svelte/icons/bell";
   import Building2Icon from "@lucide/svelte/icons/building-2";
+  import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FolderIcon from "@lucide/svelte/icons/folder";
@@ -11,6 +12,7 @@
   import LogOutIcon from "@lucide/svelte/icons/log-out";
   import MessageSquareIcon from "@lucide/svelte/icons/message-square";
   import BoxIcon from "@lucide/svelte/icons/package";
+  import PlusIcon from "@lucide/svelte/icons/plus";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import StoreIcon from "@lucide/svelte/icons/store";
@@ -38,6 +40,7 @@
       slug: string;
       logo?: string | null;
     };
+    shops: Array<{ id: string; name: string; slug: string }>;
     user: {
       name: string;
       email: string;
@@ -46,7 +49,7 @@
     currentPath: string;
   }
 
-  let { shop, user, currentPath, ...restProps }: Props = $props();
+  let { shop, shops, user, currentPath, ...restProps }: Props = $props();
 
   const sidebar = useSidebar();
 
@@ -106,25 +109,69 @@
   <Sidebar.Header>
     <Sidebar.Menu>
       <Sidebar.MenuItem>
-        <Sidebar.MenuButton size="lg" class="group-data-[collapsible=icon]:!p-1.5">
-          {#snippet child({ props })}
-            <a href={`/${shop.slug}`} {...props}>
-              <div
-                class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            {#snippet child({ props })}
+              <Sidebar.MenuButton
+                {...props}
+                size="lg"
+                class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!p-1.5"
               >
-                {#if shop.logo}
-                  <img src={shop.logo} alt={shop.name} class="size-full rounded-lg object-cover" />
-                {:else}
-                  <StoreIcon class="size-4" />
-                {/if}
-              </div>
-              <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{shop.name}</span>
-                <span class="truncate text-xs opacity-60">Admin Dashboard</span>
-              </div>
-            </a>
-          {/snippet}
-        </Sidebar.MenuButton>
+                <div
+                  class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
+                >
+                  {#if shop.logo}
+                    <img
+                      src={shop.logo}
+                      alt={shop.name}
+                      class="size-full rounded-lg object-cover"
+                    />
+                  {:else}
+                    <StoreIcon class="size-4" />
+                  {/if}
+                </div>
+                <div class="grid flex-1 text-left text-sm leading-tight">
+                  <span class="truncate font-semibold">{shop.name}</span>
+                  <span class="truncate text-xs opacity-60">Admin Dashboard</span>
+                </div>
+                <ChevronsUpDownIcon class="ms-auto size-4" />
+              </Sidebar.MenuButton>
+            {/snippet}
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            class="w-(--bits-dropdown-menu-anchor-width) min-w-56 rounded-lg"
+            align="start"
+            side={sidebar.isMobile ? "bottom" : "right"}
+            sideOffset={4}
+          >
+            <DropdownMenu.Label class="text-muted-foreground text-xs">Shops</DropdownMenu.Label>
+            {#each shops as s (s.id)}
+              <DropdownMenu.Item class="gap-2 p-2">
+                {#snippet child({ props })}
+                  <a href={`/${s.slug}`} {...props}>
+                    <div class="flex size-6 items-center justify-center rounded-md border">
+                      <StoreIcon class="size-3.5 shrink-0" />
+                    </div>
+                    {s.name}
+                  </a>
+                {/snippet}
+              </DropdownMenu.Item>
+            {/each}
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item class="gap-2 p-2">
+              {#snippet child({ props })}
+                <a href="/shops/setup" {...props}>
+                  <div
+                    class="flex size-6 items-center justify-center rounded-md border bg-transparent"
+                  >
+                    <PlusIcon class="size-4" />
+                  </div>
+                  <div class="text-muted-foreground font-medium">Create Shop</div>
+                </a>
+              {/snippet}
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       </Sidebar.MenuItem>
     </Sidebar.Menu>
   </Sidebar.Header>

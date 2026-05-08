@@ -16,6 +16,10 @@
   import { PUBLIC_DOMAIN } from "$env/static/public";
   import { orpc } from "$lib/orpc_client";
 
+  import type { PageProps } from "./$types";
+
+  const { data }: PageProps = $props();
+
   const schema = z.object({
     name: z.string().min(1, "Shop name is required").max(100),
     slug: z
@@ -85,13 +89,15 @@
 
 <div class="bg-background flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
   <div class="w-full max-w-lg">
-    <a
-      href="/shops"
-      class="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
-    >
-      <ArrowLeftIcon class="size-4" />
-      Back to shops
-    </a>
+    {#if data.shops.length > 0}
+      <a
+        href={`/${data.shops[0].slug}`}
+        class="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
+      >
+        <ArrowLeftIcon class="size-4" />
+        Back to dashboard
+      </a>
+    {/if}
 
     <Card.Root>
       <Card.Header>
