@@ -8,7 +8,7 @@ export const load: LayoutServerLoad = async ({ params, locals, url }) => {
     with: { shopInfo: true },
   });
   if (!shop) {
-    return error(404);
+    return redirect(303, "/shops");
   }
 
   if (!locals.session) {
