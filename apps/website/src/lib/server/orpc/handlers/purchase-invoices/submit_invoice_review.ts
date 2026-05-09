@@ -59,7 +59,6 @@ export const submitInvoiceReviewHandler = os
   .use(protectedShopMiddleware)
   .use(shopDbMiddleware)
   .handler(async ({ input, context: { shopDb, ...context } }) => {
-    const now = new Date();
     const occurredAt = new Date(input.invoiceDate);
 
     if (Number.isNaN(occurredAt.getTime())) {
@@ -128,23 +127,14 @@ export const submitInvoiceReviewHandler = os
         const insertInvoice = tx
           .insert(purchaseInvoice)
           .values({
-            invoiceNumber: input.invoiceNumber,
+            ...input,
             supplierId,
             invoiceFileId: existingFile.id,
-            ocrResultId: existingFile.ocrResult?.id ?? null,
-            invoiceDate: input.invoiceDate,
             photoUrl: existingFile.objectPath,
-            subtotalCents: input.subtotalCents,
-            vatCents: input.vatCents,
-            discountCents: input.discountCents,
-            freightCents: input.freightCents,
-            totalCents: input.totalCents,
-            notes: input.notes,
+            ocrResultId: existingFile.ocrResult?.id ?? null,
             status: "VALIDATED",
             validatedBy: context.session.user.id,
-            validatedAt: now,
-            createdAt: now,
-            updatedAt: now,
+            validatedAt: new Date(),
           })
           .returning({ id: purchaseInvoice.id })
           .all();
@@ -154,52 +144,25 @@ export const submitInvoiceReviewHandler = os
           throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create invoice" });
         }
 
-        const items = input.items.map((item) => ({
-          purchaseInvoiceId: createdInvoice.id,
-          productId: item.productId,
-          invoiceItemName: item.invoiceItemName,
-          qty: item.qty,
-          unitCostCents: item.unitCostCents,
-          lineSubtotalCents: item.lineSubtotalCents,
-          vatCents: item.vatCents,
-          discountCents: item.discountCents,
-          freightCents: item.freightCents,
-          lineTotalCents: item.lineTotalCents,
-          expiryDate: item.expiryDate,
-          batchNumber: item.batchNumber,
-          createdAt: now,
-        }));
-
         const insertedItems = tx
           .insert(purchaseInvoiceItem)
-          .values(items)
+          .values(input.items.map((item) => ({ ...item, purchaseInvoiceId: createdInvoice.id })))
           .returning({ id: purchaseInvoiceItem.id })
           .all();
 
-        const aliasesToCreate = input.items
-          .filter(
-            (item): item is typeof item & { productId: string; invoiceItemName: string } =>
-              item.saveAlias === true && !!item.productId && !!item.invoiceItemName,
-          )
-          .map((item) => ({
-            productId: item.productId,
-            alias: item.invoiceItemName,
-            createdAt: now,
-          }));
+        const aliases = input.items
+          .filter((item) => item.saveAlias === true && !!item.productId && !!item.invoiceItemName)
+          .map((item) => ({ productId: item.productId, alias: item.invoiceItemName }));
 
-        if (aliasesToCreate.length > 0) {
-          tx.insert(productAlias).values(aliasesToCreate).onConflictDoNothing().run();
+        if (aliases.length > 0) {
+          tx.insert(productAlias).values(aliases).onConflictDoNothing().run();
         }
 
-        const supplierProductIds = new Set(input.items.map((item) => item.productId));
-        if (supplierProductIds.size > 0) {
+        const supplierProducts = [...new Set(input.items.map((item) => item.productId))];
+        if (supplierProducts.length > 0) {
           tx.insert(productSupplier)
             .values(
-              [...supplierProductIds].map((productId) => ({
-                productId,
-                supplierId: input.supplierId,
-                createdAt: now,
-              })),
+              supplierProducts.map((productId) => ({ productId, supplierId: input.supplierId })),
             )
             .onConflictDoNothing()
             .run();
@@ -208,41 +171,35 @@ export const submitInvoiceReviewHandler = os
         tx.insert(inventoryMovement)
           .values(
             input.items.map((item, index) => ({
-              productId: item.productId,
+              ...item,
               purchaseInvoiceItemId: insertedItems[index].id,
               movementType: "PURCHASE" as const,
-              qty: item.qty,
-              unitCostCents: item.unitCostCents,
               referenceType: "PURCHASE_INVOICE" as const,
               referenceId: createdInvoice.id,
               occurredAt: occurredAt,
-              createdAt: now,
             })),
           )
           .run();
 
-        const qtyByProduct = new Map<string, number>();
-        for (const item of input.items) {
-          qtyByProduct.set(item.productId, (qtyByProduct.get(item.productId) ?? 0) + item.qty);
-        }
+        const qtyByProduct = input.items.reduce<Record<string, number>>(
+          (acc, item) => ({ ...acc, [item.productId]: (acc[item.productId] ?? 0) + item.qty }),
+          {},
+        );
 
         const productCases = sql.join(
-          [...qtyByProduct.entries()].map(
+          Object.entries(qtyByProduct).map(
             ([productId, qty]) => sql`when ${productId} then ${product.stock} + ${qty}`,
           ),
           sql.raw(" "),
         );
 
         tx.update(product)
-          .set({
-            stock: sql`case ${product.id} ${productCases} else ${product.stock} end`,
-            updatedAt: now,
-          })
-          .where(inArray(product.id, [...qtyByProduct.keys()]))
+          .set({ stock: sql`case ${product.id} ${productCases} else ${product.stock} end` })
+          .where(inArray(product.id, Object.keys(qtyByProduct)))
           .run();
 
         tx.update(purchaseInvoiceFile)
-          .set({ status: "REVIEWED", updatedAt: now })
+          .set({ status: "REVIEWED" })
           .where(eq(purchaseInvoiceFile.id, existingFile.id))
           .run();
       });
