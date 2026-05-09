@@ -31,7 +31,7 @@
       <!--     AI-powered store management platform for modern SMEs. Manage inventory, process sales, and -->
       <!--     grow your business. -->
       <!--   </p> -->
-      <!--   <!-- Social links --> -->
+      <!-- Social links -->
       <!--   <div class="flex items-center gap-4"> -->
       <!--     <a -->
       <!--       href="/" -->

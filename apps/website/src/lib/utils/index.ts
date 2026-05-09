@@ -1,20 +1,4 @@
-import { type CountryCode, currency } from "@repo/config";
-import type { DehydratedState } from "@tanstack/svelte-query";
-
-const replacements = {
-  "<": "\\u003C",
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029",
-};
-const pattern = new RegExp(`[${Object.keys(replacements).join("")}]`, "g");
-
-export function createDehydratedScript(dehydratedState: DehydratedState) {
-  const escaped = JSON.stringify(dehydratedState).replace(
-    pattern,
-    (match) => replacements[match as keyof typeof replacements],
-  );
-  return `<script>window.dehydrated = ${escaped}</script>`;
-}
+import { type CountryCode, type CurrencyCode } from "@repo/config";
 
 export function getSeparator(locale: Intl.LocalesArgument, separatorType: "decimal" | "group") {
   const numberWithGroupAndDecimal = 10000.1;
@@ -50,11 +34,12 @@ export function getCountryName(code: CountryCode, locale = "en"): string | undef
 
 export function formatPrice(
   cents: number,
-  country?: CountryCode | null,
+  currency: CurrencyCode,
   compactEnabled = true,
+  threshold = 1_000_000,
 ): string {
   const amount = cents / 100;
-  const compact = compactEnabled && Math.abs(amount) >= 1_000_000;
+  const compact = compactEnabled && Math.abs(amount) >= threshold;
 
   const formatted = new Intl.NumberFormat(undefined, {
     style: "decimal",
@@ -63,15 +48,7 @@ export function formatPrice(
       : { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
   }).format(amount);
 
-  if (!country) return formatted;
-
-  const config = currency[country];
-  if (config.prefix) {
-    if (formatted.startsWith("-")) return `-${config.prefix}${formatted.slice(1)}`;
-    return `${config.prefix}${formatted}`;
-  }
-  if (config.suffix) return `${formatted} ${config.suffix}`;
-  return formatted;
+  return `${formatted} ${currency}`;
 }
 
 export function formatNumber(value: number, fraction = 2): string {

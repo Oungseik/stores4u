@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   interface Particle {
     id: number;
     x: number;
@@ -25,8 +27,11 @@
 
   let { count = 200 }: { count?: number } = $props();
 
-  // svelte-ignore state_referenced_locally
-  const particles = createParticles(count);
+  let particles = $state<Particle[]>([]);
+
+  onMount(() => {
+    particles = createParticles(count);
+  });
 </script>
 
 <div class="pointer-events-none absolute inset-0 overflow-hidden">

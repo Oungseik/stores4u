@@ -56,7 +56,7 @@ export const uploadInvoiceFileHandler = os
       updatedAt: now,
     });
 
-    if (!result.rowsAffected) {
+    if (!result.changes) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Failed to create invoice file record",
       });

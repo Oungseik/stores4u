@@ -100,8 +100,8 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="sm:max-w-xl">
-    <Dialog.Header>
+  <Dialog.Content class="px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Adjust Stock</Dialog.Title>
       <Dialog.Description>
         Adjust stock for {productName}. Current stock: {currentStock}
@@ -109,7 +109,7 @@
     </Dialog.Header>
 
     <form
-      class="space-y-4 py-4"
+      class="space-y-4 px-1 py-4"
       onsubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -293,7 +293,7 @@
       </div>
     </form>
 
-    <Dialog.Footer>
+    <Dialog.Footer class="mx-0">
       <Button
         variant="outline"
         onclick={() => handleOpenChange(false)}

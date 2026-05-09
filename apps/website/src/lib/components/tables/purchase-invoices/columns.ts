@@ -1,4 +1,4 @@
-import type { CountryCode } from "@repo/config";
+import type { CurrencyCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 import DateCell from "./cells/DateCell.svelte";
@@ -21,7 +21,7 @@ export type PurchaseInvoiceItem = {
   subtotalCents: number;
 };
 
-export function createColumns(country: CountryCode | null): ColumnDef<PurchaseInvoiceItem>[] {
+export function createColumns(currency: CurrencyCode): ColumnDef<PurchaseInvoiceItem>[] {
   return [
     {
       accessorKey: "invoiceNumber",
@@ -48,7 +48,7 @@ export function createColumns(country: CountryCode | null): ColumnDef<PurchaseIn
       accessorKey: "totalCents",
       header: "Total",
       cell: ({ row }) => {
-        return renderComponent(PriceCell, { cents: row.original.totalCents, country });
+        return renderComponent(PriceCell, { cents: row.original.totalCents, currency });
       },
     },
     {

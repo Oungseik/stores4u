@@ -20,6 +20,5 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 
   return {
     organization: org,
-    user: locals.user,
   };
 };

@@ -1,7 +1,7 @@
-import { and, eq, socialConnection } from "@repo/website-auth";
+import { db, socialConnection } from "$lib/server/db";
+import { and, eq } from "drizzle-orm";
 import { SOCIAL_PLATFORMS } from "@repo/config";
 import { z } from "zod";
-import { db } from "$lib/server/auth_db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({

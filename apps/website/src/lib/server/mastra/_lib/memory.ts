@@ -1,10 +1,10 @@
 import { LibSQLStore } from "@mastra/libsql";
 import { Memory } from "@mastra/memory";
 import { LRUCache } from "lru-cache";
-import { TURSO_GROUP, TURSO_GROUP_AUTH_TOKEN, TURSO_ORGANIZATION } from "$env/static/private";
+import { SHOPS_DB_DIR } from "$env/static/private";
 
 function getShopDbUrl(slug: string): string {
-  return `libsql://${TURSO_GROUP}-${slug}-${TURSO_ORGANIZATION}.turso.io`;
+  return `file:${SHOPS_DB_DIR}/${slug}.db`;
 }
 
 const memoryCache = new LRUCache<string, Memory>({
@@ -21,7 +21,6 @@ export function createShopMemory(slug: string): Memory {
     storage: new LibSQLStore({
       id: `shop-memory-${slug}`,
       url: getShopDbUrl(slug),
-      authToken: TURSO_GROUP_AUTH_TOKEN,
     }),
     options: {
       lastMessages: 20,

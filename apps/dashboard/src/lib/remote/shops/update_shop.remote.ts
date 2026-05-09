@@ -23,7 +23,7 @@ export const updateShop = form(shopUpdateSchema, async (input) => {
 
   await db
     .update(organization)
-    .set({ name: input.name, slug: input.slug })
+    .set({ name: input.name, slug: input.slug, currency: input.currency })
     .where(eq(organization.id, input.organizationId));
 
   const infoFields = {

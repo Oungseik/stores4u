@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { db } from "$lib/server/auth_db";
+import { db } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({

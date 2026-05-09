@@ -1,5 +1,6 @@
 <script lang="ts">
   import PackageIcon from "@lucide/svelte/icons/package";
+  import type { CurrencyCode } from "@repo/config";
   import * as Command from "@repo/ui/command";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { Skeleton } from "@repo/ui/skeleton";
@@ -18,12 +19,12 @@
   interface Props {
     products: Product[];
     isLoading: boolean;
-    country?: string | null;
+    currency?: CurrencyCode;
     searchQuery: string;
     onSelect: (product: Product) => void;
   }
 
-  let { products, isLoading, country, searchQuery, onSelect }: Props = $props();
+  let { products, isLoading, currency = "USD", searchQuery, onSelect }: Props = $props();
 
   function handleSelect(product: Product) {
     onSelect(product);
@@ -76,7 +77,7 @@
                 </p>
               </div>
               <span class="text-sm font-semibold">
-                {formatPrice(product.priceCents, country as "MM" | "TH" | "US")}
+                {formatPrice(product.priceCents, currency)}
               </span>
             </Command.Item>
           {/each}

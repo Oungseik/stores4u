@@ -18,7 +18,7 @@
       class="mb-6 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
     >
       <ArrowLeftIcon class="size-4" />
-      Back to shops
+      Back to dashboard
     </a>
 
     <Card.Root>

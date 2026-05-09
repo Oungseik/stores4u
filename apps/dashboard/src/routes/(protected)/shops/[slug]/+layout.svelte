@@ -8,15 +8,19 @@
   import AdminSidebar from "./admin-sidebar.svelte";
 
   let { children, data }: LayoutProps = $props();
-  const organization = $derived(data.organization);
-  const user = $derived(data.user);
 </script>
 
-{#if organization}
+{#if data.organization}
   <Sidebar.Provider
     style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
   >
-    <AdminSidebar variant="sidebar" {organization} {user} currentPath={page.url.pathname} />
+    <AdminSidebar
+      variant="sidebar"
+      organization={data.organization}
+      user={data.user}
+      shops={data.shops}
+      currentPath={page.url.pathname}
+    />
     <Sidebar.Inset class="overflow-hidden">
       <div class="flex flex-1 flex-col overflow-hidden">
         {@render children?.()}

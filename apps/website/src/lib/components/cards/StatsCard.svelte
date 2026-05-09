@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type CountryCode } from "@repo/config";
+  import { type CurrencyCode } from "@repo/config";
   import * as Card from "@repo/ui/card";
   import type { Component, Snippet } from "svelte";
 
@@ -13,7 +13,7 @@
     iconBgClass?: string;
     iconTextClass?: string;
     price?: number;
-    country?: CountryCode | null;
+    currency?: CurrencyCode;
     priceClass?: string;
     footer?: Snippet;
   }
@@ -25,7 +25,7 @@
     iconBgClass = "bg-muted",
     iconTextClass = "",
     price,
-    country = "US",
+    currency = "USD",
     priceClass = "text-2xl font-bold",
     footer,
     ...props
@@ -42,7 +42,7 @@
   <Card.Content>
     <div class={priceClass}>
       {#if price !== undefined}
-        {formatPrice(price, country)}
+        {formatPrice(price, currency)}
       {:else}
         {value}
       {/if}

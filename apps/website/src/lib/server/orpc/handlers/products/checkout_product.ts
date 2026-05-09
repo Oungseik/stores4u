@@ -158,7 +158,7 @@ export const checkoutHandler = os
           ),
         );
 
-      if (updateResult.rowsAffected !== productIds.length) {
+      if (updateResult.changes !== productIds.length) {
         const insufficient = [...requestedQtyByProduct.entries()]
           .filter(([id, requested]) => getProduct(id).stock < requested)
           .map(([id, requested]) => {

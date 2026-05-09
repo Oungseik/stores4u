@@ -1,3 +1,4 @@
+import { CURRENCIES } from "@repo/config";
 import { sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
@@ -86,6 +87,7 @@ export const organization = sqliteTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
+  currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
   logo: text("logo"),
   tursoDbUrl: text("turso_db_url"),
   tursoDbToken: text("turso_db_token"),

@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { db } from "$lib/server/auth_db";
+import { db } from "$lib/server/db";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
@@ -32,13 +32,13 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     where: { userId: user.id },
   });
 
-  if (shops.length === 0 && pathname === "/setup") {
+  if (shops.length === 0 && pathname === "/shops/setup") {
     return;
   }
 
   if (shops.length === 0) {
-    return redirect(303, "/setup");
+    return redirect(303, "/shops/setup");
   }
 
-  return redirect(303, url.searchParams.get("return_url") ?? `/${shops.at(0)?.slug}/dashboard`);
+  return redirect(303, url.searchParams.get("return_url") ?? `/${shops.at(0)?.slug}`);
 };

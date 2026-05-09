@@ -1,6 +1,8 @@
 <script lang="ts">
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
+  import { Button } from "@repo/ui/button";
   import * as Dialog from "@repo/ui/dialog";
+  import { ScrollArea } from "@repo/ui/scroll-area";
   import { createQuery } from "@tanstack/svelte-query";
 
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
@@ -55,30 +57,38 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
-    <Dialog.Header>
+  <Dialog.Content class="px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>{isEditMode ? "Edit Product" : "Add Product"}</Dialog.Title>
       <Dialog.Description>
         {isEditMode ? "Update product details" : "Create a new product for your shop"}
       </Dialog.Description>
     </Dialog.Header>
 
-    {#if isEditMode && productQuery.isLoading}
-      <div class="flex items-center justify-center py-12">
-        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-      </div>
-    {:else if isEditMode && productQuery.isError}
-      <div class="flex items-center justify-center py-12">
-        <p class="text-red-500">Failed to load product</p>
-      </div>
-    {:else}
-      <ProductForm
-        bind:this={productFormRef}
-        {slug}
-        {initialData}
-        onSuccess={onClose}
-        onCancel={onClose}
-      />
-    {/if}
+    <ScrollArea class="max-h-[70vh] px-3 sm:px-4">
+      {#if isEditMode && productQuery.isLoading}
+        <div class="flex items-center justify-center py-12">
+          <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
+        </div>
+      {:else if isEditMode && productQuery.isError}
+        <div class="flex items-center justify-center py-12">
+          <p class="text-red-500">Failed to load product</p>
+        </div>
+      {:else}
+        <ProductForm bind:this={productFormRef} {slug} {initialData} onSuccess={onClose} />
+      {/if}
+    </ScrollArea>
+
+    <Dialog.Footer class="mx-0">
+      <Button variant="outline" onclick={onClose}>Cancel</Button>
+      <Button onclick={() => productFormRef?.submit()} disabled={productFormRef?.getIsPending()}>
+        {#if productFormRef?.getIsPending()}
+          <Loader2Icon class="mr-2 size-4 animate-spin" />
+          {isEditMode ? "Updating..." : "Creating..."}
+        {:else}
+          {isEditMode ? "Update Product" : "Create Product"}
+        {/if}
+      </Button>
+    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

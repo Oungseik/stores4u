@@ -15,6 +15,7 @@ export default defineConfig({
     external: ["sharp", "bun"],
   },
   server: {
+    allowedHosts: ["local.stores4u.app"],
     fs: {
       allow: ["../../"], // point this to the root of the monorepo
     },

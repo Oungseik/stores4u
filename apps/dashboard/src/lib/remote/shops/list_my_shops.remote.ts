@@ -23,6 +23,7 @@ export const listMyShops = query(listMyShopsSchema, async (input) => {
       slug: true,
       logo: true,
       isActive: true,
+      currency: true,
       createdAt: true,
       updatedAt: true,
     },

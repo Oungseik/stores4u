@@ -1,6 +1,6 @@
-import { createClient } from "@libsql/client";
+import { connect } from "@tursodatabase/database";
 import { randomUUIDv7 } from "bun";
-import { drizzle } from "drizzle-orm/libsql";
+import { drizzle } from "drizzle-orm/tursodatabase/database";
 import {
   category,
   inventoryMovement,
@@ -348,38 +348,17 @@ function generateInventoryMovementData(
 }
 
 async function main() {
-  const shopSlug = process.env.SHOP_SLUG;
-  const shopDbUrl = process.env.SHOP_DB_URL ?? process.env.DATABASE_URL;
-  const tursoOrganization = process.env.TURSO_ORGANIZATION;
-  const tursoAuthToken = process.env.TURSO_GROUP_AUTH_TOKEN ?? process.env.TURSO_GROUP;
+  const shopDbPath = process.env.SHOP_DB_PATH;
 
-  if (!shopSlug && !shopDbUrl) {
-    console.error("Error: SHOP_SLUG or SHOP_DB_URL/DATABASE_URL is required");
-    console.error("Usage: SHOP_SLUG=my-shop TURSO_ORGANIZATION=org bun run db:seed");
-    console.error("Usage: SHOP_DB_URL=libsql://... TURSO_GROUP_AUTH_TOKEN=... bun run db:seed");
+  if (!shopDbPath) {
+    console.error("Error: SHOP_DB_PATH is required");
+    console.error("Usage: SHOP_DB_PATH=./data/shops/my-shop.db bun run db:seed");
     process.exit(1);
   }
 
-  if (!tursoAuthToken) {
-    console.error("Error: TURSO_GROUP_AUTH_TOKEN or TURSO_GROUP is required for cloud seeding");
-    process.exit(1);
-  }
-
-  let db: ReturnType<typeof drizzle>;
-
-  if (shopDbUrl) {
-    const client = createClient({ url: shopDbUrl, authToken: tursoAuthToken });
-    db = drizzle({ client, schema, relations });
-    console.log(`Seeding remote database: ${shopDbUrl}`);
-  } else if (shopSlug && tursoOrganization) {
-    const derivedShopDbUrl = `libsql://pos-${shopSlug}-${tursoOrganization}.turso.io`;
-    const client = createClient({ url: derivedShopDbUrl, authToken: tursoAuthToken });
-    db = drizzle({ client, schema, relations });
-    console.log(`Seeding remote database: ${derivedShopDbUrl}`);
-  } else {
-    console.error("Error: TURSO_ORGANIZATION is required when using SHOP_SLUG");
-    process.exit(1);
-  }
+  console.log(`Connecting to local database: ${shopDbPath}`);
+  const client = await connect(shopDbPath);
+  const db = drizzle({ client, schema, relations });
 
   console.log("Clearing existing data...");
   await db.delete(inventoryMovement);

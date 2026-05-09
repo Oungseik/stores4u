@@ -1,7 +1,11 @@
 import { os as base, ORPCError } from "@orpc/server";
-import type { ShopSelect } from "@repo/website-auth";
-import { db as authDb } from "$lib/server/auth_db";
+import type { ShopSelect, ShopInfoSelect } from "$lib/server/db";
+import { db as authDb } from "$lib/server/db";
 import { getShopDb } from "$lib/server/shop_db";
+
+type ShopWithInfo = ShopSelect & {
+  shopInfo: ShopInfoSelect | null;
+};
 
 type Context = {
   session?: {
@@ -25,8 +29,8 @@ type Context = {
       image?: string | null;
     };
   } | null;
-  shopDb?: ReturnType<typeof getShopDb>;
-  shop?: ShopSelect;
+  shopDb?: Awaited<ReturnType<typeof getShopDb>>;
+  shop?: ShopWithInfo;
   shopId?: string;
 };
 
@@ -53,6 +57,7 @@ Object.defineProperty(authMiddleware, "name", { value: "auth_middleware" });
 export const shopMiddleware = os.middleware(async ({ context, next }, input: { slug: string }) => {
   const shop = await authDb.query.shop.findFirst({
     where: { slug: input.slug },
+    with: { shopInfo: true },
   });
 
   if (!shop) {
@@ -75,6 +80,7 @@ export const protectedShopMiddleware = os.middleware(
 
     const shop = await authDb.query.shop.findFirst({
       where: { slug: input.slug },
+      with: { shopInfo: true },
     });
 
     if (!shop || shop.userId !== session.user.id) {
@@ -90,9 +96,9 @@ export const protectedShopMiddleware = os.middleware(
 Object.defineProperty(protectedShopMiddleware, "name", { value: "protected_shop_middleware" });
 
 export const shopDbMiddleware = os
-  .$context<{ shop: ShopSelect }>()
+  .$context<{ shop: ShopWithInfo }>()
   .middleware(async ({ context, next }) => {
-    const shopDb = getShopDb({ slug: context.shop.slug });
+    const shopDb = await getShopDb({ slug: context.shop.slug });
 
     return next({ context: { ...context, shopDb } });
   });

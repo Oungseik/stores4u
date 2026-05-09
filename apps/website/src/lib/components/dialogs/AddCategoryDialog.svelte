@@ -19,12 +19,14 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    <Dialog.Header>
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Add New Category</Dialog.Title>
       <Dialog.Description>Create a new category to organize your products</Dialog.Description>
     </Dialog.Header>
 
-    <CategoryForm {slug} onSuccess={onClose} onCancel={onClose} />
+    <div class="px-3 sm:px-4">
+      <CategoryForm {slug} onSuccess={onClose} onCancel={onClose} />
+    </div>
   </Dialog.Content>
 </Dialog.Root>

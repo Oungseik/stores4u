@@ -65,7 +65,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/dashboard/purchases/invoices/${id}`}
+              href={`/${slug}/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
               Review
@@ -77,7 +77,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/dashboard/purchases/invoices/${id}`}
+              href={`/${slug}/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
               View Details
@@ -89,7 +89,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/dashboard/purchases/invoices/${id}/review`}
+              href={`/${slug}/purchases/invoices/${id}/review`}
             >
               <SearchIcon class="size-4" />
               View Details

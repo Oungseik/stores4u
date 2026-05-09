@@ -196,9 +196,9 @@
 {/snippet}
 
 <Dialog.Root bind:open={isOpen} onOpenChange={(open) => !open && onClose()}>
-  <Dialog.Content class="sm:max-w-xl">
+  <Dialog.Content class="px-0 sm:max-w-xl">
     {#if isConnected}
-      <div class="flex flex-col items-center justify-center py-8">
+      <div class="flex flex-col items-center justify-center px-3 py-8 sm:px-4">
         <div class="bg-primary/10 mb-4 flex size-16 items-center justify-center rounded-full">
           <CheckIcon class="text-primary size-8" />
         </div>
@@ -209,7 +209,7 @@
         <Button onclick={handleFinish}>Finish</Button>
       </div>
     {:else}
-      <Dialog.Header>
+      <Dialog.Header class="px-3 sm:px-4">
         <Dialog.Title class="flex items-center gap-2">
           {#if config && platform}
             <span
@@ -230,7 +230,7 @@
         </Dialog.Description>
       </Dialog.Header>
 
-      <div class="min-h-[200px] py-4">
+      <div class="min-h-[200px] px-3 py-4 sm:px-4">
         {#if step === 1}
           <div class="flex flex-col gap-4">
             <div class="bg-muted rounded-lg p-6">
@@ -333,7 +333,7 @@
         {/if}
       </div>
 
-      <Dialog.Footer class="flex justify-between">
+      <Dialog.Footer class="mx-0 flex justify-between">
         <Button variant="outline" onclick={handleBack} disabled={step === 1 || isConnecting}>
           <ArrowLeftIcon data-icon="inline-start" />
           Back

@@ -1,15 +1,54 @@
-import { error } from "@sveltejs/kit";
-import { db } from "$lib/server/auth_db";
+import { error, redirect } from "@sveltejs/kit";
+import { db } from "$lib/server/db";
 import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async ({ params }) => {
-  const shop = await db.query.shop.findFirst({ where: { slug: params.slug } });
+export const load: LayoutServerLoad = async ({ params, locals, url }) => {
+  const shop = await db.query.shop.findFirst({
+    where: { slug: params.slug },
+    with: { shopInfo: true },
+  });
   if (!shop) {
-    return error(404);
+    return redirect(303, "/shops");
+  }
+
+  if (!locals.session) {
+    return redirect(303, `/signin?return_url=${url.pathname}`);
+  }
+
+  if (shop.userId !== locals.session.user.id) {
+    throw error(404, "Shop not found");
+  }
+
+  const shops = await db.query.shop.findMany({
+    where: { userId: locals.session.user.id },
+    columns: { id: true, name: true, slug: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (shops.length === 0) {
+    return redirect(303, "/shops/setup");
   }
 
   return {
     ...shop,
-    tursoDbUrl: undefined,
+    // Merge shopInfo fields into flat structure for frontend compatibility
+    title: shop.shopInfo?.title ?? null,
+    description: shop.shopInfo?.description ?? null,
+    heroImage: shop.shopInfo?.heroImage ?? null,
+    address: shop.shopInfo?.address ?? null,
+    city: shop.shopInfo?.city ?? null,
+    state: shop.shopInfo?.state ?? null,
+    zipCode: shop.shopInfo?.zipCode ?? null,
+    country: shop.shopInfo?.country ?? null,
+    currency: shop.currency,
+    phone: shop.shopInfo?.phone ?? null,
+    email: shop.shopInfo?.email ?? null,
+    taxId: shop.shopInfo?.taxId ?? null,
+    legalBusinessName: shop.shopInfo?.legalBusinessName ?? null,
+    paymentTerms: shop.shopInfo?.paymentTerms ?? null,
+    invoiceNotes: shop.shopInfo?.invoiceNotes ?? null,
+    user: locals.session.user,
+    session: locals.session.session,
+    shops,
   };
 };

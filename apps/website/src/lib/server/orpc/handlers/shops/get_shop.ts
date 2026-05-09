@@ -12,23 +12,25 @@ export const getShopHandler = os
   .use(shopMiddleware)
   .handler(async ({ context }) => {
     const shop = context.shop;
+    const shopInfo = shop.shopInfo;
 
     return {
       id: shop.id,
       name: shop.name,
       slug: shop.slug,
-      title: shop.title,
-      description: shop.description,
-      address: shop.address,
-      city: shop.city,
-      state: shop.state,
-      zipCode: shop.zipCode,
-      country: shop.country,
-      phone: shop.phone,
-      email: shop.email,
-      taxId: shop.taxId,
       logo: shop.logo,
-      heroImage: shop.heroImage,
+      heroImage: shopInfo?.heroImage ?? null,
+      title: shopInfo?.title ?? null,
+      description: shopInfo?.description ?? null,
+      address: shopInfo?.address ?? null,
+      city: shopInfo?.city ?? null,
+      state: shopInfo?.state ?? null,
+      zipCode: shopInfo?.zipCode ?? null,
+      country: shopInfo?.country ?? null,
+      currency: shop.currency,
+      phone: shopInfo?.phone ?? null,
+      email: shopInfo?.email ?? null,
+      taxId: shopInfo?.taxId ?? null,
       userId: shop.userId,
       createdAt: shop.createdAt,
       updatedAt: shop.updatedAt,

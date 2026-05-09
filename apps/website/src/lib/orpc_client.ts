@@ -29,5 +29,5 @@ const link = new RPCLink({
   ],
 });
 
-const client: RouterClient<Router> = globalThis.$client ?? createORPCClient(link);
+const client: RouterClient<Router> = createORPCClient(link);
 export const orpc = createTanstackQueryUtils(client);

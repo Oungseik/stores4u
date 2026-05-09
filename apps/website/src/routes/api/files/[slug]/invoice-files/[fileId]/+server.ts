@@ -1,4 +1,4 @@
-import { db as authDb } from "$lib/server/auth_db";
+import { db as authDb } from "$lib/server/db";
 import { getShopDb } from "$lib/server/shop_db";
 import { extractObjectKey, getObjectStream } from "$lib/server/storage";
 
@@ -23,7 +23,7 @@ export async function GET({
     return new Response("Not Found", { status: 404 });
   }
 
-  const shopDb = getShopDb({ slug: shop.slug });
+  const shopDb = await getShopDb({ slug: shop.slug });
   const file = await shopDb.query.purchaseInvoiceFile.findFirst({
     where: { id: fileId },
   });

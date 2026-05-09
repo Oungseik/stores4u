@@ -107,23 +107,25 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="flex max-h-[85vh] max-w-2xl flex-col">
-    <Dialog.Header>
+  <Dialog.Content class="flex max-h-[85vh] flex-col px-0 sm:max-w-2xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Manage Products — {category.name}</Dialog.Title>
       <Dialog.Description>Add or remove products from this category</Dialog.Description>
     </Dialog.Header>
 
-    <div class="relative mb-3">
-      <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-      <Input
-        placeholder="Search products..."
-        value={productSearch}
-        oninput={(e) => (productSearch = e.currentTarget.value)}
-        class="pl-9"
-      />
+    <div class="px-3 sm:px-4">
+      <div class="relative mb-3">
+        <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        <Input
+          placeholder="Search products..."
+          value={productSearch}
+          oninput={(e) => (productSearch = e.currentTarget.value)}
+          class="pl-9"
+        />
+      </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto px-3 sm:px-4">
       {#if categoryProducts.isLoading || products.isLoading}
         <div class="flex items-center justify-center py-8">
           <Loader2Icon class="text-muted-foreground size-5 animate-spin" />
@@ -188,7 +190,7 @@
       {/if}
     </div>
 
-    <Dialog.Footer class="mt-4">
+    <Dialog.Footer class="mx-0 mt-4">
       <Button variant="outline" onclick={() => handleOpenChange(false)}>Cancel</Button>
       <Button
         onclick={handleUpdateCategoryProducts}

@@ -1,26 +1,14 @@
-import { connectRemote } from "@repo/perstore-db";
-import {
-  TURSO_GROUP,
-  TURSO_GROUP_AUTH_TOKEN,
-  TURSO_ORGANIZATION,
-  TURSO_PARENT_DB_NAME,
-} from "$env/static/private";
-import { turso } from "./turso";
+import { connectLocal } from "@repo/perstore-db";
+import { SHOPS_DB_DIR } from "$env/static/private";
 
-export function getShopDb(shop: { slug: string }) {
-  const url = `libsql://${TURSO_GROUP}-${shop.slug}-${TURSO_ORGANIZATION}.turso.io`;
-  return connectRemote(url, TURSO_GROUP_AUTH_TOKEN);
+export async function getShopDb(shop: { slug: string }) {
+  return connectLocal(`${SHOPS_DB_DIR}/${shop.slug}.db`);
 }
 
-export async function createShopDatabase(slug: string): Promise<string> {
-  const db = await turso.databases.create(`${TURSO_GROUP}-${slug}`, {
-    group: TURSO_GROUP,
-    seed: { type: "database", name: TURSO_PARENT_DB_NAME },
-  });
-
-  return `libsql://${db.hostname}`;
+export async function createShopDatabase(slug: string): Promise<void> {
+  await Bun.write(`${SHOPS_DB_DIR}/${slug}.db`, Bun.file(`${SHOPS_DB_DIR}/parent.db`));
 }
 
 export async function deleteShopDatabase(slug: string): Promise<void> {
-  await turso.databases.delete(`${TURSO_GROUP}-${slug}`);
+  await Bun.file(`${SHOPS_DB_DIR}/${slug}.db`).delete();
 }

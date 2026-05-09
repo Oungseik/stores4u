@@ -1,13 +1,9 @@
 <script lang="ts">
-  // import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  // import ChevronUpIcon from "@lucide/svelte/icons/chevron-up";
   import KeyboardIcon from "@lucide/svelte/icons/keyboard";
-  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import QrCodeIcon from "@lucide/svelte/icons/qr-code";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import XIcon from "@lucide/svelte/icons/x";
   import { Button } from "@repo/ui/button";
-  // import * as FileDropZone from "@repo/ui/file-drop-zone";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { NumberInput } from "@repo/ui/number-input";
@@ -39,10 +35,9 @@
     slug: string;
     initialData?: ProductInitialData;
     onSuccess?: () => void;
-    onCancel?: () => void;
   }
 
-  let { slug, initialData, onSuccess, onCancel }: Props = $props();
+  let { slug, initialData, onSuccess }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -78,22 +73,6 @@
     })
   );
 
-  // const uploadMutation = createMutation(() =>
-  //   orpc.images.upload.mutationOptions({
-  //     onError: () => {
-  //       toast.error("Failed to upload image");
-  //     },
-  //   })
-  // );
-  //
-  // const deleteImageMutation = createMutation(() =>
-  //   orpc.images.delete.mutationOptions({
-  //     onError: (error) => {
-  //       toast.error(error.message || "Failed to delete image");
-  //     },
-  //   })
-  // );
-
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
   // svelte-ignore non_reactive_update
   let scannerRef: BarcodeScanner | null = null;
@@ -126,8 +105,6 @@
   };
 
   let imageEntries = $state<{ id: number; url: string }[]>([...initialImageEntries]);
-  let deletingImageIds = $state<Set<number>>(new Set());
-  let isUploadingImage = $state(false);
 
   const form = createForm(() => ({
     defaultValues,
@@ -173,72 +150,19 @@
 
   const categorySuggestions = $derived(categoriesQuery.data?.items.map((c) => c.name) ?? []);
 
-  // const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"] as const;
-  // type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
-
-  // function isValidImageType(type: string): type is AcceptedImageType {
-  //   return ACCEPTED_IMAGE_TYPES.includes(type as AcceptedImageType);
-  // }
-
-  // async function handleImageUpload(files: File[]) {
-  //   const validFiles = files.filter((f) => {
-  //     if (!isValidImageType(f.type)) {
-  //       toast.error(`Invalid image type: ${f.name}`);
-  //       return false;
-  //     }
-  //     return true;
-  //   });
-  //
-  //   if (validFiles.length === 0) return;
-  //
-  //   isUploadingImage = true;
-  //   try {
-  //     const results = await Promise.all(
-  //       validFiles.map((file) => uploadMutation.mutateAsync({ slug, file }))
-  //     );
-  //     imageEntries = [
-  //       ...imageEntries,
-  //       ...results.map((r) => ({ id: nextImageId++, url: r.objectPath })),
-  //     ];
-  //   } catch {
-  //     toast.error("Failed to upload one or more images");
-  //   } finally {
-  //     isUploadingImage = false;
-  //   }
-  // }
-  //
-  // async function handleImageRemove(id: number) {
-  //   const entry = imageEntries.find((e) => e.id === id);
-  //   if (!entry) return;
-  //
-  //   deletingImageIds = new Set([...deletingImageIds, id]);
-  //   try {
-  //     await deleteImageMutation.mutateAsync({ slug, objectPath: entry.url });
-  //   } catch {
-  //     // storage cleanup failed, still remove from local state
-  //   }
-  //   deletingImageIds = new Set([...deletingImageIds].filter((i) => i !== id));
-  //   imageEntries = imageEntries.filter((e) => e.id !== id);
-  // }
-  //
-  // function handleImageMove(id: number, direction: "up" | "down") {
-  //   const index = imageEntries.findIndex((entry) => entry.id === id);
-  //   if (index === -1) return;
-  //   const newIndex = direction === "up" ? index - 1 : index + 1;
-  //   if (newIndex < 0 || newIndex >= imageEntries.length) return;
-  //   const updated = [...imageEntries];
-  //   const temp = updated[index];
-  //   updated[index] = updated[newIndex];
-  //   updated[newIndex] = temp;
-  //   imageEntries = updated;
-  // }
-
   export function resetForm() {
     form.reset();
     barcodeMode = "skip";
     imageEntries = [...initialImageEntries];
-    isUploadingImage = false;
     scannerRef?.stop();
+  }
+
+  export function submit() {
+    form.handleSubmit();
+  }
+
+  export function getIsPending() {
+    return createProduct.isPending || updateProduct.isPending;
   }
 
   function handleBarcodeModeChange(mode: "skip" | "manual" | "scan") {
@@ -263,7 +187,7 @@
 </script>
 
 <form
-  class="space-y-4 py-4"
+  class="space-y-4 px-1 py-4"
   onsubmit={(e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -602,25 +526,5 @@
         </Button>
       </div>
     {/if}
-  </div>
-
-  <div class="flex justify-end gap-2">
-    {#if onCancel}
-      <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
-    {/if}
-    <Button
-      type="submit"
-      disabled={createProduct.isPending ||
-        updateProduct.isPending ||
-        isUploadingImage ||
-        deletingImageIds.size > 0}
-    >
-      {#if createProduct.isPending || updateProduct.isPending}
-        <Loader2Icon class="mr-2 size-4 animate-spin" />
-        {isEditMode ? "Updating..." : "Creating..."}
-      {:else}
-        {isEditMode ? "Update Product" : "Create Product"}
-      {/if}
-    </Button>
   </div>
 </form>
