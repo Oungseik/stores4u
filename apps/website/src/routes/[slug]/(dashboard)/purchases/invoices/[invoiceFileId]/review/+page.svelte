@@ -139,12 +139,6 @@
 
   const isCurrentlyProcessing = $derived(fileStatus === "PROCESSING" || isProcessing);
 
-  const canSave = $derived(
-    selectedSupplier !== null &&
-      invoiceData.items.length > 0 &&
-      invoiceData.items.every((i) => i.productId && i.invoiceItemName.trim())
-  );
-
   const canShowActions = $derived(
     !isLoading &&
       !error &&
@@ -241,8 +235,18 @@
   });
 
   async function validateAndSave() {
-    if (!selectedSupplier || invoiceData.items.length === 0) return;
-
+    if (!selectedSupplier) {
+      toast.error("Please select a supplier before saving.");
+      return;
+    }
+    if (invoiceData.items.length === 0) {
+      toast.error("Please add at least one invoice item.");
+      return;
+    }
+    if (invoiceData.items.some((i) => !i.productId)) {
+      toast.error("Please select a product for all items.");
+      return;
+    }
     if (invoiceData.items.some((i) => !i.invoiceItemName.trim())) {
       toast.error("Please fill in all item names before saving.");
       return;
@@ -377,7 +381,7 @@
           </Button>
           <Button
             onclick={validateAndSave}
-            disabled={isSubmitting || !canSave || isCurrentlyProcessing}
+            disabled={isSubmitting || isCurrentlyProcessing}
           >
             {#if isSubmitting}
               <Loader2Icon class="size-4 animate-spin" />
@@ -408,7 +412,7 @@
             {/if}
             <DropdownMenu.Item
               onclick={validateAndSave}
-              disabled={isSubmitting || !canSave || isCurrentlyProcessing}
+              disabled={isSubmitting || isCurrentlyProcessing}
             >
               {#if isSubmitting}
                 <Loader2Icon class="size-4 animate-spin" />
