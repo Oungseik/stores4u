@@ -91,8 +91,6 @@
     "@repo/ui": "workspace:*",
     "@tanstack/svelte-form": "^1.29.3",
     "@tanstack/svelte-query": "^6.1.28",
-    "@tursodatabase/api": "^2.0.0",
-    "@tursodatabase/sync": "^0.5.3",
     "@types/d3-shape": "^3.1.8",
     "ai": "^6.0.177",
     "better-auth": "^1.6.9",

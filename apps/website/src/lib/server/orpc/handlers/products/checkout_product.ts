@@ -92,8 +92,8 @@ export const checkoutHandler = os
       ),
     );
 
-    const result = await shopDb.transaction(async (tx) => {
-      const orderRecord = await tx
+    const result = shopDb.transaction((tx) => {
+      const orderRecord = tx
         .insert(order)
         .values({
           customerName: input.customerName,
@@ -106,7 +106,8 @@ export const checkoutHandler = os
           createdAt: now,
           updatedAt: now,
         })
-        .returning({ id: order.id });
+        .returning({ id: order.id })
+        .all();
       const createdOrder = orderRecord[0];
 
       if (!createdOrder) {
@@ -128,7 +129,7 @@ export const checkoutHandler = os
         };
       });
 
-      await tx.insert(orderItem).values(orderItems);
+      tx.insert(orderItem).values(orderItems).run();
 
       const productCases = sql.join(
         [...requestedQtyByProduct.entries()].map(
@@ -137,7 +138,7 @@ export const checkoutHandler = os
         sql.raw(" "),
       );
 
-      const updateResult = await tx
+      const updateResult = tx
         .update(product)
         .set({
           stock: sql`case ${product.id} ${productCases} else ${product.stock} end`,
@@ -156,7 +157,8 @@ export const checkoutHandler = os
               )} else 0 END`,
             ),
           ),
-        );
+        )
+        .run() as unknown as { changes: number };
 
       if (updateResult.changes !== productIds.length) {
         const insufficient = [...requestedQtyByProduct.entries()]
@@ -171,19 +173,21 @@ export const checkoutHandler = os
         });
       }
 
-      await tx.insert(inventoryMovement).values(
-        input.items.map((item) => ({
-          productId: item.productId,
-          movementType: "SALE" as const,
-          qty: -item.qty,
-          unitCostCents: latestCostByProduct.get(item.productId) ?? 0,
-          unitPriceCents: getProduct(item.productId).priceCents,
-          referenceType: "ORDER" as const,
-          referenceId: createdOrder.id,
-          occurredAt: now,
-          createdAt: now,
-        })),
-      );
+      tx.insert(inventoryMovement)
+        .values(
+          input.items.map((item) => ({
+            productId: item.productId,
+            movementType: "SALE" as const,
+            qty: -item.qty,
+            unitCostCents: latestCostByProduct.get(item.productId) ?? 0,
+            unitPriceCents: getProduct(item.productId).priceCents,
+            referenceType: "ORDER" as const,
+            referenceId: createdOrder.id,
+            occurredAt: now,
+            createdAt: now,
+          })),
+        )
+        .run();
 
       return {
         orderId: createdOrder.id,

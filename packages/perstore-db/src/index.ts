@@ -1,7 +1,7 @@
 import { createClient } from "@libsql/client";
-import { connect } from "@tursodatabase/database";
+import { Database } from "bun:sqlite";
 import { drizzle as drizzleLibsql } from "drizzle-orm/libsql";
-import { drizzle } from "drizzle-orm/tursodatabase/database";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 import {
   category,
   image,
@@ -43,8 +43,8 @@ const schema = {
   taxSettings,
 };
 
-export const connectLocal = async (path: string) => {
-  const client = await connect(path);
+export const connectLocal = (path: string) => {
+  const client = new Database(path);
   return drizzle({ client, schema, relations });
 };
 

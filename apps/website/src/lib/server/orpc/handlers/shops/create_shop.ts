@@ -42,7 +42,7 @@ export const createShopHandler = os
       userId: context.session.user.id,
       currency: input.currency,
     };
-    const result = await db.insert(shop).values(newShopData);
+    const result = (await db.insert(shop).values(newShopData)) as unknown as { changes: number };
 
     if (!result.changes) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {

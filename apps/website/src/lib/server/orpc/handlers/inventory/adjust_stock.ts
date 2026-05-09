@@ -43,26 +43,28 @@ export const adjustStockHandler = os
       });
     }
 
-    await shopDb.transaction(async (tx) => {
-      await tx.insert(inventoryMovement).values({
-        productId: input.productId,
-        movementType: input.movementType,
-        qty: signedQty,
-        unitCostCents: input.unitCostCents,
-        referenceType: "MANUAL",
-        referenceId: null,
-        reason: input.reason ?? null,
-        occurredAt,
-        createdAt: now,
-      });
+    shopDb.transaction((tx) => {
+      tx.insert(inventoryMovement)
+        .values({
+          productId: input.productId,
+          movementType: input.movementType,
+          qty: signedQty,
+          unitCostCents: input.unitCostCents,
+          referenceType: "MANUAL",
+          referenceId: null,
+          reason: input.reason ?? null,
+          occurredAt,
+          createdAt: now,
+        })
+        .run();
 
-      await tx
-        .update(product)
+      tx.update(product)
         .set({
           stock: sql`${product.stock} + ${signedQty}`,
           updatedAt: now,
         })
-        .where(eq(product.id, input.productId));
+        .where(eq(product.id, input.productId))
+        .run();
     });
 
     const updatedProduct = await shopDb.query.product.findFirst({

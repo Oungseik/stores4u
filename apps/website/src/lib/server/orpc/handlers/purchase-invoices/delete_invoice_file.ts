@@ -63,14 +63,14 @@ export const deleteInvoiceFileHandler = os
       }
     }
 
-    await shopDb.transaction(async (tx) => {
+    shopDb.transaction((tx) => {
       if (ocrResults.length > 0) {
-        await tx
-          .delete(purchaseInvoiceOcrResult)
-          .where(eq(purchaseInvoiceOcrResult.invoiceFileId, input.fileId));
+        tx.delete(purchaseInvoiceOcrResult)
+          .where(eq(purchaseInvoiceOcrResult.invoiceFileId, input.fileId))
+          .run();
       }
 
-      await tx.delete(purchaseInvoiceFile).where(eq(purchaseInvoiceFile.id, input.fileId));
+      tx.delete(purchaseInvoiceFile).where(eq(purchaseInvoiceFile.id, input.fileId)).run();
     });
 
     const objectKey = extractObjectKey(file.objectPath);

@@ -5,7 +5,7 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   schema: "./src/schema/",
   out: "./migrations",
-  dialect: "turso",
+  dialect: "sqlite",
   dbCredentials: {
     url: `file:${process.env.SHOPS_DB_DIR}/parent.db`,
   },

@@ -46,7 +46,7 @@ export const uploadInvoiceFileHandler = os
     const objectPath = getObjectUrl(objectKey);
     const now = new Date();
 
-    const result = await shopDb.insert(purchaseInvoiceFile).values({
+    const result = (await shopDb.insert(purchaseInvoiceFile).values({
       objectPath,
       filename: file.name,
       fileType: file.type,
@@ -54,7 +54,7 @@ export const uploadInvoiceFileHandler = os
       status: "UPLOADED",
       createdAt: now,
       updatedAt: now,
-    });
+    })) as unknown as { changes: number };
 
     if (!result.changes) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {

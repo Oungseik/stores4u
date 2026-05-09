@@ -1,12 +1,10 @@
-import { connect } from "@tursodatabase/sync";
-import { drizzle } from "drizzle-orm/tursodatabase/database";
+import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 import { AUTH_DB_PATH } from "$env/static/private";
 import * as schema from "./schema";
 
 export * from "./schema";
 
-export const client = await connect({
-  path: AUTH_DB_PATH,
-});
+export const client = new Database(AUTH_DB_PATH);
 
 export const db = drizzle({ client, schema, relations: schema.relations });

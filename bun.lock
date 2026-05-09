@@ -114,8 +114,6 @@
         "@repo/ui": "workspace:*",
         "@tanstack/svelte-form": "^1.29.3",
         "@tanstack/svelte-query": "^6.1.28",
-        "@tursodatabase/api": "^2.0.0",
-        "@tursodatabase/sync": "^0.5.3",
         "@types/d3-shape": "^3.1.8",
         "ai": "^6.0.177",
         "better-auth": "^1.6.9",
@@ -199,8 +197,6 @@
       "name": "@repo/perstore-db",
       "dependencies": {
         "@libsql/client": "^0.17.3",
-        "@tursodatabase/api": "^2.0.0",
-        "@tursodatabase/database": "^0.5.3",
         "dotenv": "^17.4.2",
         "drizzle-orm": "1.0.0-rc.2",
         "zod": "^4.4.3",

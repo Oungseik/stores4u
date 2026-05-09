@@ -97,19 +97,21 @@ export const processInvoiceFileHandler = os
 
     if (!verificationResult.isInvoice) {
       const rejectionReason = verificationResult.rejectionReason ?? "Document is not an invoice";
-      await shopDb.transaction(async (tx) => {
-        await tx.insert(purchaseInvoiceOcrResult).values({
-          photoUrl,
-          invoiceFileId: file.id,
-          rawJson: verificationResult,
-          rejectionReason,
-          createdAt: now,
-        });
+      shopDb.transaction((tx) => {
+        tx.insert(purchaseInvoiceOcrResult)
+          .values({
+            photoUrl,
+            invoiceFileId: file.id,
+            rawJson: verificationResult,
+            rejectionReason,
+            createdAt: now,
+          })
+          .run();
 
-        await tx
-          .update(purchaseInvoiceFile)
+        tx.update(purchaseInvoiceFile)
           .set({ status: "REJECTED", updatedAt: now })
-          .where(eq(purchaseInvoiceFile.id, file.id));
+          .where(eq(purchaseInvoiceFile.id, file.id))
+          .run();
       });
 
       return {
@@ -134,21 +136,23 @@ export const processInvoiceFileHandler = os
       });
     }
 
-    await shopDb.transaction(async (tx) => {
-      await tx.insert(purchaseInvoiceOcrResult).values({
-        photoUrl,
-        invoiceFileId: file.id,
-        rawJson: extractedData,
-        extractedText: extractedData.rawText ?? null,
-        extractedData,
-        confidenceScore: extractedData.confidence,
-        createdAt: now,
-      });
+    shopDb.transaction((tx) => {
+      tx.insert(purchaseInvoiceOcrResult)
+        .values({
+          photoUrl,
+          invoiceFileId: file.id,
+          rawJson: extractedData,
+          extractedText: extractedData.rawText ?? null,
+          extractedData,
+          confidenceScore: extractedData.confidence,
+          createdAt: now,
+        })
+        .run();
 
-      await tx
-        .update(purchaseInvoiceFile)
+      tx.update(purchaseInvoiceFile)
         .set({ status: "PROCESSED", updatedAt: now })
-        .where(eq(purchaseInvoiceFile.id, file.id));
+        .where(eq(purchaseInvoiceFile.id, file.id))
+        .run();
     });
 
     return { success: true, status: "SUCCESS" as const };
