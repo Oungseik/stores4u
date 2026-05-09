@@ -22,7 +22,6 @@ export function createColumns(
   onProcess: (id: string) => void,
   processingFileId: string | null,
   onDelete: (id: string) => void,
-  onDownload: (id: string) => void,
 ): ColumnDef<InvoiceFileItem>[] {
   return [
     {
@@ -71,7 +70,6 @@ export function createColumns(
           isProcessing: processingFileId === row.original.id,
           onProcess,
           onDelete,
-          onDownload,
         });
       },
     },

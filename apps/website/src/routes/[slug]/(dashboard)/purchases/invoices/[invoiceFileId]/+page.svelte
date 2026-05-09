@@ -1,6 +1,5 @@
 <script lang="ts">
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import UserIcon from "@lucide/svelte/icons/user";
@@ -9,8 +8,7 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Separator } from "@repo/ui/separator";
-  import { createMutation, createQuery } from "@tanstack/svelte-query";
-  import { toast } from "svelte-sonner";
+  import { createQuery } from "@tanstack/svelte-query";
 
   import InvoicePreviewCard from "$lib/components/cards/InvoicePreviewCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -46,21 +44,6 @@
       null
   );
 
-  const downloadMutation = createMutation(() =>
-    orpc.purchaseInvoices.downloadFile.mutationOptions({
-      onSuccess: (data) => {
-        window.open(data.downloadUrl, "_blank");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to generate download link");
-      },
-    })
-  );
-
-  function handleDownload() {
-    downloadMutation.mutate({ slug: params.slug, fileId: params.invoiceFileId });
-  }
-
   const breadcrumbLabel = $derived(isRejected ? "Rejected Invoice" : "Invoice Details");
 
   const supplier = $derived(invoiceQuery.data?.supplier);
@@ -83,12 +66,6 @@
       { label: breadcrumbLabel },
     ]}
   >
-    {#snippet actions()}
-      <Button variant="outline" onclick={handleDownload}>
-        <DownloadIcon class="size-4" />
-        Download Invoice
-      </Button>
-    {/snippet}
   </AdminDashboardHeader>
 
   {#if isLoading}
@@ -126,7 +103,6 @@
       <InvoicePreviewCard
         imageUrl={invoiceQuery.data?.file?.imageUrl}
         fileType={invoiceQuery.data?.file?.fileType}
-        onDownload={handleDownload}
       />
 
       <div class="flex flex-col gap-6 lg:col-start-1 lg:col-end-2 lg:row-start-1">

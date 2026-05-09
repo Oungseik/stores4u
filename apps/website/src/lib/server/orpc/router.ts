@@ -26,7 +26,6 @@ import { statsProductHandler } from "./handlers/products/stats_product";
 import { statsProductsHandler } from "./handlers/products/stats_products";
 import { updateProductHandler } from "./handlers/products/update_product";
 import { deleteInvoiceFileHandler } from "./handlers/purchase-invoices/delete_invoice_file";
-import { downloadInvoiceFileHandler } from "./handlers/purchase-invoices/download_invoice_file";
 import { getInvoiceHandler } from "./handlers/purchase-invoices/get_invoice";
 import { getInvoiceFileHandler } from "./handlers/purchase-invoices/get_invoice_file";
 import { getInvoiceFilesStatsHandler } from "./handlers/purchase-invoices/get_invoice_files_stats";
@@ -81,7 +80,6 @@ export const router = os.router({
   },
   purchaseInvoices: {
     deleteFile: deleteInvoiceFileHandler,
-    downloadFile: downloadInvoiceFileHandler,
     list: listInvoicesHandler,
     listFiles: listInvoiceFilesHandler,
     getFile: getInvoiceFileHandler,

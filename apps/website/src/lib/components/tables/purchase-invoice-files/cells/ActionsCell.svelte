@@ -1,5 +1,4 @@
 <script lang="ts">
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PlayIcon from "@lucide/svelte/icons/play";
@@ -16,12 +15,10 @@
     isProcessing: boolean;
     onProcess: (id: string) => void;
     onDelete: (id: string) => void;
-    onDownload: (id: string) => void;
   };
 
-  const { id, slug, status, isProcessing, onProcess, onDelete, onDownload }: Props = $props();
+  const { id, slug, status, isProcessing, onProcess, onDelete }: Props = $props();
 
-  const canDownload = $derived(status !== "PROCESSING");
   const canDelete = $derived(status === "UPLOADED" || status === "FAILED" || status === "REJECTED");
 
   function handleDelete() {
@@ -95,12 +92,6 @@
               View Details
             </a>
           {/snippet}
-        </DropdownMenu.Item>
-      {/if}
-      {#if canDownload}
-        <DropdownMenu.Item onclick={() => onDownload(id)}>
-          <DownloadIcon class="size-4" />
-          Download
         </DropdownMenu.Item>
       {/if}
       {#if canDelete}

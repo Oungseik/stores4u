@@ -1,8 +1,6 @@
 <script lang="ts">
   import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import XIcon from "@lucide/svelte/icons/x";
-  import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as Collapsible from "@repo/ui/collapsible";
   import { ScrollArea } from "@repo/ui/scroll-area";
@@ -11,10 +9,9 @@
     imageUrl?: string | null;
     fileType?: string | null;
     class?: string;
-    onDownload?: () => void;
   }
 
-  let { imageUrl, fileType, class: className, onDownload }: Props = $props();
+  let { imageUrl, fileType, class: className }: Props = $props();
 
   let open = $state(false);
 
@@ -35,12 +32,6 @@
       <Card.Title>Invoice Preview</Card.Title>
       <Card.Description>Original document uploaded</Card.Description>
     </div>
-    {#if onDownload}
-      <Button variant="outline" size="sm" onclick={onDownload}>
-        <DownloadIcon class="size-4" />
-        Download
-      </Button>
-    {/if}
   </Card.Header>
   <Collapsible.Root bind:open>
     <Collapsible.Trigger

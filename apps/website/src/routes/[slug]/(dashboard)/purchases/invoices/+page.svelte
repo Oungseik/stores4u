@@ -1,5 +1,4 @@
 <script lang="ts">
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import ImageIcon from "@lucide/svelte/icons/image";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
@@ -145,17 +144,6 @@
     })
   );
 
-  const downloadMutation = createMutation(() =>
-    orpc.purchaseInvoices.downloadFile.mutationOptions({
-      onSuccess: (data) => {
-        window.open(data.downloadUrl, "_blank");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to generate download link");
-      },
-    })
-  );
-
   function handleProcessFile(fileId: string) {
     processingFileId = fileId;
     processMutation.mutateAsync({ slug: params.slug, fileId });
@@ -211,17 +199,12 @@
     });
   }
 
-  function handleDownloadFile(fileId: string) {
-    downloadMutation.mutate({ slug: params.slug, fileId });
-  }
-
   const columns = $derived(
     createColumns(
       params.slug,
       handleProcessFile,
       processingFileId,
-      handleDeleteFile,
-      handleDownloadFile
+      handleDeleteFile
     )
   );
 
@@ -420,10 +403,6 @@
                             Retry
                           </DropdownMenu.Item>
                         {/if}
-                        <DropdownMenu.Item onclick={() => handleDownloadFile(file.id)}>
-                          <DownloadIcon class="size-4" />
-                          Download
-                        </DropdownMenu.Item>
                         {#if file.status === "UPLOADED" || file.status === "FAILED" || file.status === "REJECTED"}
                           <DropdownMenu.Separator />
                           <DropdownMenu.Item

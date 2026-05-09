@@ -456,7 +456,6 @@
       <InvoicePreviewCard
         imageUrl={invoiceFileQuery.data.imageUrl}
         fileType={invoiceFileQuery.data.fileType}
-        onDownload={() => window.open(invoiceFileQuery.data.imageUrl ?? undefined, "_blank")}
       />
 
       <div class="flex flex-col gap-6 xl:col-start-1 xl:col-end-2 xl:row-start-1">

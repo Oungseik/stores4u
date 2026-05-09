@@ -1,7 +1,6 @@
 <script lang="ts">
   import { CalendarDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
@@ -16,8 +15,6 @@
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
-  import { toast } from "svelte-sonner";
-
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
@@ -125,29 +122,6 @@
 
   function formatOrderId(id: string) {
     return id.slice(-8).toUpperCase();
-  }
-
-  let isDownloading = $state(false);
-
-  async function downloadInvoice(orderId: string) {
-    isDownloading = true;
-    try {
-      const response = await fetch(`/api/${params.slug}/orders/${orderId}/invoice`);
-      if (!response.ok) {
-        throw new Error("Failed to download invoice");
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice-${orderId.slice(-8).toUpperCase()}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      toast.error("Failed to download invoice");
-    } finally {
-      isDownloading = false;
-    }
   }
 
   function openOrderDetails(order: ApiOrder) {
@@ -434,20 +408,6 @@
       </div>
 
       <Dialog.Footer class="mx-0 flex-shrink-0 gap-2">
-        <Button
-          variant="outline"
-          class="gap-2"
-          disabled={isDownloading}
-          onclick={() => downloadInvoice(order.id)}
-        >
-          {#if isDownloading}
-            <Loader2Icon class="size-4 animate-spin" />
-            Generating...
-          {:else}
-            <DownloadIcon class="size-4" />
-            Download Invoice
-          {/if}
-        </Button>
         <Button variant="outline" class="mr-2" onclick={() => (isDetailsOpen = false)}>Close</Button
         >
       </Dialog.Footer>
