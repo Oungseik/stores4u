@@ -23,7 +23,6 @@ export function createColumns(
   slug: string,
   onDelete?: (id: string) => void,
   onAdjustStock?: (id: string, name: string, stock: number) => void,
-  onEdit?: (id: string) => void,
 ): ColumnDef<ProductItem>[] {
   return [
     {
@@ -79,7 +78,6 @@ export function createColumns(
           currentStock: row.original.stock,
           onDelete,
           onAdjustStock,
-          onEdit,
         });
       },
     },

@@ -29,7 +29,7 @@
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
-  import ProductDialog from "$lib/components/ProductDialog.svelte";
+
   import StockAdjustmentDialog from "$lib/components/StockAdjustmentDialog.svelte";
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -108,13 +108,7 @@
   );
 
   const columns = $derived(
-    createColumns(
-      shop.currency,
-      params.slug,
-      handleDeleteProduct,
-      handleAdjustProduct,
-      handleEditProduct
-    )
+    createColumns(shop.currency, params.slug, handleDeleteProduct, handleAdjustProduct)
   );
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
@@ -123,14 +117,8 @@
   }
 
   let adjustProduct = $state<{ id: string; name: string; stock: number } | null>(null);
-  let productDialog = $state<{ productId?: string } | null>(null);
-
   function handleAdjustProduct(id: string, name: string, stock: number) {
     adjustProduct = { id, name, stock };
-  }
-
-  function handleEditProduct(id: string) {
-    productDialog = { productId: id };
   }
 </script>
 
@@ -139,9 +127,9 @@
     breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}` }, { label: "Products" }]}
   >
     {#snippet actions()}
-      <Button onclick={() => (productDialog = {})}>
+      <a href={`/${params.slug}/products/add`} class={buttonVariants()}>
         <PlusIcon class="size-4" /> Add Product
-      </Button>
+      </a>
     {/snippet}
   </AdminDashboardHeader>
 
@@ -359,9 +347,14 @@
                       <MoreVerticalIcon class="size-3.5" />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content align="end">
-                      <DropdownMenu.Item onclick={() => handleEditProduct(product.id)}>
-                        <PencilIcon class="size-4" />
-                        Edit
+                      <DropdownMenu.Item>
+                        <a
+                          href={`/${params.slug}/products/${product.id}/edit`}
+                          class="flex w-full items-center gap-2"
+                        >
+                          <PencilIcon class="size-4" />
+                          Edit
+                        </a>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
                         onclick={() => handleAdjustProduct(product.id, product.name, product.stock)}
@@ -453,15 +446,6 @@
       productId={adjustProduct.id}
       productName={adjustProduct.name}
       currentStock={adjustProduct.stock}
-    />
-  {/if}
-
-  {#if productDialog}
-    <ProductDialog
-      open={true}
-      onClose={() => (productDialog = null)}
-      slug={params.slug}
-      productId={productDialog.productId}
     />
   {/if}
 </div>

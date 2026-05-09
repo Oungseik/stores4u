@@ -35,6 +35,7 @@ export const load: LayoutServerLoad = async ({ params }) => {
       image: result.image,
       images: result.productImages.map((img) => img.objectPath),
       barcode: result.barcode,
+      lowStockThreshold: result.lowStockThreshold,
       categoryIds: result.productCategories
         .map((pc) => pc.category?.id)
         .filter((id): id is string => id !== undefined),

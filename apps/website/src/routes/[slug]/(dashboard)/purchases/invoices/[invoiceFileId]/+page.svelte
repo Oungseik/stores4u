@@ -3,9 +3,10 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import UserIcon from "@lucide/svelte/icons/user";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import XIcon from "@lucide/svelte/icons/x";
   import * as Alert from "@repo/ui/alert";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Separator } from "@repo/ui/separator";
   import { createQuery } from "@tanstack/svelte-query";
@@ -65,7 +66,19 @@
       { label: "Invoice Files", href: `/${params.slug}/purchases/invoices` },
       { label: breadcrumbLabel },
     ]}
-  ></AdminDashboardHeader>
+  >
+    {#snippet actions()}
+      {#if !isRejected}
+        <a
+          href={`/${params.slug}/purchases/invoices/${params.invoiceFileId}/edit`}
+          class={buttonVariants({ variant: "outline" })}
+        >
+          <PencilIcon class="size-4" />
+          Edit
+        </a>
+      {/if}
+    {/snippet}
+  </AdminDashboardHeader>
 
   {#if isLoading}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">

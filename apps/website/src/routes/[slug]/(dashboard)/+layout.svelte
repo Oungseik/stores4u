@@ -16,7 +16,7 @@
   <Sidebar.Provider
     style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
   >
-    <AdminSidebar variant="inset" shop={data} {shops} {user} currentPath={page.url.pathname} />
+    <AdminSidebar variant="sidebar" shop={data} {shops} {user} currentPath={page.url.pathname} />
     <Sidebar.Inset class="overflow-hidden">
       <!-- <header -->
       <!--   class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear" -->

@@ -379,10 +379,7 @@
               Reject
             {/if}
           </Button>
-          <Button
-            onclick={validateAndSave}
-            disabled={isSubmitting || isCurrentlyProcessing}
-          >
+          <Button onclick={validateAndSave} disabled={isSubmitting || isCurrentlyProcessing}>
             {#if isSubmitting}
               <Loader2Icon class="size-4 animate-spin" />
               Saving...

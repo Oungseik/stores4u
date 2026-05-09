@@ -14,10 +14,9 @@
     currentStock: number;
     onDelete?: (id: string) => void;
     onAdjustStock?: (id: string, name: string, stock: number) => void;
-    onEdit?: (id: string) => void;
   };
 
-  const { id, slug, productName, currentStock, onDelete, onAdjustStock, onEdit }: Props = $props();
+  const { id, slug, productName, currentStock, onDelete, onAdjustStock }: Props = $props();
 
   function handleDelete() {
     confirmDelete({
@@ -38,9 +37,11 @@
     <MoreVerticalIcon class="size-4" />
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
-    <DropdownMenu.Item onclick={() => onEdit?.(id)} disabled={!onEdit}>
-      <PencilIcon class="size-4" />
-      Edit
+    <DropdownMenu.Item>
+      <a href={`/${slug}/products/${id}/edit`} class="flex items-center gap-2">
+        <PencilIcon class="size-4" />
+        Edit
+      </a>
     </DropdownMenu.Item>
     <DropdownMenu.Item
       onclick={() => onAdjustStock?.(id, productName, currentStock)}

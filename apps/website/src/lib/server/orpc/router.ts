@@ -34,6 +34,7 @@ import { listInvoicesHandler } from "./handlers/purchase-invoices/list_invoices"
 import { processInvoiceFileHandler } from "./handlers/purchase-invoices/process_purchase_invoice_file";
 import { rejectInvoiceFileHandler } from "./handlers/purchase-invoices/reject_invoice_file";
 import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
+import { updateInvoiceHandler } from "./handlers/purchase-invoices/update_invoice";
 import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
@@ -42,10 +43,6 @@ import { disconnectPlatformHandler } from "./handlers/social/disconnect_platform
 import { getFacebookPagesHandler } from "./handlers/social/get_facebook_pages";
 import { listConnectionsHandler } from "./handlers/social/list_connections";
 import { updatePermissionsHandler } from "./handlers/social/update_permissions";
-import { getThreadMessagesHandler } from "./handlers/threads/get_thread_messages";
-import { listThreadsHandler } from "./handlers/threads/list_threads";
-import { deleteThreadHandler } from "./handlers/threads/delete_thread";
-import { updateThreadHandler } from "./handlers/threads/update_thread";
 import { createSupplierHandler } from "./handlers/suppliers/create_supplier";
 import { deleteSupplierHandler } from "./handlers/suppliers/delete_supplier";
 import { getSupplierHandler } from "./handlers/suppliers/get_supplier";
@@ -53,6 +50,10 @@ import { listSuppliersHandler } from "./handlers/suppliers/list_suppliers";
 import { updateSupplierHandler } from "./handlers/suppliers/update_supplier";
 import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
+import { deleteThreadHandler } from "./handlers/threads/delete_thread";
+import { getThreadMessagesHandler } from "./handlers/threads/get_thread_messages";
+import { listThreadsHandler } from "./handlers/threads/list_threads";
+import { updateThreadHandler } from "./handlers/threads/update_thread";
 import { listAccountsHandler } from "./handlers/user/list_accounts";
 import { uploadAvatarHandler } from "./handlers/user/upload-avatar";
 
@@ -89,6 +90,7 @@ export const router = os.router({
     processFile: processInvoiceFileHandler,
     rejectFile: rejectInvoiceFileHandler,
     submitReview: submitInvoiceReviewHandler,
+    updateInvoice: updateInvoiceHandler,
   },
   products: {
     checkout: checkoutHandler,
