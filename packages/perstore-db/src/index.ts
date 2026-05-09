@@ -1,7 +1,7 @@
 import { createClient } from "@libsql/client";
 import { connect } from "@tursodatabase/database";
-import { drizzle } from "drizzle-orm/tursodatabase/database";
 import { drizzle as drizzleLibsql } from "drizzle-orm/libsql";
+import { drizzle } from "drizzle-orm/tursodatabase/database";
 import {
   category,
   image,
