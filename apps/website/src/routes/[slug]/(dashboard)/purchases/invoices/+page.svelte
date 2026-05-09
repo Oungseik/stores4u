@@ -200,12 +200,7 @@
   }
 
   const columns = $derived(
-    createColumns(
-      params.slug,
-      handleProcessFile,
-      processingFileId,
-      handleDeleteFile
-    )
+    createColumns(params.slug, handleProcessFile, processingFileId, handleDeleteFile)
   );
 
   function getFileTypeLabel(fileType: string): string {

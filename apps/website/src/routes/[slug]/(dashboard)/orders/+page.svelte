@@ -7,7 +7,6 @@
   import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
-  import * as Dialog from "@repo/ui/dialog";
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ScrollArea } from "@repo/ui/scroll-area";
@@ -24,19 +23,6 @@
   import type { PageProps } from "./$types";
 
   const { params, data: shop }: PageProps = $props();
-
-  type ApiOrder = {
-    id: string;
-    customerName: string | null;
-    customerPhone: string | null;
-    subtotalCents: number;
-    discountCents: number;
-    totalCents: number;
-    itemsCount: number;
-    notes: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  };
 
   const searchParams = useSearchParams(ordersFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -59,16 +45,6 @@
   );
 
   const allOrders = $derived(orders.data?.pages.flatMap((page) => page.items) ?? []);
-
-  let selectedOrderId = $state<string | null>(null);
-  let isDetailsOpen = $state(false);
-
-  const orderDetails = createQuery(() =>
-    orpc.orders.get.queryOptions({
-      input: { slug: params.slug, orderId: selectedOrderId! },
-      enabled: !!selectedOrderId,
-    })
-  );
 
   const orderStats = createQuery(() =>
     orpc.orders.stats.queryOptions({
@@ -122,11 +98,6 @@
 
   function formatOrderId(id: string) {
     return id.slice(-8).toUpperCase();
-  }
-
-  function openOrderDetails(order: ApiOrder) {
-    selectedOrderId = order.id;
-    isDetailsOpen = true;
   }
 </script>
 
@@ -241,9 +212,9 @@
           {#each allOrders as order (order.id)}
             <Card.Root class="overflow-hidden p-0">
               <Card.Content class="p-0">
-                <button
+                <a
+                  href={`/${params.slug}/orders/${order.id}`}
                   class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
-                  onclick={() => openOrderDetails(order)}
                 >
                   <div
                     class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
@@ -270,7 +241,7 @@
                     </p>
                     <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
                   </div>
-                </button>
+                </a>
               </Card.Content>
             </Card.Root>
           {/each}
@@ -296,121 +267,3 @@
     </div>
   </section>
 </div>
-
-<Dialog.Root bind:open={isDetailsOpen}>
-  <Dialog.Content class="flex max-h-[90vh] flex-col px-0 sm:max-w-xl">
-    {#if orderDetails.isLoading}
-      <div class="flex items-center justify-center py-16">
-        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-      </div>
-    {:else if orderDetails.data}
-      {@const order = orderDetails.data}
-      <Dialog.Header class="flex-shrink-0 px-3 sm:px-4">
-        <div class="flex items-center gap-3">
-          <Dialog.Title class="text-xl">Order #{formatOrderId(order.id)}</Dialog.Title>
-        </div>
-        <Dialog.Description>
-          Placed on {formatDate(order.createdAt, true)}
-        </Dialog.Description>
-      </Dialog.Header>
-
-      <div class="max-h-[66vh] overflow-hidden">
-        <ScrollArea class="h-full px-3 pr-2.5 sm:px-4">
-          <div class="grid gap-6 py-4">
-            <div>
-              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-                Customer
-              </h4>
-              <div class="flex items-center gap-3 rounded-md border p-3 text-sm">
-                <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-                  <span class="text-primary text-sm font-semibold">
-                    {order.customerName?.charAt(0).toUpperCase() ?? "I"}
-                  </span>
-                </div>
-                <div>
-                  <p class="font-medium">{order.customerName ?? "In-store Purchase"}</p>
-                  <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-                Order Items
-              </h4>
-              <div class="rounded-md border text-sm">
-                {#each order.items as item, i}
-                  <div
-                    class="flex items-center justify-between p-2.5 {i !== order.items.length - 1
-                      ? 'border-b'
-                      : ''}"
-                  >
-                    <div class="flex items-center gap-2.5">
-                      <div class="bg-muted flex size-8 items-center justify-center rounded">
-                        <PackageIcon class="text-muted-foreground size-4" />
-                      </div>
-                      <div>
-                        <p>{item.product?.name}</p>
-                        <p class="text-muted-foreground text-xs">{item.product?.sku ?? "—"}</p>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <p class="text-muted-foreground text-xs">x {item.qty}</p>
-                      {formatPrice(item.lineTotalCents, shop.currency)}
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            </div>
-
-            <div>
-              <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-                Order Summary
-              </h4>
-              <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Subtotal</span>
-                  {formatPrice(order.subtotalCents, shop.currency)}
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Discount</span>
-                  {formatPrice(order.discountCents, shop.currency)}
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Shipping (Local pickup)</span>
-                  {formatPrice(0, shop.currency)}
-                </div>
-                <div class="flex justify-between border-t pt-2 font-semibold">
-                  <span>Total</span>
-                  {formatPrice(order.totalCents, shop.currency)}
-                </div>
-                <div class="flex justify-between text-xs">
-                  <span class="text-muted-foreground">Payment Status</span>
-                  <span class="{getPaymentStatusStyles('paid')} capitalize">paid</span>
-                </div>
-              </div>
-            </div>
-
-            {#if order.notes}
-              <div>
-                <h4
-                  class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase"
-                >
-                  Customer Notes
-                </h4>
-                <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-                  {order.notes}
-                </div>
-              </div>
-            {/if}
-          </div>
-        </ScrollArea>
-      </div>
-
-      <Dialog.Footer class="mx-0 flex-shrink-0 gap-2">
-        <Button variant="outline" class="mr-2" onclick={() => (isDetailsOpen = false)}>Close</Button
-        >
-      </Dialog.Footer>
-    {/if}
-  </Dialog.Content>
-</Dialog.Root>

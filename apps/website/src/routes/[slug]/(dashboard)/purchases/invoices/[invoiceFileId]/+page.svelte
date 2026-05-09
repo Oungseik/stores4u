@@ -65,8 +65,7 @@
       { label: "Invoice Files", href: `/${params.slug}/purchases/invoices` },
       { label: breadcrumbLabel },
     ]}
-  >
-  </AdminDashboardHeader>
+  ></AdminDashboardHeader>
 
   {#if isLoading}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
