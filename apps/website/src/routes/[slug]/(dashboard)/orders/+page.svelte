@@ -5,7 +5,8 @@
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
-  import { Button } from "@repo/ui/button";
+  import PlusIcon from "@lucide/svelte/icons/plus";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";
   import * as FilterBar from "@repo/ui/filter-bar";
@@ -104,7 +105,14 @@
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[{ label: "Dashboard", href: `/${shop.slug}` }, { label: "Orders" }]}
-  />
+  >
+    {#snippet actions()}
+      <a href={`/${params.slug}/checkout`} class={buttonVariants()}>
+        <PlusIcon class="size-4" />
+        Create Order
+      </a>
+    {/snippet}
+  </AdminDashboardHeader>
 
   <div class="flex flex-col gap-1">
     <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
