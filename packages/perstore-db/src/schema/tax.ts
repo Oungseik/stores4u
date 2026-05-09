@@ -10,6 +10,7 @@ export const taxSettings = sqliteTable("tax_settings", {
     .notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
     .notNull(),
 });
 

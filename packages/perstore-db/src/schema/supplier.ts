@@ -18,6 +18,7 @@ export const supplier = sqliteTable("supplier", {
     .notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
     .notNull(),
 });
 

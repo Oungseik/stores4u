@@ -79,6 +79,7 @@ export const purchaseInvoiceFile = sqliteTable(
       .notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [
@@ -156,6 +157,7 @@ export const purchaseInvoice = sqliteTable(
       .notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [

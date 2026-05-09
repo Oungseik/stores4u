@@ -12,6 +12,7 @@ export const category = sqliteTable("category", {
     .notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
     .notNull(),
 });
 
@@ -30,12 +31,12 @@ export const product = sqliteTable(
     priceCents: integer("price_cents").notNull(),
     stock: integer("stock").default(0).notNull(),
     lowStockThreshold: integer("low_stock_threshold").default(10),
-
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [index("product_sku_idx").on(t.sku), index("product_name_idx").on(t.name)],

@@ -24,6 +24,7 @@ export const order = sqliteTable(
       .notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
       .notNull(),
   },
   (t) => [index("order_created_at_idx").on(t.createdAt)],
