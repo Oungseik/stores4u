@@ -21,23 +21,25 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    <Dialog.Header>
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Edit Category</Dialog.Title>
       <Dialog.Description>Update category information</Dialog.Description>
     </Dialog.Header>
 
-    {#key category.id}
-      <CategoryForm
-        {slug}
-        initialData={{
-          id: category.id,
-          name: category.name,
-          description: category.description,
-        }}
-        onSuccess={onClose}
-        onCancel={onClose}
-      />
-    {/key}
+    <div class="px-3 sm:px-4">
+      {#key category.id}
+        <CategoryForm
+          {slug}
+          initialData={{
+            id: category.id,
+            name: category.name,
+            description: category.description,
+          }}
+          onSuccess={onClose}
+          onCancel={onClose}
+        />
+      {/key}
+    </div>
   </Dialog.Content>
 </Dialog.Root>

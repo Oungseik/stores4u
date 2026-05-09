@@ -319,12 +319,13 @@
     if (!open && !updateTitleMutation.isPending) renamingChat = null;
   }}
 >
-  <Dialog.Content class="max-w-md">
-    <Dialog.Header>
+  <Dialog.Content class="px-0 sm:max-w-md">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Rename Chat</Dialog.Title>
       <Dialog.Description>Enter a new name for this chat.</Dialog.Description>
     </Dialog.Header>
     <form
+      class="px-1"
       onsubmit={(e) => {
         e.preventDefault();
         handleRename();
@@ -333,7 +334,7 @@
       <div class="py-4">
         <Input bind:value={renameTitle} placeholder="Chat title" autofocus />
       </div>
-      <Dialog.Footer>
+      <Dialog.Footer class="mx-0">
         <Button
           type="button"
           variant="outline"

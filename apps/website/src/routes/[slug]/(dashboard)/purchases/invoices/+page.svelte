@@ -465,13 +465,13 @@
 </div>
 
 <Dialog.Root bind:open={isUploadDialogOpen}>
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    <Dialog.Header>
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Upload Invoices</Dialog.Title>
       <Dialog.Description>Upload supplier invoices for OCR processing</Dialog.Description>
     </Dialog.Header>
 
-    <div class="space-x-4">
+    <div class="space-x-4 px-3 sm:px-4">
       <FileDropZone.Root
         accept=".jpg,.jpeg,.png,.pdf"
         disabled={disabledFileDropZone}

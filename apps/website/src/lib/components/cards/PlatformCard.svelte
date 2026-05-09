@@ -162,8 +162,8 @@
 
 <!-- Permission Settings Dialog -->
 <Dialog.Root bind:open={showPermissions}>
-  <Dialog.Content class="sm:max-w-xl">
-    <Dialog.Header>
+  <Dialog.Content class="px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title class="flex items-center gap-2">
         <span
           class="flex size-8 items-center justify-center rounded-lg"
@@ -178,7 +178,7 @@
       </Dialog.Description>
     </Dialog.Header>
 
-    <div class="flex flex-col gap-4 py-4">
+    <div class="flex flex-col gap-4 px-3 py-4 sm:px-4">
       <div class="bg-muted rounded-lg p-3">
         <div class="flex items-center gap-3">
           <Avatar.Root class="size-10">
@@ -262,7 +262,7 @@
       </div>
     </div>
 
-    <Dialog.Footer>
+    <Dialog.Footer class="mx-0">
       <Button variant="outline" onclick={() => (showPermissions = false)}>Close</Button>
     </Dialog.Footer>
   </Dialog.Content>

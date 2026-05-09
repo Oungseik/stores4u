@@ -216,43 +216,45 @@
     if (!open) editFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
     {#if supplier}
-      <Dialog.Header>
+      <Dialog.Header class="px-3 sm:px-4">
         <Dialog.Title>Edit Supplier</Dialog.Title>
         <Dialog.Description>Update supplier information</Dialog.Description>
       </Dialog.Header>
 
-      {#key supplier.id}
-        <SupplierForm
-          bind:this={editFormRef}
-          slug={params.slug}
-          initialData={{
-            action: "update",
-            id: supplier.id,
-            name: supplier.name,
-            contactName: supplier.contactName,
-            phone: supplier.phone,
-            phone2: supplier.phone2,
-            email: supplier.email,
-            address: supplier.address,
-            paymentTerms: supplier.paymentTerms,
-          }}
-          onSuccess={() => {
-            isEditOpen = false;
-            editFormRef?.resetForm();
-            queryClient.invalidateQueries({
-              queryKey: orpc.suppliers.get.key({
-                input: { slug: params.slug, supplierId: params.supplierId },
-              }),
-            });
-          }}
-          onCancel={() => {
-            isEditOpen = false;
-            editFormRef?.resetForm();
-          }}
-        />
-      {/key}
+      <div class="px-3 sm:px-4">
+        {#key supplier.id}
+          <SupplierForm
+            bind:this={editFormRef}
+            slug={params.slug}
+            initialData={{
+              action: "update",
+              id: supplier.id,
+              name: supplier.name,
+              contactName: supplier.contactName,
+              phone: supplier.phone,
+              phone2: supplier.phone2,
+              email: supplier.email,
+              address: supplier.address,
+              paymentTerms: supplier.paymentTerms,
+            }}
+            onSuccess={() => {
+              isEditOpen = false;
+              editFormRef?.resetForm();
+              queryClient.invalidateQueries({
+                queryKey: orpc.suppliers.get.key({
+                  input: { slug: params.slug, supplierId: params.supplierId },
+                }),
+              });
+            }}
+            onCancel={() => {
+              isEditOpen = false;
+              editFormRef?.resetForm();
+            }}
+          />
+        {/key}
+      </div>
     {/if}
   </Dialog.Content>
 </Dialog.Root>

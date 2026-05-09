@@ -1,6 +1,7 @@
 <script lang="ts">
   import { CalendarDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
+  import DownloadIcon from "@lucide/svelte/icons/download";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
@@ -15,6 +16,7 @@
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
+  import { toast } from "svelte-sonner";
 
   import StatsCard from "$lib/components/cards/StatsCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -123,6 +125,29 @@
 
   function formatOrderId(id: string) {
     return id.slice(-8).toUpperCase();
+  }
+
+  let isDownloading = $state(false);
+
+  async function downloadInvoice(orderId: string) {
+    isDownloading = true;
+    try {
+      const response = await fetch(`/api/${params.slug}/orders/${orderId}/invoice`);
+      if (!response.ok) {
+        throw new Error("Failed to download invoice");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId.slice(-8).toUpperCase()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to download invoice");
+    } finally {
+      isDownloading = false;
+    }
   }
 
   function openOrderDetails(order: ApiOrder) {
@@ -299,14 +324,14 @@
 </div>
 
 <Dialog.Root bind:open={isDetailsOpen}>
-  <Dialog.Content class="flex max-h-[90vh] max-w-xl flex-col">
+  <Dialog.Content class="flex max-h-[90vh] flex-col px-0 sm:max-w-xl">
     {#if orderDetails.isLoading}
       <div class="flex items-center justify-center py-16">
         <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
     {:else if orderDetails.data}
       {@const order = orderDetails.data}
-      <Dialog.Header class="flex-shrink-0">
+      <Dialog.Header class="flex-shrink-0 px-3 sm:px-4">
         <div class="flex items-center gap-3">
           <Dialog.Title class="text-xl">Order #{formatOrderId(order.id)}</Dialog.Title>
         </div>
@@ -316,7 +341,7 @@
       </Dialog.Header>
 
       <div class="max-h-[66vh] overflow-hidden">
-        <ScrollArea class="h-full pr-2.5">
+        <ScrollArea class="h-full px-3 pr-2.5 sm:px-4">
           <div class="grid gap-6 py-4">
             <div>
               <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
@@ -408,7 +433,21 @@
         </ScrollArea>
       </div>
 
-      <Dialog.Footer class="flex-shrink-0 gap-2">
+      <Dialog.Footer class="mx-0 flex-shrink-0 gap-2">
+        <Button
+          variant="outline"
+          class="gap-2"
+          disabled={isDownloading}
+          onclick={() => downloadInvoice(order.id)}
+        >
+          {#if isDownloading}
+            <Loader2Icon class="size-4 animate-spin" />
+            Generating...
+          {:else}
+            <DownloadIcon class="size-4" />
+            Download Invoice
+          {/if}
+        </Button>
         <Button variant="outline" class="mr-2" onclick={() => (isDetailsOpen = false)}>Close</Button
         >
       </Dialog.Footer>

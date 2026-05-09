@@ -281,24 +281,26 @@
     if (!open) addFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
-    <Dialog.Header>
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Add New Supplier</Dialog.Title>
       <Dialog.Description>Create a new supplier in your system</Dialog.Description>
     </Dialog.Header>
 
-    <SupplierForm
-      bind:this={addFormRef}
-      slug={params.slug}
-      onSuccess={() => {
-        isAddOpen = false;
-        addFormRef?.resetForm();
-      }}
-      onCancel={() => {
-        isAddOpen = false;
-        addFormRef?.resetForm();
-      }}
-    />
+    <div class="px-3 sm:px-4">
+      <SupplierForm
+        bind:this={addFormRef}
+        slug={params.slug}
+        onSuccess={() => {
+          isAddOpen = false;
+          addFormRef?.resetForm();
+        }}
+        onCancel={() => {
+          isAddOpen = false;
+          addFormRef?.resetForm();
+        }}
+      />
+    </div>
   </Dialog.Content>
 </Dialog.Root>
 
@@ -309,38 +311,40 @@
     if (!open) editFormRef?.resetForm();
   }}
 >
-  <Dialog.Content class="max-h-[90vh] max-w-xl overflow-y-auto">
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
     {#if selectedSupplier}
-      <Dialog.Header>
+      <Dialog.Header class="px-3 sm:px-4">
         <Dialog.Title>Edit Supplier</Dialog.Title>
         <Dialog.Description>Update supplier information</Dialog.Description>
       </Dialog.Header>
 
-      {#key selectedSupplier.id}
-        <SupplierForm
-          bind:this={editFormRef}
-          slug={params.slug}
-          initialData={{
-            action: "update",
-            id: selectedSupplier.id,
-            name: selectedSupplier.name,
-            contactName: selectedSupplier.contactName,
-            phone: selectedSupplier.phone,
-            phone2: selectedSupplier.phone2,
-            email: selectedSupplier.email,
-            address: selectedSupplier.address,
-            paymentTerms: selectedSupplier.paymentTerms,
-          }}
-          onSuccess={() => {
-            isEditOpen = false;
-            editFormRef?.resetForm();
-          }}
-          onCancel={() => {
-            isEditOpen = false;
-            editFormRef?.resetForm();
-          }}
-        />
-      {/key}
+      <div class="px-3 sm:px-4">
+        {#key selectedSupplier.id}
+          <SupplierForm
+            bind:this={editFormRef}
+            slug={params.slug}
+            initialData={{
+              action: "update",
+              id: selectedSupplier.id,
+              name: selectedSupplier.name,
+              contactName: selectedSupplier.contactName,
+              phone: selectedSupplier.phone,
+              phone2: selectedSupplier.phone2,
+              email: selectedSupplier.email,
+              address: selectedSupplier.address,
+              paymentTerms: selectedSupplier.paymentTerms,
+            }}
+            onSuccess={() => {
+              isEditOpen = false;
+              editFormRef?.resetForm();
+            }}
+            onCancel={() => {
+              isEditOpen = false;
+              editFormRef?.resetForm();
+            }}
+          />
+        {/key}
+      </div>
     {/if}
   </Dialog.Content>
 </Dialog.Root>

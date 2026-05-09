@@ -194,14 +194,14 @@
 
 <!-- Inline product creation dialog -->
 <Dialog.Root bind:open={createProductSheetOpen}>
-  <Dialog.Content class="max-h-[85vh] overflow-y-auto sm:max-w-xl">
-    <Dialog.Header>
+  <Dialog.Content class="max-h-[85vh] overflow-y-auto px-0 sm:max-w-xl">
+    <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Create New Product</Dialog.Title>
       <Dialog.Description>
         Add a new product to your catalog. It will be linked to this invoice item.
       </Dialog.Description>
     </Dialog.Header>
-    <div class="py-4">
+    <div class="px-3 py-4 sm:px-4">
       <QuickProductForm
         {slug}
         initialName={createFormInitialName}
