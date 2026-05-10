@@ -43,9 +43,9 @@ export function formatPrice(
 
   const formatted = new Intl.NumberFormat(undefined, {
     style: "decimal",
-    ...(compact
-      ? { notation: "compact" as const, maximumFractionDigits: 2 }
-      : { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    ...(compact && { notation: "compact" as const }),
   }).format(amount);
 
   return `${formatted} ${currency}`;
