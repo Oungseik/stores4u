@@ -1,0 +1,12 @@
+name: stores4u
+root: ~/extra-storage/stores4u/
+tmux_socket: stores4u
+
+windows:
+    - editor:
+        panes:
+          -
+    - services:
+        panes:
+          - bun run dev
+          # - fhs -c "npx @upstash/qstash-cli@latest dev --port=7000"
