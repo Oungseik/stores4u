@@ -1,6 +1,7 @@
 <script lang="ts">
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlayIcon from "@lucide/svelte/icons/play";
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -78,6 +79,17 @@
             >
               <SearchIcon class="size-4" />
               View Details
+            </a>
+          {/snippet}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item>
+          {#snippet child()}
+            <a
+              class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
+              href={`/${slug}/purchases/invoices/${id}/edit`}
+            >
+              <PencilIcon class="size-4" />
+              Edit
             </a>
           {/snippet}
         </DropdownMenu.Item>

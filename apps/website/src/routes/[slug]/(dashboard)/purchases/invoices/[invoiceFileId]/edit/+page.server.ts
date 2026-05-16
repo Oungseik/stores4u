@@ -6,6 +6,19 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   const { slug } = await parent();
   const shopDb = await getShopDb({ slug });
 
+  const invoiceFile = await shopDb.query.purchaseInvoiceFile.findFirst({
+    where: { id: params.invoiceFileId },
+    columns: { status: true },
+  });
+
+  if (!invoiceFile) {
+    throw error(404, "Invoice file not found");
+  }
+
+  if (invoiceFile.status !== "REVIEWED") {
+    throw error(400, "This invoice cannot be edited in its current status");
+  }
+
   const invoice = await shopDb.query.purchaseInvoice.findFirst({
     where: { invoiceFileId: params.invoiceFileId },
     with: {

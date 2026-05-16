@@ -5,6 +5,7 @@
   import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import PlayIcon from "@lucide/svelte/icons/play";
   import SearchIcon from "@lucide/svelte/icons/search";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -387,6 +388,22 @@
                             </a>
                           {/snippet}
                         </DropdownMenu.Item>
+                        {#if file.status === "REVIEWED"}
+                          <DropdownMenu.Item>
+                            {#snippet child()}
+                              <a
+                                href={`/${params.slug}/purchases/invoices/${file.id}/edit`}
+                                class={buttonVariants({
+                                  variant: "ghost",
+                                  class: "w-full justify-start",
+                                })}
+                              >
+                                <PencilIcon class="text-muted-foreground size-4" />
+                                <span>Edit</span>
+                              </a>
+                            {/snippet}
+                          </DropdownMenu.Item>
+                        {/if}
                         {#if file.status === "UPLOADED"}
                           <DropdownMenu.Item onclick={() => handleProcessFile(file.id)}>
                             <PlayIcon class="size-4" />

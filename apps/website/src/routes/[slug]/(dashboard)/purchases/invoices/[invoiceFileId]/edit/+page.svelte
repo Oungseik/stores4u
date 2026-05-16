@@ -7,6 +7,7 @@
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
+  import InvoicePreviewCard from "$lib/components/cards/InvoicePreviewCard.svelte";
   import SupplierCard, { type Supplier } from "$lib/components/cards/SupplierCard.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
@@ -40,6 +41,12 @@
   const productsQuery = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { slug: params.slug, pageSize: 1000 },
+    })
+  );
+
+  const invoiceFileQuery = createQuery(() =>
+    orpc.purchaseInvoices.getFile.queryOptions({
+      input: { slug: params.slug, invoiceFileId: params.invoiceFileId },
     })
   );
 
@@ -238,42 +245,54 @@
       <Button variant="outline" onclick={() => history.back()}>Go Back</Button>
     </div>
   {:else}
-    <div class="flex flex-col gap-6">
-      <SupplierCard slug={params.slug} {suppliers} bind:selectedSupplier bind:isExistingSupplier />
-
-      <ItemsCard
-        bind:items={invoiceData.items}
-        {products}
-        slug={params.slug}
-        currency={shop.currency}
-        onProductCreated={() => {
-          queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-        }}
+    <div class="grid gap-6 xl:grid-cols-2">
+      <InvoicePreviewCard
+        imageUrl={invoiceFileQuery.data?.imageUrl}
+        fileType={invoiceFileQuery.data?.fileType}
       />
 
-      <InvoiceDetailsCard
-        bind:invoiceNumber={invoiceData.invoiceNumber}
-        bind:invoiceDate={invoiceData.invoiceDate}
-        bind:vat={invoiceData.vat}
-        bind:discount={invoiceData.discount}
-        bind:freight={invoiceData.freight}
-        bind:notes={invoiceData.notes}
-        {subtotalCents}
-        currency={shop.currency}
-      />
+      <div class="flex flex-col gap-6 xl:col-start-1 xl:col-end-2 xl:row-start-1">
+        <SupplierCard
+          slug={params.slug}
+          {suppliers}
+          bind:selectedSupplier
+          bind:isExistingSupplier
+        />
 
-      <!-- Mobile save/cancel buttons -->
-      <div class="flex gap-2 lg:hidden">
-        <Button variant="outline" class="flex-1" onclick={() => history.back()}>Cancel</Button>
-        <Button class="flex-1" onclick={handleSave} disabled={isSubmitting || !canSave}>
-          {#if isSubmitting}
-            <Loader2Icon class="size-4 animate-spin" />
-            Saving...
-          {:else}
-            <CheckIcon class="size-4" />
-            Save Changes
-          {/if}
-        </Button>
+        <ItemsCard
+          bind:items={invoiceData.items}
+          {products}
+          slug={params.slug}
+          currency={shop.currency}
+          onProductCreated={() => {
+            queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+          }}
+        />
+
+        <InvoiceDetailsCard
+          bind:invoiceNumber={invoiceData.invoiceNumber}
+          bind:invoiceDate={invoiceData.invoiceDate}
+          bind:vat={invoiceData.vat}
+          bind:discount={invoiceData.discount}
+          bind:freight={invoiceData.freight}
+          bind:notes={invoiceData.notes}
+          {subtotalCents}
+          currency={shop.currency}
+        />
+
+        <!-- Mobile save/cancel buttons -->
+        <div class="flex gap-2 lg:hidden">
+          <Button variant="outline" class="flex-1" onclick={() => history.back()}>Cancel</Button>
+          <Button class="flex-1" onclick={handleSave} disabled={isSubmitting || !canSave}>
+            {#if isSubmitting}
+              <Loader2Icon class="size-4 animate-spin" />
+              Saving...
+            {:else}
+              <CheckIcon class="size-4" />
+              Save Changes
+            {/if}
+          </Button>
+        </div>
       </div>
     </div>
   {/if}
