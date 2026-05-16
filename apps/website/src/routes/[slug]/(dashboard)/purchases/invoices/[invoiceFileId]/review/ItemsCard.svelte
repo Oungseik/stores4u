@@ -123,7 +123,7 @@
     </Card.Title>
     {#if hasUnmatchedItems}
       <Card.Description class="text-amber-700 dark:text-amber-400">
-        Highlighted items are not matched to a product.
+        Highlighted items are not matched to a product from the product list.
       </Card.Description>
     {/if}
     <Card.Action>

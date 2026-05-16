@@ -53,10 +53,12 @@
 <Popover.Root {open} onOpenChange={handleOpenChange}>
   <Popover.Trigger class="min-w-0 flex-1 text-left">
     <div
-      class="flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-sm
-        {item.productId
-        ? 'border-input bg-background'
-        : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950'}"
+      class={[
+        "flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-sm xl:max-w-64 xl:shrink-0",
+        item.productId
+          ? "border-input bg-background"
+          : "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950",
+      ]}
     >
       {#if item.productId && item.matchedProductName}
         <CheckIcon class="size-3.5 shrink-0 text-green-600" />
