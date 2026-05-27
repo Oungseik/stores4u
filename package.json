@@ -23,8 +23,8 @@
     "db:seed": "turbo db:seed"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.14",
-    "turbo": "^2.9.12"
+    "@biomejs/biome": "^2.4.15",
+    "turbo": "^2.9.15"
   },
   "packageManager": "bun@1.2.8",
   "resolutions": {
