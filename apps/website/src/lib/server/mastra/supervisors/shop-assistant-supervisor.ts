@@ -35,11 +35,7 @@ Conversation Guidelines:
 - Keep responses concise and actionable
 - When you don't have specific data, acknowledge it and suggest what would be helpful
 - Use bullet points or numbered lists for structured information`,
-  memory: ({ requestContext }) => {
-    const slug = requestContext.get("slug");
-    if (!slug) throw new Error("Shop slug required in requestContext");
-    return createShopMemory(slug);
-  },
+  memory: ({ requestContext }) => createShopMemory(requestContext.get("slug")),
   requestContextSchema: z.object({
     slug: z.string(),
   }),
