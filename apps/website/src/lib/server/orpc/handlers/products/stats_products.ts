@@ -1,32 +1,24 @@
-import { and, count, eq, gte, product, sql } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { and, count, db, eq, gte, product, sql } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 export const statsProductsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ context: { shopDb } }) => {
+  .handler(async () => {
     const [productStats, outOfStockCount, lowStockCount] = await Promise.all([
-      shopDb
+      db
         .select({
           total: count(),
           inventoryValueRetailCents: sql<number>`COALESCE(SUM(${product.stock} * ${product.priceCents}), 0)`,
         })
         .from(product),
-      shopDb.select({ count: count() }).from(product).where(eq(product.stock, 0)),
-      shopDb
+      db.select({ count: count() }).from(product).where(eq(product.stock, 0)),
+      db
         .select({ count: count() })
         .from(product)
         .where(and(gte(product.stock, 1), gte(product.lowStockThreshold, product.stock))),

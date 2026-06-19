@@ -1,14 +1,8 @@
-import { eq, purchaseInvoiceItem } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, purchaseInvoiceItem } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   supplierId: z.string().optional(),
@@ -20,9 +14,8 @@ export const listInvoicesHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const invoices = await shopDb.query.purchaseInvoice.findMany({
+  .handler(async ({ input }) => {
+    const invoices = await db.query.purchaseInvoice.findMany({
       where: {
         items: { productId: input.productId },
         supplierId: input.supplierId,
@@ -34,7 +27,7 @@ export const listInvoicesHandler = os
       },
       extras: {
         itemsCount: (table) =>
-          shopDb.$count(purchaseInvoiceItem, eq(purchaseInvoiceItem.purchaseInvoiceId, table.id)),
+          db.$count(purchaseInvoiceItem, eq(purchaseInvoiceItem.purchaseInvoiceId, table.id)),
       },
       limit: input.pageSize + 1,
       orderBy: { id: "desc" },

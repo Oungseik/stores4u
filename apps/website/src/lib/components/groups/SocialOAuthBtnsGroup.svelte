@@ -12,7 +12,7 @@
     onclick={() =>
       authClient.signIn.social({
         provider: "google",
-        callbackURL: page.url.searchParams.get("return_url") || "/shops/setup",
+        callbackURL: page.url.searchParams.get("return_url") || "/",
       })}
   >
     <svg

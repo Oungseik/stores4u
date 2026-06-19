@@ -28,17 +28,19 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     return redirect(303, "/verify-account");
   }
 
-  const shops = await db.query.shop.findMany({
+  // Signed in + verified: send to store setup if no store exists, else to the app.
+  const shop = await db.query.shop.findFirst({
     where: { userId: user.id },
+    columns: { id: true },
   });
 
-  if (shops.length === 0 && pathname === "/shops/setup") {
+  if (!shop && pathname === "/setup") {
     return;
   }
 
-  if (shops.length === 0) {
-    return redirect(303, "/shops/setup");
+  if (!shop) {
+    return redirect(303, "/setup");
   }
 
-  return redirect(303, url.searchParams.get("return_url") ?? `/${shops.at(0)?.slug}`);
+  return redirect(303, url.searchParams.get("return_url") ?? "/");
 };

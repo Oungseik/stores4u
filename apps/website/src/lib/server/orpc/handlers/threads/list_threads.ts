@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { createShopMemory } from "$lib/server/mastra/_lib/memory";
+import { getStoreMemory } from "$lib/server/mastra/_lib/memory";
 import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   page: z.number().int().nonnegative().default(0),
   perPage: z.number().int().positive().default(12),
 });
@@ -13,9 +12,9 @@ export const listThreadsHandler = os
   .input(input)
   .use(protectedShopMiddleware)
   .handler(async ({ input }) => {
-    const memory = createShopMemory(input.slug);
+    const memory = getStoreMemory();
     const result = await memory.listThreads({
-      filter: { resourceId: input.slug },
+      filter: { resourceId: "store" },
       orderBy: { field: "updatedAt", direction: "DESC" },
       page: input.page,
       perPage: input.perPage,

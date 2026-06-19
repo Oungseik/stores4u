@@ -7,11 +7,10 @@
   interface Props {
     open: boolean;
     onClose: () => void;
-    slug: string;
     category: CategoryItem;
   }
 
-  let { open, onClose, slug, category }: Props = $props();
+  let { open, onClose, category }: Props = $props();
 
   function handleOpenChange(value: boolean) {
     if (!value) {
@@ -30,7 +29,7 @@
     <div class="px-3 sm:px-4">
       {#key category.id}
         <CategoryForm
-          {slug}
+         
           initialData={{
             id: category.id,
             name: category.name,

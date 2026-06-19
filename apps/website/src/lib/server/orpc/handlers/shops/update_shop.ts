@@ -1,12 +1,11 @@
-import { db, shop, shopInfo } from "$lib/server/db";
-import { eq } from "drizzle-orm";
 import { COUNTRIES, CURRENCIES } from "@repo/config";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { db, shop, shopInfo } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   name: z.string().min(1).max(100).optional(),
   title: z.string().max(200).optional(),
   description: z.string().max(1000).optional(),

@@ -1,6 +1,8 @@
 import { ORPCError } from "@orpc/server";
+import { z } from "zod";
 import {
   and,
+  db,
   gte,
   inArray,
   inventoryMovement,
@@ -8,15 +10,9 @@ import {
   orderItem,
   product,
   sql,
-} from "@repo/perstore-db";
-import { z } from "zod";
+} from "$lib/server/db";
 
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const checkoutItem = z.object({
   productId: z.string().min(1),
@@ -24,7 +20,6 @@ const checkoutItem = z.object({
 });
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   items: z.array(checkoutItem).min(1),
   customerName: z.string().max(255).optional(),
   customerPhone: z.string().max(50).optional(),
@@ -36,8 +31,7 @@ export const checkoutHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const now = new Date();
 
     const requestedQtyByProduct = input.items.reduce((qtyMap, item) => {
@@ -47,8 +41,8 @@ export const checkoutHandler = os
     const productIds = [...requestedQtyByProduct.keys()];
 
     const [products, taxConfig] = await Promise.all([
-      shopDb.query.product.findMany({ where: { id: { in: productIds } } }),
-      shopDb.query.taxSettings.findFirst(),
+      db.query.product.findMany({ where: { id: { in: productIds } } }),
+      db.query.taxSettings.findFirst(),
     ]);
 
     if (products.length !== productIds.length) {
@@ -83,7 +77,7 @@ export const checkoutHandler = os
     const latestCostByProduct = new Map(
       await Promise.all(
         productIds.map(async (pid) => {
-          const row = await shopDb.query.inventoryMovement.findFirst({
+          const row = await db.query.inventoryMovement.findFirst({
             where: { productId: pid, movementType: { in: ["ADJUSTMENT", "PURCHASE"] } },
             orderBy: { createdAt: "desc" },
           });
@@ -92,7 +86,7 @@ export const checkoutHandler = os
       ),
     );
 
-    const result = shopDb.transaction((tx) => {
+    const result = db.transaction((tx) => {
       const orderRecord = tx
         .insert(order)
         .values({

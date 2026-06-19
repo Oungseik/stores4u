@@ -1,9 +1,8 @@
-import { and, eq, inventoryMovement, orderItem, sql } from "@repo/perstore-db";
 import { z } from "zod";
-import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
+import { and, db, eq, inventoryMovement, orderItem, sql } from "$lib/server/db";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   productId: z.string().min(1),
 });
 
@@ -11,25 +10,24 @@ export const statsProductHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const [[salesStats], [purchaseStats], [lastPurchase], [avgSalePrice], movementCounts] =
       await Promise.all([
-        shopDb
+        db
           .select({
             totalUnitsSold: sql<number>`COALESCE(SUM(CASE WHEN ${inventoryMovement.movementType} = 'SALE' THEN ABS(${inventoryMovement.qty}) ELSE 0 END), 0)`,
             totalRevenueCents: sql<number>`COALESCE(SUM(CASE WHEN ${inventoryMovement.movementType} = 'SALE' THEN ABS(${inventoryMovement.qty}) * COALESCE(${inventoryMovement.unitPriceCents}, 0) ELSE 0 END), 0)`,
           })
           .from(inventoryMovement)
           .where(eq(inventoryMovement.productId, input.productId)),
-        shopDb
+        db
           .select({
             totalUnitsPurchased: sql<number>`COALESCE(SUM(CASE WHEN ${inventoryMovement.movementType} = 'PURCHASE' THEN ${inventoryMovement.qty} ELSE 0 END), 0)`,
             totalCostCents: sql<number>`COALESCE(SUM(CASE WHEN ${inventoryMovement.movementType} = 'PURCHASE' THEN ${inventoryMovement.qty} * COALESCE(${inventoryMovement.unitCostCents}, 0) ELSE 0 END), 0)`,
           })
           .from(inventoryMovement)
           .where(eq(inventoryMovement.productId, input.productId)),
-        shopDb
+        db
           .select({
             occurredAt: inventoryMovement.occurredAt,
             unitCostCents: inventoryMovement.unitCostCents,
@@ -43,13 +41,13 @@ export const statsProductHandler = os
           )
           .orderBy(sql`${inventoryMovement.occurredAt} DESC`)
           .limit(1),
-        shopDb
+        db
           .select({
             avgPriceCents: sql<number>`COALESCE(AVG(${orderItem.unitPriceCents}), 0)`,
           })
           .from(orderItem)
           .where(eq(orderItem.productId, input.productId)),
-        shopDb
+        db
           .select({
             movementType: inventoryMovement.movementType,
             count: sql<number>`COUNT(*)`,

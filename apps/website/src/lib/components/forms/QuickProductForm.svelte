@@ -13,14 +13,13 @@
   import { orpc } from "$lib/orpc_client";
 
   interface Props {
-    slug: string;
     initialName?: string;
     initialPriceCents?: number;
     onCreated?: (product: { id: string; name: string; sku: string }) => void;
     onCancel?: () => void;
   }
 
-  let { slug, initialName = "", initialPriceCents = 0, onCreated, onCancel }: Props = $props();
+  let { initialName = "", initialPriceCents = 0, onCreated, onCancel }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -50,7 +49,6 @@
     onSubmit: async ({ value }) => {
       const priceCents = Math.round((value.price || 0) * 100);
       createProduct.mutate({
-        slug,
         name: value.name,
         sku: value.sku,
         priceCents,

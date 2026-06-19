@@ -1,14 +1,8 @@
-import { and, eq, gte, inventoryMovement, order, sql } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { and, db, eq, gte, inventoryMovement, order, sql } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   days: z.number().int().min(1).max(90),
 });
 
@@ -24,8 +18,7 @@ export const dashboardRevenueTrendHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const dayCount = input.days;
 
     const startDate = new Date();
@@ -33,7 +26,7 @@ export const dashboardRevenueTrendHandler = os
     startDate.setUTCHours(0, 0, 0, 0);
 
     const [revenueRows, costRows] = await Promise.all([
-      shopDb
+      db
         .select({
           date: sql<string>`date(${order.createdAt}, 'unixepoch')`,
           orderCount: sql<number>`COUNT(*)`,
@@ -43,7 +36,7 @@ export const dashboardRevenueTrendHandler = os
         .where(gte(order.createdAt, startDate))
         .groupBy(sql`date(${order.createdAt}, 'unixepoch')`)
         .orderBy(sql`date(${order.createdAt}, 'unixepoch')`),
-      shopDb
+      db
         .select({
           date: sql<string>`date(${inventoryMovement.occurredAt}, 'unixepoch')`,
           costCents: sql<number>`COALESCE(SUM(ABS(${inventoryMovement.qty}) * ${inventoryMovement.unitCostCents}), 0)`,

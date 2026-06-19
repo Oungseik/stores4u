@@ -1,14 +1,9 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   orderId: z.string().min(1),
 });
 
@@ -17,9 +12,8 @@ export const getOrderHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const order = await shopDb.query.order.findFirst({
+  .handler(async ({ input }) => {
+    const order = await db.query.order.findFirst({
       where: { id: input.orderId },
       with: {
         items: {

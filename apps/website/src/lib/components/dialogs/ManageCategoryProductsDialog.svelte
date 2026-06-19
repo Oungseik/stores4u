@@ -21,11 +21,10 @@
   interface Props {
     open: boolean;
     onClose: () => void;
-    slug: string;
     category: CategoryItem;
   }
 
-  let { open, onClose, slug, category }: Props = $props();
+  let { open, onClose, category }: Props = $props();
 
   let productSearch = $state("");
   let selectedProductIds = $state<Set<string>>(new Set());
@@ -36,7 +35,6 @@
   const categoryProducts = createQuery(() =>
     orpc.categories.getProducts.queryOptions({
       input: {
-        slug,
         categoryId: category.id,
       },
       enabled: open,
@@ -51,7 +49,6 @@
       input: (cursor) => ({
         pageSize: 50,
         cursor,
-        slug,
         search: debouncedProductSearch.current || undefined,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -83,7 +80,6 @@
 
   function handleUpdateCategoryProducts() {
     updateCategoryProductsMutation.mutate({
-      slug,
       categoryId: category.id,
       productIds: Array.from(selectedProductIds),
     });

@@ -32,18 +32,17 @@
   }
 
   interface Props {
-    slug: string;
     initialData?: ProductInitialData;
     onSuccess?: () => void;
   }
 
-  let { slug, initialData, onSuccess }: Props = $props();
+  let { initialData, onSuccess }: Props = $props();
 
   const queryClient = useQueryClient();
 
   const categoriesQuery = createQuery(() =>
     orpc.categories.list.queryOptions({
-      input: { slug, pageSize: 1000 },
+      input: { pageSize: 1000 },
     })
   );
 
@@ -117,7 +116,6 @@
 
       if (isEditMode) {
         updateProduct.mutate({
-          slug,
           id: initialData.id,
           sku: value.sku,
           name: value.name,
@@ -132,7 +130,6 @@
         });
       } else {
         createProduct.mutate({
-          slug,
           sku: value.sku,
           name: value.name,
           priceCents,

@@ -1,26 +1,17 @@
 import { LibSQLStore } from "@mastra/libsql";
 import { Memory } from "@mastra/memory";
-import { LRUCache } from "lru-cache";
-import { SHOPS_DB_DIR } from "$env/static/private";
+import { DATABASE_PATH } from "$env/static/private";
 
-function getShopDbUrl(slug: string): string {
-  return `file:${SHOPS_DB_DIR}/${slug}.db`;
-}
+/** Single store memory — one store per server. */
+let memory: Memory | null = null;
 
-const memoryCache = new LRUCache<string, Memory>({
-  max: 500,
-  ttl: 30 * 60 * 1000,
-  ttlAutopurge: true,
-});
+export function getStoreMemory(): Memory {
+  if (memory) return memory;
 
-export function createShopMemory(slug: string): Memory {
-  const cached = memoryCache.get(slug);
-  if (cached) return cached;
-
-  const memory = new Memory({
+  memory = new Memory({
     storage: new LibSQLStore({
-      id: `shop-memory-${slug}`,
-      url: getShopDbUrl(slug),
+      id: "store-memory",
+      url: `file:${DATABASE_PATH}`,
     }),
     options: {
       lastMessages: 20,
@@ -41,6 +32,5 @@ export function createShopMemory(slug: string): Memory {
     },
   });
 
-  memoryCache.set(slug, memory);
   return memory;
 }

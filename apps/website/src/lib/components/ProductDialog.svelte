@@ -11,18 +11,17 @@
   interface Props {
     open: boolean;
     onClose: () => void;
-    slug: string;
     productId?: string;
   }
 
-  let { open, onClose, slug, productId }: Props = $props();
+  let { open, onClose, productId }: Props = $props();
 
   // svelte-ignore non_reactive_update
   let productFormRef: ProductForm | null = null;
 
   const productQuery = createQuery(() => ({
     ...orpc.products.get.queryOptions({
-      input: { slug, id: productId },
+      input: { id: productId },
       enabled: !!productId && open,
     }),
   }));
@@ -75,7 +74,7 @@
           <p class="text-red-500">Failed to load product</p>
         </div>
       {:else}
-        <ProductForm bind:this={productFormRef} {slug} {initialData} onSuccess={onClose} />
+        <ProductForm bind:this={productFormRef} {initialData} onSuccess={onClose} />
       {/if}
     </ScrollArea>
 

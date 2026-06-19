@@ -11,7 +11,7 @@
 - **ORPC**: Type-safe RPC framework.
 - **Better Auth**: Authentication library.
 - **Drizzle ORM**: Type-safe SQL ORM.
-- **PostgreSQL**: Relational database.
+- **SQLite**: Single local relational database (auth + store data).
 - **Zod**: Schema validation library.
 
 ## Development Tools

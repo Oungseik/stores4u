@@ -3,9 +3,7 @@ import { z } from "zod";
 import { db } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 interface FacebookPage {
   id: string;

@@ -1,17 +1,11 @@
 import { ORPCError } from "@orpc/server";
-import { eq, image, product, productCategory, productImage } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, image, product, productCategory, productImage } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   id: z.string().min(1),
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(255),
@@ -29,9 +23,8 @@ export const updateProductHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const existing = await shopDb
+  .handler(async ({ input }) => {
+    const existing = await db
       .select({ image: product.image })
       .from(product)
       .where(eq(product.id, input.id))
@@ -41,7 +34,7 @@ export const updateProductHandler = os
 
     const allImages = input.images ?? (input.image ? [input.image] : []);
 
-    const updated = await shopDb
+    const updated = await db
       .update(product)
       .set({
         sku: input.sku,
@@ -71,7 +64,7 @@ export const updateProductHandler = os
           );
         });
       }
-      await shopDb
+      await db
         .delete(image)
         .where(eq(image.objectPath, oldImage))
         .catch((e) => {
@@ -82,7 +75,7 @@ export const updateProductHandler = os
         });
     }
 
-    const existingImages = await shopDb
+    const existingImages = await db
       .select({ id: productImage.id, objectPath: productImage.objectPath })
       .from(productImage)
       .where(eq(productImage.productId, input.id));
@@ -106,7 +99,7 @@ export const updateProductHandler = os
             );
           });
         }
-        await shopDb
+        await db
           .delete(image)
           .where(eq(image.objectPath, img.objectPath))
           .catch((e) => {
@@ -117,10 +110,10 @@ export const updateProductHandler = os
           });
       }
 
-      await shopDb.delete(productImage).where(eq(productImage.productId, input.id));
+      await db.delete(productImage).where(eq(productImage.productId, input.id));
 
       if (allImages.length > 0) {
-        await shopDb.insert(productImage).values(
+        await db.insert(productImage).values(
           allImages.map((objectPath, index) => ({
             productId: input.id,
             objectPath,
@@ -130,10 +123,10 @@ export const updateProductHandler = os
       }
     }
 
-    await shopDb.delete(productCategory).where(eq(productCategory.productId, input.id));
+    await db.delete(productCategory).where(eq(productCategory.productId, input.id));
 
     if (input.categoryIds && input.categoryIds.length > 0) {
-      await shopDb.insert(productCategory).values(
+      await db.insert(productCategory).values(
         input.categoryIds.map((categoryId) => ({
           productId: input.id,
           categoryId,

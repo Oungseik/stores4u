@@ -1,10 +1,9 @@
-import { movementTypes } from "@repo/perstore-db";
 import { z } from "zod";
+import { db, movementTypes } from "$lib/server/db";
 
-import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   order: z.enum(["asc", "desc"]).default("desc"),
@@ -19,9 +18,8 @@ export const listMovementsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const movements = await shopDb.query.inventoryMovement.findMany({
+  .handler(async ({ input }) => {
+    const movements = await db.query.inventoryMovement.findMany({
       where: {
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
         productId: input.productId || undefined,
@@ -65,7 +63,7 @@ export const listMovementsHandler = os
     }
 
     const productIds = [...new Set(movements.map((m) => m.productId))];
-    const products = await shopDb.query.product.findMany({
+    const products = await db.query.product.findMany({
       where: { id: { in: productIds } },
       columns: {
         id: true,

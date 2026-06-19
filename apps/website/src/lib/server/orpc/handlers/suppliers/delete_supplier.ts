@@ -1,15 +1,9 @@
 import { ORPCError } from "@orpc/server";
-import { eq, productSupplier, purchaseInvoice, sql, supplier } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, productSupplier, purchaseInvoice, sql, supplier } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   id: z.string().min(1),
 });
 
@@ -17,9 +11,8 @@ export const deleteSupplierHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const linkedProducts = await shopDb
+  .handler(async ({ input }) => {
+    const linkedProducts = await db
       .select({ count: sql`count(*)`.mapWith(Number) })
       .from(productSupplier)
       .where(eq(productSupplier.supplierId, input.id))
@@ -31,7 +24,7 @@ export const deleteSupplierHandler = os
       });
     }
 
-    const invoices = await shopDb
+    const invoices = await db
       .select({ count: sql`count(*)`.mapWith(Number) })
       .from(purchaseInvoice)
       .where(eq(purchaseInvoice.supplierId, input.id))
@@ -43,5 +36,5 @@ export const deleteSupplierHandler = os
       });
     }
 
-    await shopDb.delete(supplier).where(eq(supplier.id, input.id));
+    await db.delete(supplier).where(eq(supplier.id, input.id));
   });

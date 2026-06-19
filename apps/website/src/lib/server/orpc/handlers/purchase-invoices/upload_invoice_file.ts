@@ -1,19 +1,13 @@
 import { ORPCError } from "@orpc/server";
-import { purchaseInvoiceFile } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, purchaseInvoiceFile } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
 
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   file: z.file(),
 });
 
@@ -21,8 +15,7 @@ export const uploadInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const file = input.file;
 
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
@@ -39,14 +32,14 @@ export const uploadInvoiceFileHandler = os
     const buffer = Buffer.from(arrayBuffer);
 
     const extension = file.name.split(".").pop() ?? "bin";
-    const objectKey = `${input.slug}/invoice-files/${Bun.randomUUIDv7()}.${extension}`;
+    const objectKey = `invoice-files/${Bun.randomUUIDv7()}.${extension}`;
 
     await putObject(objectKey, buffer, file.type);
 
     const objectPath = getObjectUrl(objectKey);
     const now = new Date();
 
-    const result = (await shopDb.insert(purchaseInvoiceFile).values({
+    const result = (await db.insert(purchaseInvoiceFile).values({
       objectPath,
       filename: file.name,
       fileType: file.type,

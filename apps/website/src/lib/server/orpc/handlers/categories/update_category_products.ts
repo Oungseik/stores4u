@@ -1,9 +1,8 @@
-import { eq, productCategory } from "@repo/perstore-db";
 import { z } from "zod";
-import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
+import { db, eq, productCategory } from "$lib/server/db";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   categoryId: z.string().min(1),
   productIds: z.array(z.string().min(1)),
 });
@@ -11,12 +10,11 @@ const input = z.object({
 export const updateCategoryProductsHandler = os
   .input(input)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    await shopDb.delete(productCategory).where(eq(productCategory.categoryId, input.categoryId));
+  .handler(async ({ input }) => {
+    await db.delete(productCategory).where(eq(productCategory.categoryId, input.categoryId));
 
     if (input.productIds.length > 0) {
-      await shopDb.insert(productCategory).values(
+      await db.insert(productCategory).values(
         input.productIds.map((productId) => ({
           productId,
           categoryId: input.categoryId,

@@ -43,8 +43,8 @@
 
   const facebookPagesQuery = createQuery(() =>
     orpc.social.getFacebookPages.queryOptions({
-      input: { slug: page.params.slug ?? "" },
-      enabled: isOpen && step === 2 && platform === "FACEBOOK" && !!page.params.slug,
+      input: {},
+      enabled: isOpen && step === 2 && platform === "FACEBOOK" && true,
     })
   );
 
@@ -114,10 +114,9 @@
   }
 
   async function handleConnect() {
-    if (!selectedPage || !page.params.slug || !platform) return;
+    if (!selectedPage || !platform) return;
 
     await connectMutation.mutateAsync({
-      slug: page.params.slug,
       platform: platform,
       pageId: selectedPage.id,
       pageName: selectedPage.name,

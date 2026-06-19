@@ -11,14 +11,13 @@
 
   type Props = {
     id: string;
-    slug: string;
     status: string;
     isProcessing: boolean;
     onProcess: (id: string) => void;
     onDelete: (id: string) => void;
   };
 
-  const { id, slug, status, isProcessing, onProcess, onDelete }: Props = $props();
+  const { id, status, isProcessing, onProcess, onDelete }: Props = $props();
 
   const canDelete = $derived(status === "UPLOADED" || status === "FAILED" || status === "REJECTED");
 
@@ -63,7 +62,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/purchases/invoices/${id}`}
+              href={`/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
               Review
@@ -75,7 +74,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/purchases/invoices/${id}`}
+              href={`/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
               View Details
@@ -86,7 +85,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/purchases/invoices/${id}/edit`}
+              href={`/purchases/invoices/${id}/edit`}
             >
               <PencilIcon class="size-4" />
               Edit
@@ -98,7 +97,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/${slug}/purchases/invoices/${id}/review`}
+              href={`/purchases/invoices/${id}/review`}
             >
               <SearchIcon class="size-4" />
               View Details

@@ -18,13 +18,12 @@
   }
 
   interface Props {
-    slug: string;
     initialData?: CategoryInitialData;
     onSuccess?: () => void;
     onCancel?: () => void;
   }
 
-  let { slug, initialData, onSuccess, onCancel }: Props = $props();
+  let { initialData, onSuccess, onCancel }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -68,14 +67,12 @@
     onSubmit: async ({ value }) => {
       if (isEditMode && initialData) {
         updateCategory.mutate({
-          slug,
           id: initialData.id,
           name: value.name,
           description: value.description || null,
         });
       } else {
         createCategory.mutate({
-          slug,
           name: value.name,
           description: value.description || undefined,
         });

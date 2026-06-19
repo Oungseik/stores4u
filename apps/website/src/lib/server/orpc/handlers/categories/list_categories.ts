@@ -1,9 +1,8 @@
-import { eq, productCategory } from "@repo/perstore-db";
 import { z } from "zod";
-import { os, shopDbMiddleware, shopMiddleware } from "$lib/server/orpc/base";
+import { db, eq, productCategory } from "$lib/server/db";
+import { os, shopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
 });
@@ -12,14 +11,13 @@ export const listCategoriesHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(shopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const categories = await shopDb.query.category.findMany({
+  .handler(async ({ input }) => {
+    const categories = await db.query.category.findMany({
       where: input.cursor ? { id: { gte: input.cursor } } : undefined,
       limit: input.pageSize + 1,
       extras: {
         productCount: (table) =>
-          shopDb.$count(productCategory, eq(productCategory.categoryId, table.id)),
+          db.$count(productCategory, eq(productCategory.categoryId, table.id)),
       },
       orderBy: { id: "asc" },
     });

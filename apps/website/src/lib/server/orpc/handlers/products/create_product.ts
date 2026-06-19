@@ -1,15 +1,9 @@
 import { ORPCError } from "@orpc/server";
-import { product, productCategory, productImage } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, product, productCategory, productImage } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   sku: z.string().min(1).max(100),
   name: z.string().min(1).max(255),
   image: z.string().max(500).optional(),
@@ -26,11 +20,10 @@ export const createProductHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const allImages = input.images ?? (input.image ? [input.image] : []);
 
-    const inserted = await shopDb
+    const inserted = await db
       .insert(product)
       .values({
         sku: input.sku,
@@ -50,7 +43,7 @@ export const createProductHandler = os
     }
 
     if (allImages.length > 0) {
-      await shopDb.insert(productImage).values(
+      await db.insert(productImage).values(
         allImages.map((objectPath, index) => ({
           productId: created.id,
           objectPath,
@@ -60,7 +53,7 @@ export const createProductHandler = os
     }
 
     if (input.categoryIds && input.categoryIds.length > 0) {
-      await shopDb.insert(productCategory).values(
+      await db.insert(productCategory).values(
         input.categoryIds.map((categoryId) => ({
           productId: created.id,
           categoryId,

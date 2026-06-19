@@ -1,9 +1,9 @@
 import { z } from "zod";
+import { db } from "$lib/server/db";
 
-import { os, shopDbMiddleware, shopMiddleware } from "$lib/server/orpc/base";
+import { os, shopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   order: z.enum(["asc", "desc"]).default("desc"),
@@ -20,9 +20,8 @@ export const listProductsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(shopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const products = await shopDb.query.product.findMany({
+  .handler(async ({ input }) => {
+    const products = await db.query.product.findMany({
       where: {
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
         OR: input.search

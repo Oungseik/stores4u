@@ -1,23 +1,18 @@
 import { ORPCError } from "@orpc/server";
+import { z } from "zod";
 import {
+  db,
   eq,
   inArray,
   purchaseInvoice,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
-} from "@repo/perstore-db";
-import { z } from "zod";
+} from "$lib/server/db";
 import { logger } from "$lib/server/logger";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { deleteObject, extractObjectKey } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   fileId: z.string().min(1),
 });
 
@@ -25,9 +20,8 @@ export const deleteInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const file = await shopDb.query.purchaseInvoiceFile.findFirst({
+  .handler(async ({ input }) => {
+    const file = await db.query.purchaseInvoiceFile.findFirst({
       where: { id: input.fileId },
     });
 
@@ -43,14 +37,14 @@ export const deleteInvoiceFileHandler = os
       });
     }
 
-    const ocrResults = await shopDb.query.purchaseInvoiceOcrResult.findMany({
+    const ocrResults = await db.query.purchaseInvoiceOcrResult.findMany({
       where: { invoiceFileId: input.fileId },
     });
 
     if (ocrResults.length > 0) {
       const ocrResultIds = ocrResults.map((r) => r.id);
 
-      const existingInvoice = await shopDb
+      const existingInvoice = await db
         .select()
         .from(purchaseInvoice)
         .where(inArray(purchaseInvoice.ocrResultId, ocrResultIds))
@@ -63,7 +57,7 @@ export const deleteInvoiceFileHandler = os
       }
     }
 
-    shopDb.transaction((tx) => {
+    db.transaction((tx) => {
       if (ocrResults.length > 0) {
         tx.delete(purchaseInvoiceOcrResult)
           .where(eq(purchaseInvoiceOcrResult.invoiceFileId, input.fileId))

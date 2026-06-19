@@ -23,13 +23,12 @@
   interface Props {
     open: boolean;
     onClose: () => void;
-    slug: string;
     productId: string;
     productName: string;
     currentStock: number;
   }
 
-  let { open, onClose, slug, productId, productName, currentStock }: Props = $props();
+  let { open, onClose, productId, productName, currentStock }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -75,7 +74,6 @@
     },
     onSubmit: async ({ value }) => {
       adjustMutation.mutate({
-        slug,
         productId,
         direction: value.direction,
         movementType: value.movementType,

@@ -11,12 +11,11 @@
 
   type Props = {
     id: string;
-    slug: string;
     onView?: (id: string) => void;
     onDelete?: (id: string) => void;
   };
 
-  const { id, slug, onView, onDelete }: Props = $props();
+  const { id, onView, onDelete }: Props = $props();
 
   function handleDelete() {
     confirmDelete({
@@ -41,7 +40,7 @@
       <EyeIcon class="mr-2 size-4" />
       View Details
     </DropdownMenu.Item>
-    <DropdownMenu.Item onclick={() => goto(`/${slug}/purchases/invoices/${id}/edit`)}>
+    <DropdownMenu.Item onclick={() => goto(`/purchases/invoices/${id}/edit`)}>
       <PencilIcon class="size-4" />
       Edit
     </DropdownMenu.Item>

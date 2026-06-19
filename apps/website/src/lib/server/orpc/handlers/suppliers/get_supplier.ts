@@ -1,15 +1,9 @@
 import { ORPCError } from "@orpc/server";
-import { eq, purchaseInvoice, sql } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, purchaseInvoice, sql } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   supplierId: z.string().min(1),
 });
 
@@ -18,13 +12,12 @@ export const getSupplierHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const supplier = await shopDb.query.supplier.findFirst({
+  .handler(async ({ input }) => {
+    const supplier = await db.query.supplier.findFirst({
       where: { id: input.supplierId },
       extras: {
         purchaseInvoicesCount: (table) =>
-          shopDb.$count(purchaseInvoice, eq(purchaseInvoice.supplierId, table.id)),
+          db.$count(purchaseInvoice, eq(purchaseInvoice.supplierId, table.id)),
         totalPurchases: (table) =>
           sql`(select coalesce(sum(${purchaseInvoice.totalCents}), 0) from ${purchaseInvoice} where ${purchaseInvoice.supplierId} = ${table.id})`.mapWith(
             Number,

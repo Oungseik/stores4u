@@ -1,15 +1,9 @@
-import { taxSettings } from "@repo/perstore-db";
 import { z } from "zod";
+import { db, taxSettings } from "$lib/server/db";
 
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   enabled: z.boolean(),
   name: z.string().min(1).max(100),
   rate: z.number().min(0).max(100),
@@ -19,11 +13,10 @@ export const updateTaxSettingsHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const now = new Date();
 
-    await shopDb
+    await db
       .insert(taxSettings)
       .values({
         id: "default",

@@ -1,7 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { z } from "zod";
-import { createShopMemory } from "../_lib/memory";
 import { invoiceSupervisor } from "./invoice-supervisor";
+import { getStoreMemory } from "../_lib/memory";
 
 export const shopAssistantSupervisor = new Agent({
   id: "shop-assistant-supervisor",
@@ -35,9 +34,6 @@ Conversation Guidelines:
 - Keep responses concise and actionable
 - When you don't have specific data, acknowledge it and suggest what would be helpful
 - Use bullet points or numbered lists for structured information`,
-  memory: ({ requestContext }) => createShopMemory(requestContext.get("slug")),
-  requestContextSchema: z.object({
-    slug: z.string(),
-  }),
+  memory: () => getStoreMemory(),
   agents: { invoiceSupervisor },
 });

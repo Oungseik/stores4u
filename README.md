@@ -140,33 +140,14 @@ pnpm check  # Check all files
 pnpm format # Format all files
 ```
 
-## Turso Database Management
+## Database
 
-### List databases in the stores4u group
-
-```bash
-turso db list --group stores4u
-```
-
-### Delete and recreate all databases (e.g. after cleaning migrations)
+The Drizzle schema, SQLite client factory, and Drizzle Kit config live in the `@repo/database` package (`packages/database`). This app uses a single local SQLite database (`DATABASE_PATH`, default `databases/store.db`) holding both auth and store data. Use the Drizzle scripts (run from the repo root):
 
 ```bash
-# Destroy each database
-yes | turso db destroy stores4u-auth
-yes | turso db destroy stores4u-gakom
-yes | turso db destroy stores4u-parent
-
-# Recreate in the stores4u group (only auth and parent)
-turso db create stores4u-auth --group stores4u
-turso db create stores4u-parent --group stores4u
-```
-
-### Run migrations on all databases
-
-```bash
-bun run db:generate   # Generate migration files from schema changes
-bun run db:migrate    # Apply migrations to all databases
-bun run db:seed       # Seed databases with initial data
+bun run db:push     # create/sync schema into the SQLite file (dev)
+bun run db:generate # generate a migration (production)
+bun run db:migrate  # apply migrations
 ```
 
 ## Environment Variables

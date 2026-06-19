@@ -20,7 +20,6 @@ export type ProductItem = {
 
 export function createColumns(
   currency: CurrencyCode,
-  slug: string,
   onDelete?: (id: string) => void,
   onAdjustStock?: (id: string, name: string, stock: number) => void,
 ): ColumnDef<ProductItem>[] {
@@ -73,7 +72,6 @@ export function createColumns(
       cell: ({ row }) => {
         return renderComponent(ActionsCell, {
           id: row.original.id,
-          slug,
           productName: row.original.name,
           currentStock: row.original.stock,
           onDelete,

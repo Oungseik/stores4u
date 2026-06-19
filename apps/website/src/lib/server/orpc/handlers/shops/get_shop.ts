@@ -2,9 +2,7 @@ import { z } from "zod";
 
 import { os, shopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 export const getShopHandler = os
   .route({ method: "GET" })
@@ -17,7 +15,6 @@ export const getShopHandler = os
     return {
       id: shop.id,
       name: shop.name,
-      slug: shop.slug,
       logo: shop.logo,
       heroImage: shopInfo?.heroImage ?? null,
       title: shopInfo?.title ?? null,

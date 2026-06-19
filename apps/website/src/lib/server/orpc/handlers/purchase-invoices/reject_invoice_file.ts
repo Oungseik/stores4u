@@ -1,15 +1,9 @@
 import { ORPCError } from "@orpc/server";
-import { eq, purchaseInvoiceFile } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, purchaseInvoiceFile } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   invoiceFileId: z.string().min(1),
 });
 
@@ -17,11 +11,10 @@ export const rejectInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const now = new Date();
 
-    const file = await shopDb.query.purchaseInvoiceFile.findFirst({
+    const file = await db.query.purchaseInvoiceFile.findFirst({
       where: { id: input.invoiceFileId },
     });
 
@@ -35,7 +28,7 @@ export const rejectInvoiceFileHandler = os
       });
     }
 
-    await shopDb
+    await db
       .update(purchaseInvoiceFile)
       .set({ status: "REJECTED", updatedAt: now })
       .where(eq(purchaseInvoiceFile.id, input.invoiceFileId));

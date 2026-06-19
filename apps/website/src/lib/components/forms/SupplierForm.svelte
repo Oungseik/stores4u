@@ -36,13 +36,12 @@
       };
 
   interface Props {
-    slug: string;
     initialData?: SupplierInitialData;
     onSuccess?: () => void;
     onCancel?: () => void;
   }
 
-  let { slug, initialData, onSuccess, onCancel }: Props = $props();
+  let { initialData, onSuccess, onCancel }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -92,7 +91,6 @@
     onSubmit: async ({ value }) => {
       if (initialData?.action === "update") {
         updateSupplier.mutate({
-          slug,
           id: initialData.id,
           name: value.name,
           contactName: value.contactName || null,
@@ -104,7 +102,6 @@
         });
       } else {
         createSupplier.mutate({
-          slug,
           name: value.name,
           contactName: value.contactName || undefined,
           phone: value.phone || undefined,

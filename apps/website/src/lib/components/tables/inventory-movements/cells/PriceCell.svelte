@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CurrencyCode } from "@repo/config";
-  import type { MovementType } from "@repo/perstore-db";
+  import type { MovementType } from "$lib/server/db";
 
   import { formatPrice } from "$lib/utils";
 

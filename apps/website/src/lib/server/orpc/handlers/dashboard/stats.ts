@@ -1,6 +1,8 @@
+import { z } from "zod";
 import {
   and,
   count,
+  db,
   eq,
   gte,
   inventoryMovement,
@@ -9,18 +11,10 @@ import {
   product,
   purchaseInvoiceFile,
   sql,
-} from "@repo/perstore-db";
-import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+} from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 function getStartOfDay(date: Date): Date {
   const d = new Date(date);
@@ -45,8 +39,7 @@ export const dashboardStatsHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ context: { shopDb } }) => {
+  .handler(async () => {
     const now = new Date();
     const todayStart = getStartOfDay(now);
     const weekStart = getStartOfWeek(now);
@@ -64,28 +57,28 @@ export const dashboardStatsHandler = os
       todayCogs,
       monthCogs,
     ] = await Promise.all([
-      shopDb
+      db
         .select({
           orderCount: count(),
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
         .where(gte(order.createdAt, todayStart)),
-      shopDb
+      db
         .select({
           orderCount: count(),
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
         .where(gte(order.createdAt, weekStart)),
-      shopDb
+      db
         .select({
           orderCount: count(),
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
         .where(gte(order.createdAt, monthStart)),
-      shopDb
+      db
         .select({
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
@@ -96,22 +89,22 @@ export const dashboardStatsHandler = os
             lt(order.createdAt, weekStart),
           ),
         ),
-      shopDb
+      db
         .select({
           total: count(),
           inventoryValueRetailCents: sql<number>`COALESCE(SUM(${product.stock} * ${product.priceCents}), 0)`,
         })
         .from(product),
-      shopDb.select({ count: count() }).from(product).where(eq(product.stock, 0)),
-      shopDb
+      db.select({ count: count() }).from(product).where(eq(product.stock, 0)),
+      db
         .select({ count: count() })
         .from(product)
         .where(and(gte(product.stock, 1), gte(product.lowStockThreshold, product.stock))),
-      shopDb
+      db
         .select({ count: count() })
         .from(purchaseInvoiceFile)
         .where(eq(purchaseInvoiceFile.status, "PROCESSED")),
-      shopDb
+      db
         .select({
           totalCostCents: sql<number>`COALESCE(SUM(ABS(${inventoryMovement.qty}) * ${inventoryMovement.unitCostCents}), 0)`,
         })
@@ -122,7 +115,7 @@ export const dashboardStatsHandler = os
             gte(inventoryMovement.occurredAt, todayStart),
           ),
         ),
-      shopDb
+      db
         .select({
           totalCostCents: sql<number>`COALESCE(SUM(ABS(${inventoryMovement.qty}) * ${inventoryMovement.unitCostCents}), 0)`,
         })

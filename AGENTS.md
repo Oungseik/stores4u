@@ -76,8 +76,14 @@ Default section order:
 
 ## User Preferences
 
+- **Single-store deployment**: this app supports ONE store per server (not SaaS / multi-tenant). The store is set up once during install via the `/setup` wizard and is owned by the signed-in user. There is no shop switcher, no per-store routing, no slug.
+- **Single SQLite database**: all data (better-auth + store domain) lives in one local SQLite file at `DATABASE_PATH` (default `databases/store.db`). No Turso, no per-store DB files.
+
 When the user requests a durable behavior change, record it here or in the relevant child AGENTS.md
 
 ## Child DOX Index
 
-This project is not yet indexed. Before continuing you must scan the project, build the DOX tree and replace this message with the actual index. Go deep and scan files recursively to properly evaluate complexity and create nested DOX files where needed.
+- `apps/website` — the SvelteKit application (the product). See `apps/website/AGENTS.md`.
+- `packages/config` — shared config, enums, domain constants. See `packages/config/AGENTS.md`.
+- `packages/database` — single-store Drizzle schema, SQLite client factory, Drizzle Kit config. See `packages/database/AGENTS.md`.
+- `packages/ui` — shared Svelte UI component library. See `packages/ui/AGENTS.md`.

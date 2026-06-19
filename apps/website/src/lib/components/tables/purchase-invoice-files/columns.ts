@@ -18,7 +18,6 @@ export type InvoiceFileItem = {
 };
 
 export function createColumns(
-  slug: string,
   onProcess: (id: string) => void,
   processingFileId: string | null,
   onDelete: (id: string) => void,
@@ -65,7 +64,6 @@ export function createColumns(
       cell: ({ row }) => {
         return renderComponent(ActionsCell, {
           id: row.original.id,
-          slug,
           status: row.original.status,
           isProcessing: processingFileId === row.original.id,
           onProcess,

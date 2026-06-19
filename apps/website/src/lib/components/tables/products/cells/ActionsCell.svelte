@@ -9,14 +9,13 @@
 
   type Props = {
     id: string;
-    slug: string;
     productName: string;
     currentStock: number;
     onDelete?: (id: string) => void;
     onAdjustStock?: (id: string, name: string, stock: number) => void;
   };
 
-  const { id, slug, productName, currentStock, onDelete, onAdjustStock }: Props = $props();
+  const { id, productName, currentStock, onDelete, onAdjustStock }: Props = $props();
 
   function handleDelete() {
     confirmDelete({
@@ -38,7 +37,7 @@
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
     <DropdownMenu.Item>
-      <a href={`/${slug}/products/${id}/edit`} class="flex items-center gap-2">
+      <a href={`/products/${id}/edit`} class="flex items-center gap-2">
         <PencilIcon class="size-4" />
         Edit
       </a>

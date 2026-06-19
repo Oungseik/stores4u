@@ -1,16 +1,10 @@
-import { eq, image, product, productImage } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, image, product, productImage } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   id: z.string().min(1),
 });
 
@@ -18,15 +12,10 @@ export const deleteProductHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const [existingProduct, existingImages] = await Promise.all([
-      shopDb
-        .select({ image: product.image })
-        .from(product)
-        .where(eq(product.id, input.id))
-        .limit(1),
-      shopDb
+      db.select({ image: product.image }).from(product).where(eq(product.id, input.id)).limit(1),
+      db
         .select({ objectPath: productImage.objectPath })
         .from(productImage)
         .where(eq(productImage.productId, input.id)),
@@ -47,7 +36,7 @@ export const deleteProductHandler = os
           );
         });
       }
-      await shopDb
+      await db
         .delete(image)
         .where(eq(image.objectPath, objectPath))
         .catch((e) => {
@@ -58,5 +47,5 @@ export const deleteProductHandler = os
         });
     }
 
-    await shopDb.delete(product).where(eq(product.id, input.id));
+    await db.delete(product).where(eq(product.id, input.id));
   });

@@ -1,10 +1,9 @@
 import { Database } from "bun:sqlite";
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { AUTH_DB_PATH } from "$env/static/private";
-import * as schema from "./schema";
+import { DATABASE_PATH } from "$env/static/private";
+import { createDb } from "@repo/database";
 
-export * from "./schema";
+export * from "@repo/database";
 
-export const client = new Database(AUTH_DB_PATH);
+export const client = new Database(DATABASE_PATH);
 
-export const db = drizzle({ client, schema, relations: schema.relations });
+export const db = createDb(client);

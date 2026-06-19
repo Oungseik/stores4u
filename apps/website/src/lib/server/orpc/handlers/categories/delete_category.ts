@@ -1,15 +1,9 @@
 import { ORPCError } from "@orpc/server";
-import { category, eq, productCategory } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { category, db, eq, productCategory } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   id: z.string().min(1),
 });
 
@@ -17,9 +11,8 @@ export const deleteCategoryHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const existingProducts = await shopDb
+  .handler(async ({ input }) => {
+    const existingProducts = await db
       .select()
       .from(productCategory)
       .where(eq(productCategory.categoryId, input.id))
@@ -31,5 +24,5 @@ export const deleteCategoryHandler = os
       });
     }
 
-    await shopDb.delete(category).where(eq(category.id, input.id));
+    await db.delete(category).where(eq(category.id, input.id));
   });

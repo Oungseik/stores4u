@@ -11,7 +11,6 @@
 
   type Props = {
     category: CategoryItem;
-    slug: string;
     onEdit: (category: CategoryItem) => void;
     onDelete: (category: CategoryItem) => void;
     onManageProducts: (category: CategoryItem) => void;

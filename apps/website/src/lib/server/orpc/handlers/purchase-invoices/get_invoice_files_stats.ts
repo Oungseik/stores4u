@@ -1,25 +1,17 @@
-import { purchaseInvoiceFile, purchaseInvoiceFileStatus, sql } from "@repo/perstore-db";
-import type { PurchaseInvoiceFileStatus } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import type { PurchaseInvoiceFileStatus } from "$lib/server/db";
+import { db, purchaseInvoiceFile, purchaseInvoiceFileStatus, sql } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 export const getInvoiceFilesStatsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const counts = await shopDb
+  .handler(async ({ input }) => {
+    const counts = await db
       .select({
         status: purchaseInvoiceFile.status,
         count: sql<number>`count(*)`,

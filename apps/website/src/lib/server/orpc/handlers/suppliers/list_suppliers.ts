@@ -1,14 +1,8 @@
-import { eq, purchaseInvoice, sql } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, purchaseInvoice, sql } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   search: z.string().optional(),
@@ -19,9 +13,8 @@ export const listSuppliersHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const suppliers = await shopDb.query.supplier.findMany({
+  .handler(async ({ input }) => {
+    const suppliers = await db.query.supplier.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
         OR: input.search
@@ -36,7 +29,7 @@ export const listSuppliersHandler = os
       orderBy: { id: "desc" },
       extras: {
         purchaseInvoicesCount: (table) =>
-          shopDb.$count(purchaseInvoice, eq(purchaseInvoice.supplierId, table.id)),
+          db.$count(purchaseInvoice, eq(purchaseInvoice.supplierId, table.id)),
         totalPurchases: (table) =>
           sql`(select coalesce(sum(${purchaseInvoice.totalCents}), 0) from ${purchaseInvoice} where ${purchaseInvoice.supplierId} = ${table.id})`.mapWith(
             Number,

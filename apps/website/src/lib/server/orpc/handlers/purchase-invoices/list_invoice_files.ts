@@ -1,14 +1,8 @@
-import { purchaseInvoiceFileStatus } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, purchaseInvoiceFileStatus } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   statuses: z.array(z.enum(purchaseInvoiceFileStatus)).optional(),
@@ -20,9 +14,8 @@ export const listInvoiceFilesHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const files = await shopDb.query.purchaseInvoiceFile.findMany({
+  .handler(async ({ input }) => {
+    const files = await db.query.purchaseInvoiceFile.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
         status: input.statuses?.length ? { in: input.statuses } : undefined,

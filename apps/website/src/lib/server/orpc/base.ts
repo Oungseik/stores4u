@@ -1,7 +1,6 @@
 import { os as base, ORPCError } from "@orpc/server";
-import type { ShopSelect, ShopInfoSelect } from "$lib/server/db";
-import { db as authDb } from "$lib/server/db";
-import { getShopDb } from "$lib/server/shop_db";
+import type { ShopInfoSelect, ShopSelect } from "$lib/server/db";
+import { db } from "$lib/server/db";
 
 type ShopWithInfo = ShopSelect & {
   shopInfo: ShopInfoSelect | null;
@@ -29,9 +28,7 @@ type Context = {
       image?: string | null;
     };
   } | null;
-  shopDb?: Awaited<ReturnType<typeof getShopDb>>;
   shop?: ShopWithInfo;
-  shopId?: string;
 };
 
 export const os = base.$context<Context>().errors({
@@ -54,53 +51,37 @@ export const authMiddleware = os.middleware(async ({ context, next }) => {
 
 Object.defineProperty(authMiddleware, "name", { value: "auth_middleware" });
 
-export const shopMiddleware = os.middleware(async ({ context, next }, input: { slug: string }) => {
-  const shop = await authDb.query.shop.findFirst({
-    where: { slug: input.slug },
-    with: { shopInfo: true },
-  });
-
+/**
+ * Resolves the single store for this server. No slug — one store per install.
+ * Throws if the store has not been set up yet.
+ */
+export const shopMiddleware = os.middleware(async ({ next }) => {
+  const shop = await db.query.shop.findFirst({ with: { shopInfo: true } });
   if (!shop) {
-    throw new ORPCError("NOT_FOUND", {
-      message: `Shop "${input.slug}" not found`,
-    });
+    throw new ORPCError("NOT_FOUND", { message: "Store is not set up" });
   }
-
-  return next({ context: { ...context, shop } });
+  return next({ context: { shop } });
 });
 
 Object.defineProperty(shopMiddleware, "name", { value: "shop_middleware" });
 
-export const protectedShopMiddleware = os.middleware(
-  async ({ context, next }, input: { slug: string }) => {
-    const session = context.session;
-    if (!session) {
-      throw new ORPCError("UNAUTHORIZED");
-    }
+/** Requires a session and that the signed-in user owns the single store. */
+export const protectedShopMiddleware = os.middleware(async ({ context, next }) => {
+  const session = context.session;
+  if (!session) {
+    throw new ORPCError("UNAUTHORIZED");
+  }
 
-    const shop = await authDb.query.shop.findFirst({
-      where: { slug: input.slug },
-      with: { shopInfo: true },
-    });
-
-    if (!shop || shop.userId !== session.user.id) {
-      throw new ORPCError("NOT_FOUND", {
-        message: `Shop "${input.slug}" not found`,
-      });
-    }
-
-    return next({ context: { session, shop } });
-  },
-);
-
-Object.defineProperty(protectedShopMiddleware, "name", { value: "protected_shop_middleware" });
-
-export const shopDbMiddleware = os
-  .$context<{ shop: ShopWithInfo }>()
-  .middleware(async ({ context, next }) => {
-    const shopDb = await getShopDb({ slug: context.shop.slug });
-
-    return next({ context: { ...context, shopDb } });
+  const shop = await db.query.shop.findFirst({
+    where: { userId: session.user.id },
+    with: { shopInfo: true },
   });
 
-Object.defineProperty(shopDbMiddleware, "name", { value: "shop_db_middleware" });
+  if (!shop) {
+    throw new ORPCError("NOT_FOUND", { message: "Store is not set up" });
+  }
+
+  return next({ context: { session, shop } });
+});
+
+Object.defineProperty(protectedShopMiddleware, "name", { value: "protected_shop_middleware" });

@@ -1,8 +1,8 @@
 import { ORPCError } from "@orpc/server";
-import { db, socialConnection } from "$lib/server/db";
-import { eq } from "drizzle-orm";
 import { SOCIAL_PLATFORMS } from "@repo/config";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { db, socialConnection } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const permissionsSchema = z.object({
@@ -13,7 +13,6 @@ const permissionsSchema = z.object({
 });
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   platform: z.enum(SOCIAL_PLATFORMS),
   permissions: permissionsSchema,
 });

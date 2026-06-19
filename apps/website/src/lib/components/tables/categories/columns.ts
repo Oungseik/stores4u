@@ -14,7 +14,6 @@ export type CategoryItem = {
 };
 
 export function createColumns(
-  slug: string,
   onEdit: (category: CategoryItem) => void,
   onDelete: (category: CategoryItem) => void,
   onManageProducts: (category: CategoryItem) => void,
@@ -47,7 +46,6 @@ export function createColumns(
       cell: ({ row }) => {
         return renderComponent(ActionsCell, {
           category: row.original,
-          slug,
           onEdit,
           onDelete,
           onManageProducts,

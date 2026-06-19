@@ -29,7 +29,6 @@
   };
 
   interface Props {
-    slug: string;
     suppliers: Supplier[];
     selectedSupplier?: Supplier | null;
     isExistingSupplier?: boolean;
@@ -45,7 +44,6 @@
   }
 
   let {
-    slug,
     suppliers,
     selectedSupplier = $bindable(null),
     isExistingSupplier = $bindable(false),
@@ -216,7 +214,7 @@
     {:else}
       <SupplierForm
         bind:this={supplierFormRef}
-        {slug}
+       
         initialData={initialSupplierData
           ? {
               action: "create",

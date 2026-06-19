@@ -1,14 +1,8 @@
-import { eq, orderItem } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db, eq, orderItem } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   cursor: z.string().optional(),
   pageSize: z.number().int().positive().default(12),
   search: z.string().optional(),
@@ -22,9 +16,8 @@ export const listOrdersHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const orders = await shopDb.query.order.findMany({
+  .handler(async ({ input }) => {
+    const orders = await db.query.order.findMany({
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
         items: { productId: input.productId },
@@ -47,7 +40,7 @@ export const listOrdersHandler = os
       limit: input.pageSize + 1,
       orderBy: { id: "desc" },
       extras: {
-        itemsCount: (table) => shopDb.$count(orderItem, eq(orderItem.orderId, table.id)),
+        itemsCount: (table) => db.$count(orderItem, eq(orderItem.orderId, table.id)),
       },
     });
 

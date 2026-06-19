@@ -1,16 +1,10 @@
-import { eq, image } from "@repo/perstore-db";
 import { z } from "zod";
+import { db, eq, image } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   objectPath: z.string().min(1).max(500),
 });
 
@@ -18,8 +12,7 @@ export const deleteImageHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const objectKey = extractObjectKey(input.objectPath);
 
     try {
@@ -31,7 +24,7 @@ export const deleteImageHandler = os
     }
 
     try {
-      await shopDb.delete(image).where(eq(image.objectPath, input.objectPath));
+      await db.delete(image).where(eq(image.objectPath, input.objectPath));
     } catch (e) {
       logger.error(
         { err: e, objectPath: input.objectPath },

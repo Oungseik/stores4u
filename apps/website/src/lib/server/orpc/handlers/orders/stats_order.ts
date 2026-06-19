@@ -1,15 +1,8 @@
-import { count, gte, order, sql } from "@repo/perstore-db";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { count, db, gte, order, sql } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 function getStartOfDay(date: Date): Date {
   const d = new Date(date);
@@ -34,8 +27,7 @@ export const statsOrdersHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ context: { shopDb } }) => {
+  .handler(async () => {
     const now = new Date();
 
     const todayStart = getStartOfDay(now);
@@ -43,21 +35,21 @@ export const statsOrdersHandler = os
     const monthStart = getStartOfMonth(now);
 
     const [todayStats, weekStats, monthStats] = await Promise.all([
-      shopDb
+      db
         .select({
           count: count(),
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
         .where(gte(order.createdAt, todayStart)),
-      shopDb
+      db
         .select({
           count: count(),
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
         .where(gte(order.createdAt, weekStart)),
-      shopDb
+      db
         .select({
           count: count(),
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,

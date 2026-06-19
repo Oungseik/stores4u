@@ -1,5 +1,7 @@
 import { ORPCError } from "@orpc/server";
+import { z } from "zod";
 import {
+  db,
   eq,
   inArray,
   inventoryMovement,
@@ -10,19 +12,12 @@ import {
   purchaseInvoiceFile,
   purchaseInvoiceItem,
   sql,
-} from "@repo/perstore-db";
-import { z } from "zod";
+} from "$lib/server/db";
 import { logger } from "$lib/server/logger";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { invoiceAmountFields, purchaseInvoiceItemInput } from "./schemas";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   invoiceFileId: z.string().min(1),
   invoiceNumber: z.string().min(1).max(100),
   invoiceDate: z.string().min(1),
@@ -57,8 +52,7 @@ export const submitInvoiceReviewHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb, ...context } }) => {
+  .handler(async ({ input, context }) => {
     const occurredAt = new Date(input.invoiceDate);
 
     if (Number.isNaN(occurredAt.getTime())) {
@@ -68,7 +62,7 @@ export const submitInvoiceReviewHandler = os
     }
 
     const productIds = new Set(input.items.map((item) => item.productId));
-    const products = await shopDb.query.product.findMany({
+    const products = await db.query.product.findMany({
       where: { id: { in: [...productIds] } },
       columns: { id: true },
     });
@@ -82,7 +76,7 @@ export const submitInvoiceReviewHandler = os
     }
 
     try {
-      shopDb.transaction((tx) => {
+      db.transaction((tx) => {
         const existingFile = tx.query.purchaseInvoiceFile
           .findFirst({
             where: { id: input.invoiceFileId },

@@ -1,23 +1,16 @@
 import { z } from "zod";
+import { db } from "$lib/server/db";
 
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({
-  slug: z.string().min(1).max(100),
-});
+const input = z.object({});
 
 export const getTaxSettingsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ context: { shopDb } }) => {
-    const settings = await shopDb.query.taxSettings.findFirst();
+  .handler(async () => {
+    const settings = await db.query.taxSettings.findFirst();
     return { settings };
   });

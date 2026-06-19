@@ -1,13 +1,12 @@
 import { ORPCError } from "@orpc/server";
-import { eq, inventoryMovement, product, sql } from "@repo/perstore-db";
 import { z } from "zod";
+import { db, eq, inventoryMovement, product, sql } from "$lib/server/db";
 
-import { os, protectedShopMiddleware, shopDbMiddleware } from "$lib/server/orpc/base";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const manualMovementTypes = ["ADJUSTMENT", "CORRECTION", "WASTAGE", "RETURN"] as const;
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   productId: z.string().min(1),
   direction: z.enum(["ADD", "SUBTRACT"]),
   movementType: z.enum(manualMovementTypes),
@@ -20,13 +19,12 @@ const input = z.object({
 export const adjustStockHandler = os
   .input(input)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
+  .handler(async ({ input }) => {
     const signedQty = input.direction === "ADD" ? input.qty : -input.qty;
     const occurredAt = new Date(input.date);
     const now = new Date();
 
-    const existingProduct = await shopDb.query.product.findFirst({
+    const existingProduct = await db.query.product.findFirst({
       where: { id: input.productId },
       columns: { id: true, name: true, stock: true },
     });
@@ -43,7 +41,7 @@ export const adjustStockHandler = os
       });
     }
 
-    shopDb.transaction((tx) => {
+    db.transaction((tx) => {
       tx.insert(inventoryMovement)
         .values({
           productId: input.productId,
@@ -67,7 +65,7 @@ export const adjustStockHandler = os
         .run();
     });
 
-    const updatedProduct = await shopDb.query.product.findFirst({
+    const updatedProduct = await db.query.product.findFirst({
       where: { id: input.productId },
       columns: { id: true, stock: true },
     });

@@ -1,15 +1,10 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { db } from "$lib/server/db";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, presignDownload } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   invoiceFileId: z.string().min(1),
 });
 
@@ -18,9 +13,8 @@ export const getInvoiceHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const invoice = await shopDb.query.purchaseInvoice.findFirst({
+  .handler(async ({ input }) => {
+    const invoice = await db.query.purchaseInvoice.findFirst({
       where: { invoiceFileId: input.invoiceFileId },
       with: {
         supplier: {

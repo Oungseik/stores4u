@@ -1,25 +1,20 @@
 import { ORPCError } from "@orpc/server";
+import { z } from "zod";
 import {
+  db,
   type ExtractedInvoiceData,
   eq,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
-} from "@repo/perstore-db";
-import { z } from "zod";
+} from "$lib/server/db";
 import { logger } from "$lib/server/logger";
 import type { InvoiceVerificationResult } from "$lib/server/mastra/_lib/image-utils";
 import { processInvoice } from "$lib/server/mastra/agents/invoice-extraction-agent";
 import { verifyInvoice } from "$lib/server/mastra/agents/invoice-verification-agent";
-import {
-  authMiddleware,
-  os,
-  protectedShopMiddleware,
-  shopDbMiddleware,
-} from "$lib/server/orpc/base";
+import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, getObject } from "$lib/server/storage";
 
 const input = z.object({
-  slug: z.string().min(1).max(100),
   fileId: z.string().min(1),
 });
 
@@ -27,9 +22,8 @@ export const processInvoiceFileHandler = os
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .use(shopDbMiddleware)
-  .handler(async ({ input, context: { shopDb } }) => {
-    const file = await shopDb.query.purchaseInvoiceFile.findFirst({
+  .handler(async ({ input }) => {
+    const file = await db.query.purchaseInvoiceFile.findFirst({
       where: { id: input.fileId },
     });
 
@@ -44,19 +38,19 @@ export const processInvoiceFileHandler = os
     }
 
     if (file.status === "REJECTED") {
-      await shopDb
+      await db
         .delete(purchaseInvoiceOcrResult)
         .where(eq(purchaseInvoiceOcrResult.invoiceFileId, file.id));
     }
 
-    await shopDb
+    await db
       .update(purchaseInvoiceFile)
       .set({ status: "PROCESSING", updatedAt: new Date() })
       .where(eq(purchaseInvoiceFile.id, file.id));
 
     const objectKey = extractObjectKey(file.objectPath);
     if (!objectKey) {
-      await shopDb
+      await db
         .update(purchaseInvoiceFile)
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
@@ -68,7 +62,7 @@ export const processInvoiceFileHandler = os
     try {
       fileBuffer = await getObject(objectKey);
     } catch (error) {
-      await shopDb
+      await db
         .update(purchaseInvoiceFile)
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
@@ -81,7 +75,7 @@ export const processInvoiceFileHandler = os
     try {
       verificationResult = await verifyInvoice(fileBuffer, file.fileType);
     } catch (error) {
-      await shopDb
+      await db
         .update(purchaseInvoiceFile)
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
@@ -97,7 +91,7 @@ export const processInvoiceFileHandler = os
 
     if (!verificationResult.isInvoice) {
       const rejectionReason = verificationResult.rejectionReason ?? "Document is not an invoice";
-      shopDb.transaction((tx) => {
+      db.transaction((tx) => {
         tx.insert(purchaseInvoiceOcrResult)
           .values({
             photoUrl,
@@ -125,7 +119,7 @@ export const processInvoiceFileHandler = os
     try {
       extractedData = await processInvoice(fileBuffer, file.fileType);
     } catch (error) {
-      await shopDb
+      await db
         .update(purchaseInvoiceFile)
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
@@ -136,7 +130,7 @@ export const processInvoiceFileHandler = os
       });
     }
 
-    shopDb.transaction((tx) => {
+    db.transaction((tx) => {
       tx.insert(purchaseInvoiceOcrResult)
         .values({
           photoUrl,

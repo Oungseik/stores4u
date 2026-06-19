@@ -6,10 +6,9 @@
   interface Props {
     open: boolean;
     onClose: () => void;
-    slug: string;
   }
 
-  let { open, onClose, slug }: Props = $props();
+  let { open, onClose }: Props = $props();
 
   function handleOpenChange(value: boolean) {
     if (!value) {
@@ -26,7 +25,7 @@
     </Dialog.Header>
 
     <div class="px-3 sm:px-4">
-      <CategoryForm {slug} onSuccess={onClose} onCancel={onClose} />
+      <CategoryForm onSuccess={onClose} onCancel={onClose} />
     </div>
   </Dialog.Content>
 </Dialog.Root>
