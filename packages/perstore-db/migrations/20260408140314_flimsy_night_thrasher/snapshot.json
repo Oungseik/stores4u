@@ -2,9 +2,7 @@
   "version": "7",
   "dialect": "sqlite",
   "id": "36d9e768-79d3-424f-ba85-d669c92247dd",
-  "prevIds": [
-    "ffc074ed-0d8d-4457-b435-5162457fe37e"
-  ],
+  "prevIds": ["ffc074ed-0d8d-4457-b435-5162457fe37e"],
   "ddl": [
     {
       "name": "chat",
@@ -1533,13 +1531,9 @@
       "table": "tax_settings"
     },
     {
-      "columns": [
-        "chat_id"
-      ],
+      "columns": ["chat_id"],
       "tableTo": "chat",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1548,13 +1542,9 @@
       "table": "message"
     },
     {
-      "columns": [
-        "supplier_id"
-      ],
+      "columns": ["supplier_id"],
       "tableTo": "supplier",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1563,13 +1553,9 @@
       "table": "purchase_invoice"
     },
     {
-      "columns": [
-        "invoice_file_id"
-      ],
+      "columns": ["invoice_file_id"],
       "tableTo": "purchase_invoice_file",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1578,13 +1564,9 @@
       "table": "purchase_invoice"
     },
     {
-      "columns": [
-        "ocr_result_id"
-      ],
+      "columns": ["ocr_result_id"],
       "tableTo": "purchase_invoice_ocr_result",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1593,13 +1575,9 @@
       "table": "purchase_invoice"
     },
     {
-      "columns": [
-        "purchase_invoice_id"
-      ],
+      "columns": ["purchase_invoice_id"],
       "tableTo": "purchase_invoice",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1608,13 +1586,9 @@
       "table": "purchase_invoice_item"
     },
     {
-      "columns": [
-        "product_id"
-      ],
+      "columns": ["product_id"],
       "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1623,13 +1597,9 @@
       "table": "purchase_invoice_item"
     },
     {
-      "columns": [
-        "invoice_file_id"
-      ],
+      "columns": ["invoice_file_id"],
       "tableTo": "purchase_invoice_file",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1638,13 +1608,9 @@
       "table": "purchase_invoice_ocr_result"
     },
     {
-      "columns": [
-        "order_id"
-      ],
+      "columns": ["order_id"],
       "tableTo": "order",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1653,13 +1619,9 @@
       "table": "order_item"
     },
     {
-      "columns": [
-        "product_id"
-      ],
+      "columns": ["product_id"],
       "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1668,13 +1630,9 @@
       "table": "order_item"
     },
     {
-      "columns": [
-        "product_id"
-      ],
+      "columns": ["product_id"],
       "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1683,13 +1641,9 @@
       "table": "inventory_movement"
     },
     {
-      "columns": [
-        "purchase_invoice_item_id"
-      ],
+      "columns": ["purchase_invoice_item_id"],
       "tableTo": "purchase_invoice_item",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1698,13 +1652,9 @@
       "table": "inventory_movement"
     },
     {
-      "columns": [
-        "product_id"
-      ],
+      "columns": ["product_id"],
       "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1713,13 +1663,9 @@
       "table": "product_alias"
     },
     {
-      "columns": [
-        "product_id"
-      ],
+      "columns": ["product_id"],
       "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1728,13 +1674,9 @@
       "table": "product_category"
     },
     {
-      "columns": [
-        "category_id"
-      ],
+      "columns": ["category_id"],
       "tableTo": "category",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1743,13 +1685,9 @@
       "table": "product_category"
     },
     {
-      "columns": [
-        "product_id"
-      ],
+      "columns": ["product_id"],
       "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1758,13 +1696,9 @@
       "table": "product_supplier"
     },
     {
-      "columns": [
-        "supplier_id"
-      ],
+      "columns": ["supplier_id"],
       "tableTo": "supplier",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1773,13 +1707,9 @@
       "table": "product_supplier"
     },
     {
-      "columns": [
-        "order_id"
-      ],
+      "columns": ["order_id"],
       "tableTo": "order",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1788,13 +1718,9 @@
       "table": "refund"
     },
     {
-      "columns": [
-        "refund_id"
-      ],
+      "columns": ["refund_id"],
       "tableTo": "refund",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
@@ -1803,13 +1729,9 @@
       "table": "refund_item"
     },
     {
-      "columns": [
-        "order_item_id"
-      ],
+      "columns": ["order_item_id"],
       "tableTo": "order_item",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
@@ -1818,173 +1740,133 @@
       "table": "refund_item"
     },
     {
-      "columns": [
-        "product_id",
-        "category_id"
-      ],
+      "columns": ["product_id", "category_id"],
       "nameExplicit": false,
       "name": "product_category_pk",
       "entityType": "pks",
       "table": "product_category"
     },
     {
-      "columns": [
-        "product_id",
-        "supplier_id"
-      ],
+      "columns": ["product_id", "supplier_id"],
       "nameExplicit": false,
       "name": "product_supplier_pk",
       "entityType": "pks",
       "table": "product_supplier"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "chat_pk",
       "table": "chat",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "message_pk",
       "table": "message",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "object_path"
-      ],
+      "columns": ["object_path"],
       "nameExplicit": false,
       "name": "image_pk",
       "table": "image",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "purchase_invoice_pk",
       "table": "purchase_invoice",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "purchase_invoice_file_pk",
       "table": "purchase_invoice_file",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "purchase_invoice_item_pk",
       "table": "purchase_invoice_item",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "purchase_invoice_ocr_result_pk",
       "table": "purchase_invoice_ocr_result",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "order_pk",
       "table": "order",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "order_item_pk",
       "table": "order_item",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "category_pk",
       "table": "category",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "inventory_movement_pk",
       "table": "inventory_movement",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "product_pk",
       "table": "product",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "product_alias_pk",
       "table": "product_alias",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "refund_pk",
       "table": "refund",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "refund_item_pk",
       "table": "refund_item",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "supplier_pk",
       "table": "supplier",
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "tax_settings_pk",
       "table": "tax_settings",
@@ -2301,56 +2183,42 @@
       "table": "refund_item"
     },
     {
-      "columns": [
-        "supplier_id",
-        "invoice_number"
-      ],
+      "columns": ["supplier_id", "invoice_number"],
       "nameExplicit": true,
       "name": "purchase_invoice_supplier_invoice_number_unique",
       "entityType": "uniques",
       "table": "purchase_invoice"
     },
     {
-      "columns": [
-        "product_id",
-        "alias"
-      ],
+      "columns": ["product_id", "alias"],
       "nameExplicit": true,
       "name": "product_alias_product_id_alias_unique",
       "entityType": "uniques",
       "table": "product_alias"
     },
     {
-      "columns": [
-        "invoice_file_id"
-      ],
+      "columns": ["invoice_file_id"],
       "nameExplicit": false,
       "name": "purchase_invoice_invoice_file_id_unique",
       "entityType": "uniques",
       "table": "purchase_invoice"
     },
     {
-      "columns": [
-        "ocr_result_id"
-      ],
+      "columns": ["ocr_result_id"],
       "nameExplicit": false,
       "name": "purchase_invoice_ocr_result_id_unique",
       "entityType": "uniques",
       "table": "purchase_invoice"
     },
     {
-      "columns": [
-        "name"
-      ],
+      "columns": ["name"],
       "nameExplicit": false,
       "name": "category_name_unique",
       "entityType": "uniques",
       "table": "category"
     },
     {
-      "columns": [
-        "barcode"
-      ],
+      "columns": ["barcode"],
       "nameExplicit": false,
       "name": "product_barcode_unique",
       "entityType": "uniques",
