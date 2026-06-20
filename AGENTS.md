@@ -76,8 +76,13 @@ Default section order:
 
 ## User Preferences
 
-- **Single-store deployment**: this app supports ONE store per server (not SaaS / multi-tenant). The store is set up once during install via the `/setup` wizard and is owned by the signed-in user. There is no shop switcher, no per-store routing, no slug.
+- **Single-store deployment**: this app supports ONE store per server (not SaaS / multi-tenant). The store is set up once during install via the `/setup` wizard. There is no shop switcher, no per-store routing, no slug, and no `shop.userId` ownership link.
 - **Single SQLite database**: all data (better-auth + store domain) lives in one local SQLite file at `DATABASE_PATH` (default `databases/store.db`). No Turso, no per-store DB files.
+- **Roles**: `user.role` is one of `owner`, `admin`, `member`, `user`. Dashboard access is `owner` / `admin` / `member`; `user` is reserved for future storefront/customer API accounts and must not access the dashboard.
+- **First owner, created on first run**: the very first user ever created becomes `role = "owner"`. A `databaseHooks.user.create.before` hook in `apps/website/src/lib/server/auth.ts` sets that role by checking whether any user already exists. Later account creation is invite-only and currently deferred.
+- **No public signup after setup**: `/signup` is closed and redirects to `/signin`; `/api/auth/sign-up/email` is closed once the shop exists. `/setup` creates the first owner by email/password on a clean DB, or completes store setup for the first owner if that owner was created through first-run OAuth.
+- **Social OAuth**: during first run only, `/api/auth/sign-in/social` and `/api/auth/callback/*` may create the first `owner`. After that, OAuth can sign in only to an already-linked account. `accountLinking.disableImplicitLinking: true` blocks email-match implicit linking; the user create hook blocks raw OAuth signup after setup.
+- **Invite flow = deferred**: owners will invite admins/members later; admins may eventually manage members/users but must not promote owners without a dedicated hierarchy check. Do not expose public staff/customer signup from the dashboard.
 
 When the user requests a durable behavior change, record it here or in the relevant child AGENTS.md
 

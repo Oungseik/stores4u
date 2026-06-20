@@ -87,12 +87,17 @@
     if (platform !== "FACEBOOK") return;
 
     try {
-      await authClient.signIn.social({
+      // linkSocial, not signIn.social: with accountLinking.disableImplicitLinking,
+      // signIn.social refuses when no Facebook account is linked yet. The
+      // staff user is already authenticated here — we want to LINK a Facebook
+      // account (for page tokens and as a sign-in option), which is exactly
+      // what linkSocial does.
+      await authClient.linkSocial({
         provider: "facebook",
         callbackURL: `${page.url.pathname}?fb_oauth=1`,
       });
     } catch (error) {
-      console.error("Facebook sign in error:", error);
+      console.error("Facebook link error:", error);
     }
   }
 

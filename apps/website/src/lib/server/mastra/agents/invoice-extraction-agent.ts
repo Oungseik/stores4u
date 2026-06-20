@@ -7,7 +7,7 @@ export const invoiceExtractionAgent = new Agent({
   name: "Invoice Extraction Agent",
   description:
     "Extracts structured data from invoice images or PDFs. Returns supplier details, invoice metadata, line items with quantities and costs, and a confidence score. Only use this agent after the invoice has been verified as a valid invoice.",
-  model: "openrouter/google/gemini-3.1-pro-preview",
+  model: "openrouter/google/gemini-3.5-flash",
   instructions: `You are an invoice data extraction assistant. Extract all relevant information from the provided invoice image(s).You MUST respond with ONLY a valid JSON object matching this exact schema (no markdown, no explanation, just JSON):
 {
   "supplier": {

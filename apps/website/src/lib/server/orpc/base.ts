@@ -1,4 +1,5 @@
 import { os as base, ORPCError } from "@orpc/server";
+import { isDashboardRole } from "$lib/server/auth";
 import type { ShopInfoSelect, ShopSelect } from "$lib/server/db";
 import { db } from "$lib/server/db";
 
@@ -17,6 +18,7 @@ type Context = {
       token: string;
       ipAddress?: string | null;
       userAgent?: string | null;
+      impersonatedBy?: string | null;
     };
     user: {
       id: string;
@@ -26,6 +28,7 @@ type Context = {
       createdAt: Date;
       updatedAt: Date;
       image?: string | null;
+      role?: string | null;
     };
   } | null;
   shop?: ShopWithInfo;
@@ -65,15 +68,17 @@ export const shopMiddleware = os.middleware(async ({ next }) => {
 
 Object.defineProperty(shopMiddleware, "name", { value: "shop_middleware" });
 
-/** Requires a session and that the signed-in user owns the single store. */
+/** Requires a dashboard session and resolves the single store. */
 export const protectedShopMiddleware = os.middleware(async ({ context, next }) => {
   const session = context.session;
   if (!session) {
     throw new ORPCError("UNAUTHORIZED");
   }
+  if (!isDashboardRole(session.user.role)) {
+    throw new ORPCError("FORBIDDEN");
+  }
 
   const shop = await db.query.shop.findFirst({
-    where: { userId: session.user.id },
     with: { shopInfo: true },
   });
 

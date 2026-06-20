@@ -1,5 +1,6 @@
 import { handleChatStream } from "@mastra/ai-sdk";
 import { createUIMessageStreamResponse } from "ai";
+import { isDashboardRole } from "$lib/server/auth";
 import { mastra } from "$lib/server/mastra";
 
 /** Stable resource id for the single store's chat memory. */
@@ -14,6 +15,9 @@ export async function POST({
 }) {
   if (!locals.session) {
     return new Response("Unauthorized", { status: 401 });
+  }
+  if (!isDashboardRole(locals.session.user.role)) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   let body: Awaited<ReturnType<Request["json"]>>;

@@ -1,13 +1,13 @@
 import { Agent } from "@mastra/core/agent";
-import { invoiceSupervisor } from "./invoice-supervisor";
 import { getStoreMemory } from "../_lib/memory";
+import { invoiceSupervisor } from "./invoice-supervisor";
 
 export const shopAssistantSupervisor = new Agent({
   id: "shop-assistant-supervisor",
   name: "Shop Assistant",
   description:
     "Master supervisor for the shop chat. Routes user requests to the appropriate domain supervisor or agent. Handles invoice operations and general shop questions.",
-  model: "openrouter/moonshotai/kimi-k2.5",
+  model: "openrouter/moonshotai/kimi-k2.6",
   instructions: `You are the main shop assistant supervisor. You help shop owners with all aspects of their business by delegating to specialized domain supervisors and agents.
 
 Available resources:

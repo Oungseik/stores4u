@@ -10,10 +10,12 @@
   import { page } from "$app/state";
   import { PUBLIC_SITE_NAME } from "$env/static/public";
   import { authClient } from "$lib/auth_client";
-  import SocialOauthBtnsGroup from "$lib/components/groups/SocialOAuthBtnsGroup.svelte";
 
   let isSubmitting = $state(false);
   const defaultValues = { email: "", password: "" };
+
+  // Sign-in page stays email/password. Linked Google/Facebook accounts can use
+  // OAuth directly; unlinked OAuth cannot create accounts after setup.
 
   const form = createForm(() => ({
     defaultValues,
@@ -54,6 +56,11 @@
         <Card.Description>Enter your email below and sign in to your account.</Card.Description>
       </Card.Header>
       <Card.Content>
+        {#if page.url.searchParams.get("setup") === "1"}
+          <p class="text-muted-foreground mb-6 text-sm">
+            Owner account created. Check your email to verify it, then sign in.
+          </p>
+        {/if}
         <form
           class="space-y-4"
           onsubmit={(e) => {
@@ -115,27 +122,6 @@
             </Button>
           </div>
         </form>
-
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <div class="border-border w-full border-t"></div>
-          </div>
-          <div class="relative flex justify-center text-xs uppercase">
-            <span class="bg-background text-muted-foreground px-2"> Or continue with </span>
-          </div>
-        </div>
-
-        <SocialOauthBtnsGroup />
-
-        <div class="mt-6 text-center text-sm">
-          Don't have an account?
-          <a
-            href={`/signup${page.url.search}`}
-            class="ml-1 underline underline-offset-4 hover:underline"
-          >
-            Sign up
-          </a>
-        </div>
       </Card.Content>
     </Card.Root>
   </div>

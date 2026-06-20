@@ -28,7 +28,6 @@ export const getShopHandler = os
       phone: shopInfo?.phone ?? null,
       email: shopInfo?.email ?? null,
       taxId: shopInfo?.taxId ?? null,
-      userId: shop.userId,
       createdAt: shop.createdAt,
       updatedAt: shop.updatedAt,
     };

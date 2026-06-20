@@ -2,15 +2,22 @@ import { CURRENCIES, SOCIAL_PLATFORMS } from "@repo/config";
 import { index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { shopInfo } from "./shop-info";
 
-export const shopRoles = ["OWNER", "ADMIN", "MEMBER"] as const;
-export type ShopRole = (typeof shopRoles)[number];
+export const userRoles = ["owner", "admin", "member", "user"] as const;
+export type UserRole = (typeof userRoles)[number];
 
+// Fields below (role/banned/banReason/banExpires on user, impersonatedBy on
+// session) back the better-auth `admin` plugin. First account becomes "owner";
+// dashboard access is role-based. The single shop row has no user owner.
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
   image: text("image"),
+  role: text("role", { enum: userRoles }).notNull().default("user"),
+  banned: integer("banned", { mode: "boolean" }).default(false).notNull(),
+  banReason: text("ban_reason"),
+  banExpires: integer("ban_expires", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
@@ -33,6 +40,7 @@ export const session = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
+    impersonatedBy: text("impersonated_by"),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -98,9 +106,6 @@ export const shop = sqliteTable(
     currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
     logo: text("logo"),
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
     shopInfoId: text("shop_info_id").references(() => shopInfo.id, {
       onDelete: "set null",
     }),
@@ -111,7 +116,6 @@ export const shop = sqliteTable(
       .$defaultFn(() => new Date())
       .notNull(),
   },
-  (t) => [index("shop_user_id_idx").on(t.userId)],
 );
 
 export type ShopSelect = typeof shop.$inferSelect;

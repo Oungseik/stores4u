@@ -30,7 +30,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
   // Signed in + verified: send to store setup if no store exists, else to the app.
   const shop = await db.query.shop.findFirst({
-    where: { userId: user.id },
     columns: { id: true },
   });
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The SvelteKit application — the entire product. Single-store-per-server: one store, one owner, one SQLite database.
+The SvelteKit application — the dashboard product. Single-store-per-server: one store, role-based dashboard staff, one SQLite database.
 
 ## Ownership
 
@@ -11,9 +11,11 @@ Owns: routing, UI, server logic (oRPC handlers, better-auth, mastra agents). The
 ## Local Contracts
 
 - **One database**: the schema lives in `@repo/database` (`packages/database/src/schema`), which merges better-auth tables (`auth.ts`, `shop-info.ts`) with the store domain (`product`, `order`, `supplier`, `inventory`, `purchaseInvoice`, `refund`, `tax`, `image`) and one merged `relations.ts`. `src/lib/server/db/index.ts` is the env-wiring shim: it reads `DATABASE_PATH` from `$env/static/private`, opens the `bun:sqlite` client, and calls `createDb`; it re-exports `drizzle-orm` operators and the full schema from `@repo/database`. Handlers keep importing tables, operators, and `db` from `$lib/server/db` (the shim) or directly from `@repo/database`.
-- **Single store**: the `shop` table has no `slug`. There is at most one `shop` row per user (the owner). Setup happens once via the `/setup` route (`routes/setup`), which calls `shops.create`.
-- **Routing**: no slug segment. Dashboard lives under the `(dashboard)` group at `/`, chats at `/chats`, accounts at `/accounts`. `(dashboard)/+layout.server.ts` and `chats/+layout.server.ts` load the single store and redirect to `/setup` if none exists (or `/signin` if no session).
-- **oRPC**: `src/lib/server/orpc/base.ts` defines `authMiddleware` and `shopMiddleware` / `protectedShopMiddleware` (resolve the single store, no input). Handlers import the single `db` directly from `$lib/server/db`; there is no per-request db middleware.
+- **Single store + roles**: the `shop` table has no `slug` and no `userId`; it is the one global shop row. `user.role` is `owner`, `admin`, `member`, or `user`. Dashboard access is `owner` / `admin` / `member`; `user` is reserved for future storefront/customer API accounts.
+- **First-run gate**: `src/hooks.server.ts` exports `setupGate` (runs before `authHandle`). With no users, it redirects everything to `/setup` except `/setup`, `/health`, static assets, and first-owner auth endpoints (`sign-up/email`, `sign-in/email`, `sign-in/social`, OAuth callbacks, verify/session reads). With users but no shop, `/setup` stays reachable so an OAuth-created first owner can finish store setup. Once the shop exists, `/setup` and public email signup are closed.
+- **Auth model**: better-auth `admin` plugin is enabled with `owner` as the only plugin admin role for now; `admin` and `member` are dashboard staff roles without Better Auth user-management power until the invite hierarchy exists. `accountLinking.disableImplicitLinking: true` blocks email-match implicit linking. `/signup` is closed (redirects to `/signin`). `/signin` is email/password UI only; linked Google/Facebook accounts can still sign in via the Better Auth OAuth endpoint, while unlinked OAuth cannot create accounts after setup.
+- **Routing**: no slug segment. Dashboard lives under the `(dashboard)` group at `/`, chats at `/chats`, accounts at `/accounts`. First-run routing is owned by `setupGate` in `hooks.server.ts` (see First-run gate above); dashboard/chats/accounts layouts require a session with role `owner`, `admin`, or `member`.
+- **oRPC**: `src/lib/server/orpc/base.ts` defines `authMiddleware` and `shopMiddleware` / `protectedShopMiddleware` (resolve the single store, no input). `protectedShopMiddleware` requires a dashboard role and the single shop row. `createShopHandler` additionally enforces a global shop-count guard (one shop per server). Handlers import the single `db` directly from `$lib/server/db`; there is no per-request db middleware.
 - **AI chat memory**: `src/lib/server/mastra/_lib/memory.ts` exports `getStoreMemory()` — one memory over `DATABASE_PATH`, resource id `"store"`. No per-store key.
 - **File storage keys** (S3/R2): no slug prefix — `images/...`, `invoice-files/...`, `avatars/...`.
 

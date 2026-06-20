@@ -1,3 +1,4 @@
+import { isDashboardRole } from "$lib/server/auth";
 import { db } from "$lib/server/db";
 import { extractObjectKey, getObjectStream } from "$lib/server/storage";
 
@@ -11,12 +12,13 @@ export async function GET({
   if (!locals.session) {
     return new Response("Unauthorized", { status: 401 });
   }
+  if (!isDashboardRole(locals.session.user.role)) {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   const { fileId } = await params;
 
-  const shop = await db.query.shop.findFirst({
-    where: { userId: locals.session.user.id },
-  });
+  const shop = await db.query.shop.findFirst();
 
   if (!shop) {
     return new Response("Not Found", { status: 404 });

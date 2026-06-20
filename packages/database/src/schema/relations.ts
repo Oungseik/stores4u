@@ -46,7 +46,6 @@ export const relations = defineRelations(
       sessions: r.many.session(),
       accounts: r.many.account(),
       twoFactors: r.many.twoFactor(),
-      shops: r.many.shop(),
     },
     session: {
       user: r.one.user({ from: r.session.userId, to: r.user.id }),
@@ -58,7 +57,6 @@ export const relations = defineRelations(
       user: r.one.user({ from: r.twoFactor.userId, to: r.user.id }),
     },
     shop: {
-      user: r.one.user({ from: r.shop.userId, to: r.user.id }),
       socialConnections: r.many.socialConnection(),
       shopInfo: r.one.shopInfo({ from: r.shop.shopInfoId, to: r.shopInfo.id }),
     },

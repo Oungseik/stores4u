@@ -1,6 +1,5 @@
 import { ORPCError } from "@orpc/server";
 import { CURRENCIES } from "@repo/config";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, shop } from "$lib/server/db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
@@ -11,16 +10,20 @@ const input = z.object({
 });
 
 /**
- * One-time store setup. One store per server — refuses if a store already exists
- * for the signed-in user.
+ * One-time store setup. One store per server — refuses if any shop already
+ * exists (global, not per-user) and only owners may call it.
  */
 export const createShopHandler = os
   .use(authMiddleware)
   .input(input)
   .handler(async ({ input, context }) => {
-    const existing = await db.query.shop.findFirst({
-      where: { userId: context.session.user.id },
-    });
+    if (context.session.user.role !== "owner") {
+      throw new ORPCError("FORBIDDEN", {
+        message: "Only the store owner can set up the store",
+      });
+    }
+
+    const existing = await db.query.shop.findFirst({ columns: { id: true } });
 
     if (existing) {
       throw new ORPCError("BAD_REQUEST", {
@@ -31,7 +34,6 @@ export const createShopHandler = os
     const newShopData = {
       id: Bun.randomUUIDv7(),
       name: input.name,
-      userId: context.session.user.id,
       currency: input.currency,
     };
     const result = (await db.insert(shop).values(newShopData)) as unknown as { changes: number };

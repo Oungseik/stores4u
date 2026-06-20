@@ -2,7 +2,7 @@ import { createTransporter, createEmailCallbacks } from "$lib/server/email";
 import { db } from "$lib/server/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { emailOTP, twoFactor } from "better-auth/plugins";
+import { admin, emailOTP, role, twoFactor } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import {
@@ -29,11 +29,36 @@ const transporter = createTransporter({
 });
 const emailCallbacks = createEmailCallbacks(transporter, NO_REPLY_EMAIL);
 
+export const dashboardRoles = ["owner", "admin", "member"] as const;
+export type DashboardRole = (typeof dashboardRoles)[number];
+
+export const isDashboardRole = (value: string | null | undefined): value is DashboardRole =>
+  dashboardRoles.includes(value as DashboardRole);
+
+const userManageActions = [
+  "create",
+  "list",
+  "set-role",
+  "ban",
+  "impersonate",
+  "delete",
+  "set-password",
+  "set-email",
+  "get",
+  "update",
+] as const;
+const sessionManageActions = ["list", "revoke", "delete"] as const;
+const noAdminPower = role({ user: [], session: [] });
+
 export const auth = betterAuth({
   baseURL: env.PUBLIC_ENVIRONMENT === "development" ? undefined : BETTER_AUTH_URL,
   database: drizzleAdapter(db, { provider: "sqlite" }),
   session: { cookieCache: { enabled: true, maxAge: 5 * 60 } },
   secret: BETTER_AUTH_SECRET,
+  // No implicit linking: a matching Google/Facebook email never silently
+  // creates or links an account. Post-setup creation is blocked in the user
+  // create hook below; linked OAuth signin still works.
+  account: { accountLinking: { enabled: true, disableImplicitLinking: true } },
   emailAndPassword: { enabled: true, autoSignIn: false },
   emailVerification: {
     sendOnSignUp: true,
@@ -59,10 +84,36 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin({
+      defaultRole: "user",
+      adminRoles: ["owner"],
+      roles: {
+        owner: role({ user: [...userManageActions], session: [...sessionManageActions] }),
+        admin: noAdminPower,
+        member: noAdminPower,
+        user: noAdminPower,
+      },
+    }),
     emailOTP({ sendVerificationOTP: emailCallbacks.sendVerificationOTP }),
     twoFactor({ otpOptions: { sendOTP: emailCallbacks.sendTwoFactorOTP } }),
     sveltekitCookies(getRequestEvent),
   ],
+  databaseHooks: {
+    user: {
+      create: {
+        // First user ever created becomes owner. Later account creation is
+        // deferred to the owner/admin invite flow; this also blocks raw OAuth
+        // signup after setup while preserving linked OAuth signin.
+        before: async (incoming) => {
+          const existing = await db.query.user.findFirst({ columns: { id: true } });
+          if (existing) {
+            throw new Error("Account creation is invite-only after setup.");
+          }
+          return { data: { ...incoming, role: "owner" } };
+        },
+      },
+    },
+  },
 });
 
 export type Session = typeof auth.$Infer.Session.session;
