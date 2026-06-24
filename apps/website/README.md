@@ -1,46 +1,53 @@
-# doh-htar-nay
+# Stores4U Website
 
-Doh Htar Nay - UI repo
+This is the SvelteKit product app for Stores4U. It owns routing, server logic, auth wiring, oRPC handlers, Mastra agents, and the dashboard UI.
 
-Generate with `sv`
+## App Model
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+- Single store per server, created once through `/setup`.
+- Single SQLite database from `DATABASE_PATH`, shared by Better Auth, store data, and Mastra memory.
+- First account becomes `owner`; later signup is closed until the invite flow exists.
+- Dashboard routes require `owner`, `admin`, or `member`.
+- Public OAuth can create the first owner only during first run. After setup, OAuth is sign-in only for linked accounts.
 
-## Creating a project
+## Local Development
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Run from the repository root:
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun install
+cp apps/website/.env.example .env
+mkdir -p databases
+bun run db:push
+bun run dev
 ```
 
-## Building
+The SvelteKit config reads environment variables from the repository root, so keep the runtime `.env` at the root.
 
-To create a production version of your app:
+## Scripts
 
-```bash
-npm run build
-```
+Package scripts are usually run through the root Turbo scripts:
 
-You can preview the production build with `npm run preview`.
+- `bun run dev` - Vite dev server with host binding
+- `bun run build` - production build with `svelte-adapter-bun`
+- `bun run preview` - preview the built app
+- `bun run check-types` - `svelte-check`
+- `bun run test` - Vitest unit tests
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Main Routes
 
-## Contributing Guides
+- `/setup` - first-run owner and store setup
+- `/signin` - dashboard sign-in
+- `/` - dashboard overview
+- `/checkout`, `/orders`, `/products`, `/products/categories`
+- `/purchases/invoices`, `/purchases/suppliers`
+- `/inventory/movements`, `/integrations`, `/settings`
+- `/chats` - AI assistant threads
+- `/accounts` - account area
+- `/health` - health check
 
-Guideline for documentation can be found [here](/docs/README.md)
+## Local Packages
+
+- `@repo/database` - Drizzle schema and SQLite client factory
+- `@repo/config` - shared enums and domain constants
+- `@repo/ui` - shared Svelte components and styles
