@@ -96,27 +96,24 @@ export const twoFactor = sqliteTable(
   (t) => [index("two_factor_secret_idx").on(t.secret)],
 );
 
-export const shop = sqliteTable(
-  "shop",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => (typeof Bun !== "undefined" ? Bun.randomUUIDv7() : crypto.randomUUID())),
-    name: text("name").notNull(),
-    currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
-    logo: text("logo"),
-    isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
-    shopInfoId: text("shop_info_id").references(() => shopInfo.id, {
-      onDelete: "set null",
-    }),
-    createdAt: integer("created_at", { mode: "timestamp" })
-      .$defaultFn(() => new Date())
-      .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp" })
-      .$defaultFn(() => new Date())
-      .notNull(),
-  },
-);
+export const shop = sqliteTable("shop", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => Bun.randomUUIDv7()),
+  name: text("name").notNull(),
+  currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
+  logo: text("logo"),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  shopInfoId: text("shop_info_id").references(() => shopInfo.id, {
+    onDelete: "set null",
+  }),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
 
 export type ShopSelect = typeof shop.$inferSelect;
 export type ShopInsert = typeof shop.$inferInsert;
@@ -126,7 +123,7 @@ export const socialConnection = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => (typeof Bun !== "undefined" ? Bun.randomUUIDv7() : crypto.randomUUID())),
+      .$defaultFn(() => Bun.randomUUIDv7()),
     shopId: text("shop_id")
       .notNull()
       .references(() => shop.id, { onDelete: "cascade" }),

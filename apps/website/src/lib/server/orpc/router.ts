@@ -36,6 +36,8 @@ import { rejectInvoiceFileHandler } from "./handlers/purchase-invoices/reject_in
 import { submitInvoiceReviewHandler } from "./handlers/purchase-invoices/submit_invoice_review";
 import { updateInvoiceHandler } from "./handlers/purchase-invoices/update_invoice";
 import { uploadInvoiceFileHandler } from "./handlers/purchase-invoices/upload_invoice_file";
+import { setupCreateHandler } from "./handlers/setup/create";
+import { setupStatusHandler } from "./handlers/setup/status";
 import { createShopHandler } from "./handlers/shops/create_shop";
 import { updateShopHandler } from "./handlers/shops/update_shop";
 import { connectPlatformHandler } from "./handlers/social/connect_platform";
@@ -107,6 +109,10 @@ export const router = os.router({
     get: getOrderHandler,
     list: listOrdersHandler,
     stats: statsOrdersHandler,
+  },
+  setup: {
+    create: setupCreateHandler,
+    status: setupStatusHandler,
   },
   shops: {
     create: createShopHandler,

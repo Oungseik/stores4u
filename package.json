@@ -27,6 +27,8 @@
   },
   "packageManager": "bun@1.2.8",
   "resolutions": {
-    "@tanstack/query-core": "5.96.2"
+    "@tanstack/query-core": "5.96.2",
+    "drizzle-kit": "1.0.0-rc.3",
+    "drizzle-orm": "1.0.0-rc.3"
   }
 }

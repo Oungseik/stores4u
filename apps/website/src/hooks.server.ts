@@ -33,7 +33,12 @@ const setupGate: Handle = async ({ event, resolve }) => {
   const isStaticAsset = lastSegment.includes(".") || path.startsWith("/_app/");
 
   if (!firstUser) {
-    if (path === "/setup" || path === "/health" || isStaticAsset) {
+    if (
+      path === "/setup" ||
+      path === "/health" ||
+      isStaticAsset ||
+      path.startsWith("/rpc/setup/")
+    ) {
       return resolve(event);
     }
 
@@ -54,7 +59,8 @@ const setupGate: Handle = async ({ event, resolve }) => {
       path.startsWith("/forgot-password") ||
       path === "/health" ||
       isStaticAsset ||
-      path.startsWith("/api/auth/")
+      path.startsWith("/api/auth/") ||
+      path.startsWith("/rpc/setup/")
     ) {
       return resolve(event);
     }

@@ -6,14 +6,18 @@
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import * as Select from "@repo/ui/select";
-  import { enhance } from "$app/forms";
+  import { createForm } from "@tanstack/svelte-form";
+  import { createMutation, createQuery } from "@tanstack/svelte-query";
+  import { goto } from "$app/navigation";
   import { PUBLIC_SITE_NAME } from "$env/static/public";
+  import { orpc } from "$lib/orpc_client";
+  import { toast } from "svelte-sonner";
 
-  import type { ActionData, PageProps } from "./$types";
-
-  const { data, form }: PageProps = $props();
-
-  let submitting = $state(false);
+  // /setup is reachable only while no shop exists (setupGate). The status
+  // query replaces the old load function's `needsAccount` data; the gate
+  // already handles the redirects the load used to do.
+  const status = createQuery(() => orpc.setup.status.queryOptions({ input: {} }));
+  const needsAccount = $derived(status.data?.needsAccount ?? false);
 
   const currencies = CURRENCIES.map((code) => {
     const formatter = new Intl.NumberFormat("en", {
@@ -25,11 +29,37 @@
     return { value: code, label: `${name} (${code})` };
   });
 
-  let name = $state("");
-  let email = $state("");
-  let password = $state("");
-  let storeName = $state("");
-  let currency = $state<CurrencyCode>("USD");
+  const setupMutation = createMutation(() =>
+    orpc.setup.create.mutationOptions({
+      onSuccess: (data) => {
+        // ponytail: redirect target from the mutation result, not the (now
+        // stale) status query — needsAccount was true exactly for this submit.
+        goto(data.needsAccount ? "/signin?setup=1" : "/");
+      },
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : "Setup failed");
+      },
+    })
+  );
+
+  const form = createForm(() => ({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      storeName: "",
+      currency: "USD" as CurrencyCode,
+    },
+    onSubmit: async ({ value }) => {
+      setupMutation.mutate({
+        storeName: value.storeName,
+        currency: value.currency,
+        ...(needsAccount
+          ? { name: value.name, email: value.email, password: value.password }
+          : {}),
+      });
+    },
+  }));
 </script>
 
 <div class="bg-background flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
@@ -47,84 +77,152 @@
 
     <Card.Root>
       <Card.Content class="space-y-6 pt-6">
-        <form
-          method="POST"
-          use:enhance={() => {
-            submitting = true;
-            return async ({ update }) => {
-              await update();
-              submitting = false;
-            };
-          }}
-          class="space-y-6"
-        >
-          {#if data.needsAccount}
-            <div class="space-y-2">
-              <Label for="name">Your name *</Label>
-              <Input id="name" name="name" value={name} autocomplete="name" required />
-            </div>
+        {#if status.isLoading}
+          <p class="text-muted-foreground text-sm">Loading…</p>
+        {:else}
+          <form
+            class="space-y-6"
+            onsubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+          >
+            {#if needsAccount}
+              <form.Field
+                name="name"
+                validators={{
+                  onChange: ({ value }) =>
+                    needsAccount && !value.trim() ? "Your name is required" : undefined,
+                }}
+              >
+                {#snippet children(field)}
+                  <div class="space-y-2">
+                    <Label for={field.name}>Your name *</Label>
+                    <Input
+                      id={field.name}
+                      value={field.state.value}
+                      autocomplete="name"
+                      onblur={field.handleBlur}
+                      onchange={(e) => field.handleChange(e.currentTarget.value)}
+                    />
+                    {#if field.state.meta.errors.length}
+                      <p class="text-destructive text-sm">{field.state.meta.errors}</p>
+                    {/if}
+                  </div>
+                {/snippet}
+              </form.Field>
 
-            <div class="space-y-2">
-              <Label for="email">Email *</Label>
-              <Input
-                id="email"
+              <form.Field
                 name="email"
-                type="email"
-                value={email}
-                autocomplete="email"
-                required
-              />
-            </div>
+                validators={{
+                  onChange: ({ value }) =>
+                    needsAccount && !value.trim() ? "Email is required" : undefined,
+                }}
+              >
+                {#snippet children(field)}
+                  <div class="space-y-2">
+                    <Label for={field.name}>Email *</Label>
+                    <Input
+                      id={field.name}
+                      type="email"
+                      value={field.state.value}
+                      autocomplete="email"
+                      onblur={field.handleBlur}
+                      onchange={(e) => field.handleChange(e.currentTarget.value)}
+                    />
+                    {#if field.state.meta.errors.length}
+                      <p class="text-destructive text-sm">{field.state.meta.errors}</p>
+                    {/if}
+                  </div>
+                {/snippet}
+              </form.Field>
 
-            <div class="space-y-2">
-              <Label for="password">Password *</Label>
-              <Input
-                id="password"
+              <form.Field
                 name="password"
-                type="password"
-                value={password}
-                autocomplete="new-password"
-                minlength={8}
-                required
-              />
-              <p class="text-muted-foreground text-sm">At least 8 characters.</p>
-            </div>
+                validators={{
+                  onChange: ({ value }) =>
+                    needsAccount && value.length < 8
+                      ? "Password must be at least 8 characters"
+                      : undefined,
+                }}
+              >
+                {#snippet children(field)}
+                  <div class="space-y-2">
+                    <Label for={field.name}>Password *</Label>
+                    <Input
+                      id={field.name}
+                      type="password"
+                      value={field.state.value}
+                      autocomplete="new-password"
+                      onblur={field.handleBlur}
+                      onchange={(e) => field.handleChange(e.currentTarget.value)}
+                    />
+                    <p class="text-muted-foreground text-sm">At least 8 characters.</p>
+                    {#if field.state.meta.errors.length}
+                      <p class="text-destructive text-sm">{field.state.meta.errors}</p>
+                    {/if}
+                  </div>
+                {/snippet}
+              </form.Field>
 
-            <hr class="border-border" />
-          {/if}
+              <hr class="border-border" />
+            {/if}
 
-          <div class="space-y-2">
-            <Label for="store-name">Store Name *</Label>
-            <Input id="store-name" name="storeName" value={storeName} required />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="store-currency">Currency</Label>
-            <input type="hidden" name="currency" value={currency} />
-            <Select.Root
-              type="single"
-              value={currency}
-              onValueChange={(v) => (currency = v as CurrencyCode)}
+            <form.Field
+              name="storeName"
+              validators={{
+                onChange: ({ value }) => (value.trim() ? undefined : "Store name is required"),
+              }}
             >
-              <Select.Trigger class="w-full sm:w-[300px]">
-                {currencies.find((c) => c.value === currency)?.label ?? "Select currency"}
-              </Select.Trigger>
-              <Select.Content>
-                {#each currencies as curr}
-                  <Select.Item value={curr.value}>{curr.label}</Select.Item>
-                {/each}
-              </Select.Content>
-            </Select.Root>
-          </div>
+              {#snippet children(field)}
+                <div class="space-y-2">
+                  <Label for={field.name}>Store Name *</Label>
+                  <Input
+                    id={field.name}
+                    value={field.state.value}
+                    onblur={field.handleBlur}
+                    onchange={(e) => field.handleChange(e.currentTarget.value)}
+                  />
+                  {#if field.state.meta.errors.length}
+                    <p class="text-destructive text-sm">{field.state.meta.errors}</p>
+                  {/if}
+                </div>
+              {/snippet}
+            </form.Field>
 
-          {#if form?.message}
-            <p class="text-destructive text-sm">{form.message}</p>
-          {/if}
+            <form.Field name="currency">
+              {#snippet children(field)}
+                <div class="space-y-2">
+                  <Label for="store-currency">Currency</Label>
+                  <Select.Root
+                    type="single"
+                    value={field.state.value}
+                    onValueChange={(v) => field.handleChange(v as CurrencyCode)}
+                  >
+                    <Select.Trigger class="w-full sm:w-[300px]">
+                      {currencies.find((c) => c.value === field.state.value)?.label ??
+                        "Select currency"}
+                    </Select.Trigger>
+                    <Select.Content>
+                      {#each currencies as curr}
+                        <Select.Item value={curr.value}>{curr.label}</Select.Item>
+                      {/each}
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+              {/snippet}
+            </form.Field>
 
-          <Button disabled={submitting} type="submit" class="w-full">
-            {submitting ? "Setting up..." : data.needsAccount ? "Create owner & store" : "Create store"}
-          </Button>
-        </form>
+            <Button disabled={setupMutation.isPending} type="submit" class="w-full">
+              {setupMutation.isPending
+                ? "Setting up..."
+                : needsAccount
+                  ? "Create owner & store"
+                  : "Create store"}
+            </Button>
+          </form>
+        {/if}
       </Card.Content>
     </Card.Root>
   </div>
