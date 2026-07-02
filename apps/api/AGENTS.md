@@ -11,6 +11,7 @@ Owns: API runtime entrypoints, generated API documentation, and future backend o
 ## Local Contracts
 
 - Keep this app separate from `apps/website`; migrate backend behavior deliberately.
+- Feature slices: each bounded domain lives in `src/features/<feature>/` as `api.ts` (the `HttpApiGroup` declaration + endpoint schemas + its OpenApi annotations), `live.ts` (the `HttpApiBuilder.group` handler layer), and `<feature>.test.ts`. Split out a service Tag + `Live`/`Test` layers only when a handler gains a real swappable dependency.
 - Reuse repo packages when needed instead of duplicating domain code or database schema.
 - The workspace package name is `@repo/api`; do not use bare `api`, which can collide with npm dependencies.
 - Use `effect@4` beta APIs for this app. Prefer `effect/unstable/http` and `effect/unstable/httpapi`; do not add stable `@effect/platform*` packages unless they are compatible with Effect v4.
@@ -24,8 +25,8 @@ Owns: API runtime entrypoints, generated API documentation, and future backend o
 
 ## Work Guidance
 
-- `src/app.ts` owns the HTTP API/layer definition; `src/index.ts` owns Bun process startup.
-- Endpoint tests use `@effect/vitest` and should exercise `ApiLive` through `HttpRouter.toWebHandler` instead of starting a port.
+- `src/api.ts` owns the root `Api` declaration (built from feature group declarations only — it imports no handler layers, so it stays a leaf in the import graph and avoids cycles). `src/app.ts` owns `ApiLive` assembly (composes the feature handler layers with Scalar and `HttpServer.layerServices`). `src/index.ts` owns Bun process startup.
+- Endpoint tests use `@effect/vitest` and exercise a feature through the in-memory typed client from `HttpApiTest.groups(Api, ["<Group>"])` inside `it.layer(TestServices)` (where `TestServices` provides `Path.layer`, `Etag.layerWeak`, `HttpPlatform.layer` over `FileSystem.layerNoop`); provide the feature's handler layer (or its mock service layers) with `Effect.provide`. Do not start a port and do not use `HttpRouter.toWebHandler`.
 - Start with `bun run dev --filter=@repo/api` from the repository root or `bun run dev` inside `apps/api`.
 - Effect language-service is configured in `tsconfig.json`; editors must use the workspace TypeScript version for the plugin to load.
 
