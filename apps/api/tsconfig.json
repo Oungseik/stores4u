@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "strict": true,
+    "types": ["bun"],
     "skipLibCheck": true,
     "plugins": [{ "name": "@effect/language-service" }]
   },

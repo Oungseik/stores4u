@@ -65,6 +65,10 @@ Default section order:
 - Delete stale notes instead of explaining history
 - Trim obvious statements, repeated rules, misplaced detail, and warnings for risks that no longer exist
 
+## Work Guidance
+
+- `bun install` runs `scripts/prepare-effect.sh`, which ensures `.repos/effect` exists as an ignored local clone of `https://github.com/Effect-TS/effect-smol` for Effect reference work.
+
 ## Closeout
 
 1. Re-check changed paths against the DOX chain
@@ -83,13 +87,14 @@ Default section order:
 - **No public signup after setup**: `/signup` is closed and redirects to `/signin`; `/api/auth/sign-up/email` is closed once the shop exists. `/setup` creates the first owner by email/password on a clean DB, or completes store setup for the first owner if that owner was created through first-run OAuth.
 - **Social OAuth**: during first run only, `/api/auth/sign-in/social` and `/api/auth/callback/*` may create the first `owner`. After that, OAuth can sign in only to an already-linked account. `accountLinking.disableImplicitLinking: true` blocks email-match implicit linking; the user create hook blocks raw OAuth signup after setup.
 - **Invite flow = deferred**: owners will invite admins/members later; admins may eventually manage members/users but must not promote owners without a dedicated hierarchy check. Do not expose public staff/customer signup from the dashboard.
+- **No Docker deployment**: do not maintain Dockerfile, `.dockerignore`, Docker Compose, or Docker image deployment workflows for this repo.
 
 When the user requests a durable behavior change, record it here or in the relevant child AGENTS.md
 
 ## Child DOX Index
 
 - `apps/website` — the SvelteKit application (the product). See `apps/website/AGENTS.md`.
-- `apps/api` — the Bun TypeScript API app, intended to grow into the Effect-based backend. See `apps/api/AGENTS.md`.
+- `apps/api` — the Bun TypeScript Effect v4 API app with generated OpenAPI/Scalar docs. See `apps/api/AGENTS.md`.
 - `packages/config` — shared config, enums, domain constants. See `packages/config/AGENTS.md`.
 - `packages/database` — single-store Drizzle schema, SQLite client factory, Drizzle Kit config. See `packages/database/AGENTS.md`.
 - `packages/ui` — shared Svelte UI component library. See `packages/ui/AGENTS.md`.
