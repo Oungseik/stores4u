@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "api",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@effect/language-service": "^0.86.2",
+    "typescript": "^6.0.3"
+  }
+}
