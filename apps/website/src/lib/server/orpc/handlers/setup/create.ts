@@ -26,58 +26,56 @@ const input = z.object({
  *   insert the shop row.
  * One store per server: refuses if a shop already exists.
  */
-export const setupCreateHandler = os
-  .input(input)
-  .handler(async ({ input, context }) => {
-    const existingShop = await db.query.shop.findFirst({ columns: { id: true } });
-    if (existingShop) {
-      throw new ORPCError("BAD_REQUEST", { message: "Store is already set up." });
-    }
+export const setupCreateHandler = os.input(input).handler(async ({ input, context }) => {
+  const existingShop = await db.query.shop.findFirst({ columns: { id: true } });
+  if (existingShop) {
+    throw new ORPCError("BAD_REQUEST", { message: "Store is already set up." });
+  }
 
-    const firstUser = await db.query.user.findFirst({ columns: { id: true } });
-    const needsAccount = !firstUser;
+  const firstUser = await db.query.user.findFirst({ columns: { id: true } });
+  const needsAccount = !firstUser;
 
-    let userId = context.session?.user.id ?? "";
+  let userId = context.session?.user.id ?? "";
 
-    if (needsAccount) {
-      if (!input.name || !input.email || !input.password) {
-        throw new ORPCError("INPUT_VALIDATION_FAILED", {
-          message: "Name, email, and password are required to create the owner.",
-        });
-      }
-      try {
-        const signUp = await auth.api.signUpEmail({
-          body: { name: input.name, email: input.email, password: input.password },
-          headers: getRequestEvent().request.headers,
-        });
-        userId = signUp?.user?.id ?? "";
-      } catch {
-        throw new ORPCError("BAD_REQUEST", {
-          message: "Could not create the account. That email may already be in use.",
-        });
-      }
-    } else if (!context.session || !isDashboardRole(context.session.user.role)) {
-      throw new ORPCError("UNAUTHORIZED", {
-        message: "Sign in as the store owner to finish setup.",
+  if (needsAccount) {
+    if (!input.name || !input.email || !input.password) {
+      throw new ORPCError("INPUT_VALIDATION_FAILED", {
+        message: "Name, email, and password are required to create the owner.",
       });
     }
-
-    if (!userId) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Could not create the account." });
-    }
-
     try {
-      await db.insert(shop).values({
-        id: Bun.randomUUIDv7(),
-        name: input.storeName,
-        currency: input.currency,
+      const signUp = await auth.api.signUpEmail({
+        body: { name: input.name, email: input.email, password: input.password },
+        headers: getRequestEvent().request.headers,
       });
-    } catch (err) {
-      logger.error({ err, userId }, "shop insert failed after owner creation");
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Account created but store setup failed. Reset the database to retry.",
+      userId = signUp?.user?.id ?? "";
+    } catch {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Could not create the account. That email may already be in use.",
       });
     }
+  } else if (!context.session || !isDashboardRole(context.session.user.role)) {
+    throw new ORPCError("UNAUTHORIZED", {
+      message: "Sign in as the store owner to finish setup.",
+    });
+  }
 
-    return { needsAccount };
-  });
+  if (!userId) {
+    throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Could not create the account." });
+  }
+
+  try {
+    await db.insert(shop).values({
+      id: Bun.randomUUIDv7(),
+      name: input.storeName,
+      currency: input.currency,
+    });
+  } catch (err) {
+    logger.error({ err, userId }, "shop insert failed after owner creation");
+    throw new ORPCError("INTERNAL_SERVER_ERROR", {
+      message: "Account created but store setup failed. Reset the database to retry.",
+    });
+  }
+
+  return { needsAccount };
+});

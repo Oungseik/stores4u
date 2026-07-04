@@ -31,7 +31,7 @@
   let messagesQuery = createQuery(() =>
     orpc.threads.getMessages.queryOptions({
       input: { threadId },
-    })
+    }),
   );
 
   let chat = $derived(
@@ -43,7 +43,7 @@
       onFinish: () => {
         queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
       },
-    })
+    }),
   );
 
   $effect(() => {

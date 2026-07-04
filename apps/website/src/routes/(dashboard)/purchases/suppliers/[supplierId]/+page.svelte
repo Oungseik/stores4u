@@ -38,13 +38,13 @@
       onError: (error) => {
         toast.error(error.message || "Failed to delete supplier");
       },
-    })
+    }),
   );
 
   const supplierQuery = createQuery(() =>
     orpc.suppliers.get.queryOptions({
       input: { supplierId: params.supplierId },
-    })
+    }),
   );
 
   const supplier = $derived(supplierQuery.data);
@@ -61,7 +61,7 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true && !!params.supplierId,
-    })
+    }),
   );
 
   const allInvoices = $derived(invoices.data?.pages.flatMap((page) => page.items) ?? []);
@@ -226,7 +226,6 @@
         {#key supplier.id}
           <SupplierForm
             bind:this={editFormRef}
-
             initialData={{
               action: "update",
               id: supplier.id,

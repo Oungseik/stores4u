@@ -27,7 +27,7 @@
   };
 
   const config = $derived(
-    statusConfig[status] ?? { class: "bg-gray-50 text-gray-700 border-gray-200", label: status }
+    statusConfig[status] ?? { class: "bg-gray-50 text-gray-700 border-gray-200", label: status },
   );
 </script>
 

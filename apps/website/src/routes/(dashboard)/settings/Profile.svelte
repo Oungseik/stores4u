@@ -57,7 +57,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to update settings");
       },
-    })
+    }),
   );
 
   const uploadMutation = createMutation(() =>
@@ -65,7 +65,7 @@
       onError: () => {
         toast.error("Failed to upload image");
       },
-    })
+    }),
   );
 
   let logoPreview = $derived(shop.logo);

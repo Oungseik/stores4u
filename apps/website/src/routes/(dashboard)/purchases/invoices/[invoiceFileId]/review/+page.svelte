@@ -48,25 +48,25 @@
         if (query.state.data?.status === "PROCESSING") return 5000;
         return false;
       },
-    })
+    }),
   );
 
   const suppliersQuery = createQuery(() =>
     orpc.suppliers.list.queryOptions({
       input: { pageSize: 1000 },
-    })
+    }),
   );
 
   const productsQuery = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { pageSize: 1000 },
-    })
+    }),
   );
 
   const products = $derived(
     (productsQuery.data?.items ?? []).map(
-      (p) => ({ id: p.id, name: p.name, sku: p.sku }) satisfies ProductOption
-    )
+      (p) => ({ id: p.id, name: p.name, sku: p.sku }) satisfies ProductOption,
+    ),
   );
 
   const aliasesByProductId = $derived(
@@ -78,7 +78,7 @@
         }
       }
       return map;
-    })()
+    })(),
   );
 
   const extractedData = $derived(invoiceFileQuery.data?.ocrResult?.extractedData ?? null);
@@ -89,14 +89,14 @@
     orpc.suppliers.list.queryOptions({
       input: { pageSize: 1, search: supplierSearchName ?? "" },
       enabled: supplierSearchName !== null,
-    })
+    }),
   );
 
   const isLoading = $derived(
     invoiceFileQuery.isLoading ||
       suppliersQuery.isLoading ||
       productsQuery.isLoading ||
-      (supplierSearchName !== null && searchSupplierQuery.isLoading)
+      (supplierSearchName !== null && searchSupplierQuery.isLoading),
   );
 
   const error = $derived.by(() => {
@@ -130,7 +130,7 @@
   const fileStatus = $derived(invoiceFileQuery.data?.status);
 
   const needsProcessing = $derived(
-    fileStatus === "UPLOADED" || fileStatus === "FAILED" || fileStatus === "REJECTED"
+    fileStatus === "UPLOADED" || fileStatus === "FAILED" || fileStatus === "REJECTED",
   );
 
   const isRejected = $derived(fileStatus === "REJECTED");
@@ -144,7 +144,7 @@
       !error &&
       invoiceFileQuery.isSuccess &&
       suppliersQuery.isSuccess &&
-      productsQuery.isSuccess
+      productsQuery.isSuccess,
   );
 
   const processMutation = createMutation(() => orpc.purchaseInvoices.processFile.mutationOptions());
@@ -163,12 +163,12 @@
           toast.error(error.message || "Failed to process invoice");
           isProcessing = false;
         },
-      }
+      },
     );
   }
 
   const lineTotalsCents = $derived(
-    invoiceData.items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
+    invoiceData.items.map((item) => calcLineTotalCents(item.qty, item.unitCost)),
   );
 
   const subtotalCents = $derived(lineTotalsCents.reduce((sum, total) => sum + total, 0));
@@ -185,7 +185,7 @@
     const matches = matchItems(
       extractedItems.map((i) => i.productName),
       products,
-      aliasesByProductId
+      aliasesByProductId,
     );
 
     invoiceData = {
@@ -259,7 +259,7 @@
         subtotalCents +
           invoiceData.vat * 100 -
           invoiceData.discount * 100 +
-          invoiceData.freight * 100
+          invoiceData.freight * 100,
       );
 
       await submitReviewMutation.mutateAsync({
@@ -309,7 +309,7 @@
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
       },
-    })
+    }),
   );
 
   const rejectMutation = createMutation(() => orpc.purchaseInvoices.rejectFile.mutationOptions());
@@ -336,7 +336,7 @@
               toast.error("Failed to reject invoice");
             },
             onSettled: () => (isRejecting = false),
-          }
+          },
         );
       },
     });
@@ -499,7 +499,6 @@
             : ''}"
         >
           <SupplierCard
-
             {suppliers}
             bind:selectedSupplier
             bind:isExistingSupplier
@@ -509,7 +508,6 @@
           <ItemsCard
             bind:items={invoiceData.items}
             {products}
-
             currency={shop.currency}
             onProductCreated={() => {
               queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });

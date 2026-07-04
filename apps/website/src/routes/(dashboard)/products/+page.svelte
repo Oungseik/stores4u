@@ -62,7 +62,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to delete product");
       },
-    })
+    }),
   );
 
   function handleDeleteProduct(id: string) {
@@ -88,7 +88,7 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true,
-    })
+    }),
   );
 
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
@@ -96,19 +96,17 @@
     orpc.categories.list.queryOptions({
       input: { pageSize: 100 },
       enabled: true,
-    })
+    }),
   );
 
   const productStats = createQuery(() =>
     orpc.products.stats.queryOptions({
       input: {},
       enabled: true,
-    })
+    }),
   );
 
-  const columns = $derived(
-    createColumns(shop.currency, handleDeleteProduct, handleAdjustProduct)
-  );
+  const columns = $derived(createColumns(shop.currency, handleDeleteProduct, handleAdjustProduct));
   const hasFilters = $derived(searchParams.search.length > 0 || searchParams.categories.length > 0);
 
   function resetFilters() {
@@ -122,9 +120,7 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <AdminDashboardHeader
-    breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Products" }]}
-  >
+  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Products" }]}>
     {#snippet actions()}
       <a href={`/products/add`} class={buttonVariants()}>
         <PlusIcon class="size-4" /> Add Product
@@ -297,7 +293,7 @@
           {@const marginPercent =
             product.lastCostCents && product.lastCostCents > 0
               ? Math.round(
-                  ((product.priceCents - product.lastCostCents) / product.lastCostCents) * 100
+                  ((product.priceCents - product.lastCostCents) / product.lastCostCents) * 100,
                 )
               : null}
           {@const stockStatus =
@@ -441,7 +437,6 @@
     <StockAdjustmentDialog
       open={true}
       onClose={() => (adjustProduct = null)}
-
       productId={adjustProduct.id}
       productName={adjustProduct.name}
       currentStock={adjustProduct.stock}

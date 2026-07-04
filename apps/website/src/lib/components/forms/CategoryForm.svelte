@@ -37,7 +37,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to create category");
       },
-    })
+    }),
   );
 
   const updateCategory = createMutation(() =>
@@ -50,7 +50,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to update category");
       },
-    })
+    }),
   );
 
   // svelte-ignore state_referenced_locally

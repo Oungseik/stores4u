@@ -17,7 +17,7 @@
 
   // Use mainImage if provided, otherwise use first image or placeholder
   const allImages = $derived(
-    mainImage ? [{ src: mainImage, alt: productName }, ...images] : images
+    mainImage ? [{ src: mainImage, alt: productName }, ...images] : images,
   );
 
   let currentIndex = $state(0);

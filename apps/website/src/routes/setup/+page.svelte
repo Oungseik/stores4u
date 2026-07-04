@@ -39,7 +39,7 @@
       onError: (error) => {
         toast.error(error instanceof Error ? error.message : "Setup failed");
       },
-    })
+    }),
   );
 
   const form = createForm(() => ({
@@ -54,9 +54,7 @@
       setupMutation.mutate({
         storeName: value.storeName,
         currency: value.currency,
-        ...(needsAccount
-          ? { name: value.name, email: value.email, password: value.password }
-          : {}),
+        ...(needsAccount ? { name: value.name, email: value.email, password: value.password } : {}),
       });
     },
   }));
@@ -70,8 +68,8 @@
       </div>
       <h1 class="text-2xl font-semibold tracking-tight">Set up your store</h1>
       <p class="text-muted-foreground mt-1 text-sm">
-        {PUBLIC_SITE_NAME} runs one store per server. Configure the store below. You can edit these
-        details later in settings.
+        {PUBLIC_SITE_NAME} runs one store per server. Configure the store below. You can edit these details
+        later in settings.
       </p>
     </div>
 

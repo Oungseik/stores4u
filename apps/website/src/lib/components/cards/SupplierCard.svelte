@@ -75,7 +75,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to create supplier");
       },
-    })
+    }),
   );
 
   function selectSupplier(supplier: Supplier) {
@@ -214,7 +214,6 @@
     {:else}
       <SupplierForm
         bind:this={supplierFormRef}
-       
         initialData={initialSupplierData
           ? {
               action: "create",

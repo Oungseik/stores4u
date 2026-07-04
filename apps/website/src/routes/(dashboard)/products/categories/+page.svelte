@@ -51,15 +51,15 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true,
-    })
+    }),
   );
 
   const allCategories = $derived(
     (categories.data?.pages.flatMap((page) => page.items) ?? []).filter((c) =>
       debouncedSearch.current
         ? c.name.toLowerCase().includes(debouncedSearch.current.toLowerCase())
-        : true
-    )
+        : true,
+    ),
   );
 
   const hasFilters = $derived(searchParams.search.length > 0);
@@ -91,7 +91,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to delete category");
       },
-    })
+    }),
   );
 
   function performDelete(category: CategoryItem) {
@@ -108,9 +108,7 @@
     });
   }
 
-  const columns = $derived(
-    createColumns(handleEditCategory, performDelete, handleManageProducts)
-  );
+  const columns = $derived(createColumns(handleEditCategory, performDelete, handleManageProducts));
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
@@ -301,7 +299,6 @@
   <EditCategoryDialog
     open={true}
     onClose={() => (editingCategory = null)}
-
     category={editingCategory}
   />
 {/if}
@@ -310,7 +307,6 @@
   <ManageCategoryProductsDialog
     open={true}
     onClose={() => (managingCategory = null)}
-
     category={managingCategory}
   />
 {/if}

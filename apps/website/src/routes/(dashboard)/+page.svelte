@@ -39,20 +39,20 @@
     orpc.dashboard.stats.queryOptions({
       input: {},
       enabled: true,
-    })
+    }),
   );
 
   const revenueTrendQuery = createQuery(() =>
     orpc.dashboard.revenueTrend.queryOptions({
       input: { days: trendDays },
       enabled: true,
-    })
+    }),
   );
 
   const chartYDomain = $derived.by(() => {
     if (!revenueTrendQuery.data) return [0, null] as [number, number | null];
     const maxVal = Math.max(
-      ...revenueTrendQuery.data.days.map((d) => Math.max(d.revenueCents, d.costCents))
+      ...revenueTrendQuery.data.days.map((d) => Math.max(d.revenueCents, d.costCents)),
     );
     return [0, maxVal] as [number, number | null];
   });

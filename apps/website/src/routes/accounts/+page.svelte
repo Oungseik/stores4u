@@ -43,13 +43,13 @@
   const accountsQuery = createQuery(() => orpc.user.listAccounts.queryOptions());
 
   const isGoogleConnected = $derived(
-    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "google") ?? false
+    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "google") ?? false,
   );
   const isFacebookConnected = $derived(
-    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "facebook") ?? false
+    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "facebook") ?? false,
   );
   const isPasswordConnected = $derived(
-    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "password") ?? false
+    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "password") ?? false,
   );
 
   async function handleLinkProvider(provider: "google" | "facebook") {
@@ -100,7 +100,7 @@
         onSettled: () => {
           isUploadingAvatar = false;
         },
-      }
+      },
     );
   }
 
@@ -769,14 +769,20 @@
                 <div>
                   <p class="text-sm font-medium">Google</p>
                   <p class="text-muted-foreground text-xs">
-                    {isGoogleConnected ? "Linked — sign in with Google" : "Link to sign in with Google"}
+                    {isGoogleConnected
+                      ? "Linked — sign in with Google"
+                      : "Link to sign in with Google"}
                   </p>
                 </div>
               </div>
               {#if isGoogleConnected}
                 <div class="flex items-center gap-2">
                   <Badge variant="secondary">Connected</Badge>
-                  <Button variant="outline" size="sm" onclick={() => handleUnlinkProvider("google")}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onclick={() => handleUnlinkProvider("google")}
+                  >
                     Unlink
                   </Button>
                 </div>
@@ -808,7 +814,11 @@
               {#if isFacebookConnected}
                 <div class="flex items-center gap-2">
                   <Badge variant="secondary">Connected</Badge>
-                  <Button variant="outline" size="sm" onclick={() => handleUnlinkProvider("facebook")}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onclick={() => handleUnlinkProvider("facebook")}
+                  >
                     Unlink
                   </Button>
                 </div>
@@ -843,8 +853,8 @@
             <Separator />
 
             <p class="text-muted-foreground text-xs">
-              Linking a provider lets you sign in with it. After setup, OAuth can only sign in to
-              an already-linked account.
+              Linking a provider lets you sign in with it. After setup, OAuth can only sign in to an
+              already-linked account.
             </p>
           </Card.Content>
         </Card.Root>

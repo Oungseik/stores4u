@@ -14,7 +14,7 @@
   const { movementType, unitCostCents, unitPriceCents, currency }: Props = $props();
 
   const cents = $derived(
-    movementType === "SALE" || movementType === "RETURN" ? unitPriceCents : unitCostCents
+    movementType === "SALE" || movementType === "RETURN" ? unitPriceCents : unitCostCents,
   );
 </script>
 

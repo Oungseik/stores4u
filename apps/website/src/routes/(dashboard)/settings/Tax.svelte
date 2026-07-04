@@ -27,7 +27,7 @@
   const taxSettingsQuery = createQuery(() =>
     orpc.tax.get.queryOptions({
       input: {},
-    })
+    }),
   );
 
   const updateTaxMutation = createMutation(() =>
@@ -40,7 +40,7 @@
       onError: (error: { message?: string }) => {
         toast.error(error.message || "Failed to update VAT settings");
       },
-    })
+    }),
   );
 
   const defaultSettings = {

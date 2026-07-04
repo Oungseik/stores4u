@@ -27,9 +27,7 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <AdminDashboardHeader
-    breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Settings" }]}
-  />
+  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Settings" }]} />
 
   <Tabs.Root bind:value={searchParams.tab} class="w-full max-w-2xl">
     <div class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">

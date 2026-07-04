@@ -35,25 +35,25 @@
   const suppliersQuery = createQuery(() =>
     orpc.suppliers.list.queryOptions({
       input: { pageSize: 1000 },
-    })
+    }),
   );
 
   const productsQuery = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { pageSize: 1000 },
-    })
+    }),
   );
 
   const invoiceFileQuery = createQuery(() =>
     orpc.purchaseInvoices.getFile.queryOptions({
       input: { invoiceFileId: params.invoiceFileId },
-    })
+    }),
   );
 
   const products = $derived(
     (productsQuery.data?.items ?? []).map(
-      (p) => ({ id: p.id, name: p.name, sku: p.sku }) satisfies ProductOption
-    )
+      (p) => ({ id: p.id, name: p.name, sku: p.sku }) satisfies ProductOption,
+    ),
   );
 
   const isLoading = $derived(suppliersQuery.isLoading || productsQuery.isLoading);
@@ -82,15 +82,15 @@
   const canSave = $derived(
     selectedSupplier !== null &&
       invoiceData.items.length > 0 &&
-      invoiceData.items.every((i) => i.productId && i.invoiceItemName.trim())
+      invoiceData.items.every((i) => i.productId && i.invoiceItemName.trim()),
   );
 
   const canShowActions = $derived(
-    !isLoading && !error && suppliersQuery.isSuccess && productsQuery.isSuccess
+    !isLoading && !error && suppliersQuery.isSuccess && productsQuery.isSuccess,
   );
 
   const lineTotalsCents = $derived(
-    invoiceData.items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
+    invoiceData.items.map((item) => calcLineTotalCents(item.qty, item.unitCost)),
   );
 
   const subtotalCents = $derived(lineTotalsCents.reduce((sum, total) => sum + total, 0));
@@ -145,7 +145,7 @@
         queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
       },
-    })
+    }),
   );
 
   async function handleSave() {
@@ -163,7 +163,7 @@
         subtotalCents +
           invoiceData.vat * 100 -
           invoiceData.discount * 100 +
-          invoiceData.freight * 100
+          invoiceData.freight * 100,
       );
 
       await updateMutation.mutateAsync({
@@ -251,17 +251,11 @@
       />
 
       <div class="flex flex-col gap-6 xl:col-start-1 xl:col-end-2 xl:row-start-1">
-        <SupplierCard
-
-          {suppliers}
-          bind:selectedSupplier
-          bind:isExistingSupplier
-        />
+        <SupplierCard {suppliers} bind:selectedSupplier bind:isExistingSupplier />
 
         <ItemsCard
           bind:items={invoiceData.items}
           {products}
-
           currency={shop.currency}
           onProductCreated={() => {
             queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });

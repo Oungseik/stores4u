@@ -39,7 +39,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to delete supplier");
       },
-    })
+    }),
   );
 
   type ApiSupplier = {
@@ -71,7 +71,7 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true,
-    })
+    }),
   );
 
   const allSuppliers = $derived(suppliers.data?.pages.flatMap((page) => page.items) ?? []);
@@ -107,9 +107,7 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <AdminDashboardHeader
-    breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Suppliers" }]}
-  >
+  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Suppliers" }]}>
     {#snippet actions()}
       <Button onclick={() => (isAddOpen = true)}>
         <PlusIcon class="size-4" />
@@ -227,11 +225,7 @@
               {/if}
             </Card.Content>
             <Card.Footer class="flex flex-col gap-2 pt-0">
-              <Button
-                variant="outline"
-                class="w-full"
-                href={`/purchases/suppliers/${supplier.id}`}
-              >
+              <Button variant="outline" class="w-full" href={`/purchases/suppliers/${supplier.id}`}>
                 View Details
               </Button>
               <div class="flex w-full gap-2">
@@ -289,7 +283,6 @@
     <div class="px-3 sm:px-4">
       <SupplierForm
         bind:this={addFormRef}
-
         onSuccess={() => {
           isAddOpen = false;
           addFormRef?.resetForm();
@@ -321,7 +314,6 @@
         {#key selectedSupplier.id}
           <SupplierForm
             bind:this={editFormRef}
-
             initialData={{
               action: "update",
               id: selectedSupplier.id,

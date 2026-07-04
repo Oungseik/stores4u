@@ -43,7 +43,7 @@
   const categoriesQuery = createQuery(() =>
     orpc.categories.list.queryOptions({
       input: { pageSize: 1000 },
-    })
+    }),
   );
 
   const createProduct = createMutation(() =>
@@ -56,7 +56,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to create product");
       },
-    })
+    }),
   );
 
   const updateProduct = createMutation(() =>
@@ -69,7 +69,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to update product");
       },
-    })
+    }),
   );
 
   let barcodeMode = $state<"skip" | "manual" | "scan">("skip");
@@ -82,7 +82,7 @@
   const categoryNames = $derived(
     initialData?.categoryIds
       ?.map((id) => categoriesQuery.data?.items.find((c) => c.id === id)?.name)
-      .filter((name): name is string => name !== undefined) ?? []
+      .filter((name): name is string => name !== undefined) ?? [],
   );
 
   // svelte-ignore state_referenced_locally

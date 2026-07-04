@@ -44,7 +44,7 @@
         }
       },
       getCoreRowModel: getCoreRowModel(),
-    })
+    }),
   );
 </script>
 

@@ -10,7 +10,7 @@
   const { filename, fileType }: Props = $props();
 
   const truncatedFilename = $derived(
-    filename.length > 25 ? `${filename.slice(0, 25)}...` : filename
+    filename.length > 25 ? `${filename.slice(0, 25)}...` : filename,
   );
 </script>
 

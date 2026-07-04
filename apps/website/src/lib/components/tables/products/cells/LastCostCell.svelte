@@ -14,7 +14,7 @@
   const marginPercent = $derived(
     lastCostCents && lastCostCents > 0
       ? Math.round(((priceCents - lastCostCents) / lastCostCents) * 100)
-      : null
+      : null,
   );
 
   const marginClass = $derived(
@@ -24,7 +24,7 @@
         : marginPercent === 0
           ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400"
           : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-      : ""
+      : "",
   );
 </script>
 

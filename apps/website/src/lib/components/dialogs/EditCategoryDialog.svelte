@@ -29,7 +29,6 @@
     <div class="px-3 sm:px-4">
       {#key category.id}
         <CategoryForm
-         
           initialData={{
             id: category.id,
             name: category.name,

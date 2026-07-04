@@ -51,11 +51,11 @@
         movementTypes: JSON.parse(debouncedMovementTypes.current) as MovementType[],
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-    })
+    }),
   );
 
   const allMovements = $derived(
-    (movementsQuery.data?.pages.flatMap((page) => page.items) ?? []) satisfies MovementItem[]
+    (movementsQuery.data?.pages.flatMap((page) => page.items) ?? []) satisfies MovementItem[],
   );
 
   const columns = $derived(createColumns(currency));
@@ -63,7 +63,7 @@
   const hasFilters = $derived(
     searchParams.dateFrom.length > 0 ||
       searchParams.dateTo.length > 0 ||
-      (searchParams.movementTypes?.length ?? 0) > 0
+      (searchParams.movementTypes?.length ?? 0) > 0,
   );
 
   function resetFilters() {

@@ -21,7 +21,7 @@
   const productQuery = createQuery(() =>
     orpc.products.get.queryOptions({
       input: { id: params.id },
-    })
+    }),
   );
 
   const product = $derived(productQuery.data);
@@ -30,11 +30,13 @@
     orpc.products.statsProduct.queryOptions({
       input: { productId: params.id },
       enabled: !!product,
-    })
+    }),
   );
 
   const hasLowStock = $derived(
-    product && product.lowStockThreshold != null ? product.stock < product.lowStockThreshold : false
+    product && product.lowStockThreshold != null
+      ? product.stock < product.lowStockThreshold
+      : false,
   );
 
   const isOutOfStock = $derived(product ? product.stock <= 0 : false);
@@ -56,10 +58,7 @@
           <ArrowUpDownIcon data-icon="inline-start" />
           Adjust Stock
         </Button>
-        <a
-          href={`/products/${params.id}/edit`}
-          class={buttonVariants({ size: "sm" })}
-        >
+        <a href={`/products/${params.id}/edit`} class={buttonVariants({ size: "sm" })}>
           <PencilIcon data-icon="inline-start" />
           Edit
         </a>
@@ -105,7 +104,6 @@
     <StockAdjustmentDialog
       open={showAdjustDialog}
       onClose={() => (showAdjustDialog = false)}
-
       productId={params.id}
       productName={product.name}
       currentStock={product.stock}

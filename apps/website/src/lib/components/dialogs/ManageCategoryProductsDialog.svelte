@@ -38,7 +38,7 @@
         categoryId: category.id,
       },
       enabled: open,
-    })
+    }),
   );
 
   const debouncedProductSearch = new Debounced(() => productSearch, 300);
@@ -53,7 +53,7 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: open,
-    })
+    }),
   );
 
   const allProducts = $derived(products.data?.pages.flatMap((page) => page.items) ?? []);
@@ -75,7 +75,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to update products");
       },
-    })
+    }),
   );
 
   function handleUpdateCategoryProducts() {

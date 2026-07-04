@@ -134,4 +134,10 @@ const loggingHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-export const handle: Handle = sequence(loggingHandle, rateLimitHandle, handleParaglide, setupGate, authHandle);
+export const handle: Handle = sequence(
+  loggingHandle,
+  rateLimitHandle,
+  handleParaglide,
+  setupGate,
+  authHandle,
+);

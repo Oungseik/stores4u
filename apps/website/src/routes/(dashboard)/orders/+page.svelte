@@ -41,7 +41,7 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true,
-    })
+    }),
   );
 
   const allOrders = $derived(orders.data?.pages.flatMap((page) => page.items) ?? []);
@@ -50,7 +50,7 @@
     orpc.orders.stats.queryOptions({
       input: {},
       enabled: true,
-    })
+    }),
   );
 
   const isLoading = $derived(orderStats.isLoading);
@@ -58,7 +58,7 @@
   const hasFilters = $derived(
     searchParams.search.length > 0 ||
       searchParams.dateFrom.length > 0 ||
-      searchParams.dateTo.length > 0
+      searchParams.dateTo.length > 0,
   );
 
   function resetFilters() {
@@ -102,9 +102,7 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
-  <AdminDashboardHeader
-    breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Orders" }]}
-  >
+  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Orders" }]}>
     {#snippet actions()}
       <a href={`/checkout`} class={buttonVariants()}>
         <PlusIcon class="size-4" />

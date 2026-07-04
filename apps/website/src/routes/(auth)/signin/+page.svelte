@@ -37,7 +37,7 @@
             isSubmitting = false;
             return void toast.error(error.message);
           },
-        }
+        },
       );
     },
   }));

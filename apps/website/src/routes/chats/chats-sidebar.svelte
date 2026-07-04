@@ -64,7 +64,7 @@
   let searchQuery = $state("");
 
   const filteredChats = $derived(
-    chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    chats.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   const queryClient = useQueryClient();
@@ -77,7 +77,7 @@
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
       },
-    })
+    }),
   );
 
   let deleteThreadMutation = createMutation(() =>
@@ -85,7 +85,7 @@
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() });
       },
-    })
+    }),
   );
 
   function openRenameDialog(chat: Chat) {
@@ -150,10 +150,7 @@
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            <a
-              href={`/chats`}
-              class={buttonVariants({ variant: "outline", class: "w-full" })}
-            >
+            <a href={`/chats`} class={buttonVariants({ variant: "outline", class: "w-full" })}>
               <PlusIcon class="size-4" />
               <span>New Chat</span>
             </a>

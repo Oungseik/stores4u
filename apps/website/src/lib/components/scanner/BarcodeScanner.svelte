@@ -51,7 +51,7 @@
         (decodedText) => {
           onScan?.(decodedText);
         },
-        () => {}
+        () => {},
       );
     } catch (err) {
       isScanning = false;

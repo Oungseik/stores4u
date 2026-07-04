@@ -22,7 +22,7 @@
         if (items.some((t) => t.title === "New Chat")) return 3000;
         return false;
       },
-    })
+    }),
   );
 
   let allThreads = $derived(threadsQuery.data?.pages.flatMap((p) => p.items) ?? []);

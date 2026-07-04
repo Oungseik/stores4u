@@ -45,7 +45,7 @@
     orpc.social.getFacebookPages.queryOptions({
       input: {},
       enabled: isOpen && step === 2 && platform === "FACEBOOK" && true,
-    })
+    }),
   );
 
   const connectMutation = createMutation(() =>
@@ -53,7 +53,7 @@
       onSuccess: () => {
         isConnected = true;
       },
-    })
+    }),
   );
 
   $effect(() => {

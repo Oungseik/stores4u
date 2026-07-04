@@ -46,7 +46,7 @@
   let createProductForItemId = $state<string | null>(null);
 
   const lineTotalsCents = $derived(
-    items.map((item) => calcLineTotalCents(item.qty, item.unitCost))
+    items.map((item) => calcLineTotalCents(item.qty, item.unitCost)),
   );
 
   const hasUnmatchedItems = $derived(items.some((i) => !i.productId));
@@ -78,7 +78,7 @@
             invoiceItemName: product.name,
             saveAlias: true,
           }
-        : i
+        : i,
     );
     productSearchOpen = null;
   }
@@ -87,7 +87,7 @@
     items = items.map((i) =>
       i.id === itemId
         ? { ...i, productId: undefined, matchedProductName: undefined, saveAlias: undefined }
-        : i
+        : i,
     );
   }
 

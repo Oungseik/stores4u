@@ -36,7 +36,7 @@
     statusConfig[status] ?? {
       class: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
       label: status,
-    }
+    },
   );
 </script>
 

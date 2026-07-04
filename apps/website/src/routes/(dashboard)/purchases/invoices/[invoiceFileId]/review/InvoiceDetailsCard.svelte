@@ -30,7 +30,7 @@
   } = $props();
 
   const totalCents = $derived(
-    subtotalCents + Math.round(vat * 100) - Math.round(discount * 100) + Math.round(freight * 100)
+    subtotalCents + Math.round(vat * 100) - Math.round(discount * 100) + Math.round(freight * 100),
   );
 </script>
 

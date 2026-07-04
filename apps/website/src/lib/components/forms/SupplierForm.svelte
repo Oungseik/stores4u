@@ -55,7 +55,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to create supplier");
       },
-    })
+    }),
   );
 
   const updateSupplier = createMutation(() =>
@@ -69,7 +69,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to update supplier");
       },
-    })
+    }),
   );
 
   // svelte-ignore state_referenced_locally

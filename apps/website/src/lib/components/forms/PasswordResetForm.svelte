@@ -32,7 +32,7 @@
             toast.error(error.message);
             onSubmitError?.();
           },
-        }
+        },
       );
       isSubmitting = false;
     },

@@ -60,7 +60,7 @@
       onError: (error) => {
         toast.error(error instanceof Error ? error.message : "Failed to adjust stock");
       },
-    })
+    }),
   );
 
   const form = createForm(() => ({

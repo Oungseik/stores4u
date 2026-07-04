@@ -56,7 +56,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to update settings");
       },
-    })
+    }),
   );
 
   const businessForm = createForm(() => ({

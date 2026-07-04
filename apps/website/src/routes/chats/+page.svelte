@@ -42,7 +42,7 @@
         if (!navigated) {
           navigated = true;
           goto(`/chats/${tid}`).then(() =>
-            queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() })
+            queryClient.invalidateQueries({ queryKey: orpc.threads.list.key() }),
           );
         }
       },

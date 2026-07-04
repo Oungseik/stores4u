@@ -33,7 +33,7 @@
             toast.error(error.message);
             onSubmitError?.();
           },
-        }
+        },
       );
       isVerifying = false;
     },

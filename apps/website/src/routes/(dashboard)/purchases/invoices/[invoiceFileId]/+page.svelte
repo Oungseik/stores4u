@@ -23,13 +23,13 @@
   const invoiceFileQuery = createQuery(() =>
     orpc.purchaseInvoices.getFile.queryOptions({
       input: { invoiceFileId: params.invoiceFileId },
-    })
+    }),
   );
 
   const invoiceQuery = createQuery(() =>
     orpc.purchaseInvoices.getInvoice.queryOptions({
       input: { invoiceFileId: params.invoiceFileId },
-    })
+    }),
   );
 
   const isLoading = $derived(invoiceQuery.isLoading || invoiceFileQuery.isLoading);
@@ -42,7 +42,7 @@
   const rejectionReason = $derived(
     invoiceQuery.data?.ocrResult?.rejectionReason ??
       invoiceFileQuery.data?.ocrResult?.rejectionReason ??
-      null
+      null,
   );
 
   const breadcrumbLabel = $derived(isRejected ? "Rejected Invoice" : "Invoice Details");

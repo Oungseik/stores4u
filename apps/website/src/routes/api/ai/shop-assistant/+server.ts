@@ -6,13 +6,7 @@ import { mastra } from "$lib/server/mastra";
 /** Stable resource id for the single store's chat memory. */
 const STORE_RESOURCE_ID = "store";
 
-export async function POST({
-  request,
-  locals,
-}: {
-  request: Request;
-  locals: App.Locals;
-}) {
+export async function POST({ request, locals }: { request: Request; locals: App.Locals }) {
   if (!locals.session) {
     return new Response("Unauthorized", { status: 401 });
   }

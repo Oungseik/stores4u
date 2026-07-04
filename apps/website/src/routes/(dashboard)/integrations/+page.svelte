@@ -27,7 +27,7 @@
     orpc.social.list.queryOptions({
       input: {},
       enabled: true,
-    })
+    }),
   );
 
   const disconnectMutation = createMutation(() =>
@@ -35,7 +35,7 @@
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: orpc.social.list.key() });
       },
-    })
+    }),
   );
 
   const updatePermissionsMutation = createMutation(() =>
@@ -43,7 +43,7 @@
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: orpc.social.list.key() });
       },
-    })
+    }),
   );
 
   let connectingPlatform = $state<SocialPlatform | null>(null);
@@ -90,7 +90,7 @@
 
   async function handleUpdatePermissions(
     platform: SocialPlatform,
-    permissions: Integration["permissions"]
+    permissions: Integration["permissions"],
   ) {
     await updatePermissionsMutation.mutateAsync({
       platform,

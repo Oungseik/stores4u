@@ -50,11 +50,11 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true,
-    })
+    }),
   );
 
   const allMovements = $derived(
-    (movements.data?.pages.flatMap((page) => page.items) ?? []) satisfies MovementItem[]
+    (movements.data?.pages.flatMap((page) => page.items) ?? []) satisfies MovementItem[],
   );
 
   const columns = $derived(createColumns(shop.currency));
@@ -63,7 +63,7 @@
     searchParams.search.length > 0 ||
       searchParams.dateFrom.length > 0 ||
       searchParams.dateTo.length > 0 ||
-      searchParams.movementTypes?.length > 0
+      searchParams.movementTypes?.length > 0,
   );
 
   function resetFilters() {

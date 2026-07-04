@@ -35,7 +35,7 @@
     orpc.products.checkout.mutationOptions({
       onSuccess: (result) => {
         toast.success(
-          `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.currency)}`
+          `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.currency)}`,
         );
         cart = [];
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
@@ -46,7 +46,7 @@
       onError: (error) => {
         toast.error(error.message || "Checkout failed");
       },
-    })
+    }),
   );
 
   interface CartItem {
@@ -70,9 +70,8 @@
   const productSearch = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { search: debouncedSearch.current, pageSize: 10 },
-      enabled:
-        true && debouncedSearch.current.length > 0 && searchParams.mode === "search",
-    })
+      enabled: true && debouncedSearch.current.length > 0 && searchParams.mode === "search",
+    }),
   );
 
   const isSearching = $derived(isDebouncing || productSearch.isFetching);
@@ -81,7 +80,7 @@
     orpc.products.get.queryOptions({
       input: { barcode: lastScannedBarcode ?? "" },
       enabled: true && !!lastScannedBarcode,
-    })
+    }),
   );
 
   const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
@@ -106,7 +105,7 @@
     const existingItem = cart.find((item) => item.id === product.id);
     if (existingItem) {
       cart = cart.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
       );
     } else {
       cart = [
@@ -130,7 +129,7 @@
       const existingItem = cart.find((item) => item.id === product.id);
       if (existingItem) {
         cart = cart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
         );
       } else {
         cart = [

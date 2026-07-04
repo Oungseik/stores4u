@@ -44,7 +44,7 @@
           lowStockThreshold: productQuery.data.lowStockThreshold,
           categoryIds: productQuery.data.categories.map((c) => c.id),
         }
-      : undefined
+      : undefined,
   );
 
   function handleOpenChange(value: boolean) {

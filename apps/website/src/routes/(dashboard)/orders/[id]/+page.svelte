@@ -16,7 +16,7 @@
   const orderQuery = createQuery(() =>
     orpc.orders.get.queryOptions({
       input: { orderId: params.id },
-    })
+    }),
   );
 
   const order = $derived(orderQuery.data);

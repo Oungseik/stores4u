@@ -79,7 +79,7 @@
     orpc.purchaseInvoices.getStats.queryOptions({
       input: {},
       enabled: true,
-    })
+    }),
   );
 
   const statusOptions = $derived(
@@ -87,7 +87,7 @@
       value: key satisfies string,
       label: statusLabels[key],
       count: invoiceFilesStats.data?.[key] ?? 0,
-    }))
+    })),
   );
 
   const invoiceFiles = createInfiniteQuery(() =>
@@ -104,7 +104,7 @@
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: true,
-    })
+    }),
   );
 
   const allFiles = $derived(invoiceFiles.data?.pages.flatMap((page) => page.items) ?? []);
@@ -126,7 +126,7 @@
         toast.error(error.message || "Failed to process invoice");
         processingFileId = null;
       },
-    })
+    }),
   );
 
   const uploadMutation = createMutation(() => orpc.purchaseInvoices.uploadFile.mutationOptions());
@@ -141,7 +141,7 @@
       onError: (error) => {
         toast.error(error.message || "Failed to delete file");
       },
-    })
+    }),
   );
 
   function handleProcessFile(fileId: string) {
@@ -170,8 +170,8 @@
             failCount++;
             toast.error(`${file.name}: ${error.message || "Failed to upload"}`);
             throw error;
-          })
-      )
+          }),
+      ),
     );
 
     if (successCount > 0) {
@@ -199,9 +199,7 @@
     });
   }
 
-  const columns = $derived(
-    createColumns(handleProcessFile, processingFileId, handleDeleteFile)
-  );
+  const columns = $derived(createColumns(handleProcessFile, processingFileId, handleDeleteFile));
 
   function getFileTypeLabel(fileType: string): string {
     if (fileType === "application/pdf") return "PDF";
