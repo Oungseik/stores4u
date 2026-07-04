@@ -94,7 +94,7 @@ When the user requests a durable behavior change, record it here or in the relev
 ## Child DOX Index
 
 - `apps/website` — the SvelteKit application (the product). See `apps/website/AGENTS.md`.
-- `apps/api` — the Bun TypeScript Effect v4 API app with generated OpenAPI/Scalar docs. See `apps/api/AGENTS.md`.
+- `apps/api` — the Bun TypeScript Effect v4 API app with generated OpenAPI/Scalar docs. See `apps/api/AGENTS.md`. Runs an exploratory, self-contained Drizzle/SQLite schema at `API_DATABASE_PATH` (separate from the website's `DATABASE_PATH`); this does not change the single-store contract.
 - `packages/config` — shared config, enums, domain constants. See `packages/config/AGENTS.md`.
 - `packages/database` — single-store Drizzle schema, SQLite client factory, Drizzle Kit config. See `packages/database/AGENTS.md`.
 - `packages/ui` — shared Svelte UI component library. See `packages/ui/AGENTS.md`.

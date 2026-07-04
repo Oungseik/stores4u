@@ -13,7 +13,7 @@ const parsePort = (value: string | undefined) => {
 const { dispose, handler } = HttpRouter.toWebHandler(ApiLive);
 const server = Bun.serve({
   port: parsePort(Bun.env.PORT),
-  fetch: (request) => handler(request)
+  fetch: (request) => handler(request),
 });
 
 Effect.runSync(Effect.logInfo(`api ready at ${server.url}`));
