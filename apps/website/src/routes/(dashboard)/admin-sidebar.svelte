@@ -8,7 +8,6 @@
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
   import LinkIcon from "@lucide/svelte/icons/link";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
-  import MessageSquareIcon from "@lucide/svelte/icons/message-square";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
   import SettingsIcon from "@lucide/svelte/icons/settings";
@@ -53,10 +52,6 @@
     { title: "Checkout", href: "/checkout", icon: ScanBarcodeIcon },
     { title: "Orders", href: "/orders", icon: ClipboardListIcon },
     { title: "Integrations", href: "/integrations", icon: LinkIcon },
-  ];
-
-  const aiAssistantNavItems: NavItem[] = [
-    { title: "Chats", href: "/chats", icon: MessageSquareIcon },
   ];
 
   const settingsHref = "/settings";
@@ -220,31 +215,6 @@
                 {/snippet}
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-
-      <!-- AI Assistant Group -->
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>AI Assistant</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            {#each aiAssistantNavItems as item (item.title)}
-              <Sidebar.MenuItem>
-                <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
-                  {#snippet child({ props })}
-                    <a
-                      href={item.href}
-                      {...props}
-                      onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                    >
-                      <item.icon class="size-4" />
-                      <span>{item.title}</span>
-                    </a>
-                  {/snippet}
-                </Sidebar.MenuButton>
-              </Sidebar.MenuItem>
-            {/each}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>

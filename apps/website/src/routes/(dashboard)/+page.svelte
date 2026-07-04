@@ -1,7 +1,6 @@
 <script lang="ts">
   import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import BanknoteIcon from "@lucide/svelte/icons/banknote";
-  import BotIcon from "@lucide/svelte/icons/bot";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
@@ -319,31 +318,6 @@
               Open Checkout
               <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
             </a>
-          </div>
-          <div
-            class="from-primary/[0.03] absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity group-hover:opacity-100"
-          ></div>
-        </div>
-
-        <div
-          class="group border-border bg-card relative flex flex-col justify-between overflow-hidden rounded-xl border p-6 transition-all duration-200 hover:shadow-md"
-        >
-          <div class="relative z-10">
-            <div class="bg-primary/10 mb-4 flex size-12 items-center justify-center rounded-lg">
-              <BotIcon class="text-primary size-6" />
-            </div>
-            <h3 class="mb-1 text-xl font-semibold">AI Assistants</h3>
-            <p class="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Chat with your AI team — process invoices, manage inventory, draft content, and get
-              reports.
-            </p>
-          </div>
-          <div class="relative z-10 mt-6">
-            <!-- <a href={`/chats`} class={buttonVariants()}> -->
-            <!--   Open Agents -->
-            <!--   <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" /> -->
-            <!-- </a> -->
-            <span class="text-muted-foreground"> Coming soon... </span>
           </div>
           <div
             class="from-primary/[0.03] absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity group-hover:opacity-100"

@@ -50,10 +50,6 @@ import { listSuppliersHandler } from "./handlers/suppliers/list_suppliers";
 import { updateSupplierHandler } from "./handlers/suppliers/update_supplier";
 import { getTaxSettingsHandler } from "./handlers/tax/get_tax_settings";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
-import { deleteThreadHandler } from "./handlers/threads/delete_thread";
-import { getThreadMessagesHandler } from "./handlers/threads/get_thread_messages";
-import { listThreadsHandler } from "./handlers/threads/list_threads";
-import { updateThreadHandler } from "./handlers/threads/update_thread";
 import { listAccountsHandler } from "./handlers/user/list_accounts";
 import { uploadAvatarHandler } from "./handlers/user/upload-avatar";
 
@@ -131,12 +127,6 @@ export const router = os.router({
   tax: {
     get: getTaxSettingsHandler,
     update: updateTaxSettingsHandler,
-  },
-  threads: {
-    delete: deleteThreadHandler,
-    getMessages: getThreadMessagesHandler,
-    list: listThreadsHandler,
-    update: updateThreadHandler,
   },
   user: {
     listAccounts: listAccountsHandler,
