@@ -8,22 +8,24 @@
   ],
   "scripts": {
     "prepare": "./scripts/prepare-effect.sh",
-    "check": "turbo $@ check",
     "dev": "turbo $@ dev",
     "preview": "turbo $@ preview",
     "build": "turbo $@ build",
-    "check-types": "turbo $@ check-types",
+    "typecheck": "turbo $@ typecheck",
+    "lint": "turbo $@ lint",
     "format": "turbo $@ format",
+    "check": "turbo $@ typecheck lint format",
     "test": "turbo $@ test",
     "shadcn-extras": "pnpm dlx jsrepo add --cwd packages/ui",
     "shadcn": "pnpm dlx shadcn-svelte@latest add -c packages/ui",
     "db:push": "turbo db:push",
     "db:studio": "turbo db:studio",
     "db:generate": "turbo db:generate",
-    "db:migrate": "turbo  db:migrate"
+    "db:migrate": "turbo db:migrate"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260703.1",
     "turbo": "^2.9.18"
   },
   "packageManager": "bun@1.2.8",

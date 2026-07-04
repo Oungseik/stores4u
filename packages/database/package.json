@@ -7,9 +7,11 @@
   "private": true,
   "scripts": {
     "with-env": "dotenv -e ../../.env --",
-    "check": "biome check --write .",
     "build": "tsdown",
-    "check-types": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
+    "lint": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "bun run typecheck && bun run lint && bun run format",
     "db:push": "bun --bun run with-env drizzle-kit push",
     "db:generate": "bun --bun run with-env drizzle-kit generate",
     "db:migrate": "bun --bun run with-env drizzle-kit migrate",

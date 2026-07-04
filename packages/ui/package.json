@@ -7,8 +7,7 @@
     "build": "vite build",
     "prepare": "svelte-kit sync || echo ''",
     "shadcn": "pnpm dlx shadcn-svelte@latest add",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },
   "exports": {
     "./ai-elements/*": "./src/lib/components/ai-elements/*/index.js",

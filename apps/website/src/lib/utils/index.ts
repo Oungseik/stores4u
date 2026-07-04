@@ -1,4 +1,4 @@
-import { type CountryCode, type CurrencyCode } from "@repo/config";
+import type { CountryCode, CurrencyCode } from "@repo/config";
 
 export function getSeparator(locale: Intl.LocalesArgument, separatorType: "decimal" | "group") {
   const numberWithGroupAndDecimal = 10000.1;

@@ -6,9 +6,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "check": "biome check --write .",
     "build": "tsdown",
-    "check-types": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "lint": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "bun run typecheck && bun run lint && bun run format"
   },
   "exports": {
     ".": {

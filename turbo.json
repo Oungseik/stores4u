@@ -8,11 +8,8 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", "build/**", ".svelte-kit/"]
     },
-    "check": {
-      "dependsOn": ["^check"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
     },
     "db:push": {
       "cache": false

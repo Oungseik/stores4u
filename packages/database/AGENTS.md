@@ -25,7 +25,7 @@ Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `re
 
 ## Verification
 
-- `bun run check-types` (root turbo → `tsc --noEmit` here, 0 errors expected)
+- `bun run typecheck` (root turbo → `tsgo --noEmit` here via `@typescript/native-preview`, 0 errors expected)
 
 ## Child DOX Index
 

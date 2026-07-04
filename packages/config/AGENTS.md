@@ -19,7 +19,7 @@ Owns: `COUNTRIES`, `CURRENCIES`, `SOCIAL_PLATFORMS`, `PLATFORM_CONFIG`, and the 
 
 ## Verification
 
-- `bun run check-types` (root turbo task)
+- `bun run typecheck` (root turbo → `tsgo --noEmit` here via `@typescript/native-preview`)
 
 ## Child DOX Index
 
