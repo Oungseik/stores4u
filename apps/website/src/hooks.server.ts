@@ -13,7 +13,6 @@ const firstRunAuthPaths = [
   "/api/auth/sign-up/email",
   "/api/auth/sign-in/email",
   "/api/auth/sign-in/social",
-  "/api/auth/verify-email",
   "/api/auth/get-session",
 ];
 
@@ -55,8 +54,6 @@ const setupGate: Handle = async ({ event, resolve }) => {
     if (
       path === "/setup" ||
       path === "/signin" ||
-      path.startsWith("/verify-account") ||
-      path.startsWith("/forgot-password") ||
       path === "/health" ||
       isStaticAsset ||
       path.startsWith("/api/auth/") ||

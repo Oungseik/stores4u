@@ -1,8 +1,7 @@
-import { createTransporter, createEmailCallbacks } from "$lib/server/email";
-import { db } from "$lib/server/db";
+import { db, schema } from "$lib/server/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, emailOTP, role, twoFactor } from "better-auth/plugins";
+import { admin, role, twoFactor } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import {
@@ -12,22 +11,8 @@ import {
   FACEBOOK_CLIENT_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
-  NO_REPLY_EMAIL,
-  SES_SMTP_HOST,
-  SES_SMTP_PASS,
-  SES_SMTP_PORT,
-  SES_SMTP_USER,
 } from "$env/static/private";
 import { env } from "$env/dynamic/public";
-
-const port = Number(SES_SMTP_PORT ?? "465");
-const transporter = createTransporter({
-  host: SES_SMTP_HOST,
-  port,
-  user: SES_SMTP_USER,
-  pass: SES_SMTP_PASS,
-});
-const emailCallbacks = createEmailCallbacks(transporter, NO_REPLY_EMAIL);
 
 export const dashboardRoles = ["owner", "admin", "member"] as const;
 export type DashboardRole = (typeof dashboardRoles)[number];
@@ -52,7 +37,7 @@ const noAdminPower = role({ user: [], session: [] });
 
 export const auth = betterAuth({
   baseURL: env.PUBLIC_ENVIRONMENT === "development" ? undefined : BETTER_AUTH_URL,
-  database: drizzleAdapter(db, { provider: "sqlite" }),
+  database: drizzleAdapter(db, { provider: "sqlite", schema }),
   session: { cookieCache: { enabled: true, maxAge: 5 * 60 } },
   secret: BETTER_AUTH_SECRET,
   // No implicit linking: a matching Google/Facebook email never silently
@@ -60,11 +45,6 @@ export const auth = betterAuth({
   // create hook below; linked OAuth signin still works.
   account: { accountLinking: { enabled: true, disableImplicitLinking: true } },
   emailAndPassword: { enabled: true, autoSignIn: false },
-  emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-    sendVerificationEmail: emailCallbacks.sendVerificationEmail,
-  },
   socialProviders: {
     google: {
       prompt: "select_account",
@@ -94,8 +74,7 @@ export const auth = betterAuth({
         user: noAdminPower,
       },
     }),
-    emailOTP({ sendVerificationOTP: emailCallbacks.sendVerificationOTP }),
-    twoFactor({ otpOptions: { sendOTP: emailCallbacks.sendTwoFactorOTP } }),
+    twoFactor(),
     sveltekitCookies(getRequestEvent),
   ],
   databaseHooks: {

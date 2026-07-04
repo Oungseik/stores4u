@@ -12,6 +12,7 @@ Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `re
 
 - Single SQLite database at `DATABASE_PATH` (default `databases/store.db`). No Turso, no per-store files.
 - `src/index.ts` re-exports `drizzle-orm` operators, the full schema, and `relations`; exports `createDb(client)` which builds the Drizzle instance from a `bun:sqlite` client.
+- `relations.ts` also exports a bundled `schema` object (the full tables map). Drizzle 1.x no longer exposes `db._.fullSchema`, so better-auth's drizzle adapter needs `schema` passed explicitly — `createDb` consumers (e.g. `apps/website` auth) import this `schema` and hand it to `drizzleAdapter(db, { provider, schema })`.
 - The schema merges better-auth tables (`auth.ts`, `shop-info.ts`) with the store domain (`product`, `order`, `supplier`, `inventory`, `purchaseInvoice`, `refund`, `tax`, `image`). `shop` is one global row with no `userId` owner FK.
 - `user` carries the better-auth `admin` plugin columns: `role` (`"owner" | "admin" | "member" | "user"`, default `"user"`), `banned`, `banReason`, `banExpires`. `session` carries `impersonatedBy`. Dashboard authorization is based on `user.role`; there is no shop-role column and no `shopRoles` enum.
 - Consumed by `apps/website` through its env-wiring shim at `src/lib/server/db` (which reads `DATABASE_PATH` via `$env/static/private`, opens `new Database(...)`, and calls `createDb`). The package itself never touches SvelteKit `$env`.

@@ -21,7 +21,7 @@ const input = z.object({
  * One-time store setup. Two paths mirror the original setup action exactly:
  * - No users yet: create the first owner via signUpEmail (the user create hook
  *   grants role "owner"), then insert the shop row. Owner is NOT signed in
- *   (autoSignIn is off); the client sends them to /signin to verify + sign in.
+ *   (autoSignIn is off); the client sends them to /signin to sign in.
  * - Owner already exists (OAuth first run): require a dashboard session, then
  *   insert the shop row.
  * One store per server: refuses if a shop already exists.

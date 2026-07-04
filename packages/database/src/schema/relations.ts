@@ -14,34 +14,37 @@ import { shopInfo } from "./shop-info";
 import { productSupplier, supplier } from "./supplier";
 import { taxSettings } from "./tax";
 
-export const relations = defineRelations(
-  {
-    user,
-    session,
-    account,
-    twoFactor,
-    shop,
-    socialConnection,
-    shopInfo,
-    category,
-    product,
-    productAlias,
-    productCategory,
-    productImage,
-    supplier,
-    productSupplier,
-    purchaseInvoiceFile,
-    purchaseInvoiceOcrResult,
-    purchaseInvoice,
-    purchaseInvoiceItem,
-    inventoryMovement,
-    order,
-    orderItem,
-    refund,
-    refundItem,
-    taxSettings,
-  },
-  (r) => ({
+// ponytail: full tables map = the exact set defineRelations validates against;
+// also reused as the `schema` better-auth's drizzle adapter needs (drizzle 1.x
+// no longer exposes db._.fullSchema).
+export const schema = {
+  user,
+  session,
+  account,
+  twoFactor,
+  shop,
+  socialConnection,
+  shopInfo,
+  category,
+  product,
+  productAlias,
+  productCategory,
+  productImage,
+  supplier,
+  productSupplier,
+  purchaseInvoiceFile,
+  purchaseInvoiceOcrResult,
+  purchaseInvoice,
+  purchaseInvoiceItem,
+  inventoryMovement,
+  order,
+  orderItem,
+  refund,
+  refundItem,
+  taxSettings,
+};
+
+export const relations = defineRelations(schema, (r) => ({
     user: {
       sessions: r.many.session(),
       accounts: r.many.account(),

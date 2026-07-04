@@ -30,10 +30,6 @@
         },
         {
           onError: ({ error }) => {
-            if (error.status === 403) {
-              isSubmitting = false;
-              return void toast.error("Please verify your email address");
-            }
             isSubmitting = false;
             return void toast.error(error.message);
           },
@@ -58,7 +54,7 @@
       <Card.Content>
         {#if page.url.searchParams.get("setup") === "1"}
           <p class="text-muted-foreground mb-6 text-sm">
-            Owner account created. Check your email to verify it, then sign in.
+            Owner account created. Sign in to continue.
           </p>
         {/if}
         <form
@@ -91,15 +87,7 @@
             <form.Field name="password">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <div class="flex items-center justify-between">
-                    <Label for={field.name}>Password</Label>
-                    <a
-                      href={"/forgot-password".concat(page.url.search)}
-                      class="text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
+                  <Label for={field.name}>Password</Label>
                   <Input
                     type="password"
                     id={field.name}
