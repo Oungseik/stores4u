@@ -225,6 +225,7 @@
       };
       isExistingSupplier = true;
     } else if (
+      selectedSupplier === null &&
       supplierSearchName !== null &&
       searchSupplierQuery.isSuccess &&
       extractedData?.supplier

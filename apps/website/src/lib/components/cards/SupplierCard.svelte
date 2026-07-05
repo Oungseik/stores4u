@@ -12,21 +12,9 @@
   import { Label } from "@repo/ui/label";
   import * as Popover from "@repo/ui/popover";
   import { Switch } from "@repo/ui/switch";
-  import { createMutation, useQueryClient } from "@tanstack/svelte-query";
-  import { toast } from "svelte-sonner";
-
-  import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
-  import { orpc } from "$lib/orpc_client";
-
-  export type Supplier = {
-    id: string;
-    name: string;
-    contactName: string | null;
-    phone: string | null;
-    phone2: string | null;
-    email: string | null;
-    address: string | null;
-  };
+  import SupplierForm, {
+    type CreatedSupplier as Supplier,
+  } from "$lib/components/forms/SupplierForm.svelte";
 
   interface Props {
     suppliers: Supplier[];
@@ -50,41 +38,16 @@
     initialSupplierData,
   }: Props = $props();
 
-  const queryClient = useQueryClient();
-
   let supplierOpen = $state(false);
-  let supplierFormRef = $state<{ resetForm: () => void } | undefined>(undefined);
-
-  const createSupplierMutation = createMutation(() =>
-    orpc.suppliers.create.mutationOptions({
-      onSuccess: (created) => {
-        const newSupplier: Supplier = {
-          id: created.id,
-          name: created.name,
-          contactName: created.contactName ?? null,
-          phone: created.phone ?? null,
-          phone2: created.phone2 ?? null,
-          email: created.email ?? null,
-          address: created.address ?? null,
-        };
-        selectedSupplier = newSupplier;
-        isExistingSupplier = true;
-        queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
-        toast.success("Supplier created successfully");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to create supplier");
-      },
-    }),
-  );
 
   function selectSupplier(supplier: Supplier) {
     selectedSupplier = supplier;
     supplierOpen = false;
   }
 
-  function handleFormSuccess() {
-    createSupplierMutation.reset();
+  function handleFormSuccess(supplier: Supplier) {
+    selectedSupplier = supplier;
+    isExistingSupplier = true;
   }
 </script>
 
@@ -213,7 +176,6 @@
       {/if}
     {:else}
       <SupplierForm
-        bind:this={supplierFormRef}
         initialData={initialSupplierData
           ? {
               action: "create",

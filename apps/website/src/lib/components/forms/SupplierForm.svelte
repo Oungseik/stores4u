@@ -12,6 +12,17 @@
 
   import { orpc } from "$lib/orpc_client";
 
+  // Shape of a supplier row as returned by create/update, narrowed to the fields callers consume.
+  export type CreatedSupplier = {
+    id: string;
+    name: string;
+    contactName: string | null;
+    phone: string | null;
+    phone2: string | null;
+    email: string | null;
+    address: string | null;
+  };
+
   type SupplierInitialData =
     | {
         action: "create";
@@ -37,7 +48,7 @@
 
   interface Props {
     initialData?: SupplierInitialData;
-    onSuccess?: () => void;
+    onSuccess?: (supplier: CreatedSupplier) => void;
     onCancel?: () => void;
   }
 
@@ -47,10 +58,10 @@
 
   const createSupplier = createMutation(() =>
     orpc.suppliers.create.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (created) => {
         toast.success("Supplier created successfully");
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
-        onSuccess?.();
+        onSuccess?.(created);
       },
       onError: (error) => {
         toast.error(error.message || "Failed to create supplier");
@@ -60,11 +71,11 @@
 
   const updateSupplier = createMutation(() =>
     orpc.suppliers.update.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (updated) => {
         toast.success("Supplier updated successfully");
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.get.key() });
-        onSuccess?.();
+        onSuccess?.(updated);
       },
       onError: (error) => {
         toast.error(error.message || "Failed to update supplier");
