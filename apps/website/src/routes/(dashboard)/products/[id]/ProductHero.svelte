@@ -4,7 +4,7 @@
   import { Badge } from "@repo/ui/badge";
 
   import ProductImageGallery from "$lib/components/ProductImageGallery.svelte";
-  import { formatDate, formatPrice } from "$lib/utils";
+  import { formatDate, formatPrice, formatUom } from "$lib/utils";
 
   interface Props {
     product: {
@@ -27,27 +27,6 @@
   }
 
   let { product, hasLowStock, isOutOfStock, currency }: Props = $props();
-
-  function formatUom(uom: string): string {
-    const map: Record<string, string> = {
-      each: "Each",
-      kg: "Kilogram",
-      g: "Gram",
-      lb: "Pound",
-      oz: "Ounce",
-      l: "Liter",
-      ml: "Milliliter",
-      m: "Meter",
-      cm: "Centimeter",
-      ft: "Foot",
-      in: "Inch",
-      pack: "Pack",
-      box: "Box",
-      case: "Case",
-      dozen: "Dozen",
-    };
-    return map[uom] ?? uom;
-  }
 
   const productImages = $derived(product.image ? [{ src: product.image, alt: product.name }] : []);
 </script>

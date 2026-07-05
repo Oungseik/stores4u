@@ -4,10 +4,8 @@
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
-  import PackageIcon from "@lucide/svelte/icons/package";
   import type { MovementType } from "$lib/server/db";
   import { Button } from "@repo/ui/button";
-  import * as Card from "@repo/ui/card";
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
@@ -17,15 +15,13 @@
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
-  import MovementTypeCell from "$lib/components/tables/inventory-movements/cells/MovementTypeCell.svelte";
-  import QuantityCell from "$lib/components/tables/inventory-movements/cells/QuantityCell.svelte";
   import {
     type MovementItem,
     createColumns,
   } from "$lib/components/tables/inventory-movements/columns";
+  import MovementCardItem from "$lib/components/tables/inventory-movements/MovementCardItem.svelte";
   import { orpc } from "$lib/orpc_client";
   import { type InventoryMovementsView, inventoryMovementsFilterSchema } from "$lib/search_param";
-  import { formatDate, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -198,45 +194,7 @@
     {:else}
       <div class="space-y-2">
         {#each allMovements as movement (movement.id)}
-          <Card.Root class="overflow-hidden p-0">
-            <Card.Content class="p-0">
-              <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
-                <div
-                  class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
-                >
-                  <PackageIcon class="text-primary size-5" />
-                </div>
-
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-medium">{movement.productName}</p>
-                  <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
-                    {#if movement.productSku}
-                      <span>{movement.productSku}</span>
-                      <span>•</span>
-                    {/if}
-                    <MovementTypeCell movementType={movement.movementType} />
-                    <span>•</span>
-                    <span>{formatDate(movement.occurredAt, true)}</span>
-                  </div>
-                </div>
-
-                <div class="shrink-0 text-right">
-                  <QuantityCell qty={movement.qty} />
-                  {#if movement.movementType === "SALE" || movement.movementType === "RETURN"}
-                    {#if movement.unitPriceCents !== null}
-                      <p class="text-muted-foreground text-xs">
-                        {formatPrice(movement.unitPriceCents, shop.currency)}
-                      </p>
-                    {/if}
-                  {:else if movement.unitCostCents !== null}
-                    <p class="text-muted-foreground text-xs">
-                      {formatPrice(movement.unitCostCents, shop.currency)}
-                    </p>
-                  {/if}
-                </div>
-              </div>
-            </Card.Content>
-          </Card.Root>
+          <MovementCardItem {movement} currency={shop.currency} />
         {/each}
       </div>
 

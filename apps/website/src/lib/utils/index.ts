@@ -62,6 +62,27 @@ export function calcLineTotalCents(qty: number, unitCost: number): number {
   return Math.round(qty * unitCost * 100);
 }
 
+export function formatUom(uom: string): string {
+  const map: Record<string, string> = {
+    each: "Each",
+    kg: "Kilogram",
+    g: "Gram",
+    lb: "Pound",
+    oz: "Ounce",
+    l: "Liter",
+    ml: "Milliliter",
+    m: "Meter",
+    cm: "Centimeter",
+    ft: "Foot",
+    in: "Inch",
+    pack: "Pack",
+    box: "Box",
+    case: "Case",
+    dozen: "Dozen",
+  };
+  return map[uom] ?? uom;
+}
+
 export function formatDate(date: Date | string, withTime = false) {
   const d = typeof date === "string" ? new Date(date) : date;
   const options: Intl.DateTimeFormatOptions = {
