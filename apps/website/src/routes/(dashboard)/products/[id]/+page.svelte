@@ -107,6 +107,7 @@
       productId={params.id}
       productName={product.name}
       currentStock={product.stock}
+      lastCostCents={product.lastCostCents}
     />
   {/if}
 </div>

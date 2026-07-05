@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CalendarDate, type DateValue } from "@internationalized/date";
+  import { parseDate, type DateValue } from "@internationalized/date";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";
@@ -75,15 +75,9 @@
     });
   }
 
-  function parseDate(dateStr: string): DateValue | null {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-  }
-
   const dateValue = $derived({
-    start: parseDate(searchParams.dateFrom),
-    end: parseDate(searchParams.dateTo),
+    start: searchParams.dateFrom ? parseDate(searchParams.dateFrom) : null,
+    end: searchParams.dateTo ? parseDate(searchParams.dateTo) : null,
   });
 
   function handleDateRangeChange(value: FilterBarDateRange) {

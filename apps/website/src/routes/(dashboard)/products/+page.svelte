@@ -113,9 +113,9 @@
     searchParams.update({ search: "", categories: [] });
   }
 
-  let adjustProduct = $state<{ id: string; name: string; stock: number } | null>(null);
-  function handleAdjustProduct(id: string, name: string, stock: number) {
-    adjustProduct = { id, name, stock };
+  let adjustProduct = $state<{ id: string; name: string; stock: number; lastCostCents: number | null } | null>(null);
+  function handleAdjustProduct(id: string, name: string, stock: number, lastCostCents: number | null) {
+    adjustProduct = { id, name, stock, lastCostCents };
   }
 </script>
 
@@ -352,7 +352,7 @@
                         </a>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onclick={() => handleAdjustProduct(product.id, product.name, product.stock)}
+                        onclick={() => handleAdjustProduct(product.id, product.name, product.stock, product.lastCostCents)}
                       >
                         <ArrowUpDownIcon class="size-4" />
                         Adjust Stock
@@ -440,6 +440,7 @@
       productId={adjustProduct.id}
       productName={adjustProduct.name}
       currentStock={adjustProduct.stock}
+      lastCostCents={adjustProduct.lastCostCents}
     />
   {/if}
 </div>

@@ -21,7 +21,7 @@ export type ProductItem = {
 export function createColumns(
   currency: CurrencyCode,
   onDelete?: (id: string) => void,
-  onAdjustStock?: (id: string, name: string, stock: number) => void,
+  onAdjustStock?: (id: string, name: string, stock: number, lastCostCents: number | null) => void,
 ): ColumnDef<ProductItem>[] {
   return [
     {
@@ -74,6 +74,7 @@ export function createColumns(
           id: row.original.id,
           productName: row.original.name,
           currentStock: row.original.stock,
+          lastCostCents: row.original.lastCostCents,
           onDelete,
           onAdjustStock,
         });

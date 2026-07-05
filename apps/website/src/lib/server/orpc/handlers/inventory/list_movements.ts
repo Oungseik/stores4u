@@ -26,7 +26,7 @@ export const listMovementsHandler = os
         movementType: input.movementTypes?.length ? { in: input.movementTypes } : undefined,
         occurredAt: {
           gte: input.dateFrom ? new Date(input.dateFrom) : undefined,
-          lte: input.dateTo ? new Date(input.dateTo) : undefined,
+          lte: input.dateTo ? new Date(`${input.dateTo}T23:59:59`) : undefined,
         },
         OR: input.search
           ? [

@@ -26,9 +26,10 @@
     productId: string;
     productName: string;
     currentStock: number;
+    lastCostCents: number | null;
   }
 
-  let { open, onClose, productId, productName, currentStock }: Props = $props();
+  let { open, onClose, productId, productName, currentStock, lastCostCents }: Props = $props();
 
   const queryClient = useQueryClient();
 
@@ -68,7 +69,7 @@
       direction: "ADD" as Direction,
       movementType: "ADJUSTMENT" as MovementType,
       qty: 1,
-      unitCost: 0,
+      unitCost: (lastCostCents ?? 0) / 100,
       date: getTodayString(),
       reason: "",
     },
@@ -210,7 +211,7 @@
           name="unitCost"
           validators={{
             onChange: ({ value }) => {
-              if (!value || value <= 0) return "Unit cost must be greater than 0";
+              if (!value || value < 0) return "Unit cost cannot be negative";
               return undefined;
             },
           }}

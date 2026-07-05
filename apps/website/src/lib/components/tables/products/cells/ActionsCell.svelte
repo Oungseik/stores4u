@@ -11,11 +11,12 @@
     id: string;
     productName: string;
     currentStock: number;
+    lastCostCents: number | null;
     onDelete?: (id: string) => void;
-    onAdjustStock?: (id: string, name: string, stock: number) => void;
+    onAdjustStock?: (id: string, name: string, stock: number, lastCostCents: number | null) => void;
   };
 
-  const { id, productName, currentStock, onDelete, onAdjustStock }: Props = $props();
+  const { id, productName, currentStock, lastCostCents, onDelete, onAdjustStock }: Props = $props();
 
   function handleDelete() {
     confirmDelete({
@@ -43,7 +44,7 @@
       </a>
     </DropdownMenu.Item>
     <DropdownMenu.Item
-      onclick={() => onAdjustStock?.(id, productName, currentStock)}
+      onclick={() => onAdjustStock?.(id, productName, currentStock, lastCostCents)}
       disabled={!onAdjustStock}
     >
       <ArrowUpDownIcon class="size-4" />

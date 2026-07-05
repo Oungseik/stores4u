@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CalendarDate, type DateValue } from "@internationalized/date";
+  import { parseDate, type DateValue } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -65,15 +65,9 @@
     searchParams.update({ search: "", dateFrom: "", dateTo: "" });
   }
 
-  function parseDate(dateStr: string): DateValue | null {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-  }
-
   const dateValue = $derived({
-    start: parseDate(searchParams.dateFrom),
-    end: parseDate(searchParams.dateTo),
+    start: searchParams.dateFrom ? parseDate(searchParams.dateFrom) : null,
+    end: searchParams.dateTo ? parseDate(searchParams.dateTo) : null,
   });
 
   function handleDateRangeChange(value: FilterBarDateRange) {

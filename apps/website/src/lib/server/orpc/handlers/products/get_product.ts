@@ -33,6 +33,12 @@ export const getProductHandler = os
         productAliases: {
           columns: { alias: true },
         },
+        inventoryMovements: {
+          columns: { unitCostCents: true },
+          where: { movementType: { in: ["PURCHASE", "ADJUSTMENT"] } },
+          orderBy: { occurredAt: "desc" },
+          limit: 1,
+        },
       },
     });
 
@@ -51,6 +57,7 @@ export const getProductHandler = os
       aliases: product.productAliases.map((pa) => pa.alias),
       uom: product.uom,
       priceCents: product.priceCents,
+      lastCostCents: product.inventoryMovements[0]?.unitCostCents ?? null,
       stock: product.stock,
       lowStockThreshold: product.lowStockThreshold,
       categories: product.productCategories
