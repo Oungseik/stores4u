@@ -79,7 +79,7 @@
           <ChevronDownIcon class="size-4 opacity-50" />
         </Popover.Trigger>
         <Popover.Content class="w-80" align="start">
-          <Command.Root class="gap-2">
+          <Command.Root class="gap-2" value={selectedSupplier?.name}>
             <Command.Input placeholder="Search suppliers..." />
             <Command.List>
               <Command.Empty>No suppliers found.</Command.Empty>
