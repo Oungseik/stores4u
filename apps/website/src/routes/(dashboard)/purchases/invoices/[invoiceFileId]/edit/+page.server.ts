@@ -41,6 +41,7 @@ export const load: PageServerLoad = async ({ params }) => {
           phone2: true,
           email: true,
           address: true,
+          paymentTerms: true,
         },
       },
     },

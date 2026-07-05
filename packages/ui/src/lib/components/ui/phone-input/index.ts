@@ -1,5 +1,8 @@
-import PhoneInput, { defaultOptions } from '@lib/components/ui/phone-input/phone-input.svelte';
+import PhoneInput, {
+  defaultOptions,
+} from "@lib/components/ui/phone-input/phone-input.svelte";
 
 export { PhoneInput, defaultOptions };
 
-export type { PhoneInputProps } from '@lib/components/ui/phone-input/types';
+export type { PhoneInputProps } from "@lib/components/ui/phone-input/types";
+export type { DetailedValue } from "svelte-tel-input/types";

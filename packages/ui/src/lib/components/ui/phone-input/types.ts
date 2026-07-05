@@ -15,4 +15,7 @@ export type PhoneInputProps = {
   options?: TelInputOptions;
   order?: ((a: Country, b: Country) => number) | undefined;
   onchange?: (e: Event & { currentTarget: HTMLInputElement }) => void;
+  /** E164 value emitted by svelte-tel-input on every parse. Prefer this over `onchange`,
+   * whose `currentTarget.value` is the formatted display string (may lack the dial code). */
+  onValueChange?: (value: string, detailedValue: Partial<DetailedValue> | null) => void;
 };

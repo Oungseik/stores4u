@@ -3,7 +3,7 @@
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
-  import { PhoneInput } from "@repo/ui/phone-input";
+  import { type DetailedValue, PhoneInput } from "@repo/ui/phone-input";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
@@ -21,6 +21,7 @@
     phone2: string | null;
     email: string | null;
     address: string | null;
+    paymentTerms: string | null;
   };
 
   type SupplierInitialData =
@@ -53,6 +54,11 @@
   }
 
   let { initialData, onSuccess, onCancel }: Props = $props();
+
+  // Authoritative E.164 source for phone fields. The form submits these, never the
+  // input's display text (svelte-tel-input renders national format, dial code stripped).
+  let phoneDetailed: DetailedValue | null = $state(null);
+  let phone2Detailed: DetailedValue | null = $state(null);
 
   const queryClient = useQueryClient();
 
@@ -100,13 +106,15 @@
   const form = createForm(() => ({
     defaultValues,
     onSubmit: async ({ value }) => {
+      const phone = phoneDetailed?.e164 ?? null;
+      const phone2 = phone2Detailed?.e164 ?? null;
       if (initialData?.action === "update") {
         updateSupplier.mutate({
           id: initialData.id,
           name: value.name,
           contactName: value.contactName || null,
-          phone: value.phone || null,
-          phone2: value.phone2 || null,
+          phone,
+          phone2,
           email: value.email || null,
           address: value.address || null,
           paymentTerms: value.paymentTerms || null,
@@ -115,8 +123,8 @@
         createSupplier.mutate({
           name: value.name,
           contactName: value.contactName || undefined,
-          phone: value.phone || undefined,
-          phone2: value.phone2 || undefined,
+          phone: phone || undefined,
+          phone2: phone2 || undefined,
           email: value.email || undefined,
           address: value.address || undefined,
           paymentTerms: value.paymentTerms || undefined,
@@ -203,12 +211,11 @@
         <div class="space-y-2">
           <Label for={field.name}>Phone</Label>
           <PhoneInput
-            bind:value={field.state.value}
+            value={field.state.value}
+            bind:detailedValue={phoneDetailed}
             name={field.name}
             placeholder="+1 555-0000"
-            onchange={(e) => {
-              field.handleChange(e.currentTarget.value);
-            }}
+            onValueChange={(value) => field.handleChange(value)}
           />
           {#if field.state.meta.errors.length}
             <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -228,12 +235,11 @@
         <div class="space-y-2">
           <Label for={field.name}>Phone 2</Label>
           <PhoneInput
-            bind:value={field.state.value}
+            value={field.state.value}
+            bind:detailedValue={phone2Detailed}
             name={field.name}
             placeholder="+1 555-0000"
-            onchange={(e) => {
-              field.handleChange(e.currentTarget.value);
-            }}
+            onValueChange={(value) => field.handleChange(value)}
           />
           {#if field.state.meta.errors.length}
             <p class="text-sm text-red-500">{field.state.meta.errors}</p>

@@ -222,6 +222,7 @@
         phone2: found.phone2,
         email: found.email,
         address: found.address,
+        paymentTerms: found.paymentTerms,
       };
       isExistingSupplier = true;
     } else if (

@@ -200,13 +200,11 @@
               <div class="space-y-2">
                 <Label for={field.name}>Phone Number</Label>
                 <PhoneInput
-                  bind:value={field.state.value}
+                  value={field.state.value}
                   name={field.name}
                   class="z-1"
                   placeholder="+1 (555) 123-4567"
-                  onchange={(e) => {
-                    field.handleChange(e.currentTarget.value);
-                  }}
+                  onValueChange={(value) => field.handleChange(value)}
                 />
               </div>
             {/snippet}

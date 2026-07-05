@@ -130,6 +130,7 @@
         phone2: invoice.supplier.phone2,
         email: invoice.supplier.email,
         address: invoice.supplier.address,
+        paymentTerms: invoice.supplier.paymentTerms,
       };
       isExistingSupplier = true;
     }
