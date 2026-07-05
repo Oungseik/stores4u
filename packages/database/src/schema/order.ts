@@ -1,5 +1,6 @@
 import { randomUUIDv7 } from "bun";
 import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { customer } from "./customer";
 import { product } from "./product";
 
 /**
@@ -12,6 +13,11 @@ export const order = sqliteTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => randomUUIDv7()),
+    customerId: text("customer_id").references(() => customer.id, {
+      onDelete: "set null",
+    }),
+    // Snapshot columns: order freezes customer identity at sale time so
+    // historical invoices survive customer edits/deletion (customerId nulls).
     customerName: text("customer_name"),
     customerPhone: text("customer_phone"),
     subtotalCents: integer("subtotal_cents").default(0).notNull(),
