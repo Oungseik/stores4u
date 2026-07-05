@@ -4,7 +4,6 @@ export * from "./inventory";
 export * from "./order";
 export * from "./product";
 export * from "./purchaseInvoice";
-export * from "./refund";
 export { relations, schema } from "./relations";
 export * from "./shop-info";
 export * from "./supplier";

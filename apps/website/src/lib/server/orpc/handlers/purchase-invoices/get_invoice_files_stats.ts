@@ -1,16 +1,12 @@
-import { z } from "zod";
 import type { PurchaseInvoiceFileStatus } from "$lib/server/db";
 import { db, purchaseInvoiceFile, purchaseInvoiceFileStatus, sql } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
-const input = z.object({});
-
 export const getInvoiceFilesStatsHandler = os
   .route({ method: "GET" })
-  .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input }) => {
+  .handler(async () => {
     const counts = await db
       .select({
         status: purchaseInvoiceFile.status,

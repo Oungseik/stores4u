@@ -9,7 +9,6 @@ import {
   purchaseInvoiceItem,
   purchaseInvoiceOcrResult,
 } from "./purchaseInvoice";
-import { refund, refundItem } from "./refund";
 import { shopInfo } from "./shop-info";
 import { productSupplier, supplier } from "./supplier";
 import { taxSettings } from "./tax";
@@ -39,8 +38,6 @@ export const schema = {
   inventoryMovement,
   order,
   orderItem,
-  refund,
-  refundItem,
   taxSettings,
 };
 
@@ -157,20 +154,10 @@ export const relations = defineRelations(schema, (r) => ({
     },
     order: {
       items: r.many.orderItem(),
-      refunds: r.many.refund(),
     },
     orderItem: {
       order: r.one.order({ from: r.orderItem.orderId, to: r.order.id }),
       product: r.one.product({ from: r.orderItem.productId, to: r.product.id }),
-      refundItems: r.many.refundItem(),
-    },
-    refund: {
-      order: r.one.order({ from: r.refund.orderId, to: r.order.id }),
-      items: r.many.refundItem(),
-    },
-    refundItem: {
-      refund: r.one.refund({ from: r.refundItem.refundId, to: r.refund.id }),
-      orderItem: r.one.orderItem({ from: r.refundItem.orderItemId, to: r.orderItem.id }),
     },
   }),
 );
