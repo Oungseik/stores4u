@@ -23,6 +23,7 @@ export const listProductsHandler = os
   .handler(async ({ input }) => {
     const products = await db.query.product.findMany({
       where: {
+        isArchived: false,
         id: input.order === "asc" ? { gte: input.cursor } : { lte: input.cursor },
         OR: input.search
           ? [

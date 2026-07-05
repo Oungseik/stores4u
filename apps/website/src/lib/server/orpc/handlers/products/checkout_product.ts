@@ -41,7 +41,7 @@ export const checkoutHandler = os
     const productIds = [...requestedQtyByProduct.keys()];
 
     const [products, taxConfig] = await Promise.all([
-      db.query.product.findMany({ where: { id: { in: productIds } } }),
+      db.query.product.findMany({ where: { id: { in: productIds }, isArchived: false } }),
       db.query.taxSettings.findFirst(),
     ]);
 

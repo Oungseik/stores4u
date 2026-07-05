@@ -31,6 +31,7 @@ export const product = sqliteTable(
     priceCents: integer("price_cents").notNull(),
     stock: integer("stock").default(0).notNull(),
     lowStockThreshold: integer("low_stock_threshold").default(10),
+    isArchived: integer("is_archived", { mode: "boolean" }).default(false).notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),

@@ -1,8 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { db, eq, image, product, productImage } from "$lib/server/db";
-import { logger } from "$lib/server/logger";
+import { db, eq, product } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
-import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
   id: z.string().min(1),
@@ -13,39 +12,18 @@ export const deleteProductHandler = os
   .use(authMiddleware)
   .use(protectedShopMiddleware)
   .handler(async ({ input }) => {
-    const [existingProduct, existingImages] = await Promise.all([
-      db.select({ image: product.image }).from(product).where(eq(product.id, input.id)).limit(1),
-      db
-        .select({ objectPath: productImage.objectPath })
-        .from(productImage)
-        .where(eq(productImage.productId, input.id)),
-    ]);
+    // Soft-delete: archive only. The product row stays so order / inventory /
+    // purchase-invoice history keeps its FK target. A hard delete would either
+    // orphan history (those refs have no onDelete) or throw now that FK
+    // enforcement is on. Images are left in place (the product still exists).
+    const updated = await db
+      .update(product)
+      .set({ isArchived: true, updatedAt: new Date() })
+      .where(eq(product.id, input.id));
 
-    const allObjectPaths = [
-      ...existingImages.map((img) => img.objectPath),
-      ...(existingProduct.at(0)?.image ? [existingProduct.at(0)?.image] : []),
-    ].filter((p): p is string => p !== null && p !== undefined);
-
-    for (const objectPath of allObjectPaths) {
-      const key = extractObjectKey(objectPath);
-      if (key) {
-        await removeImage(key).catch((e) => {
-          logger.error(
-            { err: e, objectPath },
-            "Failed to delete image from storage during product deletion",
-          );
-        });
-      }
-      await db
-        .delete(image)
-        .where(eq(image.objectPath, objectPath))
-        .catch((e) => {
-          logger.error(
-            { err: e, objectPath },
-            "Failed to delete image from registry during product deletion",
-          );
-        });
+    if (updated.changes === 0) {
+      throw new ORPCError("NOT_FOUND", { message: "Product not found" });
     }
 
-    await db.delete(product).where(eq(product.id, input.id));
+    return { success: true };
   });

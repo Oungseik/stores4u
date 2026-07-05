@@ -16,12 +16,22 @@ export const statsProductsHandler = os
           total: count(),
           inventoryValueRetailCents: sql<number>`COALESCE(SUM(${product.stock} * ${product.priceCents}), 0)`,
         })
-        .from(product),
-      db.select({ count: count() }).from(product).where(eq(product.stock, 0)),
+        .from(product)
+        .where(eq(product.isArchived, false)),
       db
         .select({ count: count() })
         .from(product)
-        .where(and(gte(product.stock, 1), gte(product.lowStockThreshold, product.stock))),
+        .where(and(eq(product.isArchived, false), eq(product.stock, 0))),
+      db
+        .select({ count: count() })
+        .from(product)
+        .where(
+          and(
+            eq(product.isArchived, false),
+            gte(product.stock, 1),
+            gte(product.lowStockThreshold, product.stock),
+          ),
+        ),
     ]);
 
     return {

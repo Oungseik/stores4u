@@ -60,6 +60,7 @@ export const getProductHandler = os
       lastCostCents: product.inventoryMovements[0]?.unitCostCents ?? null,
       stock: product.stock,
       lowStockThreshold: product.lowStockThreshold,
+      isArchived: product.isArchived,
       categories: product.productCategories
         .map((pc) => pc.category)
         .filter((c): c is NonNullable<typeof c> => c !== null),
