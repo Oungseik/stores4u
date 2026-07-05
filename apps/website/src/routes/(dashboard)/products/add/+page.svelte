@@ -6,15 +6,11 @@
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
-  import type { PageProps } from "./$types";
-
-  const { params }: PageProps = $props();
-
   // svelte-ignore non_reactive_update
   let productFormRef: ProductForm | null = null;
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/` },

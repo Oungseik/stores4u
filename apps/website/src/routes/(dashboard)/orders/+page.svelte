@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { parseDate, type DateValue } from "@internationalized/date";
+  import { parseDate } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -23,7 +23,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
+  const { data: shop }: PageProps = $props();
 
   const searchParams = useSearchParams(ordersFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -95,7 +95,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Orders" }]}>
     {#snippet actions()}
       <a href={`/checkout`} class={buttonVariants()}>
@@ -116,7 +116,7 @@
         {#each { length: 3 } as _}
           <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
             <Card.Root>
-              <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Card.Header class="flex flex-row items-center justify-between space-y-0">
                 <Skeleton class="h-4 w-24" />
                 <Skeleton class="size-8 rounded-md" />
               </Card.Header>

@@ -9,7 +9,6 @@
   import XIcon from "@lucide/svelte/icons/x";
   import * as Alert from "@repo/ui/alert";
   import { Button } from "@repo/ui/button";
-  import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
@@ -303,7 +302,6 @@
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
@@ -343,7 +341,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/` },

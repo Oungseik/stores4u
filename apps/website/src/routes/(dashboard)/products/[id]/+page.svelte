@@ -44,7 +44,7 @@
   let showAdjustDialog = $state(false);
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/` },

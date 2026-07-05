@@ -26,7 +26,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
+  const { data: shop }: PageProps = $props();
   const queryClient = useQueryClient();
 
   const deleteMutation = createMutation(() =>
@@ -106,7 +106,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Suppliers" }]}>
     {#snippet actions()}
       <Button onclick={() => (isAddOpen = true)}>
@@ -162,7 +162,7 @@
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {#each allSuppliers as supplier (supplier.id)}
           <Card.Root class="group transition-all duration-200 hover:shadow-md">
-            <Card.Header class="pb-3">
+            <Card.Header>
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-3">
                   <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">

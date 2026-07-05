@@ -41,7 +41,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
+  const { data: shop }: PageProps = $props();
   const queryClient = useQueryClient();
 
   const searchParams = useSearchParams(productsFilterSchema, { noScroll: true });
@@ -113,13 +113,23 @@
     searchParams.update({ search: "", categories: [] });
   }
 
-  let adjustProduct = $state<{ id: string; name: string; stock: number; lastCostCents: number | null } | null>(null);
-  function handleAdjustProduct(id: string, name: string, stock: number, lastCostCents: number | null) {
+  let adjustProduct = $state<{
+    id: string;
+    name: string;
+    stock: number;
+    lastCostCents: number | null;
+  } | null>(null);
+  function handleAdjustProduct(
+    id: string,
+    name: string,
+    stock: number,
+    lastCostCents: number | null,
+  ) {
     adjustProduct = { id, name, stock, lastCostCents };
   }
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Products" }]}>
     {#snippet actions()}
       <a href={`/products/add`} class={buttonVariants()}>
@@ -142,7 +152,7 @@
       {#each { length: 4 } as _}
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root class="h-[170px]">
-            <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Header class="flex flex-row items-center justify-between space-y-0">
               <Skeleton class="h-4 w-24" />
               <Skeleton class="size-8 rounded-md" />
             </Card.Header>
@@ -217,7 +227,6 @@
           items={(categories.data?.items ?? []).map((c) => ({
             value: c.name,
             label: c.name,
-            count: c.productCount,
           }))}
           value={searchParams.categories}
           onValueChange={(value) => searchParams.update({ categories: value })}
@@ -288,7 +297,7 @@
         </div>
       {/if}
     {:else}
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:gap-4">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4">
         {#each allProducts as product (product.id)}
           {@const marginPercent =
             product.lastCostCents && product.lastCostCents > 0
@@ -352,7 +361,13 @@
                         </a>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
-                        onclick={() => handleAdjustProduct(product.id, product.name, product.stock, product.lastCostCents)}
+                        onclick={() =>
+                          handleAdjustProduct(
+                            product.id,
+                            product.name,
+                            product.stock,
+                            product.lastCostCents,
+                          )}
                       >
                         <ArrowUpDownIcon class="size-4" />
                         Adjust Stock
@@ -371,23 +386,14 @@
               </div>
 
               <div class="flex flex-col gap-1.5 p-3">
-                <div class="min-w-0">
+                <div class="flex items-center justify-between gap-1">
                   <p class="truncate text-sm leading-tight font-medium">{product.name}</p>
-                  <p class="text-muted-foreground truncate text-xs">
-                    {product.sku ?? "No SKU"}
-                    {#if product.categories?.length > 0}
-                      <span> · {product.categories[0]}</span>
-                    {/if}
-                  </p>
+                  <span class="text-muted-foreground text-xs">{product.stock} left</span>
                 </div>
-
                 <div class="flex flex-col gap-0.5">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-sm font-semibold">
-                      {formatPrice(product.priceCents, shop.currency)}
-                    </span>
-                    <span class="text-muted-foreground text-xs">{product.stock} left</span>
-                  </div>
+                  <span class="text-sm">
+                    {formatPrice(product.priceCents, shop.currency)}
+                  </span>
                   {#if product.lastCostCents != null && marginPercent != null}
                     <div class="flex items-center gap-1.5">
                       <span class="text-muted-foreground text-xs">

@@ -28,16 +28,12 @@
   import { type CategoryItem, createColumns } from "$lib/components/tables/categories/columns";
   import { orpc } from "$lib/orpc_client";
 
-  import type { PageProps } from "./$types";
-
   const categoriesFilterSchema = z.object({
     search: z.string().default(""),
     view: z.enum(["card", "table"]).default("card"),
   });
 
   type CategoriesView = z.infer<typeof categoriesFilterSchema>["view"];
-
-  const { params, data: shop }: PageProps = $props();
 
   const searchParams = useSearchParams(categoriesFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -111,7 +107,7 @@
   const columns = $derived(createColumns(handleEditCategory, performDelete, handleManageProducts));
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/` },
@@ -213,10 +209,12 @@
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {#each allCategories as category (category.id)}
           <Card.Root class="group transition-all duration-200 hover:shadow-md">
-            <Card.Header class="pb-3">
+            <Card.Header>
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                  <div
+                    class="bg-primary/10 shrink-0 flex size-10 items-center justify-center rounded-full"
+                  >
                     <FolderIcon class="text-primary size-5" />
                   </div>
                   <div>

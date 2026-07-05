@@ -67,7 +67,7 @@
 </script>
 
 <Card.Root class="flex flex-col transition-all hover:shadow-md">
-  <Card.Header class="pb-4">
+  <Card.Header>
     <div class="flex items-start justify-between gap-4">
       <div class="flex items-center gap-3">
         <div

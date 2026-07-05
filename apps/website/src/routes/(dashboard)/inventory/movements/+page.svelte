@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { parseDate, type DateValue } from "@internationalized/date";
+  import { parseDate } from "@internationalized/date";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";
@@ -25,7 +25,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
+  const { data: shop }: PageProps = $props();
 
   const searchParams = useSearchParams(inventoryMovementsFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -93,7 +93,7 @@
   ];
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: "Dashboard", href: `/` },

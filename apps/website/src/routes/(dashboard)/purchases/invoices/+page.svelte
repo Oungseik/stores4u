@@ -20,12 +20,7 @@
   import * as FilterBar from "@repo/ui/filter-bar";
   import * as Progress from "@repo/ui/progress";
   import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
-  import {
-    createInfiniteQuery,
-    createMutation,
-    createQuery,
-    useQueryClient,
-  } from "@tanstack/svelte-query";
+  import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
@@ -36,10 +31,6 @@
   import { createColumns } from "$lib/components/tables/purchase-invoice-files/columns";
   import { orpc } from "$lib/orpc_client";
   import { type InvoiceFilesView, invoiceFilesFilterSchema } from "$lib/search_param";
-
-  import type { PageProps } from "./$types";
-
-  const { params, data: shop }: PageProps = $props();
 
   const queryClient = useQueryClient();
 
@@ -75,18 +66,10 @@
     REJECTED: "Rejected",
   };
 
-  const invoiceFilesStats = createQuery(() =>
-    orpc.purchaseInvoices.getStats.queryOptions({
-      input: {},
-      enabled: true,
-    }),
-  );
-
   const statusOptions = $derived(
     statusKeys.map((key) => ({
       value: key satisfies string,
       label: statusLabels[key],
-      count: invoiceFilesStats.data?.[key] ?? 0,
     })),
   );
 
@@ -119,7 +102,6 @@
       onSuccess: () => {
         toast.success("Invoice processed successfully");
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
         processingFileId = null;
       },
       onError: (error) => {
@@ -136,7 +118,6 @@
       onSuccess: () => {
         toast.success("File deleted successfully");
         queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
       },
       onError: (error) => {
         toast.error(error.message || "Failed to delete file");
@@ -177,7 +158,6 @@
     if (successCount > 0) {
       toast.success(`${successCount} file${successCount > 1 ? "s" : ""} uploaded successfully`);
       queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-      queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getStats.key() });
     }
 
     uploadProgress = { current: 0, total: 0 };
@@ -208,7 +188,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 p-4 md:gap-8 md:p-6">
+<div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Invoice Files" }]}
   >
@@ -487,7 +467,7 @@
       {/if}
 
       <Card.Root>
-        <Card.Header class="pb-2">
+        <Card.Header>
           <Card.Title class="text-base">Tips for Best Results</Card.Title>
         </Card.Header>
         <Card.Content>
