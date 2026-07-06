@@ -77,19 +77,6 @@
     });
   }
 
-  function getPaymentStatusStyles(status: string) {
-    switch (status) {
-      case "paid":
-        return "text-emerald-600";
-      case "pending":
-        return "text-amber-600";
-      case "refunded":
-        return "text-red-600";
-      default:
-        return "text-gray-600";
-    }
-  }
-
   function formatOrderId(id: string) {
     return id.slice(-8).toUpperCase();
   }
@@ -238,7 +225,7 @@
                     <p class="text-sm font-semibold">
                       {formatPrice(order.totalCents, shop.currency)}
                     </p>
-                    <p class="text-xs {getPaymentStatusStyles('paid')}">paid</p>
+                    <p class="text-xs text-emerald-600">paid</p>
                   </div>
                 </a>
               </Card.Content>

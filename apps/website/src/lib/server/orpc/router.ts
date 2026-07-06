@@ -7,6 +7,11 @@ import { getCategoryProductsHandler } from "./handlers/categories/get_category_p
 import { listCategoriesHandler } from "./handlers/categories/list_categories";
 import { updateCategoryHandler } from "./handlers/categories/update_category";
 import { updateCategoryProductsHandler } from "./handlers/categories/update_category_products";
+import { createCustomerHandler } from "./handlers/customers/create_customer";
+import { deleteCustomerHandler } from "./handlers/customers/delete_customer";
+import { getCustomerHandler } from "./handlers/customers/get_customer";
+import { listCustomersHandler } from "./handlers/customers/list_customers";
+import { updateCustomerHandler } from "./handlers/customers/update_customer";
 import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend";
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { deleteImageHandler } from "./handlers/images/delete";
@@ -60,6 +65,14 @@ export const router = os.router({
     list: listCategoriesHandler,
     update: updateCategoryHandler,
     updateProducts: updateCategoryProductsHandler,
+  },
+
+  customers: {
+    create: createCustomerHandler,
+    delete: deleteCustomerHandler,
+    get: getCustomerHandler,
+    list: listCustomersHandler,
+    update: updateCustomerHandler,
   },
 
   dashboard: {

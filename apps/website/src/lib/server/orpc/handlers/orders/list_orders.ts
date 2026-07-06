@@ -9,6 +9,7 @@ const input = z.object({
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
   productId: z.string().optional(),
+  customerId: z.string().optional(),
 });
 
 export const listOrdersHandler = os
@@ -21,6 +22,7 @@ export const listOrdersHandler = os
       where: {
         id: input.cursor ? { lte: input.cursor } : undefined,
         items: { productId: input.productId },
+        customerId: input.customerId,
         OR: input.search
           ? [
               { id: { like: `%${input.search}%` } },

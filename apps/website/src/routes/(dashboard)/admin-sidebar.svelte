@@ -13,6 +13,7 @@
   import SettingsIcon from "@lucide/svelte/icons/settings";
   import StoreIcon from "@lucide/svelte/icons/store";
   import UserIcon from "@lucide/svelte/icons/user";
+  import UsersIcon from "@lucide/svelte/icons/users";
   import * as Avatar from "@repo/ui/avatar";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { LightSwitch } from "@repo/ui/light-switch";
@@ -51,6 +52,7 @@
     { title: "Dashboard", href: "/", icon: LayoutDashboard },
     { title: "Checkout", href: "/checkout", icon: ScanBarcodeIcon },
     { title: "Orders", href: "/orders", icon: ClipboardListIcon },
+    { title: "Customers", href: "/customers", icon: UsersIcon },
     { title: "Integrations", href: "/integrations", icon: LinkIcon },
   ];
 

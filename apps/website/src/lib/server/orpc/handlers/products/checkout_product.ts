@@ -21,6 +21,7 @@ const checkoutItem = z.object({
 
 const input = z.object({
   items: z.array(checkoutItem).min(1),
+  customerId: z.string().min(1).optional(),
   customerName: z.string().max(255).optional(),
   customerPhone: z.string().max(50).optional(),
   discountCents: z.number().int().min(0).default(0),
@@ -74,6 +75,24 @@ export const checkoutHandler = os
 
     const totalCents = subtotalCents - input.discountCents + vatCents;
 
+    // Resolve customer: when a customerId is supplied, validate it exists and
+    // snapshot name/phone from the customer row onto the order (overrides any
+    // caller-supplied values). Walk-in = customerId null, optional name/phone.
+    let customerId: string | null = null;
+    let customerName: string | null = input.customerName ?? null;
+    let customerPhone: string | null = input.customerPhone ?? null;
+    if (input.customerId) {
+      const found = await db.query.customer.findFirst({
+        where: { id: input.customerId },
+      });
+      if (!found) {
+        throw new ORPCError("NOT_FOUND", { message: "Customer not found" });
+      }
+      customerId = found.id;
+      customerName = found.name;
+      customerPhone = found.phone;
+    }
+
     const latestCostByProduct = new Map(
       await Promise.all(
         productIds.map(async (pid) => {
@@ -90,8 +109,9 @@ export const checkoutHandler = os
       const orderRecord = tx
         .insert(order)
         .values({
-          customerName: input.customerName,
-          customerPhone: input.customerPhone,
+          customerId,
+          customerName,
+          customerPhone,
           subtotalCents,
           discountCents: input.discountCents,
           vatCents,

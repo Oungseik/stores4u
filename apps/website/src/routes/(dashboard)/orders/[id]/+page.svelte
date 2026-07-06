@@ -24,19 +24,6 @@
   function formatOrderId(id: string) {
     return id.slice(-8).toUpperCase();
   }
-
-  function getPaymentStatusStyles(status: string) {
-    switch (status) {
-      case "paid":
-        return "text-emerald-600";
-      case "pending":
-        return "text-amber-600";
-      case "refunded":
-        return "text-red-600";
-      default:
-        return "text-gray-600";
-    }
-  }
 </script>
 
 <div class="flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6">
@@ -144,7 +131,7 @@
           </div>
           <div class="flex justify-between text-xs">
             <span class="text-muted-foreground">Payment Status</span>
-            <span class="{getPaymentStatusStyles('paid')} capitalize">paid</span>
+            <span class="text-emerald-600 capitalize">paid</span>
           </div>
         </div>
       </Card.Content>

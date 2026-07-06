@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
-import { DATABASE_PATH } from "$env/static/private";
 import { createDb } from "@repo/database";
+import { DATABASE_PATH } from "$env/static/private";
 
 export * from "@repo/database";
 

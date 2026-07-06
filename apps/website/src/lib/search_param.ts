@@ -56,6 +56,10 @@ export const suppliersFilterSchema = createSearchParamsSchema({
   search: { type: "string", default: "" },
 });
 
+export const customersFilterSchema = createSearchParamsSchema({
+  search: { type: "string", default: "" },
+});
+
 type ShopProductFilterSchema = {
   search: string | null;
   categories: string[];
