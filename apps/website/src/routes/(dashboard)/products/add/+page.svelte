@@ -28,7 +28,7 @@
     <ProductForm bind:this={productFormRef} onSuccess={() => goto(`/products`)} />
 
     <div class="flex items-center gap-2 border-t pt-4">
-      <a href={`/products`} class={buttonVariants({ variant: "outline" })}> Cancel </a>
+      <a href="/products" class={buttonVariants({ variant: "outline" })}> Cancel </a>
       <Button onclick={() => productFormRef?.submit()} disabled={productFormRef?.getIsPending()}>
         {#if productFormRef?.getIsPending()}
           <Loader2Icon class="mr-2 size-4 animate-spin" />

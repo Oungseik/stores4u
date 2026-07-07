@@ -51,7 +51,10 @@ export function createColumns(currency: CurrencyCode): ColumnDef<MovementItem>[]
       accessorKey: "qty",
       header: "Quantity",
       cell: ({ row }) => {
-        return renderComponent(QuantityCell, { qty: row.original.qty, uom: row.original.productUom });
+        return renderComponent(QuantityCell, {
+          qty: row.original.qty,
+          uom: row.original.productUom,
+        });
       },
     },
     {

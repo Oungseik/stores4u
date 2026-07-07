@@ -28,7 +28,7 @@
     <CustomerForm bind:this={customerFormRef} onSuccess={() => goto(`/customers`)} />
 
     <div class="flex items-center gap-2 border-t pt-4">
-      <a href={`/customers`} class={buttonVariants({ variant: "outline" })}> Cancel </a>
+      <a href="/customers" class={buttonVariants({ variant: "outline" })}> Cancel </a>
       <Button onclick={() => customerFormRef?.submit()} disabled={customerFormRef?.getIsPending()}>
         {#if customerFormRef?.getIsPending()}
           <Loader2Icon class="mr-2 size-4 animate-spin" />

@@ -132,7 +132,7 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Products" }]}>
     {#snippet actions()}
-      <a href={`/products/add`} class={buttonVariants()}>
+      <a href="/products/add" class={buttonVariants()}>
         <PlusIcon class="size-4" /> Add Product
       </a>
     {/snippet}

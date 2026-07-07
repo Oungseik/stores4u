@@ -299,7 +299,7 @@
             <DropdownMenu.Group>
               <DropdownMenu.Item>
                 {#snippet child({ props })}
-                  <a href={"/accounts"} {...props}>
+                  <a href="/accounts" {...props}>
                     <UserIcon class="size-4" />
                     Account
                   </a>

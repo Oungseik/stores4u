@@ -98,7 +98,7 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Customers" }]}>
     {#snippet actions()}
-      <a href={`/customers/add`} class={buttonVariants()}>
+      <a href="/customers/add" class={buttonVariants()}>
         <PlusIcon class="size-4" />
         Add Customer
       </a>
@@ -135,10 +135,12 @@
         </div>
         <h3 class="text-lg font-semibold">No customers found</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters ? "Try adjusting your search terms" : "Add your first customer to get started"}
+          {hasFilters
+            ? "Try adjusting your search terms"
+            : "Add your first customer to get started"}
         </p>
         {#if !hasFilters}
-          <a href={`/customers/add`} class={buttonVariants({ class: "mt-4" })}>
+          <a href="/customers/add" class={buttonVariants({ class: "mt-4" })}>
             <PlusIcon class="size-4" />
             Add Customer
           </a>

@@ -71,7 +71,10 @@
         <a href={`/customers/${params.id}`} class={buttonVariants({ variant: "outline" })}>
           Cancel
         </a>
-        <Button onclick={() => customerFormRef?.submit()} disabled={customerFormRef?.getIsPending()}>
+        <Button
+          onclick={() => customerFormRef?.submit()}
+          disabled={customerFormRef?.getIsPending()}
+        >
           {#if customerFormRef?.getIsPending()}
             <Loader2Icon class="mr-2 size-4 animate-spin" />
             Updating...

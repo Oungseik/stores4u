@@ -314,7 +314,7 @@
             </p>
           </div>
           <div class="relative z-10 mt-6">
-            <a href={`/checkout`} class={buttonVariants()}>
+            <a href="/checkout" class={buttonVariants()}>
               Open Checkout
               <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
             </a>
@@ -325,7 +325,7 @@
         </div>
 
         <a
-          href={`/products`}
+          href="/products"
           class="group border-border bg-card flex flex-col rounded-xl border p-5 transition-all duration-200 hover:shadow-sm"
         >
           <div class="bg-muted mb-3 flex size-10 items-center justify-center rounded-lg">
@@ -336,7 +336,7 @@
         </a>
 
         <a
-          href={`/orders`}
+          href="/orders"
           class="group border-border bg-card flex flex-col rounded-xl border p-5 transition-all duration-200 hover:shadow-sm"
         >
           <div class="bg-muted mb-3 flex size-10 items-center justify-center rounded-lg">

@@ -94,7 +94,7 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Suppliers" }]}>
     {#snippet actions()}
-      <a href={`/purchases/suppliers/add`} class={buttonVariants()}>
+      <a href="/purchases/suppliers/add" class={buttonVariants()}>
         <PlusIcon class="size-4" />
         Add Supplier
       </a>
@@ -136,7 +136,7 @@
             : "Add your first supplier to get started"}
         </p>
         {#if !hasFilters}
-          <a href={`/purchases/suppliers/add`} class={buttonVariants({ class: "mt-4" })}>
+          <a href="/purchases/suppliers/add" class={buttonVariants({ class: "mt-4" })}>
             <PlusIcon class="size-4" />
             Add Supplier
           </a>

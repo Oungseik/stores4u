@@ -91,10 +91,7 @@
           <Trash2Icon class="size-4" />
           Delete
         </Button>
-        <a
-          href={`/customers/${params.id}/edit`}
-          class={buttonVariants({ variant: "outline" })}
-        >
+        <a href={`/customers/${params.id}/edit`} class={buttonVariants({ variant: "outline" })}>
           <PencilIcon class="size-4" />
           Edit
         </a>
@@ -131,9 +128,9 @@
         <div class="space-y-2 rounded-md border p-4 text-sm">
           <div class="flex items-center justify-between">
             <span class="text-muted-foreground">Customer Type</span>
-            <span class="font-medium">{customer.customerType === "WHOLESALE"
-                ? "Wholesale"
-                : "Retail"}</span>
+            <span class="font-medium"
+              >{customer.customerType === "WHOLESALE" ? "Wholesale" : "Retail"}</span
+            >
           </div>
           <div class="flex items-center justify-between">
             <span class="text-muted-foreground">Contact Person</span>

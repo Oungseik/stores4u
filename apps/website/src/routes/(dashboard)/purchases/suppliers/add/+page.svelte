@@ -28,7 +28,7 @@
     <SupplierForm bind:this={supplierFormRef} onSuccess={() => goto(`/purchases/suppliers`)} />
 
     <div class="flex items-center gap-2 border-t pt-4">
-      <a href={`/purchases/suppliers`} class={buttonVariants({ variant: "outline" })}> Cancel </a>
+      <a href="/purchases/suppliers" class={buttonVariants({ variant: "outline" })}> Cancel </a>
       <Button onclick={() => supplierFormRef?.submit()} disabled={supplierFormRef?.getIsPending()}>
         {#if supplierFormRef?.getIsPending()}
           <Loader2Icon class="mr-2 size-4 animate-spin" />
