@@ -4,6 +4,8 @@
     "includes": [
       "!**/*.html",
       "!**/*.svelte",
+      "!**/*.svg",
+      "!**/*.css",
       "!**/node_modules",
       "!**/paraglide",
       "!build",

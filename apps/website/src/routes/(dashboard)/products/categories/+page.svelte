@@ -1,7 +1,5 @@
 <script lang="ts">
   import FolderIcon from "@lucide/svelte/icons/folder";
-  import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
-  import ListIcon from "@lucide/svelte/icons/list";
   import ListPlusIcon from "@lucide/svelte/icons/list-plus";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
@@ -13,7 +11,6 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import { ToggleGroup, ToggleGroupItem } from "@repo/ui/toggle-group";
   import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
@@ -24,16 +21,12 @@
   import EditCategoryDialog from "$lib/components/dialogs/EditCategoryDialog.svelte";
   import ManageCategoryProductsDialog from "$lib/components/dialogs/ManageCategoryProductsDialog.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
-  import DataTable from "$lib/components/tables/DataTable.svelte";
-  import { type CategoryItem, createColumns } from "$lib/components/tables/categories/columns";
+  import type { CategoryItem } from "$lib/components/tables/categories/columns";
   import { orpc } from "$lib/orpc_client";
 
   const categoriesFilterSchema = z.object({
     search: z.string().default(""),
-    view: z.enum(["card", "table"]).default("card"),
   });
-
-  type CategoriesView = z.infer<typeof categoriesFilterSchema>["view"];
 
   const searchParams = useSearchParams(categoriesFilterSchema, { noScroll: true });
   const debouncedSearch = new Debounced(() => searchParams.search, 1000);
@@ -103,8 +96,6 @@
       },
     });
   }
-
-  const columns = $derived(createColumns(handleEditCategory, performDelete, handleManageProducts));
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
@@ -129,7 +120,7 @@
   </div>
 
   <section class="space-y-6">
-    <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
+    <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
         <FilterBar.Search
           placeholder="Search categories..."
@@ -138,26 +129,6 @@
         />
         <FilterBar.Reset />
       </div>
-
-      <ToggleGroup
-        type="single"
-        value={searchParams.view}
-        onValueChange={(value) => {
-          if (value && (value === "card" || value === "table")) {
-            searchParams.update({ view: value as CategoriesView });
-          }
-        }}
-        variant="outline"
-        size="sm"
-        class="shrink-0"
-      >
-        <ToggleGroupItem value="card" aria-label="Card view">
-          <LayoutGridIcon class="size-4" />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="table" aria-label="Table view">
-          <ListIcon class="size-4" />
-        </ToggleGroupItem>
-      </ToggleGroup>
     </FilterBar.Root>
 
     {#if categories.isLoading}
@@ -186,25 +157,6 @@
           </Button>
         {/if}
       </div>
-    {:else if searchParams.view === "table"}
-      <DataTable {columns} data={allCategories} loading={false} />
-
-      {#if categories.hasNextPage}
-        <div class="mt-4 flex justify-center">
-          <Button
-            variant="outline"
-            onclick={() => categories.fetchNextPage()}
-            disabled={categories.isFetchingNextPage}
-          >
-            {#if categories.isFetchingNextPage}
-              <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
-            {:else}
-              Load More
-            {/if}
-          </Button>
-        </div>
-      {/if}
     {:else}
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {#each allCategories as category (category.id)}
