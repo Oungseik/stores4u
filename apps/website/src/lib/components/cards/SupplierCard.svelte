@@ -222,6 +222,7 @@
             }
           : undefined}
         onSuccess={handleFormSuccess}
+        showActions
       />
     {/if}
   </Card.Content>

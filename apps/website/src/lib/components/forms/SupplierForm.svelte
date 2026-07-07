@@ -52,9 +52,10 @@
     initialData?: SupplierInitialData;
     onSuccess?: (supplier: CreatedSupplier) => void;
     onCancel?: () => void;
+    showActions?: boolean;
   }
 
-  let { initialData, onSuccess, onCancel }: Props = $props();
+  let { initialData, onSuccess, onCancel, showActions = false }: Props = $props();
 
   // Authoritative E.164 source for phone fields. The form submits these, never the
   // input's display text (svelte-tel-input renders national format, dial code stripped).
@@ -139,8 +140,12 @@
     },
   }));
 
-  export function resetForm() {
-    form.reset();
+  export function submit() {
+    form.handleSubmit();
+  }
+
+  export function getIsPending() {
+    return createSupplier.isPending || updateSupplier.isPending;
   }
 </script>
 
@@ -338,17 +343,19 @@
     {/snippet}
   </form.Field>
 
-  <div class="flex justify-end gap-2">
-    {#if onCancel}
-      <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
-    {/if}
-    <Button type="submit" disabled={createSupplier.isPending || updateSupplier.isPending}>
-      {#if createSupplier.isPending || updateSupplier.isPending}
-        <Loader2Icon class="mr-2 size-4 animate-spin" />
-        {isEditMode ? "Updating..." : "Creating..."}
-      {:else}
-        {isEditMode ? "Update Supplier" : "Create Supplier"}
+  {#if showActions || onCancel}
+    <div class="flex justify-end gap-2">
+      {#if onCancel}
+        <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
       {/if}
-    </Button>
-  </div>
+      <Button type="submit" disabled={createSupplier.isPending || updateSupplier.isPending}>
+        {#if createSupplier.isPending || updateSupplier.isPending}
+          <Loader2Icon class="mr-2 size-4 animate-spin" />
+          {isEditMode ? "Updating..." : "Creating..."}
+        {:else}
+          {isEditMode ? "Update Supplier" : "Create Supplier"}
+        {/if}
+      </Button>
+    </div>
+  {/if}
 </form>

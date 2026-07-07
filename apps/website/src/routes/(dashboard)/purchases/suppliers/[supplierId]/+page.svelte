@@ -3,9 +3,8 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
-  import * as Dialog from "@repo/ui/dialog";
   import {
     createInfiniteQuery,
     createMutation,
@@ -15,7 +14,6 @@
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
-  import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import DataTable from "$lib/components/tables/DataTable.svelte";
   import {
@@ -72,10 +70,6 @@
     }
   }
 
-  let isEditOpen = $state(false);
-  // svelte-ignore non_reactive_update
-  let editFormRef: SupplierForm | null = null;
-
   function deleteSupplier() {
     if (!supplier) return;
     confirmDelete({
@@ -83,7 +77,7 @@
       description: `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: supplier.id });
-        window.history.back();
+        goto("/purchases/suppliers");
       },
     });
   }
@@ -104,10 +98,13 @@
           <Trash2Icon class="size-4" />
           Delete
         </Button>
-        <Button variant="outline" onclick={() => (isEditOpen = true)}>
+        <a
+          href={`/purchases/suppliers/${params.supplierId}/edit`}
+          class={buttonVariants({ variant: "outline" })}
+        >
           <PencilIcon class="size-4" />
           Edit
-        </Button>
+        </a>
       {/if}
     {/snippet}
   </AdminDashboardHeader>
@@ -207,52 +204,3 @@
     </section>
   {/if}
 </div>
-
-<!-- Edit Supplier Dialog -->
-<Dialog.Root
-  bind:open={isEditOpen}
-  onOpenChange={(open) => {
-    if (!open) editFormRef?.resetForm();
-  }}
->
-  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
-    {#if supplier}
-      <Dialog.Header class="px-3 sm:px-4">
-        <Dialog.Title>Edit Supplier</Dialog.Title>
-        <Dialog.Description>Update supplier information</Dialog.Description>
-      </Dialog.Header>
-
-      <div class="px-3 sm:px-4">
-        {#key supplier.id}
-          <SupplierForm
-            bind:this={editFormRef}
-            initialData={{
-              action: "update",
-              id: supplier.id,
-              name: supplier.name,
-              contactName: supplier.contactName,
-              phone: supplier.phone,
-              phone2: supplier.phone2,
-              email: supplier.email,
-              address: supplier.address,
-              paymentTerms: supplier.paymentTerms,
-            }}
-            onSuccess={() => {
-              isEditOpen = false;
-              editFormRef?.resetForm();
-              queryClient.invalidateQueries({
-                queryKey: orpc.suppliers.get.key({
-                  input: { supplierId: params.supplierId },
-                }),
-              });
-            }}
-            onCancel={() => {
-              isEditOpen = false;
-              editFormRef?.resetForm();
-            }}
-          />
-        {/key}
-      </div>
-    {/if}
-  </Dialog.Content>
-</Dialog.Root>

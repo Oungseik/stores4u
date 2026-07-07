@@ -8,17 +8,15 @@
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UserIcon from "@lucide/svelte/icons/user";
-  import { Button } from "@repo/ui/button";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
-  import * as Dialog from "@repo/ui/dialog";
   import * as FilterBar from "@repo/ui/filter-bar";
   import { createInfiniteQuery, createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
-  import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { suppliersFilterSchema } from "$lib/search_param";
@@ -76,23 +74,10 @@
 
   const allSuppliers = $derived(suppliers.data?.pages.flatMap((page) => page.items) ?? []);
 
-  let selectedSupplier = $state<ApiSupplier | null>(null);
-  let isAddOpen = $state(false);
-  let isEditOpen = $state(false);
-  // svelte-ignore non_reactive_update
-  let addFormRef: SupplierForm | null = null;
-  // svelte-ignore non_reactive_update
-  let editFormRef: SupplierForm | null = null;
-
   const hasFilters = $derived(searchParams.search.length > 0);
 
   function resetFilters() {
     searchParams.update({ search: "" });
-  }
-
-  function editSupplier(supplier: ApiSupplier) {
-    selectedSupplier = supplier;
-    isEditOpen = true;
   }
 
   function deleteSupplier(supplier: ApiSupplier) {
@@ -109,10 +94,10 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Suppliers" }]}>
     {#snippet actions()}
-      <Button onclick={() => (isAddOpen = true)}>
+      <a href={`/purchases/suppliers/add`} class={buttonVariants()}>
         <PlusIcon class="size-4" />
         Add Supplier
-      </Button>
+      </a>
     {/snippet}
   </AdminDashboardHeader>
 
@@ -151,10 +136,10 @@
             : "Add your first supplier to get started"}
         </p>
         {#if !hasFilters}
-          <Button class="mt-4" onclick={() => (isAddOpen = true)}>
+          <a href={`/purchases/suppliers/add`} class={buttonVariants({ class: "mt-4" })}>
             <PlusIcon class="size-4" />
             Add Supplier
-          </Button>
+          </a>
         {/if}
       </div>
     {:else}
@@ -237,10 +222,13 @@
                   <Trash2Icon class="size-4" />
                   Delete
                 </Button>
-                <Button variant="outline" class="flex-1" onclick={() => editSupplier(supplier)}>
+                <a
+                  href={`/purchases/suppliers/${supplier.id}/edit`}
+                  class={buttonVariants({ variant: "outline", class: "flex-1" })}
+                >
                   <PencilIcon class="size-4" />
                   Edit
-                </Button>
+                </a>
               </div>
             </Card.Footer>
           </Card.Root>
@@ -266,76 +254,3 @@
     {/if}
   </section>
 </div>
-
-<!-- Add Supplier Dialog -->
-<Dialog.Root
-  bind:open={isAddOpen}
-  onOpenChange={(open) => {
-    if (!open) addFormRef?.resetForm();
-  }}
->
-  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
-    <Dialog.Header class="px-3 sm:px-4">
-      <Dialog.Title>Add New Supplier</Dialog.Title>
-      <Dialog.Description>Create a new supplier in your system</Dialog.Description>
-    </Dialog.Header>
-
-    <div class="px-3 sm:px-4">
-      <SupplierForm
-        bind:this={addFormRef}
-        onSuccess={() => {
-          isAddOpen = false;
-          addFormRef?.resetForm();
-        }}
-        onCancel={() => {
-          isAddOpen = false;
-          addFormRef?.resetForm();
-        }}
-      />
-    </div>
-  </Dialog.Content>
-</Dialog.Root>
-
-<!-- Edit Supplier Dialog -->
-<Dialog.Root
-  bind:open={isEditOpen}
-  onOpenChange={(open) => {
-    if (!open) editFormRef?.resetForm();
-  }}
->
-  <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
-    {#if selectedSupplier}
-      <Dialog.Header class="px-3 sm:px-4">
-        <Dialog.Title>Edit Supplier</Dialog.Title>
-        <Dialog.Description>Update supplier information</Dialog.Description>
-      </Dialog.Header>
-
-      <div class="px-3 sm:px-4">
-        {#key selectedSupplier.id}
-          <SupplierForm
-            bind:this={editFormRef}
-            initialData={{
-              action: "update",
-              id: selectedSupplier.id,
-              name: selectedSupplier.name,
-              contactName: selectedSupplier.contactName,
-              phone: selectedSupplier.phone,
-              phone2: selectedSupplier.phone2,
-              email: selectedSupplier.email,
-              address: selectedSupplier.address,
-              paymentTerms: selectedSupplier.paymentTerms,
-            }}
-            onSuccess={() => {
-              isEditOpen = false;
-              editFormRef?.resetForm();
-            }}
-            onCancel={() => {
-              isEditOpen = false;
-              editFormRef?.resetForm();
-            }}
-          />
-        {/key}
-      </div>
-    {/if}
-  </Dialog.Content>
-</Dialog.Root>
