@@ -1,3 +1,5 @@
+import { PersistedState } from "runed";
+
 export interface CartItem {
   id: string;
   barcode: string | null;
@@ -8,11 +10,19 @@ export interface CartItem {
 }
 
 // Shared cart state for the Point of Sale flow (/cart builds, /checkout reviews).
-// ponytail: in-memory only — a full page reload resets it, which is desirable
-// for a live POS session (stale carts should not reappear). Persist to
-// localStorage only if cashiers actually get burned by mid-sale refreshes.
+// Persisted to localStorage via runed PersistedState so a mid-sale refresh —
+// notably on /checkout — keeps the cart. SSR-safe: the constructor no-ops when
+// `window` is undefined, so the server-side singleton stays empty and is never
+// mutated.
 class CartStore {
-  items = $state<CartItem[]>([]);
+  #state = new PersistedState<CartItem[]>("stores4u:cart", []);
+
+  get items(): CartItem[] {
+    return this.#state.current;
+  }
+  set items(value: CartItem[]) {
+    this.#state.current = value;
+  }
 
   get totalCents(): number {
     return this.items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);

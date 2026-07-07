@@ -53,16 +53,12 @@
     }),
   );
 
-  // Empty-cart guard: /checkout is reached via client nav from /cart. A direct
-  // hit / refresh resets the in-memory cart, so bounce back to the POS.
-  // Skip while a checkout is in flight or just succeeded — cart.clear() in
-  // onSuccess would otherwise trigger this and hijack goto(/orders/[id]).
+  // Empty-cart guard: the cart is persisted, so a refresh keeps it. This only
+  // bounces a genuinely empty cart (e.g. cleared, or order already placed) back
+  // to the POS. Skip while a checkout is in flight or just succeeded —
+  // cart.clear() in onSuccess would otherwise hijack goto(/orders/[id]).
   $effect(() => {
-    if (
-      cart.items.length === 0 &&
-      !checkoutMutation.isPending &&
-      !checkoutMutation.isSuccess
-    ) {
+    if (cart.items.length === 0 && !checkoutMutation.isPending && !checkoutMutation.isSuccess) {
       goto("/cart");
     }
   });
@@ -193,7 +189,9 @@
             {#if selectedCustomer}
               <!-- Selected customer -->
               <div class="flex items-start gap-3 rounded-lg border p-3">
-                <div class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full">
+                <div
+                  class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full"
+                >
                   <span class="text-primary text-sm font-semibold">
                     {selectedCustomer.name.charAt(0).toUpperCase()}
                   </span>
@@ -213,7 +211,13 @@
                     <p class="text-muted-foreground truncate text-sm">{selectedCustomer.phone}</p>
                   {/if}
                 </div>
-                <Button variant="ghost" size="icon" class="size-7 shrink-0" onclick={clearCustomer} aria-label="Remove customer">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="size-7 shrink-0"
+                  onclick={clearCustomer}
+                  aria-label="Remove customer"
+                >
                   <XIcon class="size-4" />
                 </Button>
               </div>
@@ -240,7 +244,9 @@
               </div>
 
               {#if mode === "walk-in"}
-                <p class="text-muted-foreground rounded-md bg-sky-50 p-3 text-sm text-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+                <p
+                  class="text-muted-foreground rounded-md bg-sky-50 p-3 text-sm text-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
+                >
                   Walk-in sale — no customer record. The order will be saved anonymously.
                 </p>
               {:else if mode === "existing"}
@@ -278,7 +284,9 @@
                         onclick={() => selectCustomer(c)}
                         class="hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors"
                       >
-                        <div class="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-full">
+                        <div
+                          class="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-full"
+                        >
                           <span class="text-primary text-xs font-semibold">
                             {c.name.charAt(0).toUpperCase()}
                           </span>
@@ -287,7 +295,9 @@
                           <p class="flex items-center gap-2 text-sm font-medium">
                             <span class="truncate">{c.name}</span>
                             {#if c.customerType === "WHOLESALE"}
-                              <span class="bg-primary/10 text-primary rounded px-1 py-0.5 text-[10px] font-medium">
+                              <span
+                                class="bg-primary/10 text-primary rounded px-1 py-0.5 text-[10px] font-medium"
+                              >
                                 Wholesale
                               </span>
                             {/if}
@@ -336,11 +346,7 @@
               <span class="tabular-nums">{formatPrice(cart.totalCents, shop.currency)}</span>
             </div>
             <p class="text-muted-foreground text-xs">Taxes, if any, are applied at checkout.</p>
-            <Button
-              class="w-full"
-              onclick={handlePlaceOrder}
-              disabled={checkoutMutation.isPending}
-            >
+            <Button class="w-full" onclick={handlePlaceOrder} disabled={checkoutMutation.isPending}>
               {#if checkoutMutation.isPending}
                 <Spinner />
                 Processing...
