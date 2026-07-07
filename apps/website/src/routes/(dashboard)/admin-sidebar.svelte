@@ -50,7 +50,7 @@
 
   const mainNavItems: NavItem[] = [
     { title: "Dashboard", href: "/", icon: LayoutDashboard },
-    { title: "Checkout", href: "/checkout", icon: ScanBarcodeIcon },
+    { title: "Point of Sale", href: "/cart", icon: ScanBarcodeIcon },
     { title: "Orders", href: "/orders", icon: ClipboardListIcon },
     { title: "Customers", href: "/customers", icon: UsersIcon },
     { title: "Integrations", href: "/integrations", icon: LinkIcon },

@@ -314,8 +314,8 @@
             </p>
           </div>
           <div class="relative z-10 mt-6">
-            <a href="/checkout" class={buttonVariants()}>
-              Open Checkout
+            <a href="/cart" class={buttonVariants()}>
+              Open Point of Sale
               <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
             </a>
           </div>

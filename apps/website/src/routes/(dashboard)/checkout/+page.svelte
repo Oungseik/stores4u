@@ -1,35 +1,71 @@
 <script lang="ts">
-  import MinusIcon from "@lucide/svelte/icons/minus";
+  import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
+  import CheckIcon from "@lucide/svelte/icons/check";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PlusIcon from "@lucide/svelte/icons/plus";
-  import ScanLineIcon from "@lucide/svelte/icons/scan-line";
   import SearchIcon from "@lucide/svelte/icons/search";
-  import ShoppingCartIcon from "@lucide/svelte/icons/shopping-cart";
-  import Trash2Icon from "@lucide/svelte/icons/trash-2";
-  import { Button } from "@repo/ui/button";
+  import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
+  import UserPlusIcon from "@lucide/svelte/icons/user-plus";
+  import UsersIcon from "@lucide/svelte/icons/users";
+  import XIcon from "@lucide/svelte/icons/x";
+  import { Button, buttonVariants } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import * as InputGroup from "@repo/ui/input-group";
-  import * as ScrollArea from "@repo/ui/scroll-area";
-  import { Separator } from "@repo/ui/separator";
-  import * as Sidebar from "@repo/ui/sidebar";
   import { Spinner } from "@repo/ui/spinner";
-  import * as Tabs from "@repo/ui/tabs";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
+  import { goto } from "$app/navigation";
   import { Debounced } from "runed";
-  import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
-  import ProductResults from "$lib/components/ProductResults.svelte";
-  import BarcodeScanner from "$lib/components/scanner/BarcodeScanner.svelte";
+  import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import CustomerForm, { type CreatedCustomer } from "$lib/components/forms/CustomerForm.svelte";
+  import { cart } from "$lib/cart.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { checkoutModeSchema } from "$lib/search_param";
   import { formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
-
+  const { data: shop }: PageProps = $props();
   const queryClient = useQueryClient();
+
+  type CustomerMode = "walk-in" | "existing" | "new";
+  const modes: { value: CustomerMode; label: string; icon: typeof UsersIcon }[] = [
+    { value: "walk-in", label: "Walk-in", icon: ShoppingBagIcon },
+    { value: "existing", label: "Existing", icon: SearchIcon },
+    { value: "new", label: "New", icon: UserPlusIcon },
+  ];
+
+  let mode = $state<CustomerMode>("walk-in");
+  let selectedCustomer = $state<CreatedCustomer | null>(null);
+
+  // svelte-ignore non_reactive_update
+  let customerFormRef: CustomerForm | null = $state(null);
+
+  let searchQuery = $state("");
+  const debouncedSearch = new Debounced(() => searchQuery, 300);
+  const isDebouncing = $derived(searchQuery !== debouncedSearch.current);
+
+  const customerSearch = createQuery(() =>
+    orpc.customers.list.queryOptions({
+      input: { search: debouncedSearch.current || undefined, pageSize: 10 },
+      enabled: mode === "existing" && debouncedSearch.current.length > 0,
+    }),
+  );
+
+  // Empty-cart guard: /checkout is reached via client nav from /cart. A direct
+  // hit / refresh resets the in-memory cart, so bounce back to the POS.
+  // Skip while a checkout is in flight or just succeeded — cart.clear() in
+  // onSuccess would otherwise trigger this and hijack goto(/orders/[id]).
+  $effect(() => {
+    if (
+      cart.items.length === 0 &&
+      !checkoutMutation.isPending &&
+      !checkoutMutation.isSuccess
+    ) {
+      goto("/cart");
+    }
+  });
 
   const checkoutMutation = createMutation(() =>
     orpc.products.checkout.mutationOptions({
@@ -37,11 +73,13 @@
         toast.success(
           `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.currency)}`,
         );
-        cart = [];
+        cart.clear();
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.revenueTrend.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
+        goto(`/orders/${result.orderId}`);
       },
       onError: (error) => {
         toast.error(error.message || "Checkout failed");
@@ -49,308 +87,274 @@
     }),
   );
 
-  interface CartItem {
-    id: string;
-    barcode: string | null;
-    name: string;
-    priceCents: number;
-    quantity: number;
-    image: string | null;
+  function selectCustomer(customer: CreatedCustomer) {
+    selectedCustomer = customer;
   }
 
-  let cart = $state<CartItem[]>([]);
-  const searchParams = useSearchParams(checkoutModeSchema, { noScroll: true });
-  let searchQuery = $state("");
-  const debouncedSearch = new Debounced(() => searchQuery, 300);
-
-  let lastScannedBarcode = $state<string | null>(null);
-
-  const isDebouncing = $derived(searchQuery !== debouncedSearch.current);
-
-  const productSearch = createQuery(() =>
-    orpc.products.list.queryOptions({
-      input: { search: debouncedSearch.current, pageSize: 10 },
-      enabled: true && debouncedSearch.current.length > 0 && searchParams.mode === "search",
-    }),
-  );
-
-  const isSearching = $derived(isDebouncing || productSearch.isFetching);
-
-  const productByBarcode = createQuery(() =>
-    orpc.products.get.queryOptions({
-      input: { barcode: lastScannedBarcode ?? "" },
-      enabled: true && !!lastScannedBarcode,
-    }),
-  );
-
-  const totalCents = $derived(cart.reduce((sum, item) => sum + item.priceCents * item.quantity, 0));
-  const totalItems = $derived(cart.reduce((sum, item) => sum + item.quantity, 0));
-
-  function addToCart(id: string, barcode: string | null = null) {
-    const existingItem = cart.find((item) => item.id === id);
-    if (existingItem) {
-      cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
-    } else {
-      lastScannedBarcode = barcode;
-    }
-  }
-
-  function handleProductSelect(product: {
-    id: string;
-    barcode: string | null;
-    name: string;
-    priceCents: number;
-    image: string | null;
-  }) {
-    const existingItem = cart.find((item) => item.id === product.id);
-    if (existingItem) {
-      cart = cart.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
-      );
-    } else {
-      cart = [
-        ...cart,
-        {
-          id: product.id,
-          barcode: product.barcode,
-          name: product.name,
-          priceCents: product.priceCents,
-          quantity: 1,
-          image: product.image,
-        },
-      ];
-    }
+  function changeCustomer() {
+    selectedCustomer = null;
+    mode = "existing";
     searchQuery = "";
   }
 
-  $effect(() => {
-    if (productByBarcode.data) {
-      const product = productByBarcode.data;
-      const existingItem = cart.find((item) => item.id === product.id);
-      if (existingItem) {
-        cart = cart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
-        );
-      } else {
-        cart = [
-          ...cart,
-          {
-            id: product.id,
-            barcode: product.barcode,
-            name: product.name,
-            priceCents: product.priceCents,
-            quantity: 1,
-            image: product.image,
-          },
-        ];
-      }
-      lastScannedBarcode = null;
-    }
-  });
-
-  $effect(() => {
-    if (productByBarcode.isError) {
-      toast.error(`Product not found: ${lastScannedBarcode}`);
-      lastScannedBarcode = null;
-    }
-  });
-
-  function increaseQuantity(id: string) {
-    cart = cart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+  function clearCustomer() {
+    selectedCustomer = null;
+    mode = "walk-in";
   }
 
-  function decreaseQuantity(id: string) {
-    const item = cart.find((i) => i.id === id);
-    if (item && item.quantity <= 1) {
-      removeFromCart(id);
-    } else {
-      cart = cart.map((i) => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i));
-    }
-  }
-
-  function removeFromCart(id: string) {
-    cart = cart.filter((i) => i.id !== id);
-  }
-
-  function handleCheckout() {
-    if (cart.length === 0) {
-      toast.error("Cart is empty");
-      return;
-    }
-
+  function handlePlaceOrder() {
+    if (cart.items.length === 0) return;
     checkoutMutation.mutate({
-      items: cart.map((item) => ({
-        productId: item.id,
-        qty: item.quantity,
-      })),
+      items: cart.items.map((item) => ({ productId: item.id, qty: item.quantity })),
+      ...(selectedCustomer ? { customerId: selectedCustomer.id } : {}),
     });
   }
 </script>
 
-<div
-  class="bg-background m-[calc(var(--spacing)*2)] flex h-[calc(100dvh-var(--spacing)*4)] flex-col overflow-hidden rounded-lg border lg:m-0"
->
-  <Tabs.Root bind:value={searchParams.mode} class="flex shrink-0 flex-col">
-    <div class="flex items-center border-b">
-      <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        <Sidebar.Trigger class="-ms-1" />
-        <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-      </div>
-      <Tabs.List class="flex-1">
-        <Tabs.Trigger value="scan" class="gap-2">
-          <ScanLineIcon />
-          Scan
-        </Tabs.Trigger>
-        <Tabs.Trigger value="search" class="gap-2">
-          <SearchIcon />
-          Search
-        </Tabs.Trigger>
-      </Tabs.List>
-    </div>
+{#if cart.items.length === 0}
+  <div class="text-muted-foreground p-6 text-sm">Your cart is empty. Redirecting…</div>
+{:else}
+  <div class="flex flex-col gap-6 p-4 md:p-6">
+    <AdminDashboardHeader
+      breadcrumbs={[
+        { label: "Dashboard", href: `/` },
+        { label: "Point of Sale", href: `/cart` },
+        { label: "Checkout" },
+      ]}
+    >
+      {#snippet actions()}
+        <a href="/cart" class={buttonVariants({ variant: "outline" })}>
+          <ArrowLeftIcon class="size-4" />
+          Back to Cart
+        </a>
+      {/snippet}
+    </AdminDashboardHeader>
 
-    <Tabs.Content value="scan" class="shrink-0 border-b-4 p-4">
-      <div class="h-48">
-        <BarcodeScanner
-          containerId="stores4u-barcode-scanner"
-          onScan={addToCart}
-          enabled={searchParams.mode === "scan"}
-          class="bg-muted relative h-40 w-full overflow-hidden rounded-lg"
-        />
-      </div>
-    </Tabs.Content>
-
-    <Tabs.Content value="search" class="relative flex flex-col gap-3 p-4">
-      <InputGroup.Root>
-        <InputGroup.Addon>
-          <SearchIcon />
-        </InputGroup.Addon>
-        <InputGroup.Input bind:value={searchQuery} placeholder="Search products..." />
-      </InputGroup.Root>
-      {#if searchQuery.length > 0}
-        <ProductResults
-          products={productSearch.data?.items ?? []}
-          isLoading={isSearching}
-          currency={shop.currency}
-          {searchQuery}
-          onSelect={handleProductSelect}
-        />
-      {/if}
-    </Tabs.Content>
-  </Tabs.Root>
-
-  <section class="min-h-0 flex-1">
-    <ScrollArea.Root class="h-full w-full">
-      {#if cart.length === 0}
-        <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-          <div class="bg-muted flex size-16 items-center justify-center rounded-full">
-            <ShoppingCartIcon class="text-muted-foreground size-8" />
-          </div>
-          <p class="font-medium">Cart is empty</p>
-          <p class="text-muted-foreground text-sm">Scan or search to add products</p>
+    <div class="grid items-start gap-6 lg:grid-cols-[1fr_380px]">
+      <!-- Order Items -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold tracking-tight">
+            Order Items
+            <span class="text-muted-foreground text-sm font-normal">({cart.totalItems})</span>
+          </h2>
+          <span class="text-muted-foreground text-sm">Edit quantities on the cart page</span>
         </div>
-      {:else}
-        <div class="space-y-1.5 p-4">
-          {#each cart as item (item.id)}
-            <Card.Root
-              class="group border-border/60 hover:border-border overflow-hidden p-0 transition-all hover:shadow-sm"
-            >
-              <Card.Content class="p-0">
-                <div class="flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-3.5">
-                  <!-- Product Image -->
-                  <div
-                    class="bg-muted/80 flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border sm:size-14"
-                  >
-                    {#if item.image}
-                      <img src={item.image} alt={item.name} class="size-full object-cover" />
-                    {:else}
-                      <PackageIcon class="text-muted-foreground size-5 sm:size-6" />
-                    {/if}
-                  </div>
 
-                  <!-- Product Info -->
-                  <div class="min-w-0 flex-1">
-                    <p class="text-foreground truncate text-sm leading-tight font-medium">
-                      {item.name}
-                    </p>
-                    <span class="text-muted-foreground text-xs tabular-nums">
-                      {formatPrice(item.priceCents * item.quantity, shop.currency)}
-                    </span>
+        <Card.Root class="overflow-hidden p-0">
+          <Card.Content class="p-0">
+            <div class="rounded-md border text-sm">
+              {#each cart.items as item, i (item.id)}
+                <div
+                  class="flex items-center justify-between gap-3 p-2.5 {i !== cart.items.length - 1
+                    ? 'border-b'
+                    : ''}"
+                >
+                  <div class="flex min-w-0 items-center gap-2.5">
+                    <div class="bg-muted flex size-8 shrink-0 items-center justify-center rounded">
+                      {#if item.image}
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          class="size-full rounded object-cover"
+                        />
+                      {:else}
+                        <PackageIcon class="text-muted-foreground size-4" />
+                      {/if}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="truncate">{item.name}</p>
+                      <p class="text-muted-foreground text-xs">
+                        {formatPrice(item.priceCents, shop.currency)} × {item.quantity}
+                      </p>
+                    </div>
                   </div>
-
-                  <!-- Quantity Controls -->
-                  <div
-                    class="border-border/50 bg-muted/30 flex items-center gap-1 rounded-lg border p-0.5"
-                  >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="hover:bg-background size-7 shrink-0"
-                      onclick={() => decreaseQuantity(item.id)}
-                      aria-label="Decrease quantity"
-                    >
-                      <MinusIcon />
-                    </Button>
-                    <span class="min-w-[2rem] text-center text-sm font-semibold tabular-nums">
-                      {item.quantity}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="hover:bg-background size-7 shrink-0"
-                      onclick={() => increaseQuantity(item.id)}
-                      aria-label="Increase quantity"
-                    >
-                      <PlusIcon />
-                    </Button>
-                  </div>
-
-                  <!-- Price & Delete -->
-                  <div class="flex items-center gap-2 sm:gap-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
-                      onclick={() => removeFromCart(item.id)}
-                      aria-label="Remove item"
-                    >
-                      <Trash2Icon class="size-4" />
-                    </Button>
+                  <div class="shrink-0 text-right tabular-nums">
+                    {formatPrice(item.priceCents * item.quantity, shop.currency)}
                   </div>
                 </div>
-              </Card.Content>
-            </Card.Root>
-          {/each}
-        </div>
-      {/if}
-    </ScrollArea.Root>
-  </section>
+              {/each}
+            </div>
+          </Card.Content>
+        </Card.Root>
+      </section>
 
-  <section class="bg-card h-20 shrink-0 border-t shadow-lg">
-    <div class="flex h-full items-center justify-between px-4">
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-            <ShoppingCartIcon class="text-primary size-5" />
-          </div>
-          <div>
-            <p class="text-muted-foreground text-xs">Total ({totalItems} items)</p>
-            <span class="text-lg font-bold">{formatPrice(totalCents, shop.currency)}</span>
-          </div>
-        </div>
-      </div>
+      <!-- Customer + Total + Place Order -->
+      <aside class="space-y-4">
+        <!-- Customer panel -->
+        <Card.Root>
+          <Card.Header>
+            <Card.Title class="flex items-center gap-2 text-base">
+              <UsersIcon class="size-4" />
+              Customer
+            </Card.Title>
+          </Card.Header>
+          <Card.Content class="space-y-3">
+            {#if selectedCustomer}
+              <!-- Selected customer -->
+              <div class="flex items-start gap-3 rounded-lg border p-3">
+                <div class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full">
+                  <span class="text-primary text-sm font-semibold">
+                    {selectedCustomer.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="flex items-center gap-2 font-medium">
+                    <span class="truncate">{selectedCustomer.name}</span>
+                    {#if selectedCustomer.customerType === "WHOLESALE"}
+                      <span
+                        class="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium"
+                      >
+                        Wholesale
+                      </span>
+                    {/if}
+                  </p>
+                  {#if selectedCustomer.phone}
+                    <p class="text-muted-foreground truncate text-sm">{selectedCustomer.phone}</p>
+                  {/if}
+                </div>
+                <Button variant="ghost" size="icon" class="size-7 shrink-0" onclick={clearCustomer} aria-label="Remove customer">
+                  <XIcon class="size-4" />
+                </Button>
+              </div>
+              <Button variant="outline" class="w-full" onclick={changeCustomer}>
+                <SearchIcon class="size-4" />
+                Change Customer
+              </Button>
+            {:else}
+              <!-- Mode selector -->
+              <div class="grid grid-cols-3 gap-1 rounded-lg border p-1">
+                {#each modes as m (m.value)}
+                  <button
+                    type="button"
+                    onclick={() => (mode = m.value)}
+                    class="text-muted-foreground hover:text-foreground flex flex-col items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors {mode ===
+                    m.value
+                      ? 'bg-primary text-primary-foreground hover:text-primary-foreground'
+                      : ''}"
+                  >
+                    <m.icon class="size-4" />
+                    {m.label}
+                  </button>
+                {/each}
+              </div>
 
-      <Button
-        class="px-6"
-        onclick={handleCheckout}
-        disabled={cart.length === 0 || checkoutMutation.isPending}
-      >
-        {#if checkoutMutation.isPending}
-          <Spinner />
-          Processing...
-        {:else}
-          Checkout
-        {/if}
-      </Button>
+              {#if mode === "walk-in"}
+                <p class="text-muted-foreground rounded-md bg-sky-50 p-3 text-sm text-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+                  Walk-in sale — no customer record. The order will be saved anonymously.
+                </p>
+              {:else if mode === "existing"}
+                <InputGroup.Root>
+                  <InputGroup.Addon>
+                    <SearchIcon />
+                  </InputGroup.Addon>
+                  <InputGroup.Input
+                    bind:value={searchQuery}
+                    placeholder="Search by name, contact, phone, or email..."
+                  />
+                </InputGroup.Root>
+
+                {#if isDebouncing && searchQuery.length > 0}
+                  <div class="flex justify-center py-4">
+                    <Spinner class="text-muted-foreground size-5" />
+                  </div>
+                {:else if customerSearch.isLoading}
+                  <div class="flex justify-center py-4">
+                    <Spinner class="text-muted-foreground size-5" />
+                  </div>
+                {:else if searchQuery.length === 0}
+                  <p class="text-muted-foreground py-2 text-center text-sm">
+                    Start typing to search customers
+                  </p>
+                {:else if (customerSearch.data?.items ?? []).length === 0}
+                  <p class="text-muted-foreground py-2 text-center text-sm">
+                    No customers found. Try the "New" tab to create one.
+                  </p>
+                {:else}
+                  <div class="max-h-72 space-y-1 overflow-y-auto">
+                    {#each customerSearch.data?.items ?? [] as c (c.id)}
+                      <button
+                        type="button"
+                        onclick={() => selectCustomer(c)}
+                        class="hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors"
+                      >
+                        <div class="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-full">
+                          <span class="text-primary text-xs font-semibold">
+                            {c.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <p class="flex items-center gap-2 text-sm font-medium">
+                            <span class="truncate">{c.name}</span>
+                            {#if c.customerType === "WHOLESALE"}
+                              <span class="bg-primary/10 text-primary rounded px-1 py-0.5 text-[10px] font-medium">
+                                Wholesale
+                              </span>
+                            {/if}
+                          </p>
+                          <p class="text-muted-foreground truncate text-xs">
+                            {c.phone ?? c.email ?? c.contactName ?? "—"}
+                          </p>
+                        </div>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              {:else}
+                <!-- New customer -->
+                <CustomerForm
+                  bind:this={customerFormRef}
+                  onSuccess={(created) => selectCustomer(created)}
+                />
+                <Button
+                  class="w-full"
+                  onclick={() => customerFormRef?.submit()}
+                  disabled={customerFormRef?.getIsPending()}
+                >
+                  {#if customerFormRef?.getIsPending()}
+                    <Loader2Icon class="size-4 animate-spin" />
+                    Creating...
+                  {:else}
+                    <PlusIcon class="size-4" />
+                    Create Customer
+                  {/if}
+                </Button>
+              {/if}
+            {/if}
+          </Card.Content>
+        </Card.Root>
+
+        <!-- Total + Place Order -->
+        <Card.Root>
+          <Card.Content class="space-y-2 pt-6 text-sm">
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">Items</span>
+              <span>{cart.totalItems}</span>
+            </div>
+            <div class="flex justify-between border-t pt-2 text-base font-semibold">
+              <span>Total</span>
+              <span class="tabular-nums">{formatPrice(cart.totalCents, shop.currency)}</span>
+            </div>
+            <p class="text-muted-foreground text-xs">Taxes, if any, are applied at checkout.</p>
+            <Button
+              class="w-full"
+              onclick={handlePlaceOrder}
+              disabled={checkoutMutation.isPending}
+            >
+              {#if checkoutMutation.isPending}
+                <Spinner />
+                Processing...
+              {:else if selectedCustomer}
+                <CheckIcon class="size-4" />
+                Place Order — {selectedCustomer.name}
+              {:else}
+                <CheckIcon class="size-4" />
+                Place Order — Walk-in
+              {/if}
+            </Button>
+          </Card.Content>
+        </Card.Root>
+      </aside>
     </div>
-  </section>
-</div>
+  </div>
+{/if}
