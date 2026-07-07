@@ -31,6 +31,7 @@ Owns: routing, UI, server logic (oRPC handlers, better-auth, mastra agents). The
 
 ## Verification
 
+- `bun run test` (Vitest unit tests)
 - `bun run typecheck` (svelte-check, 0 errors expected)
 - `bun run dev` then smoke routes: `/`, `/setup`, `/signin`, `/health`
 

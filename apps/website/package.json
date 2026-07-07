@@ -14,8 +14,8 @@
     "lint": "biome lint --write . && eslint . --fix",
     "format": "prettier --write . && biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run format",
-    "test:unit": "bunx --bun vitest",
-    "test": "npm run test:unit -- --run"
+    "test:unit": "vitest",
+    "test": "bun --bun run test:unit -- --run"
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",

@@ -11,6 +11,7 @@
 
   import { orpc } from "$lib/orpc_client";
   import type { CustomerType } from "$lib/server/db";
+  import { phoneValue } from "./phone-value";
 
   // Shape of a customer row as returned by create/update, narrowed to the fields callers consume.
   export type CreatedCustomer = {
@@ -102,8 +103,13 @@
   const form = createForm(() => ({
     defaultValues,
     onSubmit: async ({ value }) => {
-      const phone = phoneDetailed?.e164 ?? null;
-      const phone2 = phone2Detailed?.e164 ?? null;
+      const phone = phoneValue(value.phone, phoneDetailed);
+      const phone2 = phoneValue(value.phone2, phone2Detailed);
+      if (phone === undefined || phone2 === undefined) {
+        toast.error(`${phone === undefined ? "Phone" : "Phone 2"} is invalid`);
+        return;
+      }
+
       if (initialData) {
         updateCustomer.mutate({
           id: initialData.id,
@@ -123,8 +129,8 @@
           name: value.name,
           customerType: value.customerType,
           contactName: value.contactName || undefined,
-          phone: phone || undefined,
-          phone2: phone2 || undefined,
+          phone: phone ?? undefined,
+          phone2: phone2 ?? undefined,
           email: value.email || undefined,
           address: value.address || undefined,
           taxId: value.taxId || undefined,
