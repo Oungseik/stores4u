@@ -88,6 +88,7 @@ Default section order:
 - **Social OAuth**: during first run only, `/api/auth/sign-in/social` and `/api/auth/callback/*` may create the first `owner`. After that, OAuth can sign in only to an already-linked account. `accountLinking.disableImplicitLinking: true` blocks email-match implicit linking; the user create hook blocks raw OAuth signup after setup.
 - **Invite flow = deferred**: owners will invite admins/members later; admins may eventually manage members/users but must not promote owners without a dedicated hierarchy check. Do not expose public staff/customer signup from the dashboard.
 - **No Docker deployment**: do not maintain Dockerfile, `.dockerignore`, Docker Compose, or Docker image deployment workflows for this repo.
+- **Offline-capable file storage**: uploads support two backends selected by `STORAGE_DRIVER` — `local` (filesystem under `STORAGE_LOCAL_DIR`, served by the public `/storage/[...key]` route, for offline/air-gapped deploys) or S3/R2 (default via Bun's `S3Client`). One server picks one; the choice is for air-gapped/offline runs. Switching backends does not migrate already-stored URLs, so pick per deployment.
 
 When the user requests a durable behavior change, record it here or in the relevant child AGENTS.md
 
