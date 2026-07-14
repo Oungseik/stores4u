@@ -16,11 +16,11 @@
   import UserIcon from "@lucide/svelte/icons/user";
   import UsersIcon from "@lucide/svelte/icons/users";
   import * as Avatar from "@repo/ui/avatar";
-  import * as Collapsible from "@repo/ui/collapsible";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { LightSwitch } from "@repo/ui/light-switch";
   import { ScrollArea } from "@repo/ui/scroll-area";
   import { untrack } from "svelte";
+  import { slide } from "svelte/transition";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
   import type { Component, ComponentProps } from "svelte";
@@ -244,25 +244,24 @@
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <Sidebar.MenuItem>
-              <Collapsible.Root bind:open={settingsOpen}>
-                <Collapsible.Trigger>
-                  {#snippet child({ props })}
-                    <Sidebar.MenuButton
-                      {...props}
-                      tooltipContent="Settings"
-                      isActive={sidebar.state === "collapsed" &&
-                        currentPath.startsWith(settingsHref)}
-                    >
-                      <SettingsIcon />
-                      <span>Settings</span>
-                      <ChevronRightIcon
-                        class="ml-auto transition-transform {settingsOpen ? 'rotate-90' : ''}"
-                      />
-                    </Sidebar.MenuButton>
-                  {/snippet}
-                </Collapsible.Trigger>
-                <Collapsible.Content>
-                  <Sidebar.MenuSub>
+              <Sidebar.MenuButton
+                tooltipContent="Settings"
+                isActive={sidebar.state === "collapsed" &&
+                  currentPath.startsWith(settingsHref)}
+                aria-expanded={settingsOpen}
+                onclick={() => (settingsOpen = !settingsOpen)}
+              >
+                <SettingsIcon />
+                <span>Settings</span>
+                <ChevronRightIcon
+                  class="ml-auto transition-transform duration-200 {settingsOpen
+                    ? 'rotate-90'
+                    : ''}"
+                />
+              </Sidebar.MenuButton>
+              {#if settingsOpen}
+                <div transition:slide={{ duration: 200 }}>
+                <Sidebar.MenuSub>
                     <Sidebar.MenuSubItem>
                       <Sidebar.MenuSubButton class="w-full" isActive={isActive(settingsHref)}>
                         {#snippet child({ props })}
@@ -293,8 +292,8 @@
                       </Sidebar.MenuSubButton>
                     </Sidebar.MenuSubItem>
                   </Sidebar.MenuSub>
-                </Collapsible.Content>
-              </Collapsible.Root>
+                </div>
+                {/if}
             </Sidebar.MenuItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>
