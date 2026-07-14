@@ -119,7 +119,7 @@
     <p class="text-muted-foreground text-sm">Organize your products into categories</p>
   </div>
 
-  <section class="space-y-6">
+  <section class="space-y-6 @container/main">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
         <FilterBar.Search
@@ -158,7 +158,7 @@
         {/if}
       </div>
     {:else}
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 @[340px]/main:grid-cols-2 @[680px]/main:grid-cols-3">
         {#each allCategories as category (category.id)}
           <Card.Root class="group transition-all duration-200 hover:shadow-md">
             <Card.Header>

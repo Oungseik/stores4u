@@ -213,7 +213,7 @@
     </div>
   {/if}
 
-  <section class="space-y-6">
+  <section class="space-y-6 @container/main">
     <!-- Filters and Search -->
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
@@ -297,7 +297,7 @@
         </div>
       {/if}
     {:else}
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4">
+      <div class="grid grid-cols-2 gap-3 @[520px]/main:grid-cols-3 @[720px]/main:grid-cols-4 xl:gap-4">
         {#each allProducts as product (product.id)}
           {@const marginPercent =
             product.lastCostCents && product.lastCostCents > 0

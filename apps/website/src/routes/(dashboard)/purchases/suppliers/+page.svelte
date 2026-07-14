@@ -106,7 +106,7 @@
     <p class="text-muted-foreground text-sm">Manage supplier information and relationships</p>
   </div>
 
-  <section class="space-y-6">
+  <section class="space-y-6 @container/main">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search
         placeholder="Search suppliers by name, contact, or email..."
@@ -144,7 +144,7 @@
       </div>
     {:else}
       <!-- Suppliers Grid -->
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 @[340px]/main:grid-cols-2 @[680px]/main:grid-cols-3">
         {#each allSuppliers as supplier (supplier.id)}
           <Card.Root class="group transition-all duration-200 hover:shadow-md">
             <Card.Header>
