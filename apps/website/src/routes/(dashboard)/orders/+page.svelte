@@ -10,7 +10,6 @@
   import * as Card from "@repo/ui/card";
   import type { FilterBarDateRange } from "@repo/ui/filter-bar";
   import * as FilterBar from "@repo/ui/filter-bar";
-  import { ScrollArea } from "@repo/ui/scroll-area";
   import { Skeleton } from "@repo/ui/skeleton";
   import { createInfiniteQuery, createQuery } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
@@ -93,67 +92,67 @@
     <p class="text-muted-foreground text-sm">View and manage customer orders</p>
   </div>
 
-  <ScrollArea orientation="horizontal" class="w-full">
-    <div class="flex snap-x gap-4 pb-4 xl:grid xl:grid-cols-4">
-      {#if isLoading}
-        {#each { length: 3 } as _}
-          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-            <Card.Root>
-              <Card.Header class="flex flex-row items-center justify-between space-y-0">
-                <Skeleton class="h-4 w-24" />
-                <Skeleton class="size-8 rounded-md" />
-              </Card.Header>
-              <Card.Content class="flex flex-col gap-2">
-                <Skeleton class="h-7 w-28" />
-                <Skeleton class="h-3 w-20" />
-              </Card.Content>
-            </Card.Root>
-          </div>
-        {/each}
-      {:else if orderStats.data}
-        {@const stats = [
-          {
-            title: "Today",
-            stats: orderStats.data.today,
-            description: "Today's revenue",
-            icon: ReceiptIcon,
-            iconBgClass: "bg-amber-500/10",
-            iconTextClass: "text-amber-600",
-          },
-          {
-            title: "This Week",
-            stats: orderStats.data.thisWeek,
-            description: "This week's revenue",
-            icon: PackageIcon,
-            iconBgClass: "bg-blue-500/10",
-            iconTextClass: "text-blue-600",
-          },
-          {
-            title: "This Month",
-            stats: orderStats.data.thisMonth,
-            description: "This month's revenue",
-            icon: CalendarIcon,
-            iconBgClass: "bg-emerald-500/10",
-            iconTextClass: "text-emerald-600",
-          },
-        ]}
-        {#each stats as card}
-          <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
-            <StatsCard
-              title={card.title}
-              price={card.stats.totalCents}
-              currency={shop.currency}
-              priceClass="text-2xl font-bold"
-              description={card.description}
-              icon={card.icon}
-              iconBgClass={card.iconBgClass}
-              iconTextClass={card.iconTextClass}
-            ></StatsCard>
-          </div>
-        {/each}
-      {/if}
-    </div>
-  </ScrollArea>
+  <div
+    class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible"
+  >
+    {#if isLoading}
+      {#each { length: 3 } as _}
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+          <Card.Root>
+            <Card.Header class="flex flex-row items-center justify-between space-y-0">
+              <Skeleton class="h-4 w-24" />
+              <Skeleton class="size-8 rounded-md" />
+            </Card.Header>
+            <Card.Content class="flex flex-col gap-2">
+              <Skeleton class="h-7 w-28" />
+              <Skeleton class="h-3 w-20" />
+            </Card.Content>
+          </Card.Root>
+        </div>
+      {/each}
+    {:else if orderStats.data}
+      {@const stats = [
+        {
+          title: "Today",
+          stats: orderStats.data.today,
+          description: "Today's revenue",
+          icon: ReceiptIcon,
+          iconBgClass: "bg-amber-500/10",
+          iconTextClass: "text-amber-600",
+        },
+        {
+          title: "This Week",
+          stats: orderStats.data.thisWeek,
+          description: "This week's revenue",
+          icon: PackageIcon,
+          iconBgClass: "bg-blue-500/10",
+          iconTextClass: "text-blue-600",
+        },
+        {
+          title: "This Month",
+          stats: orderStats.data.thisMonth,
+          description: "This month's revenue",
+          icon: CalendarIcon,
+          iconBgClass: "bg-emerald-500/10",
+          iconTextClass: "text-emerald-600",
+        },
+      ]}
+      {#each stats as card}
+        <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
+          <StatsCard
+            title={card.title}
+            price={card.stats.totalCents}
+            currency={shop.currency}
+            priceClass="text-2xl font-bold"
+            description={card.description}
+            icon={card.icon}
+            iconBgClass={card.iconBgClass}
+            iconTextClass={card.iconTextClass}
+          ></StatsCard>
+        </div>
+      {/each}
+    {/if}
+  </div>
 
   <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
