@@ -3,14 +3,17 @@ import { z } from "zod";
 import {
   db,
   type ExtractedInvoiceData,
+  and,
   eq,
+  inArray,
   purchaseInvoiceFile,
   purchaseInvoiceOcrResult,
 } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
-import type { InvoiceVerificationResult } from "$lib/server/mastra/_lib/image-utils";
-import { processInvoice } from "$lib/server/mastra/agents/invoice-extraction-agent";
-import { verifyInvoice } from "$lib/server/mastra/agents/invoice-verification-agent";
+import {
+  InvoiceOcrUnavailableError,
+  processInvoice,
+} from "$lib/server/ocr/mistral-invoice";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, getObject } from "$lib/server/storage";
 
@@ -31,22 +34,33 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
     }
 
-    if (file.status === "REVIEWED" || file.status === "PROCESSING") {
+    const claimed = db.transaction((tx) => {
+      const row = tx
+        .update(purchaseInvoiceFile)
+        .set({ status: "PROCESSING", updatedAt: new Date() })
+        .where(
+          and(
+            eq(purchaseInvoiceFile.id, file.id),
+            inArray(purchaseInvoiceFile.status, ["UPLOADED", "FAILED", "REJECTED"]),
+          ),
+        )
+        .returning({ id: purchaseInvoiceFile.id })
+        .get();
+
+      if (row) {
+        tx.delete(purchaseInvoiceOcrResult)
+          .where(eq(purchaseInvoiceOcrResult.invoiceFileId, file.id))
+          .run();
+      }
+
+      return row;
+    });
+
+    if (!claimed) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Unable to process invoice under processing or already reviewed.",
+        message: "Invoice is already processed, processing, or reviewed.",
       });
     }
-
-    if (file.status === "REJECTED") {
-      await db
-        .delete(purchaseInvoiceOcrResult)
-        .where(eq(purchaseInvoiceOcrResult.invoiceFileId, file.id));
-    }
-
-    await db
-      .update(purchaseInvoiceFile)
-      .set({ status: "PROCESSING", updatedAt: new Date() })
-      .where(eq(purchaseInvoiceFile.id, file.id));
 
     const objectKey = extractObjectKey(file.objectPath);
     if (!objectKey) {
@@ -67,53 +81,12 @@ export const processInvoiceFileHandler = os
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
 
-      logger.error({ error }, "Failed to retrieve file from storage");
+      logger.error({ err: error }, "Failed to retrieve file from storage");
       throw new ORPCError("INTERNAL_SERVER_ERROR");
-    }
-
-    let verificationResult: InvoiceVerificationResult;
-    try {
-      verificationResult = await verifyInvoice(fileBuffer, file.fileType);
-    } catch (error) {
-      await db
-        .update(purchaseInvoiceFile)
-        .set({ status: "FAILED", updatedAt: new Date() })
-        .where(eq(purchaseInvoiceFile.id, file.id));
-
-      logger.error({ error }, "Invoice verification failed");
-      throw new ORPCError("BAD_REQUEST", {
-        message: "Failed to verify invoice: Please upload clear and correctly formatted invoice",
-      });
     }
 
     const photoUrl = file.objectPath;
     const now = new Date();
-
-    if (!verificationResult.isInvoice) {
-      const rejectionReason = verificationResult.rejectionReason ?? "Document is not an invoice";
-      db.transaction((tx) => {
-        tx.insert(purchaseInvoiceOcrResult)
-          .values({
-            photoUrl,
-            invoiceFileId: file.id,
-            rawJson: verificationResult,
-            rejectionReason,
-            createdAt: now,
-          })
-          .run();
-
-        tx.update(purchaseInvoiceFile)
-          .set({ status: "REJECTED", updatedAt: now })
-          .where(eq(purchaseInvoiceFile.id, file.id))
-          .run();
-      });
-
-      return {
-        success: true,
-        status: "REJECTED" as const,
-        rejectionReason,
-      };
-    }
 
     let extractedData: ExtractedInvoiceData;
     try {
@@ -124,30 +97,49 @@ export const processInvoiceFileHandler = os
         .set({ status: "FAILED", updatedAt: new Date() })
         .where(eq(purchaseInvoiceFile.id, file.id));
 
-      logger.error({ error }, "Failed to extract data from invoice");
+      logger.error(
+        { errorType: error instanceof Error ? error.constructor.name : typeof error },
+        "Failed to extract data from invoice",
+      );
+      if (error instanceof InvoiceOcrUnavailableError) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Invoice OCR is unavailable. Check the server configuration and connection.",
+        });
+      }
       throw new ORPCError("BAD_REQUEST", {
         message: "Failed to process invoice: Please upload clear and correctly formatted invoice",
       });
     }
 
-    db.transaction((tx) => {
-      tx.insert(purchaseInvoiceOcrResult)
-        .values({
-          photoUrl,
-          invoiceFileId: file.id,
-          rawJson: extractedData,
-          extractedText: extractedData.rawText ?? null,
-          extractedData,
-          confidenceScore: extractedData.confidence,
-          createdAt: now,
-        })
-        .run();
+    try {
+      db.transaction((tx) => {
+        tx.insert(purchaseInvoiceOcrResult)
+          .values({
+            photoUrl,
+            invoiceFileId: file.id,
+            rawJson: extractedData,
+            extractedText: extractedData.rawText ?? null,
+            extractedData,
+            confidenceScore: extractedData.confidence,
+            createdAt: now,
+          })
+          .run();
 
-      tx.update(purchaseInvoiceFile)
-        .set({ status: "PROCESSED", updatedAt: now })
-        .where(eq(purchaseInvoiceFile.id, file.id))
-        .run();
-    });
+        tx.update(purchaseInvoiceFile)
+          .set({ status: "PROCESSED", updatedAt: now })
+          .where(eq(purchaseInvoiceFile.id, file.id))
+          .run();
+      });
+    } catch (error) {
+      await db
+        .update(purchaseInvoiceFile)
+        .set({ status: "FAILED", updatedAt: new Date() })
+        .where(eq(purchaseInvoiceFile.id, file.id));
+      logger.error({ err: error }, "Failed to save extracted invoice data");
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Failed to save extracted invoice data",
+      });
+    }
 
     return { success: true, status: "SUCCESS" as const };
   });

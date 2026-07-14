@@ -19,6 +19,7 @@ Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `re
 - `user` carries the better-auth `admin` plugin columns: `role` (`"owner" | "admin" | "member" | "user"`, default `"user"`), `banned`, `banReason`, `banExpires`. `session` carries `impersonatedBy`. Dashboard authorization is based on `user.role`; there is no shop-role column and no `shopRoles` enum.
 - Consumed by `apps/website` through its env-wiring shim at `src/lib/server/db` (which reads `DATABASE_PATH` via `$env/static/private`, opens `new Database(...)`, and calls `createDb`). The package itself never touches SvelteKit `$env`.
 - Depends on `@repo/config` (country/currency enums used by the auth + shop-info schema).
+- Purchase-invoice OCR monetary cent fields are integers, and OCR confidence is constrained to `0..1` so the shared Zod contract matches SQLite checks.
 
 ## Work Guidance
 

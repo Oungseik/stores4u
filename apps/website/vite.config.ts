@@ -5,6 +5,7 @@ import devtoolsJson from "vite-plugin-devtools-json";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  envDir: "../..",
   plugins: [
     tailwindcss(),
     sveltekit(),

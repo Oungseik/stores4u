@@ -17,11 +17,11 @@ export const ExtractedSupplierSchema = z.object({
 export const ExtractedInvoiceSchema = z.object({
   invoiceNumber: z.string().optional(),
   invoiceDate: z.string().optional(),
-  subtotalCents: z.number().optional(),
-  vatCents: z.number().optional(),
-  discountCents: z.number().optional(),
-  freightCents: z.number().optional(),
-  totalCents: z.number(),
+  subtotalCents: z.int().optional(),
+  vatCents: z.int().optional(),
+  discountCents: z.int().optional(),
+  freightCents: z.int().optional(),
+  totalCents: z.int(),
   paymentTerms: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -30,8 +30,8 @@ export const ExtractedItemSchema = z.object({
   productName: z.string(),
   description: z.string().optional(),
   quantity: z.number(),
-  unitCostCents: z.number(),
-  lineTotalCents: z.number(),
+  unitCostCents: z.int(),
+  lineTotalCents: z.int(),
   sku: z.string().optional(),
 });
 
@@ -39,7 +39,7 @@ export const ExtractedInvoiceDataSchema = z.object({
   supplier: ExtractedSupplierSchema,
   invoice: ExtractedInvoiceSchema,
   items: z.array(ExtractedItemSchema),
-  confidence: z.number(),
+  confidence: z.number().min(0).max(1),
   rawText: z.string().optional(),
 });
 
