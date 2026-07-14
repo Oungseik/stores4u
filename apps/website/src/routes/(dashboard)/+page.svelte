@@ -25,7 +25,7 @@
 
   import type { PageProps } from "./$types";
 
-  const { params, data: shop }: PageProps = $props();
+  const { data: shop }: PageProps = $props();
 
   let trendDays = $state(7);
 
@@ -295,57 +295,71 @@
     <Separator />
 
     <!-- Quick Actions -->
-    <div>
-      <h2 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-        Quick actions
-      </h2>
-      <div class="grid grid-cols-1 gap-3 @lg/main:grid-cols-2">
-        <div
-          class="group border-border bg-card relative flex flex-col justify-between overflow-hidden rounded-xl border p-6 transition-all duration-200 hover:shadow-md"
+    <section class="flex flex-col gap-4">
+      <h2 class="text-lg font-semibold tracking-tight">Quick actions</h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Start Selling (primary) -->
+        <Card.Root
+          class="group relative justify-between overflow-hidden p-6 transition-shadow hover:shadow-md sm:col-span-2 lg:col-span-1"
         >
-          <div class="relative z-10">
-            <div class="bg-primary/10 mb-4 flex size-12 items-center justify-center rounded-lg">
-              <ScanBarcodeIcon class="text-primary size-6" />
+          <div class="flex flex-col gap-3">
+            <div class="flex size-11 items-center justify-center rounded-lg bg-primary/10">
+              <ScanBarcodeIcon class="size-5 text-primary" />
             </div>
-            <h3 class="mb-1 text-xl font-semibold">Start Selling</h3>
-            <p class="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Process sales with barcode scanner or product search. Fast checkout for your
-              customers.
-            </p>
+            <div>
+              <h3 class="text-base font-semibold">Start Selling</h3>
+              <p class="text-muted-foreground text-sm leading-relaxed">
+                Process sales with barcode scanner or product search.
+              </p>
+            </div>
           </div>
-          <div class="relative z-10 mt-6">
-            <a href="/cart" class={buttonVariants()}>
-              Open Point of Sale
-              <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
-            </a>
-          </div>
+          <a href="/cart" class={buttonVariants({ class: "w-fit" })}>
+            Open Point of Sale
+            <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
           <div
-            class="from-primary/[0.03] absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+            class="from-primary/[0.04] pointer-events-none absolute inset-0 bg-gradient-to-br to-transparent opacity-0 transition-opacity group-hover:opacity-100"
           ></div>
-        </div>
+        </Card.Root>
 
-        <a
-          href="/products"
-          class="group border-border bg-card flex flex-col rounded-xl border p-5 transition-all duration-200 hover:shadow-sm"
-        >
-          <div class="bg-muted mb-3 flex size-10 items-center justify-center rounded-lg">
-            <PackageIcon class="text-muted-foreground size-5" />
+        <!-- Products -->
+        <Card.Root class="group justify-between p-6 transition-shadow hover:shadow-md">
+          <div class="flex flex-col gap-3">
+            <div class="flex size-11 items-center justify-center rounded-lg bg-muted">
+              <PackageIcon class="size-5 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 class="text-base font-semibold">Products</h3>
+              <p class="text-muted-foreground text-sm leading-relaxed">
+                Manage stock levels, pricing, and categories across your catalog.
+              </p>
+            </div>
           </div>
-          <h3 class="mb-0.5 font-medium">Products</h3>
-          <p class="text-muted-foreground text-sm">Browse & manage your inventory</p>
-        </a>
+          <a href="/products" class={buttonVariants({ variant: "outline", class: "w-fit" })}>
+            Manage
+            <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        </Card.Root>
 
-        <a
-          href="/orders"
-          class="group border-border bg-card flex flex-col rounded-xl border p-5 transition-all duration-200 hover:shadow-sm"
-        >
-          <div class="bg-muted mb-3 flex size-10 items-center justify-center rounded-lg">
-            <ShoppingCartIcon class="text-muted-foreground size-5" />
+        <!-- Orders -->
+        <Card.Root class="group justify-between p-6 transition-shadow hover:shadow-md">
+          <div class="flex flex-col gap-3">
+            <div class="flex size-11 items-center justify-center rounded-lg bg-muted">
+              <ShoppingCartIcon class="size-5 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 class="text-base font-semibold">Orders</h3>
+              <p class="text-muted-foreground text-sm leading-relaxed">
+                Review completed sales, check order details, and reprint invoices.
+              </p>
+            </div>
           </div>
-          <h3 class="mb-0.5 font-medium">Orders</h3>
-          <p class="text-muted-foreground text-sm">View recent transactions</p>
-        </a>
+          <a href="/orders" class={buttonVariants({ variant: "outline", class: "w-fit" })}>
+            View
+            <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        </Card.Root>
       </div>
-    </div>
+    </section>
   </div>
 </div>

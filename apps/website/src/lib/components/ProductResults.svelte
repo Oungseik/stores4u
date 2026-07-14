@@ -32,7 +32,7 @@
 </script>
 
 <Command.Root
-  class="bg-popover absolute top-full right-0 left-0 z-50 h-fit overflow-hidden rounded-md border shadow-md"
+  class="bg-popover absolute top-full w-[calc(100%-32px)] mx-auto right-0 left-0 z-50 h-fit overflow-hidden rounded-md border shadow-md"
 >
   <Command.List>
     {#if isLoading && products.length === 0}
