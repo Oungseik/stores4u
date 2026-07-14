@@ -220,63 +220,62 @@
 
         <!-- Settings -->
         <Sidebar.Group class="mt-auto">
-        <Sidebar.GroupLabel>Support</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Settings"
-                isActive={sidebar.state === "collapsed" &&
-                  currentPath.startsWith(settingsHref)}
-                aria-expanded={settingsOpen}
-                onclick={() => (settingsOpen = !settingsOpen)}
-              >
-                <SettingsIcon />
-                <span>Settings</span>
-                <ChevronRightIcon
-                  class="ml-auto transition-transform duration-200 {settingsOpen
-                    ? 'rotate-90'
-                    : ''}"
-                />
-              </Sidebar.MenuButton>
-              {#if settingsOpen}
-                <div transition:slide={{ duration: 200 }}>
-                <Sidebar.MenuSub>
-                    <Sidebar.MenuSubItem>
-                      <Sidebar.MenuSubButton class="w-full" isActive={isActive(settingsHref)}>
-                        {#snippet child({ props })}
-                          <a
-                            href={settingsHref}
-                            {...props}
-                            onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                          >
-                            <span>Shop</span>
-                          </a>
-                        {/snippet}
-                      </Sidebar.MenuSubButton>
-                    </Sidebar.MenuSubItem>
-                    <Sidebar.MenuSubItem>
-                      <Sidebar.MenuSubButton
-                        class="w-full"
-                        isActive={currentPath.startsWith("/settings/invoice")}
-                      >
-                        {#snippet child({ props })}
-                          <a
-                            href="/settings/invoice"
-                            {...props}
-                            onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                          >
-                            <span>Invoice</span>
-                          </a>
-                        {/snippet}
-                      </Sidebar.MenuSubButton>
-                    </Sidebar.MenuSubItem>
-                  </Sidebar.MenuSub>
-                </div>
+          <Sidebar.GroupLabel>Settings</Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton
+                  tooltipContent="Settings"
+                  isActive={sidebar.state === "collapsed" && currentPath.startsWith(settingsHref)}
+                  aria-expanded={settingsOpen}
+                  onclick={() => (settingsOpen = !settingsOpen)}
+                >
+                  <SettingsIcon />
+                  <span>Settings</span>
+                  <ChevronRightIcon
+                    class="ml-auto transition-transform duration-200 {settingsOpen
+                      ? 'rotate-90'
+                      : ''}"
+                  />
+                </Sidebar.MenuButton>
+                {#if settingsOpen}
+                  <div transition:slide={{ duration: 200 }}>
+                    <Sidebar.MenuSub>
+                      <Sidebar.MenuSubItem>
+                        <Sidebar.MenuSubButton class="w-full" isActive={isActive(settingsHref)}>
+                          {#snippet child({ props })}
+                            <a
+                              href={settingsHref}
+                              {...props}
+                              onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                            >
+                              <span>Shop</span>
+                            </a>
+                          {/snippet}
+                        </Sidebar.MenuSubButton>
+                      </Sidebar.MenuSubItem>
+                      <Sidebar.MenuSubItem>
+                        <Sidebar.MenuSubButton
+                          class="w-full"
+                          isActive={currentPath.startsWith("/settings/invoice")}
+                        >
+                          {#snippet child({ props })}
+                            <a
+                              href="/settings/invoice"
+                              {...props}
+                              onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                            >
+                              <span>Invoice</span>
+                            </a>
+                          {/snippet}
+                        </Sidebar.MenuSubButton>
+                      </Sidebar.MenuSubItem>
+                    </Sidebar.MenuSub>
+                  </div>
                 {/if}
-            </Sidebar.MenuItem>
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
         </Sidebar.Group>
       {/if}
     </ScrollArea>
