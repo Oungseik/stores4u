@@ -5,6 +5,8 @@
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
   import { Checkbox } from "@repo/ui/checkbox";
+  import { Label } from "@repo/ui/label";
+  import { RadioGroup, RadioGroupItem } from "@repo/ui/radio-group";
   import { Textarea } from "@repo/ui/textarea";
   import { untrack } from "svelte";
 
@@ -59,7 +61,7 @@
 
 <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
   <!-- Config controls -->
-  <Card.Root class="shrink-0 lg:w-72">
+  <Card.Root class="shrink-0 w-full max-w-96">
     <Card.Header>
       <Card.Title class="text-base">Invoice layout</Card.Title>
       <Card.Description>Controls what appears on generated invoices.</Card.Description>
@@ -67,18 +69,20 @@
     <Card.Content class="space-y-5">
       <div class="space-y-2">
         <p class="text-sm font-medium">Paper width</p>
-        <div class="flex gap-2">
-          <Button
-            size="sm"
-            variant={config.paperWidth === "58" ? "default" : "outline"}
-            onclick={() => (config.paperWidth = "58")}>58mm</Button
-          >
-          <Button
-            size="sm"
-            variant={config.paperWidth === "80" ? "default" : "outline"}
-            onclick={() => (config.paperWidth = "80")}>80mm</Button
-          >
-        </div>
+        <RadioGroup
+          class="flex gap-4"
+          value={config.paperWidth}
+          onValueChange={(v) => (config.paperWidth = v as "58" | "80")}
+        >
+          <div class="flex items-center gap-2">
+            <RadioGroupItem id="paper-width-58" value="58" />
+            <Label for="paper-width-58">58mm</Label>
+          </div>
+          <div class="flex items-center gap-2">
+            <RadioGroupItem id="paper-width-80" value="80" />
+            <Label for="paper-width-80">80mm</Label>
+          </div>
+        </RadioGroup>
       </div>
 
       <div class="space-y-3">
