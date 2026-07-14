@@ -39,28 +39,36 @@ export const acceptInviteHandler = os.input(input).handler(async ({ input }) => 
   const userId = Bun.randomUUIDv7();
   const passwordHash = await hashPassword(input.password);
 
-  await db.insert(user).values({
-    id: userId,
-    name: input.name,
-    email: input.email,
-    emailVerified: true,
-    role: row.role as InviteRole,
-    createdAt: now,
-    updatedAt: now,
+  // Atomic: user + credential + invite consume all succeed or all roll back.
+  // Sync bun:sqlite transaction (matches the OCR handler pattern).
+  db.transaction((tx) => {
+    tx.insert(user)
+      .values({
+        id: userId,
+        name: input.name,
+        email: input.email,
+        emailVerified: true,
+        role: row.role as InviteRole,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    tx.insert(account)
+      .values({
+        id: Bun.randomUUIDv7(),
+        accountId: userId,
+        providerId: "credential",
+        userId,
+        password: passwordHash,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    tx.update(invite)
+      .set({ consumedAt: now, consumedById: userId })
+      .where(eq(invite.token, input.token))
+      .run();
   });
-  await db.insert(account).values({
-    id: Bun.randomUUIDv7(),
-    accountId: userId,
-    providerId: "credential",
-    userId,
-    password: passwordHash,
-    createdAt: now,
-    updatedAt: now,
-  });
-  await db
-    .update(invite)
-    .set({ consumedAt: now, consumedById: userId })
-    .where(eq(invite.token, input.token));
 
   await auth.api.signInEmail({
     body: { email: input.email, password: input.password },

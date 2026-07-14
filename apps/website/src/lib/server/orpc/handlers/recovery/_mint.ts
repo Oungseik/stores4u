@@ -9,6 +9,11 @@ export const RESET_TTL_MS = 60 * 60 * 1000;
  * /forget-password and /sign-in/magic-link request endpoints) so we can surface
  * both the offline (LAN) and online link pairs — better-auth's send callbacks
  * only ever see the single online URL.
+ *
+ * ponytail: this couples us to better-auth's private verification-table
+ * conventions (identifier prefix `reset-password:`, bare-token magic-link
+ * rows). Re-verify against the installed better-auth version on upgrade — a
+ * changed convention silently breaks reset + magic-link signin.
  */
 export async function mintVerification(opts: {
   identifier: string;
