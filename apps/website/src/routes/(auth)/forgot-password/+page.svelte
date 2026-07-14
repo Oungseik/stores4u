@@ -65,7 +65,14 @@
       </Card.Content>
     </Card.Root>
     {#if result}
-      <AuthLinkPair links={result.links} emailSent={result.emailSent} />
+      {#if result.links}
+        <AuthLinkPair links={result.links} emailSent={result.emailSent} />
+      {:else}
+        <p class="text-muted-foreground text-center text-sm">
+          If an account exists for that email, a reset link is ready. Contact an owner if you can't
+          access it.
+        </p>
+      {/if}
     {/if}
   </div>
 </div>
