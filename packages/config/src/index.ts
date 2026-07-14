@@ -9,5 +9,3 @@ export type CurrencyCode = (typeof CURRENCIES)[number];
 export const config = {
   lowStockThreshold: 10,
 };
-
-export * from "./platform";

@@ -14,7 +14,7 @@ export const checkoutModeSchema = createSearchParamsSchema({
 }) as StandardSchemaV1<unknown, CheckoutMode>;
 
 type SettingsTab = {
-  tab: "profile" | "business" | "payment" | "receipt" | "tax" | "notifications" | "team";
+  tab: "profile" | "business" | "tax";
 };
 
 export const settingsTabSchema = createSearchParamsSchema({
@@ -92,7 +92,7 @@ export const invoiceFilesFilterSchema = createSearchParamsSchema({
 >;
 
 type AccountsTab = {
-  tab: "profile" | "security" | "sessions" | "connections" | "danger";
+  tab: "profile" | "security" | "sessions" | "danger";
 };
 
 export const accountsTabSchema = createSearchParamsSchema({

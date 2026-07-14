@@ -12,6 +12,7 @@ Owns: presentational and primitive components (button, card, sidebar, data-table
 
 - Depends on `@repo/config` for enum-driven UI where needed.
 - Components are framework-agnostic app UI; no store/auth/domain logic lives here.
+- Exports a small `@repo/ui/hooks` surface (barrel `src/lib/hooks/index.ts` re-exporting `UseClipboard` / `copyText` from `use-clipboard.svelte.ts`) so consumers reuse the secure-context-aware clipboard instead of reinventing it.
 
 ## Work Guidance
 

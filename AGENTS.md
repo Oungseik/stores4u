@@ -67,8 +67,6 @@ Default section order:
 
 ## Work Guidance
 
-- `bun install` runs `scripts/prepare-effect.sh`, which ensures `.repos/effect` exists as an ignored local clone of `https://github.com/Effect-TS/effect-smol` for Effect reference work.
-
 ## Closeout
 
 1. Re-check changed paths against the DOX chain
@@ -83,8 +81,11 @@ Default section order:
 - **Single-store deployment**: this app supports ONE store per server (not SaaS / multi-tenant). The store is set up once during install via the `/setup` wizard. There is no shop switcher, no per-store routing, no slug, and no `shop.userId` ownership link.
 - **Single SQLite database**: all data (better-auth + store domain) lives in one local SQLite file at `DATABASE_PATH` (default `databases/store.db`). No Turso, no per-store DB files.
 - **Roles**: `user.role` is one of `owner`, `admin`, `member`, `user`. Dashboard access is `owner` / `admin` / `member`; `user` is reserved for future storefront/customer API accounts and must not access the dashboard.
-- **First owner, created on first run**: the very first user ever created becomes `role = "owner"`. A `databaseHooks.user.create.before` hook in `apps/website/src/lib/server/auth.ts` sets that role by checking whether any user already exists. Later account creation is invite-only and currently deferred.
+- **Owner-only sections**: `/settings` (Shop Settings = Profile / Business / Tax, plus Invoice settings) and the **Team** group (Management `/team` = invite-member + reset-for-user; Members `/team/members` = read-only staff list) are owner-only. Admins/members cannot reach them — sidebar entries are hidden and the routes redirect non-owners to `/`. This is deliberate: store config and staff onboarding are owner responsibilities.
+- **First owner, created on first run**: the very first user ever created becomes `role = "owner"` with `emailVerified = true`. A `databaseHooks.user.create.before` hook in `apps/website/src/lib/server/auth.ts` grants that role + verified flag by checking whether any user already exists, and blocks all other raw signUpEmail/OAuth signup after setup. Later dashboard-staff accounts are created only through the owner's invite-link flow (see below).
 - **No public signup after setup**: `/signup` is closed and redirects to `/signin`; `/api/auth/sign-up/email` is closed once the shop exists. `/setup` creates the first owner by email/password on a clean DB, or completes store setup for the first owner if that owner was created through first-run OAuth.
+- **Invite-only dashboard staff (link-based, offline-capable)**: the owner generates one-time, 15-min invite links (`orpc.invites.create`) and copies the offline (LAN) or online link to hand over manually (SMS/voice/email). `/invite?token=` lets the recipient set name/email/password and creates the account with the role baked into the token (`orpc.invites.accept`). No email-based invite, no public staff signup.
+- **Online-capable auth, graceful offline**: the server assumes the internet is up but must tolerate blips. SMTP is generic and optional (`SMTP_*` env); all email flows (verification, forgot-password, magic-link) are wired but **never throw** on send failure — every flow also renders a copyable two-link pair (offline LAN origin + online `BETTER_AUTH_URL`) as the fallback. Links are primary, email is convenience. Two-factor authentication is removed at this time. See `apps/website/AGENTS.md` Auth model.
 - **Social OAuth**: during first run only, `/api/auth/sign-in/social` and `/api/auth/callback/*` may create the first `owner`. After that, OAuth can sign in only to an already-linked account. `accountLinking.disableImplicitLinking: true` blocks email-match implicit linking; the user create hook blocks raw OAuth signup after setup.
 - **Invite flow = deferred**: owners will invite admins/members later; admins may eventually manage members/users but must not promote owners without a dedicated hierarchy check. Do not expose public staff/customer signup from the dashboard.
 - **No Docker deployment**: do not maintain Dockerfile, `.dockerignore`, Docker Compose, or Docker image deployment workflows for this repo.

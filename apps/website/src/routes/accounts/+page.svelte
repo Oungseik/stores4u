@@ -1,10 +1,8 @@
 <script lang="ts">
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import CameraIcon from "@lucide/svelte/icons/camera";
-  import CheckIcon from "@lucide/svelte/icons/check";
   import KeyIcon from "@lucide/svelte/icons/key";
   import LaptopIcon from "@lucide/svelte/icons/laptop";
-  import LinkIcon from "@lucide/svelte/icons/link";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
   import MonitorIcon from "@lucide/svelte/icons/monitor";
@@ -21,15 +19,12 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
-  import { Separator } from "@repo/ui/separator";
   import * as Tabs from "@repo/ui/tabs";
-  import { createMutation, createQuery } from "@tanstack/svelte-query";
+  import { createMutation } from "@tanstack/svelte-query";
   import { useSearchParams } from "runed/kit";
-  import { siGoogle } from "simple-icons";
   import { toast } from "svelte-sonner";
 
   import { invalidateAll } from "$app/navigation";
-  import { PUBLIC_SITE_NAME } from "$env/static/public";
   import { authClient } from "$lib/auth_client";
   import { orpc } from "$lib/orpc_client";
   import { accountsTabSchema } from "$lib/search_param";
@@ -39,38 +34,6 @@
   const { data }: PageProps = $props();
   let user = $derived(data.user);
   const session = $derived(data.session);
-
-  const accountsQuery = createQuery(() => orpc.user.listAccounts.queryOptions());
-
-  const isGoogleConnected = $derived(
-    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "google") ?? false,
-  );
-  const isFacebookConnected = $derived(
-    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "facebook") ?? false,
-  );
-  const isPasswordConnected = $derived(
-    accountsQuery.data?.some((a: { providerId: string }) => a.providerId === "password") ?? false,
-  );
-
-  async function handleLinkProvider(provider: "google" | "facebook") {
-    const result = await authClient.linkSocial({
-      provider,
-      callbackURL: "/accounts?tab=connections",
-    });
-    if (result.error) {
-      toast.error(result.error.message || "Failed to link account");
-    }
-  }
-
-  async function handleUnlinkProvider(providerId: string) {
-    const result = await authClient.unlinkAccount({ providerId });
-    if (result.error) {
-      toast.error(result.error.message || "Failed to unlink account");
-      return;
-    }
-    toast.success(`${providerId} account unlinked`);
-    await invalidateAll();
-  }
 
   const searchParams = useSearchParams(accountsTabSchema, { noScroll: true });
 
@@ -126,13 +89,6 @@
   let newPassword = $state("");
   let confirmPassword = $state("");
   let isChangingPassword = $state(false);
-  let twoFactorLoading = $state(false);
-  let twoFactorPassword = $state("");
-  let twoFactorStep = $state<"idle" | "setup" | "verify">("idle");
-  let twoFactorTotpUri = $state("");
-  let twoFactorBackupCodes = $state<string[]>([]);
-  let twoFactorVerifyCode = $state("");
-  let twoFactorShowBackupCodes = $state(false);
 
   async function handleChangePassword() {
     if (!currentPassword || !newPassword) {
@@ -163,78 +119,6 @@
     newPassword = "";
     confirmPassword = "";
     isChangingPassword = false;
-  }
-
-  async function handleTwoFactorEnableStep1() {
-    if (!twoFactorPassword) {
-      toast.error("Password is required");
-      return;
-    }
-    twoFactorLoading = true;
-    const result = await authClient.twoFactor.enable({
-      password: twoFactorPassword,
-    });
-
-    if (result.error) {
-      toast.error("Failed to start 2FA setup. Check your password.");
-      twoFactorLoading = false;
-      return;
-    }
-
-    twoFactorTotpUri = result.data.totpURI;
-    twoFactorBackupCodes = result.data.backupCodes;
-    twoFactorStep = "setup";
-    toast.success("Scan the key or enter it in your authenticator app");
-    twoFactorLoading = false;
-  }
-
-  async function handleTwoFactorVerify() {
-    if (!twoFactorVerifyCode || twoFactorVerifyCode.length !== 6) {
-      toast.error("Enter the 6-digit code from your authenticator app");
-      return;
-    }
-    twoFactorLoading = true;
-    const result = await authClient.twoFactor.verifyTotp({ code: twoFactorVerifyCode });
-
-    if (result.error) {
-      toast.error("Invalid code. Try again.");
-      twoFactorLoading = false;
-      return;
-    }
-    toast.success("Two-factor authentication enabled");
-    twoFactorStep = "idle";
-    twoFactorPassword = "";
-    twoFactorVerifyCode = "";
-    twoFactorTotpUri = "";
-    twoFactorBackupCodes = [];
-    await invalidateAll();
-    twoFactorLoading = false;
-  }
-
-  async function handleTwoFactorCancelSetup() {
-    twoFactorStep = "idle";
-    twoFactorPassword = "";
-    twoFactorVerifyCode = "";
-    twoFactorTotpUri = "";
-    twoFactorBackupCodes = [];
-  }
-
-  async function handleTwoFactorDisable() {
-    if (!twoFactorPassword) {
-      toast.error("Password is required to disable 2FA");
-      return;
-    }
-    twoFactorLoading = true;
-    const result = await authClient.twoFactor.disable({ password: twoFactorPassword });
-    if (result.error) {
-      toast.error(result.error.message || "Failed to disable 2FA. Check your password.");
-      twoFactorLoading = false;
-      return;
-    }
-    toast.success("Two-factor authentication disabled");
-    twoFactorPassword = "";
-    await invalidateAll();
-    twoFactorLoading = false;
   }
 
   // --- Sessions Tab ---
@@ -359,7 +243,6 @@
   <header class="bg-background border-b">
     <div class="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-4 md:px-6">
       <div class="flex items-center gap-3">
-        <img src="/logo.svg" class="size-6" alt={PUBLIC_SITE_NAME} />
         <h1 class="text-lg font-semibold">Account Settings</h1>
       </div>
       <a class={buttonVariants({ variant: "ghost", size: "sm" })} href="/">
@@ -373,7 +256,7 @@
     <Tabs.Root bind:value={searchParams.tab} class="w-full">
       <div class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
         <Tabs.List
-          class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-5"
+          class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-4"
         >
           <Tabs.Trigger value="profile" class="data-[state=active]:bg-background gap-2">
             <UserIcon class="size-4" />
@@ -386,10 +269,6 @@
           <Tabs.Trigger value="sessions" class="data-[state=active]:bg-background gap-2">
             <LaptopIcon class="size-4" />
             <span class="hidden sm:inline">Sessions</span>
-          </Tabs.Trigger>
-          <Tabs.Trigger value="connections" class="data-[state=active]:bg-background gap-2">
-            <LinkIcon class="size-4" />
-            <span class="hidden sm:inline">Connections</span>
           </Tabs.Trigger>
           <Tabs.Trigger value="danger" class="data-[state=active]:bg-background gap-2">
             <Trash2Icon class="size-4" />
@@ -543,124 +422,6 @@
             </div>
           </Card.Content>
         </Card.Root>
-
-        <!-- Two-Factor Authentication -->
-        <Card.Root>
-          <Card.Header>
-            <Card.Title class="flex items-center gap-2">
-              <ShieldIcon class="size-5" />
-              Two-Factor Authentication
-            </Card.Title>
-            <Card.Description>
-              Add an extra layer of security using an authenticator app
-            </Card.Description>
-          </Card.Header>
-          <Card.Content class="space-y-4">
-            {#if twoFactorStep === "setup"}
-              <!-- Step 1: TOTP URI shown, waiting for verification -->
-              <div class="space-y-4">
-                <p class="text-sm font-medium">
-                  Enter this key in your authenticator app, then enter the 6-digit code below:
-                </p>
-                <div class="bg-muted rounded-lg p-3 font-mono text-xs break-all">
-                  {twoFactorTotpUri}
-                </div>
-
-                {#if !twoFactorShowBackupCodes}
-                  <button
-                    class="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
-                    onclick={() => (twoFactorShowBackupCodes = true)}
-                  >
-                    Show backup codes
-                  </button>
-                {:else}
-                  <div class="space-y-2">
-                    <p class="text-sm font-medium">Backup codes (save these!)</p>
-                    <div class="bg-muted grid grid-cols-2 gap-1 rounded-lg p-3 font-mono text-xs">
-                      {#each twoFactorBackupCodes as code}
-                        <span>{code}</span>
-                      {/each}
-                    </div>
-                  </div>
-                {/if}
-
-                <div class="space-y-2">
-                  <Label for="totp-code">Verification Code</Label>
-                  <Input
-                    id="totp-code"
-                    bind:value={twoFactorVerifyCode}
-                    placeholder="6-digit code"
-                    maxlength={6}
-                    inputmode="numeric"
-                  />
-                </div>
-                <div class="flex gap-2">
-                  <Button
-                    onclick={handleTwoFactorVerify}
-                    disabled={twoFactorLoading || twoFactorVerifyCode.length !== 6}
-                    class="gap-2"
-                  >
-                    {#if twoFactorLoading}
-                      <Loader2Icon class="size-4 animate-spin" />
-                    {:else}
-                      <CheckIcon class="size-4" />
-                    {/if}
-                    Verify & Enable
-                  </Button>
-                  <Button variant="outline" onclick={handleTwoFactorCancelSetup}>Cancel</Button>
-                </div>
-              </div>
-            {:else}
-              <!-- Status + Enable/Disable -->
-              <div class="space-y-4">
-                <p class="text-sm">
-                  {#if user.twoFactorEnabled}
-                    2FA is enabled. Your account is protected with an authenticator app.
-                  {:else}
-                    2FA is disabled. Enable to require a one-time password on sign-in.
-                  {/if}
-                </p>
-                <div class="space-y-2">
-                  <Label for="2fa-password">Password</Label>
-                  <Input
-                    id="2fa-password"
-                    type="password"
-                    bind:value={twoFactorPassword}
-                    placeholder="Enter your password"
-                  />
-                </div>
-                {#if user.twoFactorEnabled}
-                  <Button
-                    variant="destructive"
-                    onclick={handleTwoFactorDisable}
-                    disabled={twoFactorLoading || !twoFactorPassword}
-                    class="gap-2"
-                  >
-                    {#if twoFactorLoading}
-                      <Loader2Icon class="size-4 animate-spin" />
-                    {:else}
-                      <ShieldIcon class="size-4" />
-                    {/if}
-                    Disable 2FA
-                  </Button>
-                {:else}
-                  <Button
-                    onclick={handleTwoFactorEnableStep1}
-                    disabled={twoFactorLoading || !twoFactorPassword}
-                    class="gap-2"
-                  >
-                    {#if twoFactorLoading}
-                      <Loader2Icon class="size-4 animate-spin" />
-                    {:else}
-                      <ShieldIcon class="size-4" />
-                    {/if}
-                    Enable 2FA
-                  </Button>
-                {/if}
-              </div>
-            {/if}
-          </Card.Content>
-        </Card.Root>
       </Tabs.Content>
 
       <!-- Sessions Tab -->
@@ -744,118 +505,6 @@
                 {/each}
               </div>
             {/if}
-          </Card.Content>
-        </Card.Root>
-      </Tabs.Content>
-
-      <!-- Connections Tab -->
-      <Tabs.Content value="connections" class="mt-6">
-        <Card.Root>
-          <Card.Header>
-            <Card.Title class="flex items-center gap-2">
-              <LinkIcon class="size-5" />
-              Connected Accounts
-            </Card.Title>
-            <Card.Description>Manage third-party account connections</Card.Description>
-          </Card.Header>
-          <Card.Content class="space-y-4">
-            <div class="flex items-center justify-between rounded-lg border p-4">
-              <div class="flex items-center gap-3">
-                <div class="flex size-10 items-center justify-center rounded-lg border bg-white">
-                  <svg class="size-5" viewBox="0 0 24 24">
-                    <path d={siGoogle.path} fill={`#${siGoogle.hex}`} />
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm font-medium">Google</p>
-                  <p class="text-muted-foreground text-xs">
-                    {isGoogleConnected
-                      ? "Linked — sign in with Google"
-                      : "Link to sign in with Google"}
-                  </p>
-                </div>
-              </div>
-              {#if isGoogleConnected}
-                <div class="flex items-center gap-2">
-                  <Badge variant="secondary">Connected</Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onclick={() => handleUnlinkProvider("google")}
-                  >
-                    Unlink
-                  </Button>
-                </div>
-              {:else}
-                <Button variant="outline" size="sm" onclick={() => handleLinkProvider("google")}>
-                  Link
-                </Button>
-              {/if}
-            </div>
-
-            <div class="flex items-center justify-between rounded-lg border p-4">
-              <div class="flex items-center gap-3">
-                <div class="bg-muted flex size-10 items-center justify-center rounded-lg border">
-                  <svg class="size-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm font-medium">Facebook</p>
-                  <p class="text-muted-foreground text-xs">
-                    {isFacebookConnected
-                      ? "Linked — sign in with Facebook"
-                      : "Link to sign in with Facebook"}
-                  </p>
-                </div>
-              </div>
-              {#if isFacebookConnected}
-                <div class="flex items-center gap-2">
-                  <Badge variant="secondary">Connected</Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onclick={() => handleUnlinkProvider("facebook")}
-                  >
-                    Unlink
-                  </Button>
-                </div>
-              {:else}
-                <Button variant="outline" size="sm" onclick={() => handleLinkProvider("facebook")}>
-                  Link
-                </Button>
-              {/if}
-            </div>
-
-            <div class="flex items-center justify-between rounded-lg border p-4">
-              <div class="flex items-center gap-3">
-                <div class="bg-muted flex size-10 items-center justify-center rounded-lg border">
-                  <svg class="size-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm font-medium">Password</p>
-                  <p class="text-muted-foreground text-xs">Sign in with email and password</p>
-                </div>
-              </div>
-              {#if isPasswordConnected}
-                <Badge variant="secondary">Connected</Badge>
-              {:else}
-                <Badge variant="outline">Not connected</Badge>
-              {/if}
-            </div>
-
-            <Separator />
-
-            <p class="text-muted-foreground text-xs">
-              Linking a provider lets you sign in with it. After setup, OAuth can only sign in to an
-              already-linked account.
-            </p>
           </Card.Content>
         </Card.Root>
       </Tabs.Content>

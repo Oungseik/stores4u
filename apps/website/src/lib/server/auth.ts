@@ -1,7 +1,7 @@
 import { db, schema } from "$lib/server/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, role, twoFactor } from "better-auth/plugins";
+import { admin, magicLink, role } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import {
@@ -13,6 +13,7 @@ import {
   GOOGLE_CLIENT_SECRET,
 } from "$env/static/private";
 import { env } from "$env/dynamic/public";
+import { sendAuthEmail } from "$lib/server/email";
 
 export const dashboardRoles = ["owner", "admin", "member"] as const;
 export type DashboardRole = (typeof dashboardRoles)[number];
@@ -44,7 +45,34 @@ export const auth = betterAuth({
   // creates or links an account. Post-setup creation is blocked in the user
   // create hook below; linked OAuth signin still works.
   account: { accountLinking: { enabled: true, disableImplicitLinking: true } },
-  emailAndPassword: { enabled: true, autoSignIn: false },
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    // Block signin until the email is verified. Setup owner + invited users
+    // are marked verified on creation, so this only gates future public
+    // signup (currently closed) and any path that leaves a user unverified.
+    requireEmailVerification: true,
+    // No sendResetPassword: reset tokens are minted in orpc/handlers/recovery
+    // and emailed via sendAuthEmail directly, so better-auth's /forget-password
+    // (its only caller) is never hit.
+  },
+  // Email verification. sendOnSignUp is off: the first-owner /setup path and
+  // invite-accept both mark emailVerified directly, so there is no unverified
+  // signup to email. Flip to true if public signup reopens. The callback stays
+  // wired for explicit resend / future flows.
+  emailVerification: {
+    sendOnSignUp: false,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, token }) => {
+      const url = `${BETTER_AUTH_URL.replace(/\/$/, "")}/verify-account?token=${token}`;
+      await sendAuthEmail({
+        email: user.email,
+        subject: "Verify your email",
+        url,
+        token,
+      });
+    },
+  },
   socialProviders: {
     google: {
       prompt: "select_account",
@@ -74,7 +102,16 @@ export const auth = betterAuth({
         user: noAdminPower,
       },
     }),
-    twoFactor(),
+    // TOTP/email-OTP 2FA removed at this time; plugin stays out until reused.
+    // Magic-link signin. disableSignUp: invite-only model, unknown emails are
+    // rejected. The verify endpoint is better-auth's own GET (sets cookie).
+    magicLink({
+      expiresIn: 60 * 15,
+      disableSignUp: true,
+      sendMagicLink: async ({ email, url }) => {
+        await sendAuthEmail({ email, subject: "Your sign-in link", url });
+      },
+    }),
     sveltekitCookies(getRequestEvent),
   ],
   databaseHooks: {
@@ -88,7 +125,9 @@ export const auth = betterAuth({
           if (existing) {
             throw new Error("Account creation is invite-only after setup.");
           }
-          return { data: { ...incoming, role: "owner" } };
+          // First owner: grant role + mark email verified (bypass
+          // requireEmailVerification) so /setup can sign in without email.
+          return { data: { ...incoming, role: "owner", emailVerified: true } };
         },
       },
     },

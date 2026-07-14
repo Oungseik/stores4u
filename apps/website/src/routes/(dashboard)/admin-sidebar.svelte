@@ -7,7 +7,6 @@
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FolderIcon from "@lucide/svelte/icons/folder";
   import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
-  import LinkIcon from "@lucide/svelte/icons/link";
   import LogOutIcon from "@lucide/svelte/icons/log-out";
   import BoxIcon from "@lucide/svelte/icons/package";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
@@ -43,6 +42,7 @@
       name: string;
       email: string;
       image?: string | null;
+      role?: string | null | undefined;
     };
     currentPath: string;
   }
@@ -56,7 +56,10 @@
     { title: "Point of Sale", href: "/cart", icon: ScanBarcodeIcon },
     { title: "Orders", href: "/orders", icon: ClipboardListIcon },
     { title: "Customers", href: "/customers", icon: UsersIcon },
-    { title: "Integrations", href: "/integrations", icon: LinkIcon },
+    { title: "Products", href: "/products", icon: BoxIcon },
+    { title: "Product Categories", href: "/products/categories", icon: FolderIcon },
+    { title: "Purchase Invoices", href: "/purchases/invoices", icon: FileTextIcon },
+    { title: "Suppliers", href: "/purchases/suppliers", icon: Building2Icon },
   ];
 
   const settingsHref = "/settings";
@@ -70,6 +73,12 @@
   // (this only opens, never closes, so it never fights a user toggle).
   $effect(() => {
     if (currentPath.startsWith(settingsHref)) settingsOpen = true;
+  });
+
+  const teamHref = "/team";
+  let teamOpen = $state(untrack(() => currentPath.startsWith(teamHref)));
+  $effect(() => {
+    if (currentPath.startsWith(teamHref)) teamOpen = true;
   });
 </script>
 
@@ -127,91 +136,6 @@
         </Sidebar.GroupContent>
       </Sidebar.Group>
 
-      <!-- Products Group -->
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>Products</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton tooltipContent="All Products" isActive={isActive("/products")}>
-                {#snippet child({ props })}
-                  <a
-                    href="/products"
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <BoxIcon class="size-4" />
-                    <span>All Products</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Categories"
-                isActive={isActive("/products/categories")}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href="/products/categories"
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <FolderIcon class="size-4" />
-                    <span>Categories</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-
-      <!-- Purchases Group -->
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>Purchases</Sidebar.GroupLabel>
-        <Sidebar.GroupContent>
-          <Sidebar.Menu>
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Invoices"
-                isActive={isActive("/purchases/invoices")}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href="/purchases/invoices"
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <FileTextIcon class="size-4" />
-                    <span>Invoices</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton
-                tooltipContent="Suppliers"
-                isActive={isActive("/purchases/suppliers")}
-              >
-                {#snippet child({ props })}
-                  <a
-                    href="/purchases/suppliers"
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <Building2Icon class="size-4" />
-                    <span>Suppliers</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-
       <!-- Inventory Group -->
       <Sidebar.Group>
         <Sidebar.GroupLabel>Inventory</Sidebar.GroupLabel>
@@ -238,8 +162,64 @@
         </Sidebar.GroupContent>
       </Sidebar.Group>
 
-      <!-- Secondary Navigation -->
-      <Sidebar.Group class="mt-auto">
+      {#if user.role === "owner"}
+        <!-- Team -->
+        <Sidebar.Group>
+          <Sidebar.GroupLabel>Team</Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton
+                  tooltipContent="Team"
+                  isActive={sidebar.state === "collapsed" && currentPath.startsWith(teamHref)}
+                  aria-expanded={teamOpen}
+                  onclick={() => (teamOpen = !teamOpen)}
+                >
+                  <UsersIcon class="size-4" />
+                  <span>Team</span>
+                  <ChevronRightIcon
+                    class="ml-auto transition-transform duration-200 {teamOpen ? 'rotate-90' : ''}"
+                  />
+                </Sidebar.MenuButton>
+                {#if teamOpen}
+                  <div transition:slide={{ duration: 200 }}>
+                    <Sidebar.MenuSub>
+                      <Sidebar.MenuSubItem>
+                        <Sidebar.MenuSubButton class="w-full" isActive={isActive("/team/members")}>
+                          {#snippet child({ props })}
+                            <a
+                              href="/team/members"
+                              {...props}
+                              onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                            >
+                              <span>Members</span>
+                            </a>
+                          {/snippet}
+                        </Sidebar.MenuSubButton>
+                      </Sidebar.MenuSubItem>
+                      <Sidebar.MenuSubItem>
+                        <Sidebar.MenuSubButton class="w-full" isActive={isActive(teamHref)}>
+                          {#snippet child({ props })}
+                            <a
+                              href={teamHref}
+                              {...props}
+                              onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                            >
+                              <span>Management</span>
+                            </a>
+                          {/snippet}
+                        </Sidebar.MenuSubButton>
+                      </Sidebar.MenuSubItem>
+                    </Sidebar.MenuSub>
+                  </div>
+                {/if}
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+
+        <!-- Settings -->
+        <Sidebar.Group class="mt-auto">
         <Sidebar.GroupLabel>Support</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -270,7 +250,7 @@
                             {...props}
                             onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                           >
-                            <span>General</span>
+                            <span>Shop</span>
                           </a>
                         {/snippet}
                       </Sidebar.MenuSubButton>
@@ -297,7 +277,8 @@
             </Sidebar.MenuItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>
-      </Sidebar.Group>
+        </Sidebar.Group>
+      {/if}
     </ScrollArea>
   </Sidebar.Content>
 

@@ -6,7 +6,17 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   const session = locals.session?.session;
   const pathname = url.pathname;
 
-  if (["/signin", "/signup"].some((prefix) => pathname.startsWith(prefix)) && !session) {
+  // Public auth routes viewable without a session.
+  const publicPrefixes = [
+    "/signin",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/magic-link",
+    "/verify-account",
+    "/invite",
+  ];
+  if (publicPrefixes.some((prefix) => pathname.startsWith(prefix)) && !session) {
     return;
   }
 

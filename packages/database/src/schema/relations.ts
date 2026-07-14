@@ -1,5 +1,5 @@
 import { defineRelations } from "drizzle-orm";
-import { account, session, shop, socialConnection, twoFactor, user } from "./auth";
+import { account, invite, session, shop, twoFactor, user } from "./auth";
 import { customer } from "./customer";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
@@ -23,8 +23,8 @@ export const schema = {
   session,
   account,
   twoFactor,
+  invite,
   shop,
-  socialConnection,
   shopInfo,
   category,
   product,
@@ -50,6 +50,7 @@ export const relations = defineRelations(schema, (r) => ({
     sessions: r.many.session(),
     accounts: r.many.account(),
     twoFactors: r.many.twoFactor(),
+    invitesCreated: r.many.invite(),
   },
   session: {
     user: r.one.user({ from: r.session.userId, to: r.user.id }),
@@ -60,12 +61,11 @@ export const relations = defineRelations(schema, (r) => ({
   twoFactor: {
     user: r.one.user({ from: r.twoFactor.userId, to: r.user.id }),
   },
-  shop: {
-    socialConnections: r.many.socialConnection(),
-    shopInfo: r.one.shopInfo({ from: r.shop.shopInfoId, to: r.shopInfo.id }),
+  invite: {
+    createdBy: r.one.user({ from: r.invite.createdById, to: r.user.id }),
   },
-  socialConnection: {
-    shop: r.one.shop({ from: r.socialConnection.shopId, to: r.shop.id }),
+  shop: {
+    shopInfo: r.one.shopInfo({ from: r.shop.shopInfoId, to: r.shopInfo.id }),
   },
   shopInfo: {
     shop: r.one.shop({ from: r.shopInfo.id, to: r.shop.shopInfoId }),

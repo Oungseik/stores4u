@@ -18,7 +18,8 @@ Run from the repository root:
 bun install
 cp apps/website/.env.example .env
 mkdir -p databases
-bun run db:push
+bun run db:generate
+bun run db:migrate
 bun run dev
 ```
 
@@ -41,7 +42,7 @@ Package scripts are usually run through the root Turbo scripts:
 - `/` - dashboard overview
 - `/checkout`, `/orders`, `/products`, `/products/categories`
 - `/purchases/invoices`, `/purchases/suppliers`
-- `/inventory/movements`, `/integrations`, `/settings`
+- `/inventory/movements`, `/settings`
 - `/chats` - AI assistant threads
 - `/accounts` - account area
 - `/health` - health check

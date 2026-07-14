@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Shared configuration: country/currency enums, social-platform metadata, and domain constants.
+Shared configuration: country/currency enums and domain constants.
 
 ## Ownership
 
-Owns: `COUNTRIES`, `CURRENCIES`, `SOCIAL_PLATFORMS`, `PLATFORM_CONFIG`, and the `lowStockThreshold` default.
+Owns: `COUNTRIES`, `CURRENCIES`, and the `lowStockThreshold` default.
 
 ## Local Contracts
 

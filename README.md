@@ -24,7 +24,8 @@ This repository is a Bun workspace managed with Turbo. The product is the Svelte
 bun install
 cp apps/website/.env.example .env
 mkdir -p databases
-bun run db:push
+bun run db:generate
+bun run db:migrate
 bun run dev
 ```
 
@@ -39,7 +40,6 @@ Open the dev server, complete `/setup`, then sign in as the first owner.
 - `bun run check` - run workspace checks
 - `bun run test` - run workspace tests
 - `bun run format` - run workspace formatting
-- `bun run db:push` - sync the Drizzle schema into the SQLite database
 - `bun run db:generate` - generate Drizzle migrations
 - `bun run db:migrate` - apply Drizzle migrations
 - `bun run db:studio` - open Drizzle Studio

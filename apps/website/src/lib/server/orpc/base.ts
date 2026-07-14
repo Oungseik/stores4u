@@ -54,6 +54,20 @@ export const authMiddleware = os.middleware(async ({ context, next }) => {
 
 Object.defineProperty(authMiddleware, "name", { value: "auth_middleware" });
 
+/** Requires an authenticated session whose role is exactly `owner`. */
+export const ownerMiddleware = os.middleware(async ({ context, next }) => {
+  const session = context.session;
+  if (!session) {
+    throw new ORPCError("UNAUTHORIZED");
+  }
+  if (session.user.role !== "owner") {
+    throw new ORPCError("FORBIDDEN", { message: "Owner only." });
+  }
+  return next({ context: { session } });
+});
+
+Object.defineProperty(ownerMiddleware, "name", { value: "owner_middleware" });
+
 /**
  * Resolves the single store for this server. No slug — one store per install.
  * Throws if the store has not been set up yet.

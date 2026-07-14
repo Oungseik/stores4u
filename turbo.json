@@ -11,9 +11,6 @@
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },
-    "db:push": {
-      "cache": false
-    },
     "db:studio": {
       "cache": false
     },
