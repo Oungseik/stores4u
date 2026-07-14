@@ -3,11 +3,18 @@
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import * as Card from "@repo/ui/card";
+  import { Button } from "@repo/ui/button";
+  import * as Dialog from "@repo/ui/dialog";
   import { createQuery } from "@tanstack/svelte-query";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
+  import Invoice, {
+    DEFAULT_INVOICE_CONFIG,
+    type InvoiceConfig,
+    type InvoiceData,
+  } from "$lib/components/invoice/Invoice.svelte";
   import { orpc } from "$lib/orpc_client";
-  import { formatDate, formatPrice } from "$lib/utils";
+  import { formatDate, formatOrderId, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -18,12 +25,56 @@
       input: { orderId: params.id },
     }),
   );
+  const invoiceSettingsQuery = createQuery(() =>
+    orpc.invoice.get.queryOptions({ input: {} }),
+  );
 
   const order = $derived(orderQuery.data);
 
-  function formatOrderId(id: string) {
-    return id.slice(-8).toUpperCase();
-  }
+  const invoiceConfig = $derived<InvoiceConfig>(
+    invoiceSettingsQuery.data?.settings
+      ? {
+          paperWidth: invoiceSettingsQuery.data.settings.paperWidth === "58" ? "58" : "80",
+          showLogo: invoiceSettingsQuery.data.settings.showLogo,
+          showAddress: invoiceSettingsQuery.data.settings.showAddress,
+          showPhone: invoiceSettingsQuery.data.settings.showPhone,
+          showEmail: invoiceSettingsQuery.data.settings.showEmail,
+          footerText: invoiceSettingsQuery.data.settings.footerText,
+        }
+      : { ...DEFAULT_INVOICE_CONFIG },
+  );
+
+  const invoiceData = $derived<InvoiceData | null>(
+    order
+      ? {
+          title: shop.title ?? shop.name,
+          logo: shop.logo,
+          address: shop.address,
+          city: shop.city,
+          state: shop.state,
+          zipCode: shop.zipCode,
+          phone: shop.phone,
+          email: shop.email,
+          orderId: order.id,
+          createdAt: order.createdAt,
+          customerName: order.customerName,
+          customerPhone: order.customerPhone,
+          items: order.items.map((item) => ({
+            id: item.id,
+            name: item.product?.name ?? "Unknown Product",
+            qty: item.qty,
+            unitPriceCents: item.unitPriceCents,
+            lineTotalCents: item.lineTotalCents,
+          })),
+          subtotalCents: order.subtotalCents,
+          discountCents: order.discountCents,
+          vatCents: order.vatCents,
+          totalCents: order.totalCents,
+        }
+      : null,
+  );
+
+  let invoiceOpen = $state(false);
 </script>
 
 <div class="flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6">
@@ -45,13 +96,19 @@
     </div>
   {:else if order}
     <!-- Order Header -->
-    <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">
-        Order #{formatOrderId(order.id)}
-      </h1>
-      <p class="text-muted-foreground text-sm">
-        Placed on {formatDate(order.createdAt, true)}
-      </p>
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-semibold tracking-tight">
+          Order #{formatOrderId(order.id)}
+        </h1>
+        <p class="text-muted-foreground text-sm">
+          Placed on {formatDate(order.createdAt, true)}
+        </p>
+      </div>
+      <Button variant="outline" class="gap-2 shrink-0" onclick={() => (invoiceOpen = true)}>
+        <ReceiptIcon class="size-4" />
+        Invoice
+      </Button>
     </div>
 
     <!-- Order Items -->
@@ -158,3 +215,19 @@
     </Card.Root>
   {/if}
 </div>
+
+<Dialog.Root bind:open={invoiceOpen}>
+  <Dialog.Content class="max-h-[90vh] overflow-y-auto">
+    <Dialog.Header>
+      <Dialog.Title>Invoice #{formatOrderId(order?.id ?? "")}</Dialog.Title>
+      <Dialog.Description>Read-only invoice preview</Dialog.Description>
+    </Dialog.Header>
+    {#if invoiceData}
+      <div class="bg-muted/40 flex justify-center overflow-x-auto rounded-lg py-4">
+        <div class="bg-background shadow-md">
+          <Invoice data={invoiceData} config={invoiceConfig} currency={shop.currency} />
+        </div>
+      </div>
+    {/if}
+  </Dialog.Content>
+</Dialog.Root>

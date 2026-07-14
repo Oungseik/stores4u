@@ -3,6 +3,7 @@ import { account, session, shop, socialConnection, twoFactor, user } from "./aut
 import { customer } from "./customer";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
+import { invoiceSettings } from "./invoice-settings";
 import { category, product, productAlias, productCategory, productImage } from "./product";
 import {
   purchaseInvoice,
@@ -40,6 +41,7 @@ export const schema = {
   inventoryMovement,
   order,
   orderItem,
+  invoiceSettings,
   taxSettings,
 };
 

@@ -19,7 +19,7 @@
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import { orpc } from "$lib/orpc_client";
   import { ordersFilterSchema } from "$lib/search_param";
-  import { formatDate, formatPrice } from "$lib/utils";
+  import { formatDate, formatOrderId, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
 
@@ -75,10 +75,6 @@
       dateFrom: value.start ? value.start.toString() : "",
       dateTo: value.end ? value.end.toString() : "",
     });
-  }
-
-  function formatOrderId(id: string) {
-    return id.slice(-8).toUpperCase();
   }
 </script>
 

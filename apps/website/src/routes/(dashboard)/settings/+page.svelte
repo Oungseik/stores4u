@@ -1,11 +1,7 @@
 <script lang="ts">
   import BuildingIcon from "@lucide/svelte/icons/building-2";
-  import CreditCardIcon from "@lucide/svelte/icons/credit-card";
-  import MailIcon from "@lucide/svelte/icons/mail";
   import PercentIcon from "@lucide/svelte/icons/percent";
-  import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import StoreIcon from "@lucide/svelte/icons/store";
-  import UsersIcon from "@lucide/svelte/icons/users";
   import * as Tabs from "@repo/ui/tabs";
   import { useSearchParams } from "runed/kit";
 
@@ -17,7 +13,6 @@
   import Notifications from "./Notifications.svelte";
   import Payment from "./Payment.svelte";
   import Profile from "./Profile.svelte";
-  import Receipt from "./Receipt.svelte";
   import Tax from "./Tax.svelte";
   import Team from "./Team.svelte";
 
@@ -34,7 +29,7 @@
       <Tabs.List
         class="bg-muted inline-flex h-auto w-max min-w-full gap-1 rounded-lg p-1 md:grid md:w-full md:grid-cols-3 lg:grid-cols-3"
       >
-        <!-- TODO: Re-enable payment, receipt, alerts, and team tabs once implemented -->
+        <!-- TODO: Re-enable payment, alerts, and team tabs once implemented -->
         <Tabs.Trigger value="profile" class="data-[state=active]:bg-background gap-2">
           <StoreIcon class="size-4" />
           <span class="hidden sm:inline">Profile</span>
@@ -46,10 +41,6 @@
         <!-- <Tabs.Trigger value="payment" class="data-[state=active]:bg-background gap-2">
           <CreditCardIcon class="size-4" />
           <span class="hidden sm:inline">Payment</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger value="receipt" class="data-[state=active]:bg-background gap-2">
-          <ReceiptIcon class="size-4" />
-          <span class="hidden sm:inline">Receipt</span>
         </Tabs.Trigger> -->
         <Tabs.Trigger value="tax" class="data-[state=active]:bg-background gap-2">
           <PercentIcon class="size-4" />
@@ -76,10 +67,6 @@
 
     <!-- <Tabs.Content value="payment" class="mt-6">
       <Payment />
-    </Tabs.Content>
-
-    <Tabs.Content value="receipt" class="mt-6">
-      <Receipt />
     </Tabs.Content> -->
 
     <Tabs.Content value="tax" class="mt-6">

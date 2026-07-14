@@ -83,6 +83,11 @@ export function formatUom(uom: string): string {
   return map[uom] ?? uom;
 }
 
+/** Short uppercase tail of an id, for human-friendly order/customer refs. */
+export function formatOrderId(id: string) {
+  return id.slice(-8).toUpperCase();
+}
+
 export function formatDate(date: Date | string, withTime = false) {
   const d = typeof date === "string" ? new Date(date) : date;
   const options: Intl.DateTimeFormatOptions = {

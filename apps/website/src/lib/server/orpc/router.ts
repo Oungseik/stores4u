@@ -16,6 +16,8 @@ import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { deleteImageHandler } from "./handlers/images/delete";
 import { uploadHandler } from "./handlers/images/upload";
+import { getInvoiceSettingsHandler } from "./handlers/invoice/get_invoice_settings";
+import { updateInvoiceSettingsHandler } from "./handlers/invoice/update_invoice_settings";
 import { adjustStockHandler } from "./handlers/inventory/adjust_stock";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { getOrderHandler } from "./handlers/orders/get_order";
@@ -120,6 +122,10 @@ export const router = os.router({
   },
   shops: {
     update: updateShopHandler,
+  },
+  invoice: {
+    get: getInvoiceSettingsHandler,
+    update: updateInvoiceSettingsHandler,
   },
   social: {
     connect: connectPlatformHandler,

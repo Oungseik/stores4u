@@ -2,6 +2,7 @@
   import type { IconProps } from "@lucide/svelte";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import Building2Icon from "@lucide/svelte/icons/building-2";
+  import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FolderIcon from "@lucide/svelte/icons/folder";
@@ -15,9 +16,11 @@
   import UserIcon from "@lucide/svelte/icons/user";
   import UsersIcon from "@lucide/svelte/icons/users";
   import * as Avatar from "@repo/ui/avatar";
+  import * as Collapsible from "@repo/ui/collapsible";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { LightSwitch } from "@repo/ui/light-switch";
   import { ScrollArea } from "@repo/ui/scroll-area";
+  import { untrack } from "svelte";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
   import type { Component, ComponentProps } from "svelte";
@@ -59,27 +62,41 @@
   const settingsHref = "/settings";
 
   const isActive = (href: string) => currentPath === href;
+  // $state (not $derived): binding open to a $derived breaks manual collapse.
+  // untrack: capture only the initial route state; the effect below handles
+  // subsequent settings-route entries, and manual toggles persist otherwise.
+  let settingsOpen = $state(untrack(() => currentPath.startsWith(settingsHref)));
+  // Auto-expand when entering a settings route; manual collapse is preserved
+  // (this only opens, never closes, so it never fights a user toggle).
+  $effect(() => {
+    if (currentPath.startsWith(settingsHref)) settingsOpen = true;
+  });
 </script>
 
 <Sidebar.Root collapsible="icon" style="view-transition-name: sidebar;" {...restProps}>
   <Sidebar.Header>
     <Sidebar.Menu>
       <Sidebar.MenuItem>
-        <Sidebar.MenuButton size="lg">
-          <div
-            class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
-          >
-            {#if shop.logo}
-              <img src={shop.logo} alt={shop.name} class="size-full rounded-lg object-cover" />
-            {:else}
-              <StoreIcon class="size-4" />
-            {/if}
+        <div class="flex items-center gap-2">
+          <Sidebar.MenuButton size="lg" class="min-w-0 flex-1">
+            <div
+              class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
+            >
+              {#if shop.logo}
+                <img src={shop.logo} alt={shop.name} class="size-full rounded-lg object-cover" />
+              {:else}
+                <StoreIcon class="size-4" />
+              {/if}
+            </div>
+            <div class="grid flex-1 text-left text-sm leading-tight">
+              <span class="truncate font-semibold">{shop.name}</span>
+              <span class="truncate text-xs opacity-60">Admin Dashboard</span>
+            </div>
+          </Sidebar.MenuButton>
+          <div class="group-data-[collapsible=icon]:hidden">
+            <LightSwitch />
           </div>
-          <div class="grid flex-1 text-left text-sm leading-tight">
-            <span class="truncate font-semibold">{shop.name}</span>
-            <span class="truncate text-xs opacity-60">Admin Dashboard</span>
-          </div>
-        </Sidebar.MenuButton>
+        </div>
       </Sidebar.MenuItem>
     </Sidebar.Menu>
   </Sidebar.Header>
@@ -226,20 +243,58 @@
         <Sidebar.GroupLabel>Support</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            <Sidebar.MenuItem class="flex items-center gap-2">
-              <Sidebar.MenuButton tooltipContent="Settings" isActive={isActive(settingsHref)}>
-                {#snippet child({ props })}
-                  <a
-                    href={settingsHref}
-                    {...props}
-                    onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
-                  >
-                    <SettingsIcon />
-                    <span>Settings</span>
-                  </a>
-                {/snippet}
-              </Sidebar.MenuButton>
-              <LightSwitch />
+            <Sidebar.MenuItem>
+              <Collapsible.Root bind:open={settingsOpen}>
+                <Collapsible.Trigger>
+                  {#snippet child({ props })}
+                    <Sidebar.MenuButton
+                      {...props}
+                      tooltipContent="Settings"
+                      isActive={sidebar.state === "collapsed" &&
+                        currentPath.startsWith(settingsHref)}
+                    >
+                      <SettingsIcon />
+                      <span>Settings</span>
+                      <ChevronRightIcon
+                        class="ml-auto transition-transform {settingsOpen ? 'rotate-90' : ''}"
+                      />
+                    </Sidebar.MenuButton>
+                  {/snippet}
+                </Collapsible.Trigger>
+                <Collapsible.Content>
+                  <Sidebar.MenuSub>
+                    <Sidebar.MenuSubItem>
+                      <Sidebar.MenuSubButton class="w-full" isActive={isActive(settingsHref)}>
+                        {#snippet child({ props })}
+                          <a
+                            href={settingsHref}
+                            {...props}
+                            onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                          >
+                            <span>General</span>
+                          </a>
+                        {/snippet}
+                      </Sidebar.MenuSubButton>
+                    </Sidebar.MenuSubItem>
+                    <Sidebar.MenuSubItem>
+                      <Sidebar.MenuSubButton
+                        class="w-full"
+                        isActive={currentPath.startsWith("/settings/invoice")}
+                      >
+                        {#snippet child({ props })}
+                          <a
+                            href="/settings/invoice"
+                            {...props}
+                            onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
+                          >
+                            <span>Invoice</span>
+                          </a>
+                        {/snippet}
+                      </Sidebar.MenuSubButton>
+                    </Sidebar.MenuSubItem>
+                  </Sidebar.MenuSub>
+                </Collapsible.Content>
+              </Collapsible.Root>
             </Sidebar.MenuItem>
           </Sidebar.Menu>
         </Sidebar.GroupContent>

@@ -41,6 +41,7 @@ export const getOrderHandler = os
       customerPhone: order.customerPhone,
       subtotalCents: order.subtotalCents,
       discountCents: order.discountCents,
+      vatCents: order.vatCents,
       totalCents: order.totalCents,
       notes: order.notes,
       createdAt: order.createdAt,
