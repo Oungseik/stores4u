@@ -131,16 +131,8 @@
         </div>
         <h3 class="text-lg font-semibold">No suppliers found</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters
-            ? "Try adjusting your search terms"
-            : "Add your first supplier to get started"}
+          {hasFilters ? "Try clearing filters" : "Add your first supplier to get started"}
         </p>
-        {#if !hasFilters}
-          <a href="/purchases/suppliers/add" class={buttonVariants({ class: "mt-4" })}>
-            <PlusIcon class="size-4" />
-            Add Supplier
-          </a>
-        {/if}
       </div>
     {:else}
       <!-- Suppliers Grid -->

@@ -216,13 +216,11 @@
       <div
         class="flex h-[calc(100dvh-var(--header-height)-var(--spacing)*20)] flex-col items-center justify-center gap-3 p-6 text-center"
       >
-        <div class="bg-muted flex size-14 items-center justify-center rounded-full">
-          <BellIcon class="text-muted-foreground size-6" />
+        <div class="bg-muted flex size-16 items-center justify-center rounded-full">
+          <BellIcon class="text-muted-foreground size-8" />
         </div>
-        <div>
-          <p class="font-medium">No notifications</p>
-          <p class="text-muted-foreground text-sm">You're all caught up!</p>
-        </div>
+        <h3 class="text-lg font-semibold">No notifications</h3>
+        <p class="text-muted-foreground max-w-sm text-sm">You're all caught up!</p>
       </div>
     {:else}
       <div class="space-y-4">

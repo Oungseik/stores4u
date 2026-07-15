@@ -146,16 +146,8 @@
         </div>
         <h3 class="text-lg font-semibold">No categories found</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters
-            ? "Try adjusting your search terms"
-            : "Add your first category to organize your products"}
+          {hasFilters ? "Try clearing filters" : "Add your first category to organize your products"}
         </p>
-        {#if !hasFilters}
-          <Button class="mt-4" onclick={() => (isAddOpen = true)}>
-            <PlusIcon class="size-4" />
-            Add Category
-          </Button>
-        {/if}
       </div>
     {:else}
       <div class="grid grid-cols-1 gap-4 @[340px]/main:grid-cols-2 @[680px]/main:grid-cols-3">

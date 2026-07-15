@@ -256,10 +256,13 @@
       </div>
     {:else if allFiles.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
-        <div class="bg-muted mb-3 flex size-12 items-center justify-center rounded-full">
-          <FileTextIcon class="text-muted-foreground size-6" />
+        <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
+          <FileTextIcon class="text-muted-foreground size-8" />
         </div>
-        <p class="text-muted-foreground">No invoice files found</p>
+        <h3 class="text-lg font-semibold">No invoice files found</h3>
+        <p class="text-muted-foreground max-w-sm text-sm">
+          {hasFilters ? "Try clearing filters" : "Upload your first invoice to get started"}
+        </p>
       </div>
     {:else if searchParams.view === "table"}
       <DataTable {columns} data={allFiles} loading={false} />

@@ -162,8 +162,8 @@
           <div class="bg-muted flex size-16 items-center justify-center rounded-full">
             <ShoppingCartIcon class="text-muted-foreground size-8" />
           </div>
-          <p class="font-medium">Cart is empty</p>
-          <p class="text-muted-foreground text-sm">Scan or search to add products</p>
+          <h3 class="text-lg font-semibold">Cart is empty</h3>
+          <p class="text-muted-foreground max-w-sm text-sm">Scan or search to add products</p>
         </div>
       {:else}
         <div class="space-y-1.5 p-4">

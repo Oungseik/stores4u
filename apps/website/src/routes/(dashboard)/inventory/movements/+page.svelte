@@ -161,15 +161,13 @@
         <p class="text-red-500">Failed to load inventory movements</p>
       </div>
     {:else if allMovements.length === 0}
-      <div class="flex flex-col items-center justify-center py-16 text-center">
+      <div class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
           <ArrowLeftRightIcon class="text-muted-foreground size-8" />
         </div>
         <h3 class="text-lg font-semibold">No movements found</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters
-            ? "Try adjusting your filters"
-            : "Inventory movements will appear here when stock changes occur"}
+          {hasFilters ? "Try clearing filters" : "Inventory movements will appear here when stock changes occur"}
         </p>
       </div>
     {:else if searchParams.view === "table"}

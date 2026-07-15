@@ -177,15 +177,13 @@
           <p class="text-red-500">Failed to load orders</p>
         </div>
       {:else if allOrders.length === 0}
-        <div class="flex flex-col items-center justify-center py-16 text-center">
+        <div class="flex flex-col items-center justify-center py-12 text-center">
           <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
             <ShoppingBagIcon class="text-muted-foreground size-8" />
           </div>
           <h3 class="text-lg font-semibold">No orders found</h3>
           <p class="text-muted-foreground max-w-sm text-sm">
-            {hasFilters
-              ? "Try adjusting your search or date filters"
-              : "Orders will appear here when customers make purchases"}
+            {hasFilters ? "Try clearing filters" : "Orders will appear here when customers make purchases"}
           </p>
         </div>
       {:else}
