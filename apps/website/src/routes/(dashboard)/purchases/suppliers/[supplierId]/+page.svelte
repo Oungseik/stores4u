@@ -1,5 +1,6 @@
 <script lang="ts">
   import Building2Icon from "@lucide/svelte/icons/building-2";
+  import FileTextIcon from "@lucide/svelte/icons/file-text";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -178,8 +179,9 @@
           <p class="text-red-500">Failed to load invoices</p>
         </div>
       {:else if allInvoices.length === 0}
-        <div class="flex flex-col items-center justify-center py-12 text-center">
-          <p class="text-muted-foreground text-sm">No purchase invoices yet</p>
+        <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <FileTextIcon class="size-10 opacity-50" />
+          <p class="text-sm">No purchase invoices yet</p>
         </div>
       {:else}
         <DataTable {columns} data={allInvoices} loading={false} onRowClick={handleRowClick} />

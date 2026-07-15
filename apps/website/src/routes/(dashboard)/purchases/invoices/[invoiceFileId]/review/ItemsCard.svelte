@@ -135,7 +135,7 @@
   </Card.Header>
   <Card.Content class="p-0">
     {#if items.length === 0}
-      <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12">
+      <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center">
         <PackageIcon class="size-10 opacity-50" />
         <p class="text-sm">No items yet</p>
         <Button variant="outline" size="sm" onclick={addItem}>

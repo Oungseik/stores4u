@@ -3,6 +3,7 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
+  import ShoppingBagIcon from "@lucide/svelte/icons/shopping-bag";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
   import UsersIcon from "@lucide/svelte/icons/users";
   import { Button, buttonVariants } from "@repo/ui/button";
@@ -176,8 +177,9 @@
           <p class="text-red-500">Failed to load orders</p>
         </div>
       {:else if allOrders.length === 0}
-        <div class="flex flex-col items-center justify-center py-12 text-center">
-          <p class="text-muted-foreground text-sm">No orders yet</p>
+        <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <ShoppingBagIcon class="size-10 opacity-50" />
+          <p class="text-sm">No orders yet</p>
         </div>
       {:else}
         <div class="space-y-2">
