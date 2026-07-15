@@ -1,9 +1,14 @@
 <script lang="ts">
+  import { type DateValue, parseDate } from "@internationalized/date";
+  import CalendarIcon from "@lucide/svelte/icons/calendar";
   import { type CurrencyCode } from "@repo/config";
+  import { Button } from "@repo/ui/button";
+  import * as Calendar from "@repo/ui/calendar";
   import * as Card from "@repo/ui/card";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { NumberInput } from "@repo/ui/number-input";
+  import * as Popover from "@repo/ui/popover";
   import { Separator } from "@repo/ui/separator";
   import { Textarea } from "@repo/ui/textarea";
 
@@ -32,6 +37,30 @@
   const totalCents = $derived(
     subtotalCents + Math.round(vat * 100) - Math.round(discount * 100) + Math.round(freight * 100),
   );
+
+  // invoiceDate is a YYYY-MM-DD string (HTML date input format); Calendar needs a DateValue.
+  const dateValue = $derived.by(() => {
+    if (!invoiceDate) return undefined;
+    try {
+      return parseDate(invoiceDate);
+    } catch {
+      return undefined;
+    }
+  });
+
+  const formattedDate = $derived(
+    dateValue
+      ? new Intl.DateTimeFormat("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }).format(dateValue.toDate("UTC"))
+      : "Pick a date",
+  );
+
+  function handleDateChange(value: DateValue | undefined) {
+    invoiceDate = value ? value.toString() : "";
+  }
 </script>
 
 <Card.Root>
@@ -47,7 +76,28 @@
 
       <div class="grid gap-2">
         <Label>Invoice Date</Label>
-        <Input type="date" bind:value={invoiceDate} />
+        <Popover.Root>
+          <Popover.Trigger>
+            <Button
+              variant="outline"
+              class={[
+                "w-full justify-start text-left font-normal",
+                !dateValue && "text-muted-foreground",
+              ]}
+            >
+              <CalendarIcon class="size-4" />
+              {formattedDate}
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content class="w-auto p-0">
+            <Calendar.Calendar
+              type="single"
+              value={dateValue}
+              onValueChange={handleDateChange}
+              captionLayout="dropdown"
+            />
+          </Popover.Content>
+        </Popover.Root>
       </div>
     </div>
 
