@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { type DetailedValue, PhoneInput } from "@repo/ui/phone-input";
+  import { RadioGroup, RadioGroupItem } from "@repo/ui/radio-group";
   import { Textarea } from "@repo/ui/textarea";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation, useQueryClient } from "@tanstack/svelte-query";
@@ -193,22 +193,20 @@
     {#snippet children(field)}
       <div class="space-y-2">
         <Label>Customer Type</Label>
-        <div class="flex gap-2">
-          <Button
-            type="button"
-            variant={field.state.value === "RETAIL" ? "default" : "outline"}
-            onclick={() => field.handleChange("RETAIL")}
-          >
-            Retail
-          </Button>
-          <Button
-            type="button"
-            variant={field.state.value === "WHOLESALE" ? "default" : "outline"}
-            onclick={() => field.handleChange("WHOLESALE")}
-          >
-            Wholesale
-          </Button>
-        </div>
+        <RadioGroup
+          class="flex gap-4"
+          value={field.state.value}
+          onValueChange={(v) => field.handleChange(v as CustomerType)}
+        >
+          <div class="flex items-center gap-2">
+            <RadioGroupItem id="customer-type-retail" value="RETAIL" />
+            <Label for="customer-type-retail">Retail</Label>
+          </div>
+          <div class="flex items-center gap-2">
+            <RadioGroupItem id="customer-type-wholesale" value="WHOLESALE" />
+            <Label for="customer-type-wholesale">Wholesale</Label>
+          </div>
+        </RadioGroup>
       </div>
     {/snippet}
   </form.Field>
