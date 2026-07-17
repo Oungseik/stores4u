@@ -92,6 +92,7 @@ Default section order:
 - **Invite flow = deferred**: owners will invite admins/members later; admins may eventually manage members/users but must not promote owners without a dedicated hierarchy check. Do not expose public staff/customer signup from the dashboard.
 - **No Docker deployment**: do not maintain Dockerfile, `.dockerignore`, Docker Compose, or Docker image deployment workflows for this repo.
 - **Offline-capable file storage**: uploads support two backends selected by `STORAGE_DRIVER` — `local` (filesystem under `STORAGE_LOCAL_DIR`, served by the public `/storage/[...key]` route, for offline/air-gapped deploys) or S3/R2 (default via Bun's `S3Client`). One server picks one; the choice is for air-gapped/offline runs. Switching backends does not migrate already-stored URLs, so pick per deployment.
+- **Store timezone**: one server lives in one shop's physical location, so `shop.timezone` (IANA name) defaults to server-local but is user-selectable at `/setup` and editable by the owner in Settings → Business. DB stays UTC; only date boundaries (today/week/month) and chart day-buckets are computed in the store tz; display labels render the server-bucketed date key in UTC so they match regardless of the viewer's browser tz. Not per-user — one tz for the whole store.
 
 When the user requests a durable behavior change, record it here or in the relevant child AGENTS.md
 

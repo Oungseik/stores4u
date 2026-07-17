@@ -30,8 +30,10 @@
   let trendDays = $state(7);
 
   function formatTrendDate(dateInput: Date | string): string {
-    const d = typeof dateInput === "string" ? new Date(dateInput + "T00:00:00") : dateInput;
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const d = typeof dateInput === "string" ? new Date(dateInput + "T00:00:00Z") : dateInput;
+    // The date key is already a store-tz day (backend bucketed it). Render it
+    // faithfully in UTC so the label matches regardless of the browser tz.
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
   }
 
   const statsQuery = createQuery(() =>
@@ -213,7 +215,7 @@
             <AreaChart
               data={revenueTrendQuery.data.days.map((d) => ({
                 ...d,
-                date: new Date(d.date + "T00:00:00"),
+                date: new Date(d.date + "T00:00:00Z"),
               }))}
               x="date"
               y="revenueCents"

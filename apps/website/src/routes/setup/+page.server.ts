@@ -6,5 +6,8 @@ import type { PageServerLoad } from "./$types";
 // store-only fields when the OAuth-first owner is finishing setup.
 export const load: PageServerLoad = async () => {
   const firstUser = await db.query.user.findFirst({ columns: { id: true } });
-  return { needsAccount: !firstUser };
+  return {
+    needsAccount: !firstUser,
+    defaultTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  };
 };

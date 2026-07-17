@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { getRequestEvent } from "$app/server";
-import { CURRENCIES } from "@repo/config";
+import { CURRENCIES, TIMEZONES } from "@repo/config";
 import { z } from "zod";
 import { auth, isDashboardRole } from "$lib/server/auth";
 import { db, shop } from "$lib/server/db";
@@ -10,6 +10,7 @@ import { os } from "$lib/server/orpc/base";
 const input = z.object({
   storeName: z.string().min(1).max(100),
   currency: z.enum(CURRENCIES).default("USD"),
+  timezone: z.enum(TIMEZONES as unknown as [string, ...string[]]),
   // Owner credentials are only required on the true first-run path (no users
   // yet). On the OAuth-first path the owner is already signed in.
   name: z.string().min(1).optional(),
@@ -69,6 +70,7 @@ export const setupCreateHandler = os.input(input).handler(async ({ input, contex
       id: Bun.randomUUIDv7(),
       name: input.storeName,
       currency: input.currency,
+      timezone: input.timezone,
     });
   } catch (err) {
     logger.error({ err, userId }, "shop insert failed after owner creation");

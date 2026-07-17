@@ -1,20 +1,25 @@
 <script lang="ts">
   import BuildingIcon from "@lucide/svelte/icons/building-2";
+  import CheckIcon from "@lucide/svelte/icons/check";
+  import ClockIcon from "@lucide/svelte/icons/clock";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
   import MapPinIcon from "@lucide/svelte/icons/map-pin";
   import SaveIcon from "@lucide/svelte/icons/save";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
+  import * as Command from "@repo/ui/command";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { PhoneInput } from "@repo/ui/phone-input";
+  import * as Popover from "@repo/ui/popover";
   import * as Select from "@repo/ui/select";
   import { Separator } from "@repo/ui/separator";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
+  import { TIMEZONES } from "@repo/config";
   import { invalidateAll } from "$app/navigation";
   import { orpc } from "$lib/orpc_client";
 
@@ -45,6 +50,7 @@
     phone: shop.phone ?? "",
     email: shop.email ?? "",
     taxId: shop.taxId ?? "",
+    timezone: shop.timezone ?? "UTC",
   });
 
   const updateShopMutation = createMutation(() =>
@@ -61,9 +67,13 @@
 
   const businessForm = createForm(() => ({
     defaultValues: businessSettings,
-    onSubmit: async () => {
-      // TODO: redesign settings page with separate shop info form
-      // await updateShopMutation.mutateAsync({...});
+    onSubmit: async ({ value }) => {
+      await updateShopMutation.mutateAsync({
+        name: shop.name,
+        ...value,
+        country: value.country as "MM" | "TH" | "US",
+        currency: shop.currency,
+      });
     },
   }));
 
@@ -72,6 +82,14 @@
     { value: "TH", label: "Thailand" },
     { value: "MM", label: "Myanmar" },
   ];
+
+  let tzOpen = $state(false);
+  let tzSearch = $state("");
+  const filteredTimezones = $derived.by(() => {
+    const search = tzSearch.toLowerCase().trim();
+    if (!search) return TIMEZONES.slice(0, 50);
+    return TIMEZONES.filter((tz) => tz.toLowerCase().includes(search)).slice(0, 50);
+  });
 </script>
 
 <Card.Root>
@@ -249,6 +267,56 @@
             {/snippet}
           </businessForm.Field>
         </div>
+      </div>
+
+      <Separator />
+
+      <div class="space-y-4">
+        <h3 class="text-sm font-medium">Localization</h3>
+        <businessForm.Field name="timezone">
+          {#snippet children(field)}
+            <div class="space-y-2">
+              <Label for={field.name}>Timezone</Label>
+              <p class="text-muted-foreground text-xs">
+                Used for dashboard charts, “today” stats, and date displays. Stored in UTC, shown in
+                this timezone.
+              </p>
+              <Popover.Root bind:open={tzOpen}>
+                <Popover.Trigger
+                  id={field.name}
+                  name={field.name}
+                  class="bg-transparent hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border px-3 py-2 text-sm"
+                >
+                  <span class="flex items-center gap-2">
+                    <ClockIcon class="text-muted-foreground size-4" />
+                    <span class="truncate">{field.state.value}</span>
+                  </span>
+                </Popover.Trigger>
+                <Popover.Content class="w-(--bits-popover-anchor-width) p-0" align="start">
+                  <Command.Root shouldFilter={false}>
+                    <Command.Input bind:value={tzSearch} placeholder="Search timezone..." />
+                    <Command.List>
+                      {#each filteredTimezones as tz (tz)}
+                        <Command.Item
+                          value={tz}
+                          onSelect={() => {
+                            field.handleChange(tz);
+                            tzOpen = false;
+                          }}
+                        >
+                          <CheckIcon
+                            class={["size-4", field.state.value !== tz && "text-transparent"]}
+                          />
+                          <span>{tz}</span>
+                        </Command.Item>
+                      {/each}
+                    </Command.List>
+                  </Command.Root>
+                </Popover.Content>
+              </Popover.Root>
+            </div>
+          {/snippet}
+        </businessForm.Field>
       </div>
 
       <div class="flex justify-end">

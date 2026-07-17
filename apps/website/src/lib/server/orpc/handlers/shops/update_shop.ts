@@ -1,4 +1,4 @@
-import { COUNTRIES, CURRENCIES } from "@repo/config";
+import { COUNTRIES, CURRENCIES, TIMEZONES } from "@repo/config";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, shop, shopInfo } from "$lib/server/db";
@@ -18,6 +18,7 @@ const input = z.object({
   taxId: z.string().max(100).optional(),
   country: z.enum(COUNTRIES),
   currency: z.enum(CURRENCIES),
+  timezone: z.enum(TIMEZONES as unknown as [string, ...string[]]),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
 });
@@ -37,6 +38,7 @@ export const updateShopHandler = os
         name: input.name,
         logo: input.logo,
         currency: input.currency,
+        timezone: input.timezone,
       })
       .where(eq(shop.id, context.shop.id));
 

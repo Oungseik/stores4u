@@ -1,10 +1,14 @@
 <script lang="ts">
+  import CheckIcon from "@lucide/svelte/icons/check";
+  import ClockIcon from "@lucide/svelte/icons/clock";
   import StoreIcon from "@lucide/svelte/icons/store";
-  import { CURRENCIES, type CurrencyCode } from "@repo/config";
+  import { CURRENCIES, TIMEZONES, type CurrencyCode } from "@repo/config";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
+  import * as Command from "@repo/ui/command";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
+  import * as Popover from "@repo/ui/popover";
   import * as Select from "@repo/ui/select";
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation } from "@tanstack/svelte-query";
@@ -28,6 +32,14 @@
     return { value: code, label: `${name} (${code})` };
   });
 
+  let tzOpen = $state(false);
+  let tzSearch = $state("");
+  const filteredTimezones = $derived.by(() => {
+    const search = tzSearch.toLowerCase().trim();
+    if (!search) return TIMEZONES.slice(0, 50);
+    return TIMEZONES.filter((timezone) => timezone.toLowerCase().includes(search)).slice(0, 50);
+  });
+
   const setupMutation = createMutation(() =>
     orpc.setup.create.mutationOptions({
       onSuccess: (data) => {
@@ -48,11 +60,13 @@
       password: "",
       storeName: "",
       currency: "USD" as CurrencyCode,
+      timezone: data.defaultTimezone,
     },
     onSubmit: async ({ value }) => {
       setupMutation.mutate({
         storeName: value.storeName,
         currency: value.currency,
+        timezone: value.timezone,
         ...(needsAccount ? { name: value.name, email: value.email, password: value.password } : {}),
       });
     },
@@ -204,6 +218,52 @@
                     {/each}
                   </Select.Content>
                 </Select.Root>
+              </div>
+            {/snippet}
+          </form.Field>
+
+          <form.Field name="timezone">
+            {#snippet children(field)}
+              <div class="space-y-2">
+                <Label for={field.name}>Timezone</Label>
+                <p class="text-muted-foreground text-xs">
+                  Used for daily totals, dashboard charts, and displayed dates.
+                </p>
+                <Popover.Root bind:open={tzOpen}>
+                  <Popover.Trigger
+                    id={field.name}
+                    class="bg-transparent hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border px-3 py-2 text-sm"
+                  >
+                    <span class="flex min-w-0 items-center gap-2">
+                      <ClockIcon class="text-muted-foreground size-4 shrink-0" />
+                      <span class="truncate">{field.state.value}</span>
+                    </span>
+                  </Popover.Trigger>
+                  <Popover.Content class="w-(--bits-popover-anchor-width) p-0" align="start">
+                    <Command.Root shouldFilter={false}>
+                      <Command.Input bind:value={tzSearch} placeholder="Search timezone..." />
+                      <Command.List>
+                        {#each filteredTimezones as timezone (timezone)}
+                          <Command.Item
+                            value={timezone}
+                            onSelect={() => {
+                              field.handleChange(timezone);
+                              tzOpen = false;
+                            }}
+                          >
+                            <CheckIcon
+                              class={[
+                                "size-4",
+                                field.state.value !== timezone && "text-transparent",
+                              ]}
+                            />
+                            <span>{timezone}</span>
+                          </Command.Item>
+                        {/each}
+                      </Command.List>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
               </div>
             {/snippet}
           </form.Field>

@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { and, db, eq, gte, inventoryMovement, order, sql } from "$lib/server/db";
+import { and, db, eq, gte, inventoryMovement, order } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { storeDate } from "$lib/server/timezone";
 
 const input = z.object({
   days: z.number().int().min(1).max(90),
@@ -13,62 +14,79 @@ type TrendPoint = {
   costCents: number;
 };
 
+// en-CA formats dates as YYYY-MM-DD — the grouping key we want, in the store tz.
+function tzDateKey(d: Date, tz: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
 export const dashboardRevenueTrendHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
     const dayCount = input.days;
+    const tz = context.shop!.timezone;
 
-    const startDate = new Date();
-    startDate.setUTCDate(startDate.getUTCDate() - dayCount);
-    startDate.setUTCHours(0, 0, 0, 0);
+    // Generous UTC lower bound: covers the earliest store-tz day we care about
+    // (store-tz midnight is within ~14h of UTC midnight) plus slack. Keeps the
+    // query cheap without needing tz-midnight → UTC conversion.
+    const fetchSince = new Date(Date.now() - (dayCount + 2) * 86400000);
 
     const [revenueRows, costRows] = await Promise.all([
       db
         .select({
-          date: sql<string>`date(${order.createdAt}, 'unixepoch')`,
-          orderCount: sql<number>`COUNT(*)`,
-          revenueCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
+          createdAt: order.createdAt,
+          totalCents: order.totalCents,
         })
         .from(order)
-        .where(gte(order.createdAt, startDate))
-        .groupBy(sql`date(${order.createdAt}, 'unixepoch')`)
-        .orderBy(sql`date(${order.createdAt}, 'unixepoch')`),
+        .where(gte(order.createdAt, fetchSince)),
       db
         .select({
-          date: sql<string>`date(${inventoryMovement.occurredAt}, 'unixepoch')`,
-          costCents: sql<number>`COALESCE(SUM(ABS(${inventoryMovement.qty}) * ${inventoryMovement.unitCostCents}), 0)`,
+          occurredAt: inventoryMovement.occurredAt,
+          qty: inventoryMovement.qty,
+          unitCostCents: inventoryMovement.unitCostCents,
         })
         .from(inventoryMovement)
         .where(
           and(
             eq(inventoryMovement.movementType, "SALE"),
-            gte(inventoryMovement.occurredAt, startDate),
+            gte(inventoryMovement.occurredAt, fetchSince),
           ),
-        )
-        .groupBy(sql`date(${inventoryMovement.occurredAt}, 'unixepoch')`),
+        ),
     ]);
 
-    const costByDate = new Map<string, number>();
+    // Bucket per-row in the store tz (DST-safe), then emit the trailing window.
+    const revenueByDay = new Map<string, { count: number; cents: number }>();
+    for (const row of revenueRows) {
+      const key = tzDateKey(row.createdAt, tz);
+      const bucket = revenueByDay.get(key) ?? { count: 0, cents: 0 };
+      bucket.count += 1;
+      bucket.cents += Number(row.totalCents);
+      revenueByDay.set(key, bucket);
+    }
+
+    const costByDay = new Map<string, number>();
     for (const row of costRows) {
-      costByDate.set(row.date, Number(row.costCents));
+      const key = tzDateKey(row.occurredAt, tz);
+      costByDay.set(key, (costByDay.get(key) ?? 0) + Math.abs(row.qty) * Number(row.unitCostCents));
     }
 
     const days: TrendPoint[] = [];
-
+    const today = storeDate(new Date(), tz);
     for (let i = dayCount; i >= 0; i--) {
-      const d = new Date();
-      d.setUTCDate(d.getUTCDate() - i);
-      const dateStr = d.toISOString().slice(0, 10);
-      const revenueRow = revenueRows.find((r) => r.date === dateStr);
-
+      const key = today.subtract({ days: i }).toString();
+      const revenue = revenueByDay.get(key);
       days.push({
-        date: dateStr,
-        orderCount: revenueRow ? Number(revenueRow.orderCount) : 0,
-        revenueCents: revenueRow ? Number(revenueRow.revenueCents) : 0,
-        costCents: costByDate.get(dateStr) ?? 0,
+        date: key,
+        orderCount: revenue?.count ?? 0,
+        revenueCents: revenue?.cents ?? 0,
+        costCents: costByDay.get(key) ?? 0,
       });
     }
 

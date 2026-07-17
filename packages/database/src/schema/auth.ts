@@ -105,6 +105,7 @@ export const shop = sqliteTable("shop", {
     .$defaultFn(() => Bun.randomUUIDv7()),
   name: text("name").notNull(),
   currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
+  timezone: text("timezone").notNull(),
   logo: text("logo"),
   isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
   shopInfoId: text("shop_info_id").references(() => shopInfo.id, {

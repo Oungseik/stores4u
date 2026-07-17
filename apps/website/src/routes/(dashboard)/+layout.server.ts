@@ -30,6 +30,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     zipCode: shop.shopInfo?.zipCode ?? null,
     country: shop.shopInfo?.country ?? null,
     currency: shop.currency,
+    timezone: shop.timezone,
     phone: shop.shopInfo?.phone ?? null,
     email: shop.shopInfo?.email ?? null,
     taxId: shop.shopInfo?.taxId ?? null,

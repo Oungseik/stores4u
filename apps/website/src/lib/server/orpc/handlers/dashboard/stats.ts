@@ -13,37 +13,19 @@ import {
   sql,
 } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { storePeriodStarts } from "$lib/server/timezone";
 
 const input = z.object({});
-
-function getStartOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function getStartOfWeek(date: Date): Date {
-  const d = getStartOfDay(date);
-  const day = d.getDay();
-  const diff = day === 0 ? 6 : day - 1;
-  d.setDate(d.getDate() - diff);
-  return d;
-}
-
-function getStartOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
-}
 
 export const dashboardStatsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
-  .handler(async () => {
-    const now = new Date();
-    const todayStart = getStartOfDay(now);
-    const weekStart = getStartOfWeek(now);
-    const monthStart = getStartOfMonth(now);
+  .handler(async ({ context }) => {
+    const tz = context.shop!.timezone;
+    const { today: todayStart, week: weekStart, lastWeek: lastWeekStart, month: monthStart } =
+      storePeriodStarts(new Date(), tz);
 
     const [
       todayRevenue,
@@ -85,7 +67,7 @@ export const dashboardStatsHandler = os
         .from(order)
         .where(
           and(
-            gte(order.createdAt, new Date(weekStart.getTime() - 7 * 24 * 60 * 60 * 1000)),
+            gte(order.createdAt, lastWeekStart),
             lt(order.createdAt, weekStart),
           ),
         ),
