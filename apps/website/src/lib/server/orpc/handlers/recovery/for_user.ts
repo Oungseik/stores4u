@@ -1,7 +1,7 @@
 import { getRequestEvent } from "$app/server";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { db, user } from "$lib/server/db";
+import { db } from "$lib/server/db";
 import { buildLinks, type LinkPair } from "$lib/server/links";
 import { os, ownerMiddleware } from "$lib/server/orpc/base";
 import { mintResetToken } from "./_mint";

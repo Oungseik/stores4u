@@ -175,10 +175,10 @@ export const submitInvoiceReviewHandler = os
           )
           .run();
 
-        const qtyByProduct = input.items.reduce<Record<string, number>>(
-          (acc, item) => ({ ...acc, [item.productId]: (acc[item.productId] ?? 0) + item.qty }),
-          {},
-        );
+        const qtyByProduct = input.items.reduce<Record<string, number>>((acc, item) => {
+          acc[item.productId] = (acc[item.productId] ?? 0) + item.qty;
+          return acc;
+        }, {});
 
         const productCases = sql.join(
           Object.entries(qtyByProduct).map(

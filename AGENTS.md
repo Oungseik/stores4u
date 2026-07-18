@@ -69,6 +69,7 @@ Default section order:
 ## Work Guidance
 
 - Turbo runs in strict environment mode; add every server runtime variable used by an app to root `turbo.json` `globalEnv`. Purchase-invoice OCR requires `MISTRAL_API_KEY` there so root `.env` reaches `apps/website`.
+- Biome treats unused imports as lint errors repo-wide (`correctness.noUnusedImports: "error"`).
 
 ## Closeout
 

@@ -23,7 +23,7 @@ export const dashboardStatsHandler = os
   .use(authMiddleware)
   .use(protectedShopMiddleware)
   .handler(async ({ context }) => {
-    const tz = context.shop!.timezone;
+    const tz = context.shop.timezone;
     const { today: todayStart, week: weekStart, lastWeek: lastWeekStart, month: monthStart } =
       storePeriodStarts(new Date(), tz);
 

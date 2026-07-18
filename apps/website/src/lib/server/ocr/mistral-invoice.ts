@@ -17,7 +17,8 @@ export class InvoiceOcrUnavailableError extends Error {}
  * z.toJSONSchema emits a $schema key that Mistral rejects, so strip it.
  */
 const invoiceJsonSchema = (() => {
-  const { $schema: _omit, ...schema } = z.toJSONSchema(ExtractedInvoiceDataSchema);
+  const schema = z.toJSONSchema(ExtractedInvoiceDataSchema);
+  delete schema.$schema;
   return schema;
 })();
 
@@ -58,9 +59,8 @@ export async function processInvoice(
   const client = getClient();
   const document = buildDocument(fileBuffer, mimeType);
 
-  let response;
-  try {
-    response = await client.ocr.process({
+  const response = await client.ocr
+    .process({
       model: OCR_MODEL,
       document,
       documentAnnotationFormat: {
@@ -72,11 +72,11 @@ export async function processInvoice(
         },
       },
       documentAnnotationPrompt,
+    })
+    .catch((error) => {
+      logger.error({ ...errorMetadata(error), mimeType }, "Mistral OCR call failed");
+      throw new InvoiceOcrUnavailableError("Mistral OCR request failed", { cause: error });
     });
-  } catch (error) {
-    logger.error({ ...errorMetadata(error), mimeType }, "Mistral OCR call failed");
-    throw new InvoiceOcrUnavailableError("Mistral OCR request failed", { cause: error });
-  }
 
   const rawText = response.pages.map((p) => p.markdown).join("\n\n");
 
@@ -90,7 +90,7 @@ export async function processInvoice(
     parsed = JSON.parse(response.documentAnnotation);
   } catch (error) {
     logger.error({ err: error }, "Mistral annotation was not valid JSON");
-    throw new Error("Mistral OCR returned malformed structured data");
+    throw new Error("Mistral OCR returned malformed structured data", { cause: error });
   }
 
   const result = ExtractedInvoiceDataSchema.safeParse(parsed);

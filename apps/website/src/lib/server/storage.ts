@@ -27,6 +27,11 @@ const s3 = isLocal
       sessionToken: "",
     });
 
+function getS3(): S3Client {
+  if (!s3) throw new Error("S3 client is unavailable in local storage mode");
+  return s3;
+}
+
 // Local mode: files live under LOCAL_ROOT and are served at LOCAL_PREFIX/<key>.
 // Exported so the public serve route validates against the exact same root.
 export const LOCAL_PREFIX = "/storage";
@@ -55,7 +60,7 @@ export function getObjectUrl(key: string): string {
 export function presignDownload(key: string, _expiresIn = 900): string {
   // ponytail: local is served by a public route, no signing needed offline.
   if (isLocal) return `${LOCAL_PREFIX}/${key}`;
-  return s3!.presign(key, { expiresIn: _expiresIn, method: "GET" });
+  return getS3().presign(key, { expiresIn: _expiresIn, method: "GET" });
 }
 
 export async function putObject(key: string, data: Buffer, contentType: string): Promise<void> {
@@ -65,18 +70,18 @@ export async function putObject(key: string, data: Buffer, contentType: string):
     await writeFile(path, data);
     return;
   }
-  await s3!.file(key).write(data, { type: contentType });
+  await getS3().file(key).write(data, { type: contentType });
 }
 
 export async function getObject(key: string): Promise<Buffer> {
   if (isLocal) return Buffer.from(await readFile(localPath(key)));
-  const file = s3!.file(key);
+  const file = getS3().file(key);
   return Buffer.from(await file.arrayBuffer());
 }
 
 export function getObjectStream(key: string): ReadableStream<Uint8Array> {
   if (isLocal) return Bun.file(localPath(key)).stream();
-  return s3!.file(key).stream();
+  return getS3().file(key).stream();
 }
 
 export async function deleteObject(key: string): Promise<void> {
@@ -86,7 +91,7 @@ export async function deleteObject(key: string): Promise<void> {
     });
     return;
   }
-  await s3!.file(key).delete();
+  await getS3().file(key).delete();
 }
 
 /** Remove by key (callers extract the key first). */

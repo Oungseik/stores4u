@@ -26,7 +26,7 @@
   <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
   <Breadcrumb.Root class="min-w-0 flex-1 overflow-hidden">
     <Breadcrumb.List class="flex-nowrap">
-      {#each breadcrumbs as item, i}
+      {#each breadcrumbs as item, i (item.href ?? "current")}
         <Breadcrumb.Item>
           {#if item.href}
             <Breadcrumb.Link

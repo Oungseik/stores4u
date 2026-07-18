@@ -83,10 +83,10 @@ export const updateInvoiceHandler = os
 
         // 3. REVERSE OLD STOCK
         if (existingItems.length > 0) {
-          const oldQtyByProduct = existingItems.reduce<Record<string, number>>(
-            (acc, item) => ({ ...acc, [item.productId]: (acc[item.productId] ?? 0) + item.qty }),
-            {},
-          );
+          const oldQtyByProduct = existingItems.reduce<Record<string, number>>((acc, item) => {
+            acc[item.productId] = (acc[item.productId] ?? 0) + item.qty;
+            return acc;
+          }, {});
 
           const reverseCases = sql.join(
             Object.entries(oldQtyByProduct).map(
@@ -142,10 +142,10 @@ export const updateInvoiceHandler = os
           .run();
 
         // 8. APPLY NEW STOCK
-        const newQtyByProduct = input.items.reduce<Record<string, number>>(
-          (acc, item) => ({ ...acc, [item.productId]: (acc[item.productId] ?? 0) + item.qty }),
-          {},
-        );
+        const newQtyByProduct = input.items.reduce<Record<string, number>>((acc, item) => {
+          acc[item.productId] = (acc[item.productId] ?? 0) + item.qty;
+          return acc;
+        }, {});
 
         const applyCases = sql.join(
           Object.entries(newQtyByProduct).map(

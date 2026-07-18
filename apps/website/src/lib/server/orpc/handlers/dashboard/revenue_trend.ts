@@ -31,7 +31,7 @@ export const dashboardRevenueTrendHandler = os
   .use(protectedShopMiddleware)
   .handler(async ({ input, context }) => {
     const dayCount = input.days;
-    const tz = context.shop!.timezone;
+    const tz = context.shop.timezone;
 
     // Generous UTC lower bound: covers the earliest store-tz day we care about
     // (store-tz midnight is within ~14h of UTC midnight) plus slack. Keeps the

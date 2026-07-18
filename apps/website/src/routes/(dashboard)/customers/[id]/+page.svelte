@@ -79,7 +79,7 @@
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
-    hasPageHeading
+    hasPageHeading={Boolean(customer)}
     breadcrumbs={[
       { label: msg.ui_dashboard(), href: `/` },
       { label: msg.ui_customers(), href: `/customers` },
