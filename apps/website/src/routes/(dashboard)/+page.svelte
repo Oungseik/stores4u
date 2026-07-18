@@ -73,14 +73,9 @@
 </script>
 
 <div class="@container/main flex flex-1 flex-col gap-4 p-4 md:p-6">
+  <AdminDashboardHeader breadcrumbs={[{ label: msg.ui_dashboard() }]} />
+
   <div class="flex flex-col gap-6">
-    <AdminDashboardHeader breadcrumbs={[{ label: msg.ui_dashboard() }]} />
-
-    <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_dashboard()}</h1>
-      <p class="text-muted-foreground text-sm">{msg.ui_overview_of_your_store_performance()}</p>
-    </div>
-
     <!-- KPI Cards -->
     <div
       class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible"

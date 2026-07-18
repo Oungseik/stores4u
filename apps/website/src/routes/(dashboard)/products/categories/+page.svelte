@@ -116,11 +116,6 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_categories()}</h1>
-    <p class="text-muted-foreground text-sm">{msg.ui_organize_your_products_into_categories()}</p>
-  </div>
-
   <section class="@container/main space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">

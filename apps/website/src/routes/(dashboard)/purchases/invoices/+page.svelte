@@ -209,13 +209,6 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_invoice_files()}</h1>
-    <p class="text-muted-foreground text-sm">
-      {msg.ui_upload_process_and_review_supplier_invoices()}
-    </p>
-  </div>
-
   <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">

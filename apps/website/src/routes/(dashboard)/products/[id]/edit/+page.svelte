@@ -41,11 +41,6 @@
   />
 
   <div class="max-w-2xl">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_edit_product()}</h1>
-      <p class="text-muted-foreground text-sm">{msg.ui_update_product_details()}</p>
-    </div>
-
     <ProductForm
       bind:this={productFormRef}
       {initialData}

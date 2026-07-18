@@ -23,13 +23,12 @@
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
-    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_team() }]}
+    breadcrumbs={[
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_team(), href: `/team` },
+      { label: msg.ui_members() },
+    ]}
   />
-
-  <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_members()}</h1>
-    <p class="text-muted-foreground text-sm">{msg.ui_team_members_with_dashboard_access()}</p>
-  </div>
 
   {#if members.isLoading}
     <div class="flex items-center justify-center py-12">

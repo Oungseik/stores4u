@@ -10,42 +10,44 @@
   type Props = {
     breadcrumbs: BreadcrumbItem[];
     actions?: Snippet;
+    hasPageHeading?: boolean;
   };
 
-  const { breadcrumbs, actions }: Props = $props();
+  const { breadcrumbs, actions, hasPageHeading = false }: Props = $props();
 </script>
 
-<div class="flex flex-col gap-4">
-  <div class="flex h-9 items-center justify-between">
-    <div class="flex min-w-0 flex-1 items-center gap-1 lg:gap-2">
-      <Sidebar.Trigger class="-ms-1 shrink-0" />
-      <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
-      <Breadcrumb.Root class="min-w-0 overflow-hidden">
-        <Breadcrumb.List class="flex-nowrap">
-          {#each breadcrumbs as item, i}
-            <Breadcrumb.Item>
-              {#if item.href}
-                <Breadcrumb.Link
-                  class="max-w-[64px] truncate lg:max-w-none"
-                  href={localizePath(item.href)}>{item.label}</Breadcrumb.Link
-                >
-              {:else}
-                <Breadcrumb.Page class="max-w-[64px] truncate lg:max-w-none"
-                  >{item.label}</Breadcrumb.Page
-                >
-              {/if}
-            </Breadcrumb.Item>
-            {#if i < breadcrumbs.length - 1}
-              <Breadcrumb.Separator />
-            {/if}
-          {/each}
-        </Breadcrumb.List>
-      </Breadcrumb.Root>
+<header
+  class="bg-background -mx-4 -mt-4 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-4 md:-mx-6 md:-mt-6 md:px-6"
+>
+  {#if !hasPageHeading}
+    <h1 class="sr-only">{breadcrumbs.at(-1)?.label}</h1>
+  {/if}
+  <Sidebar.Trigger class="-ms-1 shrink-0" />
+  <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+  <Breadcrumb.Root class="min-w-0 flex-1 overflow-hidden">
+    <Breadcrumb.List class="flex-nowrap">
+      {#each breadcrumbs as item, i}
+        <Breadcrumb.Item>
+          {#if item.href}
+            <Breadcrumb.Link
+              class="max-w-[64px] truncate lg:max-w-none"
+              href={localizePath(item.href)}>{item.label}</Breadcrumb.Link
+            >
+          {:else}
+            <Breadcrumb.Page class="max-w-[64px] truncate lg:max-w-none">
+              {item.label}
+            </Breadcrumb.Page>
+          {/if}
+        </Breadcrumb.Item>
+        {#if i < breadcrumbs.length - 1}
+          <Breadcrumb.Separator />
+        {/if}
+      {/each}
+    </Breadcrumb.List>
+  </Breadcrumb.Root>
+  {#if actions}
+    <div class="flex shrink-0 items-center gap-2">
+      {@render actions()}
     </div>
-    {#if actions}
-      <div class="flex items-center gap-2">
-        {@render actions()}
-      </div>
-    {/if}
-  </div>
-</div>
+  {/if}
+</header>

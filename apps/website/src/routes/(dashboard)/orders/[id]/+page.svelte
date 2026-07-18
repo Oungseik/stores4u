@@ -76,8 +76,9 @@
   let invoiceOpen = $state(false);
 </script>
 
-<div class="flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6">
+<div class="flex w-full flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
+    hasPageHeading
     breadcrumbs={[
       { label: msg.ui_dashboard(), href: `/` },
       { label: msg.ui_orders(), href: `/orders` },
@@ -85,134 +86,136 @@
     ]}
   />
 
-  {#if orderQuery.isLoading}
-    <div class="flex items-center justify-center py-24">
-      <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-    </div>
-  {:else if orderQuery.isError}
-    <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">{msg.ui_failed_to_load_order()}</p>
-    </div>
-  {:else if order}
-    <!-- Order Header -->
-    <div class="flex items-start justify-between gap-4">
-      <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight">
-          Order #{formatOrderId(order.id)}
-        </h1>
-        <p class="text-muted-foreground text-sm">
-          Placed on {formatDate(order.createdAt, true)}
-        </p>
+  <div class="flex max-w-2xl flex-col gap-6">
+    {#if orderQuery.isLoading}
+      <div class="flex items-center justify-center py-24">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
-      <Button variant="outline" class="gap-2 shrink-0" onclick={() => (invoiceOpen = true)}>
-        <ReceiptIcon class="size-4" />
-        {msg.ui_invoice()}
-      </Button>
-    </div>
-
-    <!-- Order Items -->
-    <Card.Root>
-      <Card.Header>
-        <Card.Title class="flex items-center gap-2 text-base">
-          <PackageIcon class="size-4" />
-          {msg.ui_order_items()}
-        </Card.Title>
-      </Card.Header>
-      <Card.Content>
-        <div class="rounded-md border text-sm">
-          {#each order.items as item, i}
-            <div
-              class="flex items-center justify-between p-2.5 {i !== order.items.length - 1
-                ? 'border-b'
-                : ''}"
-            >
-              <div class="flex items-center gap-2.5">
-                <div class="bg-muted flex size-8 items-center justify-center rounded">
-                  <PackageIcon class="text-muted-foreground size-4" />
-                </div>
-                <div>
-                  <p>{item.product?.name ?? msg.ui_unknown_product()}</p>
-                  <p class="text-muted-foreground text-xs">{item.product?.sku ?? "—"}</p>
-                </div>
-              </div>
-              <div class="text-right">
-                <p class="text-muted-foreground text-xs">x {item.qty}</p>
-                {formatPrice(item.lineTotalCents, shop.currency)}
-              </div>
-            </div>
-          {/each}
+    {:else if orderQuery.isError}
+      <div class="flex items-center justify-center py-24">
+        <p class="text-red-500">{msg.ui_failed_to_load_order()}</p>
+      </div>
+    {:else if order}
+      <!-- Order Header -->
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-2xl font-semibold tracking-tight">
+            Order #{formatOrderId(order.id)}
+          </h1>
+          <p class="text-muted-foreground text-sm">
+            Placed on {formatDate(order.createdAt, true)}
+          </p>
         </div>
-      </Card.Content>
-    </Card.Root>
+        <Button variant="outline" class="shrink-0 gap-2" onclick={() => (invoiceOpen = true)}>
+          <ReceiptIcon class="size-4" />
+          {msg.ui_invoice()}
+        </Button>
+      </div>
 
-    <!-- Customer Notes -->
-    {#if order.notes}
+      <!-- Order Items -->
       <Card.Root>
         <Card.Header>
-          <Card.Title class="text-base">{msg.ui_customer_notes()}</Card.Title>
+          <Card.Title class="flex items-center gap-2 text-base">
+            <PackageIcon class="size-4" />
+            {msg.ui_order_items()}
+          </Card.Title>
         </Card.Header>
         <Card.Content>
-          <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-            {order.notes}
+          <div class="rounded-md border text-sm">
+            {#each order.items as item, i}
+              <div
+                class="flex items-center justify-between p-2.5 {i !== order.items.length - 1
+                  ? 'border-b'
+                  : ''}"
+              >
+                <div class="flex items-center gap-2.5">
+                  <div class="bg-muted flex size-8 items-center justify-center rounded">
+                    <PackageIcon class="text-muted-foreground size-4" />
+                  </div>
+                  <div>
+                    <p>{item.product?.name ?? msg.ui_unknown_product()}</p>
+                    <p class="text-muted-foreground text-xs">{item.product?.sku ?? "—"}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="text-muted-foreground text-xs">x {item.qty}</p>
+                  {formatPrice(item.lineTotalCents, shop.currency)}
+                </div>
+              </div>
+            {/each}
+          </div>
+        </Card.Content>
+      </Card.Root>
+
+      <!-- Customer Notes -->
+      {#if order.notes}
+        <Card.Root>
+          <Card.Header>
+            <Card.Title class="text-base">{msg.ui_customer_notes()}</Card.Title>
+          </Card.Header>
+          <Card.Content>
+            <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+              {order.notes}
+            </div>
+          </Card.Content>
+        </Card.Root>
+      {/if}
+
+      <!-- Order Summary -->
+      <Card.Root>
+        <Card.Header>
+          <Card.Title class="flex items-center gap-2 text-base">
+            <ReceiptIcon class="size-4" />
+            {msg.ui_order_summary()}
+          </Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">{msg.ui_subtotal()}</span>
+              {formatPrice(order.subtotalCents, shop.currency)}
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">{msg.ui_discount()}</span>
+              {formatPrice(order.discountCents, shop.currency)}
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">{msg.ui_shipping_local_pickup()}</span>
+              {formatPrice(0, shop.currency)}
+            </div>
+            <div class="flex justify-between border-t pt-2 font-semibold">
+              <span>{msg.ui_total()}</span>
+              {formatPrice(order.totalCents, shop.currency)}
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-muted-foreground">{msg.ui_payment_status()}</span>
+              <span class="text-emerald-600 capitalize">{msg.paid()}</span>
+            </div>
+          </div>
+        </Card.Content>
+      </Card.Root>
+
+      <!-- Customer -->
+      <Card.Root>
+        <Card.Header>
+          <Card.Title class="text-base">{msg.ui_customer()}</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <div class="flex items-center gap-3 rounded-md border p-3 text-sm">
+            <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+              <span class="text-primary text-sm font-semibold">
+                {order.customerName?.charAt(0).toUpperCase() ?? "I"}
+              </span>
+            </div>
+            <div>
+              <p class="font-medium">{order.customerName ?? msg.ui_in_store_purchase()}</p>
+              <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
+            </div>
           </div>
         </Card.Content>
       </Card.Root>
     {/if}
-
-    <!-- Order Summary -->
-    <Card.Root>
-      <Card.Header>
-        <Card.Title class="flex items-center gap-2 text-base">
-          <ReceiptIcon class="size-4" />
-          {msg.ui_order_summary()}
-        </Card.Title>
-      </Card.Header>
-      <Card.Content>
-        <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
-          <div class="flex justify-between">
-            <span class="text-muted-foreground">{msg.ui_subtotal()}</span>
-            {formatPrice(order.subtotalCents, shop.currency)}
-          </div>
-          <div class="flex justify-between">
-            <span class="text-muted-foreground">{msg.ui_discount()}</span>
-            {formatPrice(order.discountCents, shop.currency)}
-          </div>
-          <div class="flex justify-between">
-            <span class="text-muted-foreground">{msg.ui_shipping_local_pickup()}</span>
-            {formatPrice(0, shop.currency)}
-          </div>
-          <div class="flex justify-between border-t pt-2 font-semibold">
-            <span>{msg.ui_total()}</span>
-            {formatPrice(order.totalCents, shop.currency)}
-          </div>
-          <div class="flex justify-between text-xs">
-            <span class="text-muted-foreground">{msg.ui_payment_status()}</span>
-            <span class="text-emerald-600 capitalize">{msg.paid()}</span>
-          </div>
-        </div>
-      </Card.Content>
-    </Card.Root>
-
-    <!-- Customer -->
-    <Card.Root>
-      <Card.Header>
-        <Card.Title class="text-base">{msg.ui_customer()}</Card.Title>
-      </Card.Header>
-      <Card.Content>
-        <div class="flex items-center gap-3 rounded-md border p-3 text-sm">
-          <div class="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-            <span class="text-primary text-sm font-semibold">
-              {order.customerName?.charAt(0).toUpperCase() ?? "I"}
-            </span>
-          </div>
-          <div>
-            <p class="font-medium">{order.customerName ?? msg.ui_in_store_purchase()}</p>
-            <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
-          </div>
-        </div>
-      </Card.Content>
-    </Card.Root>
-  {/if}
+  </div>
 </div>
 
 <Dialog.Root bind:open={invoiceOpen}>

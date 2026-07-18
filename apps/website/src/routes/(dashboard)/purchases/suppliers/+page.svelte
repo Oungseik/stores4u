@@ -106,13 +106,6 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_suppliers()}</h1>
-    <p class="text-muted-foreground text-sm">
-      {msg.ui_manage_supplier_information_and_relationships()}
-    </p>
-  </div>
-
   <section class="@container/main space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search

@@ -22,11 +22,6 @@
   />
 
   <div class="max-w-2xl">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_add_customer()}</h1>
-      <p class="text-muted-foreground text-sm">{msg.ui_create_a_new_customer_for_your_shop()}</p>
-    </div>
-
     <CustomerForm bind:this={customerFormRef} onSuccess={() => goto(localizePath(`/customers`))} />
 
     <div class="flex items-center gap-2 border-t pt-4">

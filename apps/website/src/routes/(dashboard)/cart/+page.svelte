@@ -110,7 +110,7 @@
   class="bg-background m-[calc(var(--spacing)*2)] flex h-[calc(100dvh-var(--spacing)*4)] flex-col overflow-hidden rounded-lg border lg:m-0"
 >
   <Tabs.Root bind:value={searchParams.mode} class="flex shrink-0 flex-col">
-    <div class="flex items-center border-b">
+    <div class="flex h-12 items-center border-b">
       <div class="flex items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <Sidebar.Trigger class="-ms-1" />
         <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />

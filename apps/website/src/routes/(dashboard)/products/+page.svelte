@@ -144,13 +144,6 @@
     {/snippet}
   </AdminDashboardHeader>
 
-  <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_products()}</h1>
-    <p class="text-muted-foreground text-sm">
-      {msg.ui_manage_your_product_catalog_track_stock_levels_and_orga()}
-    </p>
-  </div>
-
   {#if productStats.isLoading}
     <div
       class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible"

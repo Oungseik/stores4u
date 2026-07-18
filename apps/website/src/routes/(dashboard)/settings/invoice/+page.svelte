@@ -51,7 +51,7 @@
   }
 </script>
 
-<section class="flex w-full max-w-4xl flex-col gap-4 p-4 md:gap-6 md:p-6">
+<section class="flex w-full flex-col gap-4 p-4 md:gap-6 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
       { label: msg.ui_dashboard(), href: `/` },
@@ -60,20 +60,22 @@
     ]}
   />
 
-  {#if invoiceSettingsQuery.isPending}
-    <div class="flex items-center justify-center py-24">
-      <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
-    </div>
-  {:else if invoiceSettingsQuery.isError}
-    <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">{msg.ui_failed_to_load_invoice_settings()}</p>
-    </div>
-  {:else}
-    <InvoiceSettingsForm
-      {initialConfig}
-      currency={shop.currency}
-      saving={updateInvoiceMutation.isPending}
-      onsave={save}
-    />
-  {/if}
+  <div class="w-full max-w-4xl">
+    {#if invoiceSettingsQuery.isPending}
+      <div class="flex items-center justify-center py-24">
+        <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
+      </div>
+    {:else if invoiceSettingsQuery.isError}
+      <div class="flex items-center justify-center py-24">
+        <p class="text-red-500">{msg.ui_failed_to_load_invoice_settings()}</p>
+      </div>
+    {:else}
+      <InvoiceSettingsForm
+        {initialConfig}
+        currency={shop.currency}
+        saving={updateInvoiceMutation.isPending}
+        onsave={save}
+      />
+    {/if}
+  </div>
 </section>

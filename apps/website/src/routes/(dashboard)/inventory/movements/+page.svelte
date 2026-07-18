@@ -103,13 +103,6 @@
     ]}
   />
 
-  <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_inventory_movements()}</h1>
-    <p class="text-muted-foreground text-sm">
-      {msg.ui_track_stock_changes_transfers_and_adjustments_across_yo()}
-    </p>
-  </div>
-
   <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
