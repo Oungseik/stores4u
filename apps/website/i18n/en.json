@@ -564,6 +564,7 @@
   "ui_running_low_5_left": "Running low (5 left)",
   "ui_running_low_8_left": "Running low (8 left)",
   "ui_sale": "Sale",
+  "ui_sale_price_is_not_above_invoice_cost": "Sale price is not above the invoice cost.",
   "ui_session_revoked": "Session revoked",
   "ui_settings_updated_successfully": "Settings updated successfully",
   "ui_stock_adjusted_successfully": "Stock adjusted successfully",

@@ -10,7 +10,7 @@ This repository is a Bun workspace managed with Turbo. The product is the Svelte
 - One local SQLite database at `DATABASE_PATH` stores both Better Auth data and store data.
 - The first user ever created becomes `owner`. Later public signup is closed; future staff creation is invite-only.
 - Dashboard access is limited to `owner`, `admin`, and `member`. The `user` role is reserved for future customer/storefront accounts.
-- i18n is wired through Paraglide/Inlang, but the checked-in project currently has one locale: `en`.
+- Paraglide/Inlang provides English (`en`) and Myanmar Unicode (`my`) UI locales.
 
 ## Prerequisites
 
@@ -31,12 +31,18 @@ bun run dev
 
 Open the dev server, complete `/setup`, then sign in as the first owner.
 
+## Private LAN Production
+
+Linux and Windows installers build the Bun adapter output, install restart supervision, configure Caddy private HTTPS, back up/migrate SQLite, and provide a phone certificate-onboarding page. Choose a stable LAN IP or hostname first, then follow [`deploy/README.md`](deploy/README.md).
+
+The production process is `bun run apps/website/build/index.js`; do not use Vite dev or preview on the server.
+
 ## Commands
 
 - `bun run dev` - start the website dev server through Turbo
 - `bun run build` - build all workspaces with a build script
 - `bun run preview` - preview the built website
-- `bun run check-types` - run type checks
+- `bun run typecheck` - run type checks
 - `bun run check` - run workspace checks
 - `bun run test` - run workspace tests
 - `bun run format` - run workspace formatting
@@ -48,6 +54,7 @@ Open the dev server, complete `/setup`, then sign in as the first owner.
 
 ```text
 apps/website        SvelteKit product app
+deploy              Private-LAN Linux/Windows installers
 packages/config     Shared enums and domain constants
 packages/database   Drizzle schema, SQLite client factory, Drizzle Kit config
 packages/ui         Shared Svelte 5 UI component library
@@ -59,7 +66,7 @@ packages/ui         Shared Svelte 5 UI component library
 - Better Auth for authentication
 - Drizzle ORM with Bun SQLite
 - oRPC and TanStack Query for typed client/server data flow
-- Mastra/OpenRouter/Replicate for AI-assisted workflows
+- Mistral OCR for purchase-invoice extraction
 - Paraglide/Inlang for localization
 - Biome, Prettier, ESLint, Vitest, Turbo
 

@@ -24,7 +24,7 @@ Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `re
 ## Work Guidance
 
 - `DATABASE_PATH` must be set (see root `.env`). The package scripts load it via `with-env` (`dotenv -e ../../.env --`).
-- Generated migrations live in `./drizzle` (gitignored); use `db:generate` + `db:migrate`.
+- Generated migrations live in `./drizzle` (gitignored); use `db:generate` + `db:migrate`. Production installers normalize `DATABASE_PATH` to an absolute path, mirror this history to ignored `databases/migrations`, and restore it before generation so package-cwd migration tasks target the app database without replaying a fresh initial migration.
 - Build JavaScript with `tsdown --no-dts`; this private source-exported workspace package uses `tsgo --noEmit` for type checking and does not bundle Drizzle declarations.
 
 ## Verification

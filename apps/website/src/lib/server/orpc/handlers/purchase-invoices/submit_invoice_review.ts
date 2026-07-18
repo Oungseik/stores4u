@@ -135,7 +135,9 @@ export const submitInvoiceReviewHandler = os
 
         const createdInvoice = insertInvoice.at(0);
         if (!createdInvoice) {
-          throw new ORPCError("INTERNAL_SERVER_ERROR", { data: { key: "error_failed_to_create_invoice" } });
+          throw new ORPCError("INTERNAL_SERVER_ERROR", {
+            data: { key: "error_failed_to_create_invoice" },
+          });
         }
 
         const insertedItems = tx

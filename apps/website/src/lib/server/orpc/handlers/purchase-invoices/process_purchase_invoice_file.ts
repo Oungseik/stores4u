@@ -10,10 +10,7 @@ import {
   purchaseInvoiceOcrResult,
 } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
-import {
-  InvoiceOcrUnavailableError,
-  processInvoice,
-} from "$lib/server/ocr/mistral-invoice";
+import { InvoiceOcrUnavailableError, processInvoice } from "$lib/server/ocr/mistral-invoice";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, getObject } from "$lib/server/storage";
 

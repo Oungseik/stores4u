@@ -24,8 +24,12 @@ export const dashboardStatsHandler = os
   .use(protectedShopMiddleware)
   .handler(async ({ context }) => {
     const tz = context.shop.timezone;
-    const { today: todayStart, week: weekStart, lastWeek: lastWeekStart, month: monthStart } =
-      storePeriodStarts(new Date(), tz);
+    const {
+      today: todayStart,
+      week: weekStart,
+      lastWeek: lastWeekStart,
+      month: monthStart,
+    } = storePeriodStarts(new Date(), tz);
 
     const [
       todayRevenue,
@@ -65,12 +69,7 @@ export const dashboardStatsHandler = os
           totalCents: sql<number>`COALESCE(SUM(${order.totalCents}), 0)`,
         })
         .from(order)
-        .where(
-          and(
-            gte(order.createdAt, lastWeekStart),
-            lt(order.createdAt, weekStart),
-          ),
-        ),
+        .where(and(gte(order.createdAt, lastWeekStart), lt(order.createdAt, weekStart))),
       db
         .select({
           total: count(),

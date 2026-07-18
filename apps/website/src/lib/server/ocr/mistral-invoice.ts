@@ -1,10 +1,7 @@
 import { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
 import { env } from "$env/dynamic/private";
-import {
-  type ExtractedInvoiceData,
-  ExtractedInvoiceDataSchema,
-} from "$lib/server/db";
+import { type ExtractedInvoiceData, ExtractedInvoiceDataSchema } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
 
 const OCR_MODEL = "mistral-ocr-latest";
@@ -41,9 +38,7 @@ function errorMetadata(error: unknown) {
   return {
     errorType: error instanceof Error ? error.constructor.name : typeof error,
     statusCode:
-      error && typeof error === "object" && "statusCode" in error
-        ? error.statusCode
-        : undefined,
+      error && typeof error === "object" && "statusCode" in error ? error.statusCode : undefined,
   };
 }
 

@@ -564,6 +564,7 @@
   "ui_running_low_5_left": "(၅)ကျန်",
   "ui_running_low_8_left": "(၈ လက်ဝဲ)",
   "ui_sale": "ရောင်းရန်",
+  "ui_sale_price_is_not_above_invoice_cost": "ရောင်းဈေးသည် အဝယ်ဘောက်ချာပါ ဝယ်ဈေးထက် မမြင့်ပါ။",
   "ui_session_revoked": "ဆက်ရှင်ကို ရုပ်သိမ်းလိုက်သည်။",
   "ui_settings_updated_successfully": "ဆက်တင်များကို အောင်မြင်စွာ အပ်ဒိတ်လုပ်ထားသည်။",
   "ui_stock_adjusted_successfully": "စတော့ကို အောင်မြင်စွာ ချိန်ညှိပြီးပါပြီ။",

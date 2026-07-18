@@ -53,7 +53,11 @@
 <script lang="ts">
   import { formatDate, formatOrderId, formatPrice } from "$lib/utils";
 
-  let { data, config, currency }: { data: InvoiceData; config: InvoiceConfig; currency: CurrencyCode } = $props();
+  let {
+    data,
+    config,
+    currency,
+  }: { data: InvoiceData; config: InvoiceConfig; currency: CurrencyCode } = $props();
 
   // ponytail: disable compact notation on receipts — full amounts always.
   const money = (cents: number) => formatPrice(cents, currency, false);

@@ -26,6 +26,10 @@ export const resetForUserHandler = os
     }
 
     const token = await mintResetToken(found.id);
-    const links: LinkPair = buildLinks({ token, path: "/reset-password", requestOrigin: getRequestEvent().url.origin });
+    const links: LinkPair = buildLinks({
+      token,
+      path: "/reset-password",
+      requestOrigin: getRequestEvent().url.origin,
+    });
     return { links };
   });

@@ -37,7 +37,10 @@ export const adjustStockHandler = os
 
     if (input.direction === "SUBTRACT" && existingProduct.stock < input.qty) {
       throw new ORPCError("BAD_REQUEST", {
-        data: { key: "error_insufficient_stock", values: { available: existingProduct.stock, requested: input.qty } },
+        data: {
+          key: "error_insufficient_stock",
+          values: { available: existingProduct.stock, requested: input.qty },
+        },
       });
     }
 

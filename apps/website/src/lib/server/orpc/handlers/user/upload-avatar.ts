@@ -34,7 +34,9 @@ export const uploadAvatarHandler = os
     }
 
     if (detectedType === "image/svg+xml") {
-      throw new ORPCError("BAD_REQUEST", { data: { key: "error_svg_is_not_supported_for_avatars" } });
+      throw new ORPCError("BAD_REQUEST", {
+        data: { key: "error_svg_is_not_supported_for_avatars" },
+      });
     }
 
     const userId = context.session.user.id;

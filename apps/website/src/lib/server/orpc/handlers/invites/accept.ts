@@ -25,7 +25,9 @@ export const acceptInviteHandler = os.input(input).handler(async ({ input }) => 
   const now = new Date();
   const row = await db.query.invite.findFirst({ where: { token: input.token } });
   if (!row || row.consumedAt || row.expiresAt < now) {
-    throw new ORPCError("BAD_REQUEST", { data: { key: "error_invite_link_is_invalid_or_expired" } });
+    throw new ORPCError("BAD_REQUEST", {
+      data: { key: "error_invite_link_is_invalid_or_expired" },
+    });
   }
 
   const emailTaken = await db.query.user.findFirst({

@@ -68,6 +68,7 @@ Default section order:
 
 ## Work Guidance
 
+- Work through the correctness and feature backlog in root `SYSTEM_REVIEW.md` one item at a time, keeping its checkboxes and acceptance notes current.
 - Turbo runs in strict environment mode; add every server runtime variable used by an app to root `turbo.json` `globalEnv`. Purchase-invoice OCR requires `MISTRAL_API_KEY` there so root `.env` reaches `apps/website`.
 - Biome treats unused imports as lint errors repo-wide (`correctness.noUnusedImports: "error"`).
 
@@ -93,6 +94,7 @@ Default section order:
 - **Social OAuth**: during first run only, `/api/auth/sign-in/social` and `/api/auth/callback/*` may create the first `owner`. After that, OAuth can sign in only to an already-linked account. `accountLinking.disableImplicitLinking: true` blocks email-match implicit linking; the user create hook blocks raw OAuth signup after setup.
 - **Invite flow = deferred**: owners will invite admins/members later; admins may eventually manage members/users but must not promote owners without a dedicated hierarchy check. Do not expose public staff/customer signup from the dashboard.
 - **No Docker deployment**: do not maintain Dockerfile, `.dockerignore`, Docker Compose, or Docker image deployment workflows for this repo.
+- **Private-LAN production deployment + trusted HTTPS**: production runs the Bun adapter output (`apps/website/build/index.js`), never Vite dev/preview. The app runs on a desktop server for phones on remote/offline LANs, without a public-domain or public-certificate dependency. Linux uses systemd for the one app process and Caddy for HTTPS/reverse proxy; Windows must remain supported with a native service wrapper and the same Caddy setup (no PM2/Node runtime). Use a stable private hostname/IP and Caddy's internal CA; install only the root certificate (never its private key) as trusted on every barcode-camera client, verify its SHA-256 fingerprint against the installer desktop before trust, and preserve Caddy's CA data across upgrades/reinstalls. Updates stop the app and restore the previous database/build if build or migration fails.
 - **Offline-capable file storage**: uploads support two backends selected by `STORAGE_DRIVER` — `local` (filesystem under `STORAGE_LOCAL_DIR`, served by the public `/storage/[...key]` route, for offline/air-gapped deploys) or S3/R2 (default via Bun's `S3Client`). One server picks one; the choice is for air-gapped/offline runs. Switching backends does not migrate already-stored URLs, so pick per deployment.
 - **Store timezone**: one server lives in one shop's physical location, so `shop.timezone` (IANA name) defaults to server-local but is user-selectable at `/setup` and editable by the owner in Settings → Business. DB stays UTC; only date boundaries (today/week/month) and chart day-buckets are computed in the store tz; display labels render the server-bucketed date key in UTC so they match regardless of the viewer's browser tz. Not per-user — one tz for the whole store.
 - **User language preference (URL-first, browser-local fallback)**: each dashboard user selects `en` or Myanmar Unicode `my` under `/accounts`; English is default. Paraglide strategy `["url", "preferredLanguage", "cookie", "baseLocale"]` keeps Myanmar routes under `/my/...` (English uses the unprefixed base route), with `PARAGLIDE_LOCALE` as a browser fallback; internal links, programmatic navigation, and redirects must localize paths so navigation preserves the active language. The choice does NOT follow the account to another device, and there is no `user.language` DB read/write. All application UI is localized, while user/store data, English date/number/currency formatting, email content, and receipt/invoice document content stay unchanged. Backend display errors carry language-neutral message keys + interpolation values and are rendered through frontend catalogs; unknown errors use a localized generic fallback. See `CONTEXT.md` for the distinction from future Store Document Language.
@@ -101,6 +103,7 @@ When the user requests a durable behavior change, record it here or in the relev
 
 ## Child DOX Index
 
+- `deploy` — private-LAN Bun/Caddy installers for Linux and Windows. See `deploy/AGENTS.md`.
 - `apps/website` — the SvelteKit application (the product). See `apps/website/AGENTS.md`.
 - `packages/config` — shared config, enums, domain constants. See `packages/config/AGENTS.md`.
 - `packages/database` — single-store Drizzle schema, SQLite client factory, Drizzle Kit config. See `packages/database/AGENTS.md`.

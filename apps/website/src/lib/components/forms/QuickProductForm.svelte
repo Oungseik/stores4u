@@ -146,6 +146,11 @@
           {#if field.state.meta.errors.length}
             <p class="text-sm text-red-500">{field.state.meta.errors}</p>
           {/if}
+          {#if initialPriceCents > 0 && field.state.value <= initialPriceCents / 100}
+            <p class="text-sm text-amber-700 dark:text-amber-400">
+              {msg.ui_sale_price_is_not_above_invoice_cost()}
+            </p>
+          {/if}
         </div>
       {/snippet}
     </form.Field>

@@ -58,7 +58,9 @@ export const checkoutHandler = os
     const getProduct = (id: string) => {
       const p = productMap.get(id);
       if (!p) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { data: { key: "error_product_id_not_found", values: { id } } });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          data: { key: "error_product_id_not_found", values: { id } },
+        });
       }
       return p;
     };
@@ -183,7 +185,10 @@ export const checkoutHandler = os
           });
 
         throw new ORPCError("BAD_REQUEST", {
-          data: { key: "error_insufficient_stock_products", values: { products: insufficient.join(", ") } },
+          data: {
+            key: "error_insufficient_stock_products",
+            values: { products: insufficient.join(", ") },
+          },
         });
       }
 

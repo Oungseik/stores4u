@@ -62,7 +62,9 @@ export const setupCreateHandler = os.input(input).handler(async ({ input, contex
   }
 
   if (!userId) {
-    throw new ORPCError("INTERNAL_SERVER_ERROR", { data: { key: "error_could_not_create_the_account" } });
+    throw new ORPCError("INTERNAL_SERVER_ERROR", {
+      data: { key: "error_could_not_create_the_account" },
+    });
   }
 
   try {

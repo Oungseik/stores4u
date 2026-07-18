@@ -111,7 +111,9 @@
 
   const createFormInitialName = $derived(createFormTargetItem?.invoiceItemName ?? "");
 
-  const createFormInitialPriceCents = 0;
+  const createFormInitialPriceCents = $derived(
+    Math.round((createFormTargetItem?.unitCost ?? 0) * 100),
+  );
 </script>
 
 <Card.Root class="pb-0">

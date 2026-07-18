@@ -69,7 +69,10 @@ export const updateInvoiceHandler = os
 
         if (BLOCKED_STATUSES.has(existingInvoice.status)) {
           throw new ORPCError("BAD_REQUEST", {
-            data: { key: "error_invoice_status_not_editable", values: { status: existingInvoice.status } },
+            data: {
+              key: "error_invoice_status_not_editable",
+              values: { status: existingInvoice.status },
+            },
           });
         }
 
