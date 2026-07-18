@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
   import * as Dialog from "@repo/ui/dialog";
@@ -58,9 +59,9 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="px-0 sm:max-w-xl">
     <Dialog.Header class="px-3 sm:px-4">
-      <Dialog.Title>{isEditMode ? "Edit Product" : "Add Product"}</Dialog.Title>
+      <Dialog.Title>{isEditMode ? msg.ui_edit_product() : msg.ui_add_product()}</Dialog.Title>
       <Dialog.Description>
-        {isEditMode ? "Update product details" : "Create a new product for your shop"}
+        {isEditMode ? msg.ui_update_product_details() : msg.ui_create_a_new_product_for_your_shop()}
       </Dialog.Description>
     </Dialog.Header>
 
@@ -71,7 +72,7 @@
         </div>
       {:else if isEditMode && productQuery.isError}
         <div class="flex items-center justify-center py-12">
-          <p class="text-red-500">Failed to load product</p>
+          <p class="text-red-500">{msg.ui_failed_to_load_product()}</p>
         </div>
       {:else}
         <ProductForm bind:this={productFormRef} {initialData} onSuccess={onClose} />
@@ -79,13 +80,13 @@
     </ScrollArea>
 
     <Dialog.Footer class="mx-0">
-      <Button variant="outline" onclick={onClose}>Cancel</Button>
+      <Button variant="outline" onclick={onClose}>{msg.ui_cancel()}</Button>
       <Button onclick={() => productFormRef?.submit()} disabled={productFormRef?.getIsPending()}>
         {#if productFormRef?.getIsPending()}
           <Loader2Icon class="mr-2 size-4 animate-spin" />
-          {isEditMode ? "Updating..." : "Creating..."}
+          {isEditMode ? msg.ui_updating() : msg.ui_creating()}
         {:else}
-          {isEditMode ? "Update Product" : "Create Product"}
+          {isEditMode ? msg.ui_update_product() : msg.ui_create_product()}
         {/if}
       </Button>
     </Dialog.Footer>

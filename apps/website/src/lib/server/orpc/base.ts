@@ -61,7 +61,7 @@ export const ownerMiddleware = os.middleware(async ({ context, next }) => {
     throw new ORPCError("UNAUTHORIZED");
   }
   if (session.user.role !== "owner") {
-    throw new ORPCError("FORBIDDEN", { message: "Owner only." });
+    throw new ORPCError("FORBIDDEN", { data: { key: "error_owner_only" } });
   }
   return next({ context: { session } });
 });
@@ -75,7 +75,7 @@ Object.defineProperty(ownerMiddleware, "name", { value: "owner_middleware" });
 export const shopMiddleware = os.middleware(async ({ next }) => {
   const shop = await db.query.shop.findFirst({ with: { shopInfo: true } });
   if (!shop) {
-    throw new ORPCError("NOT_FOUND", { message: "Store is not set up" });
+    throw new ORPCError("NOT_FOUND", { data: { key: "error_store_is_not_set_up" } });
   }
   return next({ context: { shop } });
 });
@@ -97,7 +97,7 @@ export const protectedShopMiddleware = os.middleware(async ({ context, next }) =
   });
 
   if (!shop) {
-    throw new ORPCError("NOT_FOUND", { message: "Store is not set up" });
+    throw new ORPCError("NOT_FOUND", { data: { key: "error_store_is_not_set_up" } });
   }
 
   return next({ context: { session, shop } });

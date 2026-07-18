@@ -9,11 +9,11 @@ export const load: PageServerLoad = async ({ params }) => {
   });
 
   if (!invoiceFile) {
-    throw error(404, "Invoice file not found");
+    throw error(404, "error_invoice_file_not_found");
   }
 
   if (invoiceFile.status !== "REVIEWED") {
-    throw error(400, "This invoice cannot be edited in its current status");
+    throw error(400, "error_invoice_not_editable");
   }
 
   const invoice = await db.query.purchaseInvoice.findFirst({
@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ params }) => {
   });
 
   if (!invoice) {
-    throw error(404, "Invoice not found");
+    throw error(404, "error_invoice_not_found");
   }
 
   return { invoice };

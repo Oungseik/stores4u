@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -45,7 +47,9 @@
       null,
   );
 
-  const breadcrumbLabel = $derived(isRejected ? "Rejected Invoice" : "Invoice Details");
+  const breadcrumbLabel = $derived(
+    isRejected ? msg.ui_rejected_invoice() : msg.ui_invoice_details(),
+  );
 
   const supplier = $derived(invoiceQuery.data?.supplier);
   const items = $derived(invoiceQuery.data?.items ?? []);
@@ -62,8 +66,8 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Invoice Files", href: `/purchases/invoices` },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_invoice_files(), href: `/purchases/invoices` },
       { label: breadcrumbLabel },
     ]}
   >
@@ -74,7 +78,7 @@
           class={buttonVariants({ variant: "outline" })}
         >
           <PencilIcon class="size-4" />
-          Edit
+          {msg.ui_edit()}
         </a>
       {/if}
     {/snippet}
@@ -83,29 +87,28 @@
   {#if isLoading}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <Loader2Icon class="text-muted-foreground size-8 animate-spin" />
-      <p class="text-muted-foreground">Loading invoice data...</p>
+      <p class="text-muted-foreground">{msg.ui_loading_invoice_data()}</p>
     </div>
   {:else if error}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <XIcon class="text-destructive size-12" />
       <div class="text-center">
-        <p class="text-lg font-semibold">Error Loading Invoice</p>
-        <p class="text-muted-foreground">{error?.message ?? "Invoice not found"}</p>
+        <p class="text-lg font-semibold">{msg.ui_error_loading_invoice()}</p>
+        <p class="text-muted-foreground">{localizeError(error, "error_invoice_not_found")}</p>
       </div>
-      <Button variant="outline" onclick={() => history.back()}>Go Back</Button>
+      <Button variant="outline" onclick={() => history.back()}>{msg.ui_go_back()}</Button>
     </div>
   {:else}
     {#if isRejected}
       <Alert.Root variant="destructive">
         <AlertTriangleIcon class="size-4" />
-        <Alert.Title>Invoice Was Rejected</Alert.Title>
+        <Alert.Title>{msg.ui_invoice_was_rejected()}</Alert.Title>
         <Alert.Description>
           {#if rejectionReason}
             <p class="mb-2">{rejectionReason}</p>
           {/if}
           <p class="text-sm">
-            This invoice was rejected during AI processing. The extracted data below is for
-            reference only.
+            {msg.ui_this_invoice_was_rejected_during_ai_processing_the_extr()}
           </p>
         </Alert.Description>
       </Alert.Root>
@@ -124,36 +127,36 @@
               <Card.Header>
                 <Card.Title class="flex items-center gap-2">
                   <UserIcon class="size-4" />
-                  Extracted Supplier
+                  {msg.ui_extracted_supplier()}
                 </Card.Title>
               </Card.Header>
               <Card.Content>
                 <div class="space-y-3 text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-muted-foreground">Name</span>
+                    <span class="text-muted-foreground">{msg.ui_name()}</span>
                     <span class="font-medium">{extractedSupplier.name}</span>
                   </div>
                   {#if extractedSupplier.contactName}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Contact</span>
+                      <span class="text-muted-foreground">{msg.ui_contact()}</span>
                       <span>{extractedSupplier.contactName}</span>
                     </div>
                   {/if}
                   {#if extractedSupplier.phone}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Phone</span>
+                      <span class="text-muted-foreground">{msg.ui_phone()}</span>
                       <span>{extractedSupplier.phone}</span>
                     </div>
                   {/if}
                   {#if extractedSupplier.email}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Email</span>
+                      <span class="text-muted-foreground">{msg.ui_email()}</span>
                       <span>{extractedSupplier.email}</span>
                     </div>
                   {/if}
                   {#if extractedSupplier.address}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Address</span>
+                      <span class="text-muted-foreground">{msg.ui_address()}</span>
                       <span class="max-w-[60%] text-right">{extractedSupplier.address}</span>
                     </div>
                   {/if}
@@ -198,46 +201,46 @@
           {#if extractedInvoice}
             <Card.Root>
               <Card.Header>
-                <Card.Title>Extracted Invoice Details</Card.Title>
+                <Card.Title>{msg.ui_extracted_invoice_details()}</Card.Title>
               </Card.Header>
               <Card.Content class="space-y-4">
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span class="text-muted-foreground">Invoice Number</span>
+                    <span class="text-muted-foreground">{msg.ui_invoice_number()}</span>
                     <p class="font-medium">{extractedInvoice.invoiceNumber || "-"}</p>
                   </div>
                   <div>
-                    <span class="text-muted-foreground">Invoice Date</span>
+                    <span class="text-muted-foreground">{msg.ui_invoice_date()}</span>
                     <p class="font-medium">{extractedInvoice.invoiceDate || "-"}</p>
                   </div>
                 </div>
 
                 <div class="space-y-2 rounded-lg border p-4 text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-muted-foreground">Subtotal</span>
+                    <span class="text-muted-foreground">{msg.ui_subtotal()}</span>
                     <div>{formatPrice(extractedInvoice.subtotalCents ?? 0, shop.currency)}</div>
                   </div>
                   {#if (extractedInvoice.vatCents ?? 0) > 0}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">VAT</span>
+                      <span class="text-muted-foreground">{msg.ui_vat()}</span>
                       <div>{formatPrice(extractedInvoice.vatCents ?? 0, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if (extractedInvoice.discountCents ?? 0) > 0}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Discount</span>
+                      <span class="text-muted-foreground">{msg.ui_discount()}</span>
                       <div>{formatPrice(extractedInvoice.discountCents ?? 0, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if (extractedInvoice.freightCents ?? 0) > 0}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Freight</span>
+                      <span class="text-muted-foreground">{msg.ui_freight()}</span>
                       <div>{formatPrice(extractedInvoice.freightCents ?? 0, shop.currency)}</div>
                     </div>
                   {/if}
                   <Separator />
                   <div class="flex items-center justify-between">
-                    <span class="font-semibold">Total</span>
+                    <span class="font-semibold">{msg.ui_total()}</span>
                     <div class="font-semibold">
                       {formatPrice(extractedInvoice.totalCents ?? 0, shop.currency)}
                     </div>
@@ -246,7 +249,7 @@
 
                 {#if extractedInvoice.notes}
                   <div>
-                    <span class="text-muted-foreground text-sm">Notes</span>
+                    <span class="text-muted-foreground text-sm">{msg.ui_notes()}</span>
                     <p class="mt-1 text-sm">{extractedInvoice.notes}</p>
                   </div>
                 {/if}
@@ -259,42 +262,42 @@
               <Card.Header>
                 <Card.Title class="flex items-center gap-2">
                   <UserIcon class="size-4" />
-                  Supplier
+                  {msg.ui_supplier()}
                 </Card.Title>
               </Card.Header>
               <Card.Content>
                 <div class="space-y-3 text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-muted-foreground">Name</span>
+                    <span class="text-muted-foreground">{msg.ui_name()}</span>
                     <span class="font-medium">{supplier.name}</span>
                   </div>
                   {#if supplier.contactName}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Contact</span>
+                      <span class="text-muted-foreground">{msg.ui_contact()}</span>
                       <span>{supplier.contactName}</span>
                     </div>
                   {/if}
                   {#if supplier.phone}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Phone</span>
+                      <span class="text-muted-foreground">{msg.ui_phone()}</span>
                       <span>{supplier.phone}</span>
                     </div>
                   {/if}
                   {#if supplier.phone2}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Phone 2</span>
+                      <span class="text-muted-foreground">{msg.ui_phone_2()}</span>
                       <span>{supplier.phone2}</span>
                     </div>
                   {/if}
                   {#if supplier.email}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Email</span>
+                      <span class="text-muted-foreground">{msg.ui_email()}</span>
                       <span>{supplier.email}</span>
                     </div>
                   {/if}
                   {#if supplier.address}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Address</span>
+                      <span class="text-muted-foreground">{msg.ui_address()}</span>
                       <span class="max-w-[60%] text-right">{supplier.address}</span>
                     </div>
                   {/if}
@@ -316,7 +319,7 @@
                   class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center"
                 >
                   <PackageIcon class="size-10 opacity-50" />
-                  <p class="text-sm">No items</p>
+                  <p class="text-sm">{msg.ui_no_items()}</p>
                 </div>
               {:else}
                 <div class="divide-y">
@@ -344,53 +347,53 @@
           {#if invoiceQuery.data}
             <Card.Root>
               <Card.Header>
-                <Card.Title>Invoice Details</Card.Title>
+                <Card.Title>{msg.ui_invoice_details()}</Card.Title>
               </Card.Header>
               <Card.Content class="space-y-4">
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span class="text-muted-foreground">Invoice Number</span>
+                    <span class="text-muted-foreground">{msg.ui_invoice_number()}</span>
                     <p class="font-medium">{invoiceQuery.data.invoiceNumber}</p>
                   </div>
                   <div>
-                    <span class="text-muted-foreground">Invoice Date</span>
+                    <span class="text-muted-foreground">{msg.ui_invoice_date()}</span>
                     <p class="font-medium">{invoiceQuery.data.invoiceDate}</p>
                   </div>
                 </div>
 
                 <div class="space-y-2 rounded-lg border p-4 text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-muted-foreground">Subtotal</span>
+                    <span class="text-muted-foreground">{msg.ui_subtotal()}</span>
                     <div>{formatPrice(subtotalCents, shop.currency)}</div>
                   </div>
                   {#if invoiceQuery.data.vatCents > 0}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">VAT</span>
+                      <span class="text-muted-foreground">{msg.ui_vat()}</span>
                       <div>{formatPrice(invoiceQuery.data.vatCents, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if invoiceQuery.data.discountCents > 0}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Discount</span>
+                      <span class="text-muted-foreground">{msg.ui_discount()}</span>
                       <div>{formatPrice(invoiceQuery.data.discountCents, shop.currency)}</div>
                     </div>
                   {/if}
                   {#if invoiceQuery.data.freightCents > 0}
                     <div class="flex items-center justify-between">
-                      <span class="text-muted-foreground">Freight</span>
+                      <span class="text-muted-foreground">{msg.ui_freight()}</span>
                       <div>{formatPrice(invoiceQuery.data.freightCents, shop.currency)}</div>
                     </div>
                   {/if}
                   <Separator />
                   <div class="flex items-center justify-between">
-                    <span class="font-semibold">Total</span>
+                    <span class="font-semibold">{msg.ui_total()}</span>
                     <div class="font-semibold">{formatPrice(totalCents, shop.currency)}</div>
                   </div>
                 </div>
 
                 {#if invoiceQuery.data.notes}
                   <div>
-                    <span class="text-muted-foreground text-sm">Notes</span>
+                    <span class="text-muted-foreground text-sm">{msg.ui_notes()}</span>
                     <p class="mt-1 text-sm">{invoiceQuery.data.notes}</p>
                   </div>
                 {/if}

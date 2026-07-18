@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   type Props = {
     status: string;
   };
@@ -7,27 +8,27 @@
 
   const statusConfig: Record<string, { class: string; label: string }> = {
     UPLOADED: {
-      label: "Uploaded",
+      label: msg.ui_uploaded(),
       class: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
     },
     PROCESSING: {
-      label: "Processing",
+      label: msg.ui_processing_e63451d(),
       class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
     },
     PROCESSED: {
-      label: "Ready to Review",
+      label: msg.ui_ready_to_review(),
       class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
     },
     FAILED: {
-      label: "Failed",
+      label: msg.ui_failed(),
       class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
     },
     REVIEWED: {
-      label: "Reviewed",
+      label: msg.ui_reviewed(),
       class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
     },
     REJECTED: {
-      label: "Rejected",
+      label: msg.ui_rejected(),
       class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
     },
   };

@@ -32,7 +32,7 @@ export const getOrderHandler = os
     });
 
     if (!order) {
-      throw new ORPCError("NOT_FOUND", { message: "Order not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_order_not_found" } });
     }
 
     return {

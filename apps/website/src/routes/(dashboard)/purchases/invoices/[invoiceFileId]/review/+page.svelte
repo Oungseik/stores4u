@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import CheckIcon from "@lucide/svelte/icons/check";
   import InfoIcon from "@lucide/svelte/icons/info";
@@ -154,12 +156,12 @@
       { fileId: params.invoiceFileId },
       {
         onSuccess: () => {
-          toast.success("Processing started");
+          toast.success(msg.ui_processing_started());
           queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
           isProcessing = false;
         },
         onError: (error) => {
-          toast.error(error.message || "Failed to process invoice");
+          toast.error(localizeError(error, "ui_failed_to_process_invoice"));
           isProcessing = false;
         },
       },
@@ -237,19 +239,19 @@
 
   async function validateAndSave() {
     if (!selectedSupplier) {
-      toast.error("Please select a supplier before saving.");
+      toast.error(msg.ui_please_select_a_supplier_before_saving());
       return;
     }
     if (invoiceData.items.length === 0) {
-      toast.error("Please add at least one invoice item.");
+      toast.error(msg.ui_please_add_at_least_one_invoice_item());
       return;
     }
     if (invoiceData.items.some((i) => !i.productId)) {
-      toast.error("Please select a product for all items.");
+      toast.error(msg.ui_please_select_a_product_for_all_items());
       return;
     }
     if (invoiceData.items.some((i) => !i.invoiceItemName.trim())) {
-      toast.error("Please fill in all item names before saving.");
+      toast.error(msg.ui_please_fill_in_all_item_names_before_saving());
       return;
     }
 
@@ -290,10 +292,10 @@
           })),
       });
 
-      toast.success("Invoice validated and saved successfully!");
+      toast.success(msg.ui_invoice_validated_and_saved_successfully());
       goto(`/purchases/invoices`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to save invoice");
+      toast.error(localizeError(e, "error_save_invoice"));
     } finally {
       isSubmitting = false;
     }
@@ -318,22 +320,21 @@
 
   function handleReject() {
     confirmDelete({
-      title: "Reject Invoice",
-      description:
-        "Are you sure you want to reject this invoice? The OCR data will be kept for future re-processing.",
-      confirm: { text: "Reject" },
+      title: msg.ui_reject_invoice(),
+      description: msg.ui_are_you_sure_you_want_to_reject_this_invoice_the_ocr_da(),
+      confirm: { text: msg.ui_reject() },
       onConfirm: async () => {
         isRejecting = true;
         rejectMutation.mutate(
           { invoiceFileId: params.invoiceFileId },
           {
             onSuccess: () => {
-              toast.success("Invoice rejected");
+              toast.success(msg.ui_invoice_rejected());
               goto(`/purchases/invoices`);
             },
             onError: (e) => {
               console.error(e);
-              toast.error("Failed to reject invoice");
+              toast.error(msg.ui_failed_to_reject_invoice());
             },
             onSettled: () => (isRejecting = false),
           },
@@ -346,9 +347,9 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Invoices files", href: `/purchases/invoices` },
-      { label: "Review Invoice" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_invoices_files(), href: `/purchases/invoices` },
+      { label: msg.ui_review_invoice() },
     ]}
   >
     {#snippet actions()}
@@ -357,12 +358,12 @@
           {#if isCurrentlyProcessing}
             <Button variant="outline" disabled>
               <Loader2Icon class="size-4 animate-spin" />
-              Processing...
+              {msg.ui_processing()}
             </Button>
           {:else if needsProcessing}
             <Button variant="outline" onclick={handleProcess}>
               <PlayIcon class="size-4" />
-              Process
+              {msg.ui_process()}
             </Button>
           {/if}
           <Button
@@ -372,19 +373,19 @@
           >
             {#if isRejecting}
               <Loader2Icon class="size-4 animate-spin" />
-              Rejecting...
+              {msg.ui_rejecting()}
             {:else}
               <Trash2Icon class="size-4" />
-              Reject
+              {msg.ui_reject()}
             {/if}
           </Button>
           <Button onclick={validateAndSave} disabled={isSubmitting || isCurrentlyProcessing}>
             {#if isSubmitting}
               <Loader2Icon class="size-4 animate-spin" />
-              Saving...
+              {msg.ui_saving()}
             {:else}
               <CheckIcon class="size-4" />
-              Validate & Save
+              {msg.ui_validate_and_save()}
             {/if}
           </Button>
         </div>
@@ -398,12 +399,12 @@
             {#if isCurrentlyProcessing}
               <DropdownMenu.Item disabled>
                 <Loader2Icon class="size-4 animate-spin" />
-                Processing...
+                {msg.ui_processing()}
               </DropdownMenu.Item>
             {:else if needsProcessing}
               <DropdownMenu.Item onclick={handleProcess}>
                 <PlayIcon class="size-4" />
-                Process
+                {msg.ui_process()}
               </DropdownMenu.Item>
             {/if}
             <DropdownMenu.Item
@@ -412,10 +413,10 @@
             >
               {#if isSubmitting}
                 <Loader2Icon class="size-4 animate-spin" />
-                Saving...
+                {msg.ui_saving()}
               {:else}
                 <CheckIcon class="size-4" />
-                Validate & Save
+                {msg.ui_validate_and_save()}
               {/if}
             </DropdownMenu.Item>
             <DropdownMenu.Item
@@ -425,10 +426,10 @@
             >
               {#if isRejecting}
                 <Loader2Icon class="size-4 animate-spin" />
-                Rejecting...
+                {msg.ui_rejecting()}
               {:else}
                 <Trash2Icon class="size-4" />
-                Reject
+                {msg.ui_reject()}
               {/if}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
@@ -440,16 +441,16 @@
   {#if isLoading || !invoiceFileQuery.data}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <Loader2Icon class="text-muted-foreground size-8 animate-spin" />
-      <p class="text-muted-foreground">Loading invoice data...</p>
+      <p class="text-muted-foreground">{msg.ui_loading_invoice_data()}</p>
     </div>
   {:else if error}
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <XIcon class="text-destructive size-12" />
       <div class="text-center">
-        <p class="text-lg font-semibold">Error Loading Invoice</p>
-        <p class="text-muted-foreground">{error?.message ?? "Invoice file not found"}</p>
+        <p class="text-lg font-semibold">{msg.ui_error_loading_invoice()}</p>
+        <p class="text-muted-foreground">{localizeError(error, "error_invoice_file_not_found")}</p>
       </div>
-      <Button variant="outline" onclick={() => history.back()}>Go Back</Button>
+      <Button variant="outline" onclick={() => history.back()}>{msg.ui_go_back()}</Button>
     </div>
   {:else}
     <div class="grid gap-6 xl:grid-cols-2">
@@ -463,21 +464,22 @@
           <div class="bg-primary/5 flex items-center gap-3 rounded-lg border p-4">
             <Loader2Icon class="text-primary size-5 animate-spin" />
             <div>
-              <p class="font-medium">AI is processing your invoice...</p>
-              <p class="text-muted-foreground text-sm">Extracted data will appear shortly.</p>
+              <p class="font-medium">{msg.ui_ai_is_processing_your_invoice()}</p>
+              <p class="text-muted-foreground text-sm">
+                {msg.ui_extracted_data_will_appear_shortly()}
+              </p>
             </div>
           </div>
         {:else if isRejected}
           <Alert.Root variant="destructive">
             <AlertTriangleIcon class="size-4" />
-            <Alert.Title>AI Rejected This File</Alert.Title>
+            <Alert.Title>{msg.ui_ai_rejected_this_file()}</Alert.Title>
             <Alert.Description>
               {#if rejectionReason}
                 <p class="mb-2">{rejectionReason}</p>
               {/if}
               <p class="text-sm">
-                You can retry processing, delete the file, or fill in the invoice details manually
-                below.
+                {msg.ui_you_can_retry_processing_delete_the_file_or_fill_in_the()}
               </p>
             </Alert.Description>
           </Alert.Root>
@@ -485,9 +487,9 @@
           <div class="bg-info/10 border-info/20 flex items-start gap-3 rounded-lg border p-4">
             <InfoIcon class="text-info mt-0.5 size-5 shrink-0" />
             <div>
-              <p class="font-medium">Process with AI or fill manually</p>
+              <p class="font-medium">{msg.ui_process_with_ai_or_fill_manually()}</p>
               <p class="text-muted-foreground text-sm">
-                Click "Process" to auto-fill items using AI, or fill in the details manually below.
+                {msg.ui_click_process_to_auto_fill_items_using_ai_or_fill_in_th()}
               </p>
             </div>
           </div>

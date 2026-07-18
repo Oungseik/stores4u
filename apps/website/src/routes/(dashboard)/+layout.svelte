@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import * as Sidebar from "@repo/ui/sidebar";
   import { Spinner } from "@repo/ui/spinner";
 
@@ -23,7 +24,7 @@
       <!--   <div class="flex w-full items-center gap-1 lg:gap-2"> -->
       <!--     <Sidebar.Trigger class="-ms-1" /> -->
       <!--     <Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" /> -->
-      <!--     <h1 class="text-base font-medium">Checkout</h1> -->
+      <!--     <h1 class="text-base font-medium">{msg.ui_checkout()}</h1> -->
       <!--   </div> -->
       <!-- </header> -->
       <div class="flex flex-1 flex-col overflow-hidden">
@@ -36,7 +37,7 @@
   <div class="flex h-screen items-center justify-center">
     <div class="text-center">
       <Spinner class="text-primary mx-auto mb-4 size-8" />
-      <p class="text-muted-foreground text-sm">Loading...</p>
+      <p class="text-muted-foreground text-sm">{msg.ui_loading_b04ba49()}</p>
     </div>
   </div>
 {/if}

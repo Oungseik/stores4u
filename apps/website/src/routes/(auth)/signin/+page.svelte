@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
@@ -31,7 +33,7 @@
         {
           onError: ({ error }) => {
             isSubmitting = false;
-            return void toast.error(error.message);
+            return void toast.error(localizeError(error, "error_invalid_credentials"));
           },
         },
       );
@@ -42,19 +44,21 @@
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
     <a href="/" class="flex items-center gap-2 self-center font-medium">
-      <img src="/logo.svg" class="size-5" alt="logo" />
+      <img src="/logo.svg" class="size-5" alt={msg.ui_logo_5807dd6()} />
       <span>{PUBLIC_SITE_NAME}</span>
     </a>
 
     <Card.Root>
       <Card.Header class="text-center">
-        <Card.Title class="text-xl">Welcome back</Card.Title>
-        <Card.Description>Enter your email below and sign in to your account.</Card.Description>
+        <Card.Title class="text-xl">{msg.ui_welcome_back()}</Card.Title>
+        <Card.Description
+          >{msg.ui_enter_your_email_below_and_sign_in_to_your_account()}</Card.Description
+        >
       </Card.Header>
       <Card.Content>
         {#if page.url.searchParams.get("setup") === "1"}
           <p class="text-muted-foreground mb-6 text-sm">
-            Owner account created. Sign in to continue.
+            {msg.ui_owner_account_created_sign_in_to_continue()}
           </p>
         {/if}
         <form
@@ -68,7 +72,7 @@
           <form.Field name="email">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Email</Label>
+                <Label for={field.name}>{msg.ui_email()}</Label>
                 <Input
                   id="email"
                   name="email"
@@ -87,7 +91,7 @@
             <form.Field name="password">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>Password</Label>
+                  <Label for={field.name}>{msg.ui_password()}</Label>
                   <Input
                     type="password"
                     id={field.name}
@@ -105,7 +109,7 @@
               {#if isSubmitting}
                 <Loader2Icon class="animate-spin" />
               {:else}
-                Sign in
+                {msg.ui_sign_in()}
               {/if}
             </Button>
           </div>

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import KeyboardIcon from "@lucide/svelte/icons/keyboard";
   import QrCodeIcon from "@lucide/svelte/icons/qr-code";
   import ScanBarcodeIcon from "@lucide/svelte/icons/scan-barcode";
@@ -49,12 +51,12 @@
   const createProduct = createMutation(() =>
     orpc.products.create.mutationOptions({
       onSuccess: () => {
-        toast.success("Product created successfully");
+        toast.success(msg.ui_product_created_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create product");
+        toast.error(localizeError(error, "ui_failed_to_create_product"));
       },
     }),
   );
@@ -62,12 +64,12 @@
   const updateProduct = createMutation(() =>
     orpc.products.update.mutationOptions({
       onSuccess: () => {
-        toast.success("Product updated successfully");
+        toast.success(msg.ui_product_updated_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update product");
+        toast.error(localizeError(error, "ui_failed_to_update_product"));
       },
     }),
   );
@@ -175,7 +177,7 @@
     form.setFieldValue("barcode", barcode);
     scannerRef?.stop();
     barcodeMode = "manual";
-    toast.success("Barcode scanned successfully");
+    toast.success(msg.ui_barcode_scanned_successfully());
   }
 
   $effect(() => {
@@ -195,13 +197,13 @@
     name="name"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "Name is required").max(255).safeParse(value).error?.issues.at(0)
+        z.string().min(1, msg.ui_name_is_required()).max(255).safeParse(value).error?.issues.at(0)
           ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Name *</Label>
+        <Label for={field.name}>{msg.ui_name_d145bb8()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -209,7 +211,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Product name"
+          placeholder={msg.ui_product_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -222,12 +224,13 @@
     name="sku"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "SKU is required").max(100).safeParse(value).error?.issues.at(0)?.message,
+        z.string().min(1, msg.ui_sku_is_required()).max(100).safeParse(value).error?.issues.at(0)
+          ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>SKU *</Label>
+        <Label for={field.name}>{msg.ui_sku_aef8aad()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -249,14 +252,14 @@
       name="price"
       validators={{
         onChange: ({ value }) => {
-          if (!value || value <= 0) return "Price must be greater than 0";
+          if (!value || value <= 0) return msg.ui_price_must_be_greater_than_0();
           return undefined;
         },
       }}
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Retail Price ($) *</Label>
+          <Label for={field.name}>{msg.ui_retail_price()}</Label>
           <NumberInput
             value={field.state.value}
             onValueChange={(v) => field.handleChange(v)}
@@ -276,13 +279,13 @@
       name="uom"
       validators={{
         onChange: ({ value }) =>
-          z.string().min(1, "UOM is required").max(50).safeParse(value).error?.issues.at(0)
+          z.string().min(1, msg.ui_uom_is_required()).max(50).safeParse(value).error?.issues.at(0)
             ?.message,
       }}
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>UOM *</Label>
+          <Label for={field.name}>{msg.ui_uom()}</Label>
           <Input
             id={field.name}
             name={field.name}
@@ -312,7 +315,7 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Low Stock Threshold</Label>
+        <Label for={field.name}>{msg.ui_low_stock_threshold()}</Label>
         <NumberInput
           value={field.state.value}
           onValueChange={(v) => field.handleChange(v)}
@@ -321,7 +324,9 @@
           min={0}
           placeholder="10"
         />
-        <p class="text-muted-foreground text-xs">Alert when stock falls below this number</p>
+        <p class="text-muted-foreground text-xs">
+          {msg.ui_alert_when_stock_falls_below_this_number()}
+        </p>
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
         {/if}
@@ -332,14 +337,14 @@
   <form.Field name="description">
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Description</Label>
+        <Label for={field.name}>{msg.ui_description()}</Label>
         <Textarea
           id={field.name}
           name={field.name}
           value={field.state.value}
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Product description (optional)"
+          placeholder={msg.ui_product_description_optional()}
           rows={3}
         />
       </div>
@@ -349,23 +354,23 @@
   <form.Field name="categoryNames">
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label>Categories</Label>
+        <Label>{msg.ui_categories()}</Label>
         <TagsInput
           value={field.state.value}
           onValueChange={(value) => field.handleChange(value)}
           suggestions={categorySuggestions}
           restrictToSuggestions={true}
-          placeholder="Select categories..."
+          placeholder={msg.ui_select_categories()}
         />
         <p class="text-muted-foreground text-xs">
-          Type to search and select categories. Create categories first in the Categories page.
+          {msg.ui_type_to_search_and_select_categories_create_categories_()}
         </p>
       </div>
     {/snippet}
   </form.Field>
 
   <!-- <div class="space-y-2">
-    <Label>Product Images</Label>
+    <Label>{msg.ui_product_images()}</Label>
 
     <FileDropZone.Root
       accept="image/jpeg,image/png,image/webp,image/svg+xml"
@@ -373,12 +378,12 @@
       disabled={isUploadingImage}
       fileCount={imageEntries.length}
       onUpload={handleImageUpload}
-      onFileRejected={({ reason, file }) => toast.error(`${file.name}: ${reason}`)}
+      onFileRejected={({ reason, file }) => toast.error(msg.file_error({ file: file.name, error: reason }))}
     >
       <FileDropZone.Trigger />
     </FileDropZone.Root>
     <p class="text-muted-foreground text-xs">
-      First image is the primary image. Select multiple images to upload at once.
+      {msg.ui_first_image_is_the_primary_image_select_multiple_images()}
     </p>
 
     {#if imageEntries.length > 0}
@@ -400,7 +405,7 @@
             {/if}
             <img
               src={entry.url}
-              alt="Product image {i + 1}"
+              alt={msg.ui_product_image_i_1({ index: i + 1 })}
               class="size-16 shrink-0 rounded-md object-cover"
             />
             <div class="min-w-0 flex-1">
@@ -453,7 +458,7 @@
   <div class="space-y-3 rounded-lg border p-4">
     <div class="flex items-center gap-2">
       <QrCodeIcon class="text-muted-foreground size-4" />
-      <Label class="font-medium">Barcode</Label>
+      <Label class="font-medium">{msg.ui_barcode()}</Label>
     </div>
 
     <div class="flex flex-wrap gap-2">
@@ -464,7 +469,7 @@
         onclick={() => handleBarcodeModeChange("skip")}
       >
         <XIcon class="mr-1 size-3" />
-        Skip
+        {msg.ui_skip()}
       </Button>
       <Button
         type="button"
@@ -473,7 +478,7 @@
         onclick={() => handleBarcodeModeChange("manual")}
       >
         <KeyboardIcon class="mr-1 size-3" />
-        Manual
+        {msg.ui_manual()}
       </Button>
       <Button
         type="button"
@@ -482,7 +487,7 @@
         onclick={() => handleBarcodeModeChange("scan")}
       >
         <ScanBarcodeIcon class="mr-1 size-3" />
-        Scan
+        {msg.ui_scan()}
       </Button>
     </div>
 
@@ -497,7 +502,7 @@
               type="text"
               onblur={field.handleBlur}
               onchange={(e) => field.handleChange(e.currentTarget.value)}
-              placeholder="Enter barcode"
+              placeholder={msg.ui_enter_barcode()}
             />
           </div>
         {/snippet}
@@ -519,7 +524,7 @@
           class="w-full"
           onclick={() => handleBarcodeModeChange("manual")}
         >
-          Cancel Scan
+          {msg.ui_cancel_scan()}
         </Button>
       </div>
     {/if}

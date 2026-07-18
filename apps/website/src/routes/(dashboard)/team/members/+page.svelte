@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import UsersIcon from "@lucide/svelte/icons/users";
   import * as Avatar from "@repo/ui/avatar";
@@ -21,11 +22,13 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Team" }]} />
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_team() }]}
+  />
 
   <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">Members</h1>
-    <p class="text-muted-foreground text-sm">Team members with dashboard access</p>
+    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_members()}</h1>
+    <p class="text-muted-foreground text-sm">{msg.ui_team_members_with_dashboard_access()}</p>
   </div>
 
   {#if members.isLoading}
@@ -34,16 +37,16 @@
     </div>
   {:else if members.isError}
     <div class="flex items-center justify-center py-12">
-      <p class="text-red-500">Failed to load members</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_members()}</p>
     </div>
   {:else if items.length === 0}
     <div class="flex flex-col items-center justify-center py-12 text-center">
       <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
         <UsersIcon class="text-muted-foreground size-8" />
       </div>
-      <h3 class="text-lg font-semibold">No team members</h3>
+      <h3 class="text-lg font-semibold">{msg.ui_no_team_members()}</h3>
       <p class="text-muted-foreground max-w-sm text-sm">
-        Invite your first team member from the Management page.
+        {msg.ui_invite_your_first_team_member_from_the_management_page()}
       </p>
     </div>
   {:else}
@@ -51,11 +54,11 @@
       <Table.Root>
         <Table.Header>
           <Table.Row>
-            <Table.Head>Name</Table.Head>
-            <Table.Head>Email</Table.Head>
-            <Table.Head>Role</Table.Head>
-            <Table.Head>Status</Table.Head>
-            <Table.Head>Joined</Table.Head>
+            <Table.Head>{msg.ui_name()}</Table.Head>
+            <Table.Head>{msg.ui_email()}</Table.Head>
+            <Table.Head>{msg.ui_role()}</Table.Head>
+            <Table.Head>{msg.ui_status()}</Table.Head>
+            <Table.Head>{msg.ui_joined()}</Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -81,14 +84,14 @@
               <Table.Cell>
                 <div class="flex flex-wrap items-center gap-2">
                   {#if member.banned}
-                    <Badge variant="destructive">Banned</Badge>
+                    <Badge variant="destructive">{msg.ui_banned()}</Badge>
                   {:else}
-                    <span class="text-muted-foreground">Active</span>
+                    <span class="text-muted-foreground">{msg.ui_active()}</span>
                   {/if}
                   {#if member.emailVerified}
-                    <Badge variant="outline" class="text-emerald-600">Verified</Badge>
+                    <Badge variant="outline" class="text-emerald-600">{msg.ui_verified()}</Badge>
                   {:else}
-                    <Badge variant="outline" class="text-amber-600">Unverified</Badge>
+                    <Badge variant="outline" class="text-amber-600">{msg.ui_unverified()}</Badge>
                   {/if}
                 </div>
               </Table.Cell>

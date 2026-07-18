@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   type Props = {
     stock: number;
     lowStockThreshold: number | null;
@@ -25,13 +26,13 @@
     <span
       class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400"
     >
-      Out of Stock
+      {msg.ui_out_of_stock()}
     </span>
   {:else if isLowStock}
     <span
       class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
     >
-      Low Stock
+      {msg.ui_low_stock()}
     </span>
   {/if}
 </div>

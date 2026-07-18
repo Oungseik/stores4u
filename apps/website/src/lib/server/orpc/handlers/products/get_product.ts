@@ -43,7 +43,7 @@ export const getProductHandler = os
     });
 
     if (!product) {
-      throw new ORPCError("NOT_FOUND", { message: "Product not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_product_not_found" } });
     }
 
     return {

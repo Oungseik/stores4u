@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import { type DateValue, parseDate } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import { type CurrencyCode } from "@repo/config";
@@ -55,7 +56,7 @@
           day: "numeric",
           year: "numeric",
         }).format(dateValue.toDate("UTC"))
-      : "Pick a date",
+      : msg.ui_pick_a_date(),
   );
 
   function handleDateChange(value: DateValue | undefined) {
@@ -65,17 +66,17 @@
 
 <Card.Root>
   <Card.Header>
-    <Card.Title>Invoice Details</Card.Title>
+    <Card.Title>{msg.ui_invoice_details()}</Card.Title>
   </Card.Header>
   <Card.Content class="space-y-4">
     <div class="grid grid-cols-2 gap-4 text-sm">
       <div class="grid gap-2">
-        <Label>Invoice Number</Label>
-        <Input bind:value={invoiceNumber} placeholder="Invoice number" />
+        <Label>{msg.ui_invoice_number()}</Label>
+        <Input bind:value={invoiceNumber} placeholder={msg.ui_invoice_number_254500c()} />
       </div>
 
       <div class="grid gap-2">
-        <Label>Invoice Date</Label>
+        <Label>{msg.ui_invoice_date()}</Label>
         <Popover.Root>
           <Popover.Trigger>
             <Button
@@ -103,36 +104,36 @@
 
     <div class="space-y-2 rounded-lg border p-4 text-sm">
       <div class="flex items-center justify-between">
-        <span class="text-muted-foreground">Subtotal</span>
+        <span class="text-muted-foreground">{msg.ui_subtotal()}</span>
         <div class="px-3">{formatPrice(subtotalCents, currency, false)}</div>
       </div>
 
       <div class="flex items-center justify-between">
-        <span class="text-muted-foreground">VAT</span>
+        <span class="text-muted-foreground">{msg.ui_vat()}</span>
         <NumberInput bind:value={vat} class="w-32 text-right" fraction={2} min={0} />
       </div>
 
       <div class="flex items-center justify-between">
-        <span class="text-muted-foreground">Discount</span>
+        <span class="text-muted-foreground">{msg.ui_discount()}</span>
         <NumberInput bind:value={discount} class="w-32 text-right" fraction={2} min={0} />
       </div>
 
       <div class="flex items-center justify-between">
-        <span class="text-muted-foreground">Freight</span>
+        <span class="text-muted-foreground">{msg.ui_freight()}</span>
         <NumberInput bind:value={freight} class="w-32 text-right" fraction={2} min={0} />
       </div>
 
       <Separator />
 
       <div class="flex items-center justify-between">
-        <span class="font-semibold">Total</span>
+        <span class="font-semibold">{msg.ui_total()}</span>
         <div class="px-3">{formatPrice(totalCents, currency, false)}</div>
       </div>
     </div>
 
     <div class="grid gap-2">
-      <Label for="notes">Notes</Label>
-      <Textarea id="notes" bind:value={notes} placeholder="Add any additional notes..." />
+      <Label for="notes">{msg.ui_notes()}</Label>
+      <Textarea id="notes" bind:value={notes} placeholder={msg.ui_add_any_additional_notes()} />
     </div>
   </Card.Content>
 </Card.Root>

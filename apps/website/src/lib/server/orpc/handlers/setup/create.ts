@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { getRequestEvent } from "$app/server";
-import { CURRENCIES, TIMEZONES } from "@repo/config";
+import { CURRENCIES, isValidTimezone } from "@repo/config";
 import { z } from "zod";
 import { auth, isDashboardRole } from "$lib/server/auth";
 import { db, shop } from "$lib/server/db";
@@ -10,7 +10,7 @@ import { os } from "$lib/server/orpc/base";
 const input = z.object({
   storeName: z.string().min(1).max(100),
   currency: z.enum(CURRENCIES).default("USD"),
-  timezone: z.enum(TIMEZONES as unknown as [string, ...string[]]),
+  timezone: z.string().refine(isValidTimezone),
   // Owner credentials are only required on the true first-run path (no users
   // yet). On the OAuth-first path the owner is already signed in.
   name: z.string().min(1).optional(),
@@ -30,7 +30,7 @@ const input = z.object({
 export const setupCreateHandler = os.input(input).handler(async ({ input, context }) => {
   const existingShop = await db.query.shop.findFirst({ columns: { id: true } });
   if (existingShop) {
-    throw new ORPCError("BAD_REQUEST", { message: "Store is already set up." });
+    throw new ORPCError("BAD_REQUEST", { data: { key: "error_store_is_already_set_up" } });
   }
 
   const firstUser = await db.query.user.findFirst({ columns: { id: true } });
@@ -41,7 +41,7 @@ export const setupCreateHandler = os.input(input).handler(async ({ input, contex
   if (needsAccount) {
     if (!input.name || !input.email || !input.password) {
       throw new ORPCError("INPUT_VALIDATION_FAILED", {
-        message: "Name, email, and password are required to create the owner.",
+        data: { key: "error_name_email_and_password_are_required_to_create_the_owne" },
       });
     }
     try {
@@ -52,17 +52,17 @@ export const setupCreateHandler = os.input(input).handler(async ({ input, contex
       userId = signUp?.user?.id ?? "";
     } catch {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Could not create the account. That email may already be in use.",
+        data: { key: "error_could_not_create_the_account_that_email_may_already_be_" },
       });
     }
   } else if (!context.session || !isDashboardRole(context.session.user.role)) {
     throw new ORPCError("UNAUTHORIZED", {
-      message: "Sign in as the store owner to finish setup.",
+      data: { key: "error_sign_in_as_the_store_owner_to_finish_setup" },
     });
   }
 
   if (!userId) {
-    throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Could not create the account." });
+    throw new ORPCError("INTERNAL_SERVER_ERROR", { data: { key: "error_could_not_create_the_account" } });
   }
 
   try {
@@ -75,7 +75,7 @@ export const setupCreateHandler = os.input(input).handler(async ({ input, contex
   } catch (err) {
     logger.error({ err, userId }, "shop insert failed after owner creation");
     throw new ORPCError("INTERNAL_SERVER_ERROR", {
-      message: "Account created but store setup failed. Reset the database to retry.",
+      data: { key: "error_account_created_but_store_setup_failed_reset_the_databa" },
     });
   }
 

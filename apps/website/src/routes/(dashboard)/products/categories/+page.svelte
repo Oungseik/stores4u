@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import FolderIcon from "@lucide/svelte/icons/folder";
   import ListPlusIcon from "@lucide/svelte/icons/list-plus";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -74,11 +76,11 @@
   const deleteMutation = createMutation(() =>
     orpc.categories.delete.mutationOptions({
       onSuccess: () => {
-        toast.success("Category deleted successfully");
+        toast.success(msg.ui_category_deleted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete category");
+        toast.error(localizeError(error, "ui_failed_to_delete_category"));
       },
     }),
   );
@@ -89,8 +91,8 @@
 
   function handleDeleteCategory(category: CategoryItem) {
     confirmDelete({
-      title: "Delete Category",
-      description: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+      title: msg.ui_delete_category(),
+      description: msg.confirm_delete_named({ name: category.name }),
       onConfirm: async () => {
         performDelete(category);
       },
@@ -101,29 +103,29 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Products", href: `/products` },
-      { label: "Categories" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_products(), href: `/products` },
+      { label: msg.ui_categories() },
     ]}
   >
     {#snippet actions()}
       <Button onclick={() => (isAddOpen = true)}>
         <PlusIcon class="size-4" />
-        Add Category
+        {msg.ui_add_category()}
       </Button>
     {/snippet}
   </AdminDashboardHeader>
 
   <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">Categories</h1>
-    <p class="text-muted-foreground text-sm">Organize your products into categories</p>
+    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_categories()}</h1>
+    <p class="text-muted-foreground text-sm">{msg.ui_organize_your_products_into_categories()}</p>
   </div>
 
-  <section class="space-y-6 @container/main">
+  <section class="@container/main space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
         <FilterBar.Search
-          placeholder="Search categories..."
+          placeholder={msg.ui_search_categories()}
           value={searchParams.search}
           oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
         />
@@ -137,16 +139,16 @@
       </div>
     {:else if categories.isError}
       <div class="flex items-center justify-center py-12">
-        <p class="text-red-500">Failed to load categories</p>
+        <p class="text-red-500">{msg.ui_failed_to_load_categories()}</p>
       </div>
     {:else if allCategories.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
           <FolderIcon class="text-muted-foreground size-8" />
         </div>
-        <h3 class="text-lg font-semibold">No categories found</h3>
+        <h3 class="text-lg font-semibold">{msg.ui_no_categories_found()}</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters ? "Try clearing filters" : "Add your first category to organize your products"}
+          {hasFilters ? msg.ui_try_clearing_filters() : msg.ui_add_first_category()}
         </p>
       </div>
     {:else}
@@ -157,7 +159,7 @@
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-3">
                   <div
-                    class="bg-primary/10 shrink-0 flex size-10 items-center justify-center rounded-full"
+                    class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-full"
                   >
                     <FolderIcon class="text-primary size-5" />
                   </div>
@@ -180,11 +182,11 @@
                   <DropdownMenu.Content align="end" class="min-w-max">
                     <DropdownMenu.Item onclick={() => handleManageProducts(category)}>
                       <ListPlusIcon class="size-4" />
-                      Manage Products
+                      {msg.ui_manage_products()}
                     </DropdownMenu.Item>
                     <DropdownMenu.Item onclick={() => handleEditCategory(category)}>
                       <PencilIcon class="size-4" />
-                      Edit
+                      {msg.ui_edit()}
                     </DropdownMenu.Item>
                     <DropdownMenu.Separator />
                     <DropdownMenu.Item
@@ -192,7 +194,7 @@
                       onclick={() => handleDeleteCategory(category)}
                     >
                       <Trash2Icon class="size-4" />
-                      Delete
+                      {msg.ui_delete()}
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
@@ -201,7 +203,7 @@
             <Card.Content>
               <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
                 <div>
-                  <p class="text-muted-foreground text-xs">Products</p>
+                  <p class="text-muted-foreground text-xs">{msg.ui_products()}</p>
                   <p class="font-semibold">
                     {category.productCount}
                     {category.productCount === 1 ? "product" : "products"}
@@ -222,9 +224,9 @@
           >
             {#if categories.isFetchingNextPage}
               <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
+              {msg.ui_loading_b04ba49()}
             {:else}
-              Load More
+              {msg.ui_load_more()}
             {/if}
           </Button>
         </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
@@ -30,12 +31,12 @@
         if (!res.ok) throw new Error("verification failed");
         if (cancelled) return;
         status = "ok";
-        toast.success("Email verified.");
+        toast.success(msg.ui_email_verified());
         redirect = setTimeout(() => goto("/signin"), 1200);
       } catch {
         if (cancelled) return;
         status = "error";
-        toast.error("Could not verify email. The link may be invalid or expired.");
+        toast.error(msg.ui_could_not_verify_email_the_link_may_be_invalid_or_expir());
       }
     })();
     return () => {
@@ -51,14 +52,16 @@
       <Card.Header class="text-center">
         {#if status === "loading"}
           <Card.Title><Loader2Icon class="animate-spin" /></Card.Title>
-          <Card.Description>Verifying your email…</Card.Description>
+          <Card.Description>{msg.ui_verifying_your_email()}</Card.Description>
         {:else if status === "ok"}
-          <Card.Title>Verified</Card.Title>
-          <Card.Description>Redirecting you to sign in…</Card.Description>
+          <Card.Title>{msg.ui_verified()}</Card.Title>
+          <Card.Description>{msg.ui_redirecting_you_to_sign_in()}</Card.Description>
         {:else}
-          <Card.Title>Verification failed</Card.Title>
-          <Card.Description>Ask for a new link, or sign in if already verified.</Card.Description>
-          <a href="/signin" class="text-primary text-sm">Go to sign in</a>
+          <Card.Title>{msg.ui_verification_failed()}</Card.Title>
+          <Card.Description
+            >{msg.ui_ask_for_a_new_link_or_sign_in_if_already_verified()}</Card.Description
+          >
+          <a href="/signin" class="text-primary text-sm">{msg.ui_go_to_sign_in()}</a>
         {/if}
       </Card.Header>
     </Card.Root>

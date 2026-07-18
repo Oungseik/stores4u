@@ -1,7 +1,6 @@
 import { ORPCError, onError, ValidationError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { BatchHandlerPlugin, StrictGetMethodPlugin } from "@orpc/server/plugins";
-import z from "zod";
 import { router } from "$lib/server/orpc/router";
 import type { RequestHandler } from "./$types";
 
@@ -16,11 +15,9 @@ const handler = new RPCHandler(router, {
         error.code === "BAD_REQUEST" &&
         error.cause instanceof ValidationError
       ) {
-        const zodError = new z.ZodError(error.cause.issues as z.core.$ZodIssue[]);
         throw new ORPCError("INPUT_VALIDATION_FAILED", {
           status: 422,
-          message: z.prettifyError(zodError),
-          data: z.flattenError(zodError),
+          data: { key: "error_input_validation" },
           cause: error.cause,
         });
       }
@@ -31,6 +28,7 @@ const handler = new RPCHandler(router, {
         error.cause instanceof ValidationError
       ) {
         throw new ORPCError("OUTPUT_VALIDATION_FAILED", {
+          data: { key: "something_went_wrong" },
           cause: error.cause,
         });
       }

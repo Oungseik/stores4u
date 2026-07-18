@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import CheckIcon from "@lucide/svelte/icons/check";
   import ClockIcon from "@lucide/svelte/icons/clock";
   import StoreIcon from "@lucide/svelte/icons/store";
@@ -48,7 +50,7 @@
         goto(data.needsAccount ? "/signin?setup=1" : "/");
       },
       onError: (error) => {
-        toast.error(error instanceof Error ? error.message : "Setup failed");
+        toast.error(localizeError(error, "ui_setup_failed"));
       },
     }),
   );
@@ -59,7 +61,7 @@
       email: "",
       password: "",
       storeName: "",
-      currency: "USD" as CurrencyCode,
+      currency: "MMK" as CurrencyCode,
       timezone: data.defaultTimezone,
     },
     onSubmit: async ({ value }) => {
@@ -79,7 +81,7 @@
       <div class="bg-primary/10 mb-3 flex size-12 items-center justify-center rounded-full">
         <StoreIcon class="text-primary size-6" />
       </div>
-      <h1 class="text-2xl font-semibold tracking-tight">Set up your store</h1>
+      <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_set_up_your_store()}</h1>
       <p class="text-muted-foreground mt-1 text-sm">
         {PUBLIC_SITE_NAME} runs one store per server. Configure the store below. You can edit these details
         later in settings.
@@ -101,12 +103,12 @@
               name="name"
               validators={{
                 onChange: ({ value }) =>
-                  needsAccount && !value.trim() ? "Your name is required" : undefined,
+                  needsAccount && !value.trim() ? msg.ui_your_name_is_required() : undefined,
               }}
             >
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>Your name *</Label>
+                  <Label for={field.name}>{msg.ui_your_name_c3a94de()}</Label>
                   <Input
                     id={field.name}
                     value={field.state.value}
@@ -125,12 +127,12 @@
               name="email"
               validators={{
                 onChange: ({ value }) =>
-                  needsAccount && !value.trim() ? "Email is required" : undefined,
+                  needsAccount && !value.trim() ? msg.ui_email_is_required() : undefined,
               }}
             >
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>Email *</Label>
+                  <Label for={field.name}>{msg.ui_email_604e4bf()}</Label>
                   <Input
                     id={field.name}
                     type="email"
@@ -151,13 +153,13 @@
               validators={{
                 onChange: ({ value }) =>
                   needsAccount && value.length < 8
-                    ? "Password must be at least 8 characters"
+                    ? msg.ui_password_must_be_at_least_8_characters()
                     : undefined,
               }}
             >
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>Password *</Label>
+                  <Label for={field.name}>{msg.ui_password_7cc2398()}</Label>
                   <Input
                     id={field.name}
                     type="password"
@@ -166,7 +168,9 @@
                     onblur={field.handleBlur}
                     onchange={(e) => field.handleChange(e.currentTarget.value)}
                   />
-                  <p class="text-muted-foreground text-sm">At least 8 characters.</p>
+                  <p class="text-muted-foreground text-sm">
+                    {msg.ui_at_least_8_characters_6089e5f()}
+                  </p>
                   {#if field.state.meta.errors.length}
                     <p class="text-destructive text-sm">{field.state.meta.errors}</p>
                   {/if}
@@ -180,12 +184,12 @@
           <form.Field
             name="storeName"
             validators={{
-              onChange: ({ value }) => (value.trim() ? undefined : "Store name is required"),
+              onChange: ({ value }) => (value.trim() ? undefined : msg.ui_store_name_is_required()),
             }}
           >
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Store Name *</Label>
+                <Label for={field.name}>{msg.ui_store_name()}</Label>
                 <Input
                   id={field.name}
                   value={field.state.value}
@@ -202,7 +206,7 @@
           <form.Field name="currency">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for="store-currency">Currency</Label>
+                <Label for="store-currency">{msg.ui_currency()}</Label>
                 <Select.Root
                   type="single"
                   value={field.state.value}
@@ -225,14 +229,14 @@
           <form.Field name="timezone">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Timezone</Label>
+                <Label for={field.name}>{msg.ui_timezone()}</Label>
                 <p class="text-muted-foreground text-xs">
-                  Used for daily totals, dashboard charts, and displayed dates.
+                  {msg.ui_used_for_daily_totals_dashboard_charts_and_displayed_da()}
                 </p>
                 <Popover.Root bind:open={tzOpen}>
                   <Popover.Trigger
                     id={field.name}
-                    class="bg-transparent hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border px-3 py-2 text-sm"
+                    class="hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm"
                   >
                     <span class="flex min-w-0 items-center gap-2">
                       <ClockIcon class="text-muted-foreground size-4 shrink-0" />
@@ -241,7 +245,7 @@
                   </Popover.Trigger>
                   <Popover.Content class="w-(--bits-popover-anchor-width) p-0" align="start">
                     <Command.Root shouldFilter={false}>
-                      <Command.Input bind:value={tzSearch} placeholder="Search timezone..." />
+                      <Command.Input bind:value={tzSearch} placeholder={msg.ui_search_timezone()} />
                       <Command.List>
                         {#each filteredTimezones as timezone (timezone)}
                           <Command.Item
@@ -270,10 +274,10 @@
 
           <Button disabled={setupMutation.isPending} type="submit" class="w-full">
             {setupMutation.isPending
-              ? "Setting up..."
+              ? msg.ui_setting_up()
               : needsAccount
-                ? "Create owner & store"
-                : "Create store"}
+                ? msg.ui_create_owner_store()
+                : msg.ui_create_store()}
           </Button>
         </form>
       </Card.Content>

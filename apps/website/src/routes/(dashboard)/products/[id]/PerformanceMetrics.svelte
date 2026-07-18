@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -37,7 +38,7 @@
 </script>
 
 <section class="space-y-6">
-  <h2 class="text-2xl font-bold">Performance Metrics</h2>
+  <h2 class="text-2xl font-bold">{msg.ui_performance_metrics()}</h2>
   {#if isLoading}
     <div
       class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-3 xl:overflow-x-visible"
@@ -63,9 +64,9 @@
     >
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Units Sold"
+          title={msg.ui_units_sold()}
           value={stats.sales.totalUnitsSold}
-          description="Total units sold"
+          description={msg.ui_total_units_sold()}
           icon={PackageIcon}
           iconBgClass="bg-primary/10"
           iconTextClass="text-primary"
@@ -73,10 +74,10 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Total Revenue"
+          title={msg.ui_total_revenue()}
           price={stats.sales.totalRevenueCents}
           {currency}
-          description="Total revenue generated"
+          description={msg.ui_total_revenue_generated()}
           icon={DollarSignIcon}
           iconBgClass="bg-emerald-500/10"
           iconTextClass="text-emerald-600"
@@ -84,9 +85,9 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Average Margin"
+          title={msg.ui_average_margin()}
           value={`${stats.profit.averageMarginPercent}%`}
-          description="Profit margin"
+          description={msg.ui_profit_margin()}
           icon={TrendingUpIcon}
           iconBgClass="bg-blue-500/10"
           iconTextClass="text-blue-600"
@@ -94,9 +95,9 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Total Movements"
+          title={msg.ui_total_movements()}
           value={stats.movements.total}
-          description="Inventory movements"
+          description={msg.ui_inventory_movements_8e37e5b()}
           icon={ArrowUpDownIcon}
           iconBgClass="bg-amber-500/10"
           iconTextClass="text-amber-600"
@@ -104,10 +105,10 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Estimated Profit"
+          title={msg.ui_estimated_profit()}
           price={stats.profit.estimatedProfitCents}
           {currency}
-          description="Estimated profit"
+          description={msg.ui_estimated_profit_f8a38c2()}
           icon={DollarSignIcon}
           iconBgClass="bg-purple-500/10"
           iconTextClass="text-purple-600"
@@ -115,9 +116,9 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Units Bought"
+          title={msg.ui_units_bought()}
           value={stats.purchases.totalUnitsPurchased}
-          description="Total purchased"
+          description={msg.ui_total_purchased()}
           icon={TruckIcon}
           iconBgClass="bg-cyan-500/10"
           iconTextClass="text-cyan-600"

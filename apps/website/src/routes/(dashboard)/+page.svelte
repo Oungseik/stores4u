@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import BanknoteIcon from "@lucide/svelte/icons/banknote";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
@@ -61,8 +62,8 @@
   const isLoading = $derived(statsQuery.isLoading || revenueTrendQuery.isLoading);
 
   const revenueChartConfig = {
-    revenue: { label: "Revenue", color: "var(--chart-1)" },
-    cost: { label: "Cost", color: "var(--chart-3)" },
+    revenue: { label: msg.ui_revenue(), color: "var(--chart-1)" },
+    cost: { label: msg.ui_cost(), color: "var(--chart-3)" },
   } satisfies Chart.ChartConfig;
 
   function formatNumber(n: number): string {
@@ -72,11 +73,11 @@
 
 <div class="@container/main flex flex-1 flex-col gap-4 p-4 md:p-6">
   <div class="flex flex-col gap-6">
-    <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard" }]} />
+    <AdminDashboardHeader breadcrumbs={[{ label: msg.ui_dashboard() }]} />
 
     <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">Dashboard</h1>
-      <p class="text-muted-foreground text-sm">Overview of your store performance</p>
+      <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_dashboard()}</h1>
+      <p class="text-muted-foreground text-sm">{msg.ui_overview_of_your_store_performance()}</p>
     </div>
 
     <!-- KPI Cards -->
@@ -102,7 +103,7 @@
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0">
-              <Card.Title class="text-sm font-medium">Revenue Today</Card.Title>
+              <Card.Title class="text-sm font-medium">{msg.ui_revenue_today()}</Card.Title>
               <div class="bg-primary/10 rounded-md p-2">
                 <DollarSignIcon class="text-primary size-5" />
               </div>
@@ -121,7 +122,7 @@
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0">
-              <Card.Title class="text-sm font-medium">This Month</Card.Title>
+              <Card.Title class="text-sm font-medium">{msg.ui_this_month()}</Card.Title>
               <div class="bg-primary/10 rounded-md p-2">
                 <BanknoteIcon class="text-primary size-5" />
               </div>
@@ -147,7 +148,7 @@
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0">
-              <Card.Title class="text-sm font-medium">Gross Profit Today</Card.Title>
+              <Card.Title class="text-sm font-medium">{msg.ui_gross_profit_today()}</Card.Title>
               <div class="rounded-md bg-emerald-500/10 p-2">
                 <TrendingUpIcon class="size-5 text-emerald-600" />
               </div>
@@ -166,7 +167,7 @@
         <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
           <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0">
-              <Card.Title class="text-sm font-medium">Inventory Value</Card.Title>
+              <Card.Title class="text-sm font-medium">{msg.ui_inventory_value()}</Card.Title>
               <div class="bg-primary/10 rounded-md p-2">
                 <PackageIcon class="text-primary size-5" />
               </div>
@@ -193,8 +194,8 @@
     <Card.Root>
       <Card.Header class="flex flex-row items-center justify-between">
         <div>
-          <Card.Title>Revenue Trend</Card.Title>
-          <Card.Description>Revenue vs cost of goods sold</Card.Description>
+          <Card.Title>{msg.ui_revenue_trend()}</Card.Title>
+          <Card.Description>{msg.ui_revenue_vs_cost_of_goods_sold()}</Card.Description>
         </div>
         <ToggleGroup
           type="single"
@@ -222,8 +223,8 @@
               xScale={scaleTime()}
               yDomain={chartYDomain}
               series={[
-                { key: "revenueCents", label: "Revenue", color: "var(--chart-1)" },
-                { key: "costCents", label: "Cost", color: "var(--chart-3)" },
+                { key: "revenueCents", label: msg.ui_revenue(), color: "var(--chart-1)" },
+                { key: "costCents", label: msg.ui_cost(), color: "var(--chart-3)" },
               ]}
               seriesLayout="overlap"
               axis="x"
@@ -298,7 +299,7 @@
 
     <!-- Quick Actions -->
     <section class="flex flex-col gap-4">
-      <h2 class="text-lg font-semibold tracking-tight">Quick actions</h2>
+      <h2 class="text-lg font-semibold tracking-tight">{msg.ui_quick_actions()}</h2>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <!-- Start Selling (primary) -->
         <Card.Root
@@ -309,14 +310,14 @@
               <ScanBarcodeIcon class="size-5 text-primary" />
             </div>
             <div>
-              <h3 class="text-base font-semibold">Start Selling</h3>
+              <h3 class="text-base font-semibold">{msg.ui_start_selling()}</h3>
               <p class="text-muted-foreground text-sm leading-relaxed">
-                Process sales with barcode scanner or product search.
+                {msg.ui_process_sales_with_barcode_scanner_or_product_search()}
               </p>
             </div>
           </div>
           <a href="/cart" class={buttonVariants({ class: "w-fit" })}>
-            Open Point of Sale
+            {msg.ui_open_point_of_sale()}
             <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
           </a>
           <div
@@ -331,14 +332,14 @@
               <PackageIcon class="size-5 text-muted-foreground" />
             </div>
             <div>
-              <h3 class="text-base font-semibold">Products</h3>
+              <h3 class="text-base font-semibold">{msg.ui_products()}</h3>
               <p class="text-muted-foreground text-sm leading-relaxed">
-                Manage stock levels, pricing, and categories across your catalog.
+                {msg.ui_manage_stock_levels_pricing_and_categories_across_your_()}
               </p>
             </div>
           </div>
           <a href="/products" class={buttonVariants({ variant: "outline", class: "w-fit" })}>
-            Manage
+            {msg.ui_manage()}
             <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </Card.Root>
@@ -350,14 +351,14 @@
               <ShoppingCartIcon class="size-5 text-muted-foreground" />
             </div>
             <div>
-              <h3 class="text-base font-semibold">Orders</h3>
+              <h3 class="text-base font-semibold">{msg.ui_orders()}</h3>
               <p class="text-muted-foreground text-sm leading-relaxed">
-                Review completed sales, check order details, and reprint invoices.
+                {msg.ui_review_completed_sales_check_order_details_and_reprint_()}
               </p>
             </div>
           </div>
           <a href="/orders" class={buttonVariants({ variant: "outline", class: "w-fit" })}>
-            View
+            {msg.ui_view()}
             <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </Card.Root>

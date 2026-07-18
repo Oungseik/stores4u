@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import EyeIcon from "@lucide/svelte/icons/eye";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -19,8 +20,8 @@
 
   function handleDelete() {
     confirmDelete({
-      title: "Delete Purchase Invoice",
-      description: "Are you sure you want to delete this invoice? This action cannot be undone.",
+      title: msg.ui_delete_purchase_invoice(),
+      description: msg.ui_are_you_sure_you_want_to_delete_this_invoice_this_actio(),
       onConfirm: async () => {
         onDelete?.(id);
       },
@@ -38,16 +39,16 @@
   <DropdownMenu.Content align="end">
     <DropdownMenu.Item onclick={() => onView?.(id)}>
       <EyeIcon class="mr-2 size-4" />
-      View Details
+      {msg.ui_view_details()}
     </DropdownMenu.Item>
     <DropdownMenu.Item onclick={() => goto(`/purchases/invoices/${id}/edit`)}>
       <PencilIcon class="size-4" />
-      Edit
+      {msg.ui_edit()}
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
     <DropdownMenu.Item class="text-red-600" onclick={handleDelete} disabled={!onDelete}>
       <Trash2Icon class="size-4" />
-      Delete
+      {msg.ui_delete()}
     </DropdownMenu.Item>
   </DropdownMenu.Content>
 </DropdownMenu.Root>

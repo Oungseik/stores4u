@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PercentIcon from "@lucide/svelte/icons/percent";
   import SaveIcon from "@lucide/svelte/icons/save";
@@ -33,12 +35,12 @@
   const updateTaxMutation = createMutation(() =>
     orpc.tax.update.mutationOptions({
       onSuccess: async () => {
-        toast.success("VAT settings updated");
+        toast.success(msg.ui_vat_settings_updated());
         await taxSettingsQuery.refetch();
         taxForm.reset();
       },
       onError: (error: { message?: string }) => {
-        toast.error(error.message || "Failed to update VAT settings");
+        toast.error(localizeError(error, "ui_failed_to_update_vat_settings"));
       },
     }),
   );
@@ -63,9 +65,9 @@
   <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <PercentIcon class="size-5" />
-      VAT Settings
+      {msg.ui_vat_settings()}
     </Card.Title>
-    <Card.Description>Configure VAT rate applied to all sales</Card.Description>
+    <Card.Description>{msg.ui_configure_vat_rate_applied_to_all_sales()}</Card.Description>
   </Card.Header>
   <Card.Content>
     {#if taxSettingsQuery.isPending}
@@ -73,7 +75,7 @@
         <Loader2Icon class="size-6 animate-spin" />
       </div>
     {:else if taxSettingsQuery.isError}
-      <p class="text-destructive py-8 text-center">Failed to load VAT settings</p>
+      <p class="text-destructive py-8 text-center">{msg.ui_failed_to_load_vat_settings()}</p>
     {:else}
       <form
         class="space-y-6"
@@ -86,8 +88,8 @@
           {#snippet children(field)}
             <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="space-y-0.5">
-                <Label class="text-base">Enable VAT</Label>
-                <p class="text-muted-foreground text-sm">Apply VAT to transactions</p>
+                <Label class="text-base">{msg.ui_enable_vat()}</Label>
+                <p class="text-muted-foreground text-sm">{msg.ui_apply_vat_to_transactions()}</p>
               </div>
               <Switch
                 checked={field.state.value}
@@ -102,14 +104,14 @@
             <taxForm.Field name="name">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>VAT Name</Label>
+                  <Label for={field.name}>{msg.ui_vat_name()}</Label>
                   <Input
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
                     onblur={field.handleBlur}
                     onchange={(e) => field.handleChange(e.currentTarget.value)}
-                    placeholder="VAT, GST, etc."
+                    placeholder={msg.ui_vat_gst_etc()}
                   />
                 </div>
               {/snippet}
@@ -118,7 +120,7 @@
             <taxForm.Field name="rate">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>VAT Rate (%)</Label>
+                  <Label for={field.name}>{msg.ui_vat_rate()}</Label>
                   <NumberInput
                     value={field.state.value}
                     onValueChange={(v) => field.handleChange(v)}
@@ -138,10 +140,10 @@
           <Button type="submit" class="gap-2" disabled={updateTaxMutation.isPending}>
             {#if updateTaxMutation.isPending}
               <Loader2Icon class="size-4 animate-spin" />
-              Saving...
+              {msg.ui_saving()}
             {:else}
               <SaveIcon class="size-4" />
-              Save Changes
+              {msg.ui_save_changes()}
             {/if}
           </Button>
         </div>

@@ -72,14 +72,20 @@ const setupGate: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-const handleParaglide: Handle = ({ event, resolve }) =>
-  paraglideMiddleware(event.request, ({ request, locale }) => {
+// Cookie-only language preference (one browser): Paraglide strategy ["cookie",
+// "baseLocale"] reads PARAGLIDE_LOCALE straight from the request. No DB lookup,
+// no cookie forcing. We only expose the resolved locale as locals.language so
+// /accounts can seed its dropdown.
+const handleParaglide: Handle = async ({ event, resolve }) => {
+  return paraglideMiddleware(event.request, ({ request, locale }) => {
     event.request = request;
+    event.locals.language = locale;
 
     return resolve(event, {
       transformPageChunk: ({ html }) => html.replace("%paraglide.lang%", locale),
     });
   });
+};
 
 const rateLimitHandle: Handle = async ({ event, resolve }) => {
   if (event.url.pathname.startsWith("/api/queue/")) {
@@ -134,7 +140,7 @@ const loggingHandle: Handle = async ({ event, resolve }) => {
 export const handle: Handle = sequence(
   loggingHandle,
   rateLimitHandle,
-  handleParaglide,
   setupGate,
   authHandle,
+  handleParaglide,
 );

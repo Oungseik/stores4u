@@ -25,7 +25,7 @@ export const acceptInviteHandler = os.input(input).handler(async ({ input }) => 
   const now = new Date();
   const row = await db.query.invite.findFirst({ where: { token: input.token } });
   if (!row || row.consumedAt || row.expiresAt < now) {
-    throw new ORPCError("BAD_REQUEST", { message: "Invite link is invalid or expired." });
+    throw new ORPCError("BAD_REQUEST", { data: { key: "error_invite_link_is_invalid_or_expired" } });
   }
 
   const emailTaken = await db.query.user.findFirst({
@@ -33,7 +33,7 @@ export const acceptInviteHandler = os.input(input).handler(async ({ input }) => 
     columns: { id: true },
   });
   if (emailTaken) {
-    throw new ORPCError("BAD_REQUEST", { message: "That email is already in use." });
+    throw new ORPCError("BAD_REQUEST", { data: { key: "error_that_email_is_already_in_use" } });
   }
 
   const userId = Bun.randomUUIDv7();

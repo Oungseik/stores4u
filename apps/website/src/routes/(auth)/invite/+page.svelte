@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
@@ -26,10 +28,10 @@
           email: value.email,
           password: value.password,
         });
-        toast.success("Account created. Welcome aboard.");
+        toast.success(msg.ui_account_created_welcome_aboard());
         await goto("/");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not accept invite.");
+        toast.error(localizeError(err, "error_accept_invite"));
       } finally {
         isSubmitting = false;
       }
@@ -40,14 +42,15 @@
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
     <a href="/" class="text-center font-medium">
-      <img src="/logo.svg" class="mr-1 inline size-5 align-middle" alt="logo" />
+      <img src="/logo.svg" class="mr-1 inline size-5 align-middle" alt={msg.ui_logo_5807dd6()} />
       {PUBLIC_SITE_NAME}
     </a>
     <Card.Root>
       <Card.Header>
-        <Card.Title>You've been invited</Card.Title>
+        <Card.Title>{msg.ui_you_ve_been_invited()}</Card.Title>
         <Card.Description>
-          Set up your account. You'll join as <strong class="capitalize">{data.role}</strong>.
+          {msg.ui_set_up_your_account_you_ll_join_as()}
+          <strong class="capitalize">{data.role}</strong>.
         </Card.Description>
       </Card.Header>
       <Card.Content>
@@ -62,7 +65,7 @@
           <form.Field name="name">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Full name</Label>
+                <Label for={field.name}>{msg.ui_full_name()}</Label>
                 <Input
                   id="name"
                   value={field.state.value}
@@ -76,7 +79,7 @@
           <form.Field name="email">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Email</Label>
+                <Label for={field.name}>{msg.ui_email()}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -92,7 +95,7 @@
           <form.Field name="password">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Password</Label>
+                <Label for={field.name}>{msg.ui_password()}</Label>
                 <Input
                   type="password"
                   id="password"

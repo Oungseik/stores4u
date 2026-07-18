@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -23,9 +24,8 @@
 
   function handleDelete() {
     confirmDelete({
-      title: "Delete Invoice File",
-      description:
-        "Are you sure you want to delete this invoice file? This action cannot be undone.",
+      title: msg.ui_delete_invoice_file(),
+      description: msg.ui_are_you_sure_you_want_to_delete_this_invoice_file_this_(),
       onConfirm: async () => {
         onDelete(id);
       },
@@ -36,7 +36,7 @@
 {#if status === "PROCESSING" || isProcessing}
   <div class="text-muted-foreground flex items-center gap-2">
     <Loader2Icon class="size-4 animate-spin" />
-    <span class="text-sm">Processing...</span>
+    <span class="text-sm">{msg.ui_processing()}</span>
   </div>
 {:else}
   <DropdownMenu.Root>
@@ -50,12 +50,12 @@
       {#if status === "UPLOADED"}
         <DropdownMenu.Item onclick={() => onProcess(id)}>
           <PlayIcon class="size-4" />
-          Process
+          {msg.ui_process()}
         </DropdownMenu.Item>
       {:else if status === "FAILED"}
         <DropdownMenu.Item onclick={() => onProcess(id)}>
           <PlayIcon class="size-4" />
-          Retry
+          {msg.ui_retry()}
         </DropdownMenu.Item>
       {:else if status === "PROCESSED"}
         <DropdownMenu.Item>
@@ -65,7 +65,7 @@
               href={`/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
-              Review
+              {msg.ui_review()}
             </a>
           {/snippet}
         </DropdownMenu.Item>
@@ -77,7 +77,7 @@
               href={`/purchases/invoices/${id}`}
             >
               <SearchIcon class="size-4" />
-              View Details
+              {msg.ui_view_details()}
             </a>
           {/snippet}
         </DropdownMenu.Item>
@@ -88,7 +88,7 @@
               href={`/purchases/invoices/${id}/edit`}
             >
               <PencilIcon class="size-4" />
-              Edit
+              {msg.ui_edit()}
             </a>
           {/snippet}
         </DropdownMenu.Item>
@@ -100,7 +100,7 @@
               href={`/purchases/invoices/${id}/review`}
             >
               <SearchIcon class="size-4" />
-              View Details
+              {msg.ui_view_details()}
             </a>
           {/snippet}
         </DropdownMenu.Item>
@@ -109,7 +109,7 @@
         <DropdownMenu.Separator />
         <DropdownMenu.Item class="text-red-600" onclick={handleDelete}>
           <Trash2Icon class="size-4" />
-          Delete
+          {msg.ui_delete()}
         </DropdownMenu.Item>
       {/if}
     </DropdownMenu.Content>

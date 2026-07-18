@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import * as Dialog from "@repo/ui/dialog";
 
   import CategoryForm from "$lib/components/forms/CategoryForm.svelte";
@@ -22,8 +23,8 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-h-[90vh] overflow-y-auto px-0 sm:max-w-xl">
     <Dialog.Header class="px-3 sm:px-4">
-      <Dialog.Title>Edit Category</Dialog.Title>
-      <Dialog.Description>Update category information</Dialog.Description>
+      <Dialog.Title>{msg.ui_edit_category()}</Dialog.Title>
+      <Dialog.Description>{msg.ui_update_category_information()}</Dialog.Description>
     </Dialog.Header>
 
     <div class="px-3 sm:px-4">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -121,26 +122,28 @@
     </Card.Title>
     {#if hasUnmatchedItems}
       <Card.Description class="text-amber-700 dark:text-amber-400">
-        Highlighted items are not matched to a product from the product list.
+        {msg.ui_highlighted_items_are_not_matched_to_a_product_from_the()}
       </Card.Description>
     {/if}
     <Card.Action>
       <div class="flex gap-2">
         <Button variant="outline" size="sm" onclick={addItem}>
           <PlusIcon class="size-4" />
-          Add Item
+          {msg.ui_add_item()}
         </Button>
       </div>
     </Card.Action>
   </Card.Header>
   <Card.Content class="p-0">
     {#if items.length === 0}
-      <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center">
+      <div
+        class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center"
+      >
         <PackageIcon class="size-10 opacity-50" />
-        <p class="text-sm">No items yet</p>
+        <p class="text-sm">{msg.ui_no_items_yet()}</p>
         <Button variant="outline" size="sm" onclick={addItem}>
           <PlusIcon class="size-4" />
-          Add first item
+          {msg.ui_add_first_item()}
         </Button>
       </div>
     {:else}
@@ -194,9 +197,9 @@
 <Dialog.Root bind:open={createProductSheetOpen}>
   <Dialog.Content class="max-h-[85vh] overflow-y-auto px-0 sm:max-w-xl">
     <Dialog.Header class="px-3 sm:px-4">
-      <Dialog.Title>Create New Product</Dialog.Title>
+      <Dialog.Title>{msg.ui_create_new_product()}</Dialog.Title>
       <Dialog.Description>
-        Add a new product to your catalog. It will be linked to this invoice item.
+        {msg.ui_add_a_new_product_to_your_catalog_it_will_be_linked_to_()}
       </Dialog.Description>
     </Dialog.Header>
     <div class="px-3 py-4 sm:px-4">

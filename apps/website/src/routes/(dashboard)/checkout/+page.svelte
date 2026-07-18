@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import CheckIcon from "@lucide/svelte/icons/check";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -31,9 +33,9 @@
 
   type CustomerMode = "walk-in" | "existing" | "new";
   const modes: { value: CustomerMode; label: string; icon: typeof UsersIcon }[] = [
-    { value: "walk-in", label: "Walk-in", icon: ShoppingBagIcon },
-    { value: "existing", label: "Existing", icon: SearchIcon },
-    { value: "new", label: "New", icon: UserPlusIcon },
+    { value: "walk-in", label: msg.ui_walk_in(), icon: ShoppingBagIcon },
+    { value: "existing", label: msg.ui_existing(), icon: SearchIcon },
+    { value: "new", label: msg.ui_new(), icon: UserPlusIcon },
   ];
 
   let mode = $state<CustomerMode>("walk-in");
@@ -78,7 +80,7 @@
         goto(`/orders/${result.orderId}`);
       },
       onError: (error) => {
-        toast.error(error.message || "Checkout failed");
+        toast.error(localizeError(error, "ui_checkout_failed"));
       },
     }),
   );
@@ -108,20 +110,20 @@
 </script>
 
 {#if cart.items.length === 0}
-  <div class="text-muted-foreground p-6 text-sm">Your cart is empty. Redirecting…</div>
+  <div class="text-muted-foreground p-6 text-sm">{msg.ui_your_cart_is_empty_redirecting()}</div>
 {:else}
   <div class="flex flex-col gap-6 p-4 md:p-6">
     <AdminDashboardHeader
       breadcrumbs={[
-        { label: "Dashboard", href: `/` },
-        { label: "Point of Sale", href: `/cart` },
-        { label: "Checkout" },
+        { label: msg.ui_dashboard(), href: `/` },
+        { label: msg.ui_point_of_sale(), href: `/cart` },
+        { label: msg.ui_checkout() },
       ]}
     >
       {#snippet actions()}
         <a href="/cart" class={buttonVariants({ variant: "outline" })}>
           <ArrowLeftIcon class="size-4" />
-          Back to Cart
+          {msg.ui_back_to_cart()}
         </a>
       {/snippet}
     </AdminDashboardHeader>
@@ -131,10 +133,12 @@
       <section class="space-y-3">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold tracking-tight">
-            Order Items
+            {msg.ui_order_items()}
             <span class="text-muted-foreground text-sm font-normal">({cart.totalItems})</span>
           </h2>
-          <span class="text-muted-foreground text-sm">Edit quantities on the cart page</span>
+          <span class="text-muted-foreground text-sm"
+            >{msg.ui_edit_quantities_on_the_cart_page()}</span
+          >
         </div>
 
         <Card.Root class="overflow-hidden p-0">
@@ -182,7 +186,7 @@
           <Card.Header>
             <Card.Title class="flex items-center gap-2 text-base">
               <UsersIcon class="size-4" />
-              Customer
+              {msg.ui_customer()}
             </Card.Title>
           </Card.Header>
           <Card.Content class="space-y-3">
@@ -203,7 +207,7 @@
                       <span
                         class="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium"
                       >
-                        Wholesale
+                        {msg.ui_wholesale()}
                       </span>
                     {/if}
                   </p>
@@ -216,14 +220,14 @@
                   size="icon"
                   class="size-7 shrink-0"
                   onclick={clearCustomer}
-                  aria-label="Remove customer"
+                  aria-label={msg.ui_remove_customer()}
                 >
                   <XIcon class="size-4" />
                 </Button>
               </div>
               <Button variant="outline" class="w-full" onclick={changeCustomer}>
                 <SearchIcon class="size-4" />
-                Change Customer
+                {msg.ui_change_customer()}
               </Button>
             {:else}
               <!-- Mode selector -->
@@ -247,7 +251,7 @@
                 <p
                   class="text-muted-foreground rounded-md bg-sky-50 p-3 text-sm text-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
                 >
-                  Walk-in sale — no customer record. The order will be saved anonymously.
+                  {msg.ui_walk_in_sale_no_customer_record_the_order_will_be_saved()}
                 </p>
               {:else if mode === "existing"}
                 <InputGroup.Root>
@@ -256,7 +260,7 @@
                   </InputGroup.Addon>
                   <InputGroup.Input
                     bind:value={searchQuery}
-                    placeholder="Search by name, contact, phone, or email..."
+                    placeholder={msg.ui_search_by_name_contact_phone_or_email()}
                   />
                 </InputGroup.Root>
 
@@ -270,11 +274,11 @@
                   </div>
                 {:else if searchQuery.length === 0}
                   <p class="text-muted-foreground py-2 text-center text-sm">
-                    Start typing to search customers
+                    {msg.ui_start_typing_to_search_customers()}
                   </p>
                 {:else if (customerSearch.data?.items ?? []).length === 0}
                   <p class="text-muted-foreground py-2 text-center text-sm">
-                    No customers found. Try the "New" tab to create one.
+                    {msg.ui_no_customers_found_try_the_new_tab_to_create_one()}
                   </p>
                 {:else}
                   <div class="max-h-72 space-y-1 overflow-y-auto">
@@ -298,7 +302,7 @@
                               <span
                                 class="bg-primary/10 text-primary rounded px-1 py-0.5 text-[10px] font-medium"
                               >
-                                Wholesale
+                                {msg.ui_wholesale()}
                               </span>
                             {/if}
                           </p>
@@ -323,10 +327,10 @@
                 >
                   {#if customerFormRef?.getIsPending()}
                     <Loader2Icon class="size-4 animate-spin" />
-                    Creating...
+                    {msg.ui_creating()}
                   {:else}
                     <PlusIcon class="size-4" />
-                    Create Customer
+                    {msg.ui_create_customer()}
                   {/if}
                 </Button>
               {/if}
@@ -338,18 +342,20 @@
         <Card.Root>
           <Card.Content class="space-y-2 pt-6 text-sm">
             <div class="flex justify-between">
-              <span class="text-muted-foreground">Items</span>
+              <span class="text-muted-foreground">{msg.ui_items()}</span>
               <span>{cart.totalItems}</span>
             </div>
             <div class="flex justify-between border-t pt-2 text-base font-semibold">
-              <span>Total</span>
+              <span>{msg.ui_total()}</span>
               <span class="tabular-nums">{formatPrice(cart.totalCents, shop.currency)}</span>
             </div>
-            <p class="text-muted-foreground text-xs">Taxes, if any, are applied at checkout.</p>
+            <p class="text-muted-foreground text-xs">
+              {msg.ui_taxes_if_any_are_applied_at_checkout()}
+            </p>
             <Button class="w-full" onclick={handlePlaceOrder} disabled={checkoutMutation.isPending}>
               {#if checkoutMutation.isPending}
                 <Spinner />
-                Processing...
+                {msg.ui_processing()}
               {:else if selectedCustomer}
                 <CheckIcon class="size-4" />
                 Place Order — {selectedCustomer.name}

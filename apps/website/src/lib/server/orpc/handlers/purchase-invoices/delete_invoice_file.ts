@@ -27,13 +27,13 @@ export const deleteInvoiceFileHandler = os
 
     if (!file) {
       throw new ORPCError("NOT_FOUND", {
-        message: "Invoice file not found",
+        data: { key: "error_invoice_file_not_found" },
       });
     }
 
     if (file.status === "PROCESSING") {
       throw new ORPCError("FORBIDDEN", {
-        message: "Cannot delete file while processing",
+        data: { key: "error_cannot_delete_file_while_processing" },
       });
     }
 
@@ -52,7 +52,7 @@ export const deleteInvoiceFileHandler = os
 
       if (existingInvoice.length > 0) {
         throw new ORPCError("FORBIDDEN", {
-          message: "Cannot delete invoice file with confirmed purchase invoices",
+          data: { key: "error_cannot_delete_invoice_file_with_confirmed_purchase_invo" },
         });
       }
     }

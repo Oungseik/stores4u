@@ -1,3 +1,4 @@
+import * as msg from "$lib/paraglide/messages";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
@@ -21,21 +22,21 @@ export function createColumns(
   return [
     {
       accessorKey: "name",
-      header: "Name",
+      header: msg.ui_name(),
       cell: ({ row }) => {
         return renderComponent(NameCell, { name: row.original.name });
       },
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: msg.ui_description(),
       cell: ({ row }) => {
         return renderComponent(DescriptionCell, { description: row.original.description });
       },
     },
     {
       accessorKey: "productCount",
-      header: "Products",
+      header: msg.ui_products(),
       cell: ({ row }) => {
         return renderComponent(ProductCountCell, { count: row.original.productCount });
       },

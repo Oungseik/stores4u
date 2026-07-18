@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import { parseDate, type DateValue } from "@internationalized/date";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
@@ -84,12 +85,12 @@
   }
 
   const movementTypeOptions: { value: MovementType; label: string }[] = [
-    { value: "PURCHASE", label: "Purchase" },
-    { value: "SALE", label: "Sale" },
-    { value: "RETURN", label: "Return" },
-    { value: "WASTAGE", label: "Wastage" },
-    { value: "ADJUSTMENT", label: "Adjustment" },
-    { value: "CORRECTION", label: "Correction" },
+    { value: "PURCHASE", label: msg.ui_purchase() },
+    { value: "SALE", label: msg.ui_sale() },
+    { value: "RETURN", label: msg.ui_return() },
+    { value: "WASTAGE", label: msg.ui_wastage() },
+    { value: "ADJUSTMENT", label: msg.ui_adjustment() },
+    { value: "CORRECTION", label: msg.ui_correction() },
   ];
 </script>
 
@@ -100,8 +101,8 @@
         items={movementTypeOptions}
         value={searchParams.movementTypes}
         onValueChange={(value) => searchParams.update({ movementTypes: value })}
-        placeholder="All Types"
-        label="Movement Types"
+        placeholder={msg.ui_all_types()}
+        label={msg.ui_movement_types()}
       />
 
       <FilterBar.DatePicker value={dateValue} onValueChange={handleDateRangeChange} />
@@ -121,10 +122,10 @@
       size="sm"
       class="shrink-0"
     >
-      <ToggleGroupItem value="card" aria-label="Card view">
+      <ToggleGroupItem value="card" aria-label={msg.ui_card_view()}>
         <LayoutGridIcon class="size-4" />
       </ToggleGroupItem>
-      <ToggleGroupItem value="table" aria-label="Table view">
+      <ToggleGroupItem value="table" aria-label={msg.ui_table_view()}>
         <ListIcon class="size-4" />
       </ToggleGroupItem>
     </ToggleGroup>
@@ -136,18 +137,18 @@
     </div>
   {:else if movementsQuery.isError}
     <div class="flex items-center justify-center py-12">
-      <p class="text-red-500">Failed to load inventory movements</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_inventory_movements()}</p>
     </div>
   {:else if allMovements.length === 0}
     <div class="flex flex-col items-center justify-center py-16 text-center">
       <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
         <ArrowLeftRightIcon class="text-muted-foreground size-8" />
       </div>
-      <h3 class="text-lg font-semibold">No movements found</h3>
+      <h3 class="text-lg font-semibold">{msg.ui_no_movements_found()}</h3>
       <p class="text-muted-foreground max-w-sm text-sm">
         {hasFilters
-          ? "Try adjusting your filters"
-          : "Inventory movements will appear here when stock changes occur"}
+          ? msg.ui_try_adjusting_your_filters()
+          : msg.ui_inventory_movements_will_appear_here_when_stock_changes()}
       </p>
     </div>
   {:else if searchParams.view === "table"}
@@ -162,9 +163,9 @@
         >
           {#if movementsQuery.isFetchingNextPage}
             <Loader2Icon class="mr-2 size-4 animate-spin" />
-            Loading...
+            {msg.ui_loading_b04ba49()}
           {:else}
-            Load More
+            {msg.ui_load_more()}
           {/if}
         </Button>
       </div>
@@ -185,9 +186,9 @@
         >
           {#if movementsQuery.isFetchingNextPage}
             <Loader2Icon class="mr-2 size-4 animate-spin" />
-            Loading...
+            {msg.ui_loading_b04ba49()}
           {:else}
-            Load More
+            {msg.ui_load_more()}
           {/if}
         </Button>
       </div>

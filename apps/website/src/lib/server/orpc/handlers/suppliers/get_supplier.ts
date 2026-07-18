@@ -30,7 +30,7 @@ export const getSupplierHandler = os
     });
 
     if (!supplier) {
-      throw new ORPCError("NOT_FOUND", { message: "Supplier not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_supplier_not_found" } });
     }
 
     return {

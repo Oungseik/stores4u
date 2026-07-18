@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
   import * as Card from "@repo/ui/card";
@@ -27,11 +28,11 @@
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
-    <a href="/signin" class="text-center font-medium">← Back to sign in</a>
+    <a href="/signin" class="text-center font-medium">{msg.ui_back_to_sign_in()}</a>
     <Card.Root>
       <Card.Header>
-        <Card.Title>Forgot password</Card.Title>
-        <Card.Description>Enter your email and we'll send a reset link.</Card.Description>
+        <Card.Title>{msg.ui_forgot_password()}</Card.Title>
+        <Card.Description>{msg.ui_enter_your_email_and_we_ll_send_a_reset_link()}</Card.Description>
       </Card.Header>
       <Card.Content>
         <form
@@ -45,7 +46,7 @@
           <form.Field name="email">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Email</Label>
+                <Label for={field.name}>{msg.ui_email()}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -69,8 +70,7 @@
         <AuthLinkPair links={result.links} emailSent={result.emailSent} />
       {:else}
         <p class="text-muted-foreground text-center text-sm">
-          If an account exists for that email, a reset link is ready. Contact an owner if you can't
-          access it.
+          {msg.ui_if_an_account_exists_for_that_email_a_reset_link_is_rea()}
         </p>
       {/if}
     {/if}

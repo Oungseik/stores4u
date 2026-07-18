@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import BarcodeIcon from "@lucide/svelte/icons/barcode";
   import { type CurrencyCode } from "@repo/config";
   import { Badge } from "@repo/ui/badge";
@@ -48,11 +49,13 @@
         {formatPrice(product.priceCents, currency)}
       </span>
       {#if isOutOfStock}
-        <Badge variant="destructive" class="text-sm">Out of Stock</Badge>
+        <Badge variant="destructive" class="text-sm">{msg.ui_out_of_stock()}</Badge>
       {:else if hasLowStock}
-        <Badge variant="outline" class="border-amber-500 text-sm text-amber-700">Low Stock</Badge>
+        <Badge variant="outline" class="border-amber-500 text-sm text-amber-700"
+          >{msg.ui_low_stock()}</Badge
+        >
       {:else}
-        <Badge variant="outline" class="text-sm">In Stock</Badge>
+        <Badge variant="outline" class="text-sm">{msg.ui_in_stock()}</Badge>
       {/if}
     </div>
 
@@ -68,7 +71,7 @@
 
     {#if product.description}
       <div class="space-y-2">
-        <h2 class="text-lg font-semibold">About This Product</h2>
+        <h2 class="text-lg font-semibold">{msg.ui_about_this_product()}</h2>
         <p class="text-muted-foreground leading-relaxed">{product.description}</p>
       </div>
 
@@ -76,21 +79,21 @@
     {/if}
 
     <div class="space-y-4">
-      <h2 class="text-lg font-semibold">Product Details</h2>
+      <h2 class="text-lg font-semibold">{msg.ui_product_details()}</h2>
       <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
         <div>
-          <p class="text-muted-foreground">Price</p>
+          <p class="text-muted-foreground">{msg.ui_price()}</p>
           <p class="font-medium">
             {formatPrice(product.priceCents, currency)}
           </p>
         </div>
         <div>
-          <p class="text-muted-foreground">SKU</p>
+          <p class="text-muted-foreground">{msg.ui_sku()}</p>
           <p class="font-medium">{product.sku}</p>
         </div>
         {#if product.barcode}
           <div>
-            <p class="text-muted-foreground">Barcode</p>
+            <p class="text-muted-foreground">{msg.ui_barcode()}</p>
             <div class="flex items-center gap-1.5">
               <BarcodeIcon class="size-3.5" />
               <p class="font-medium">{product.barcode}</p>
@@ -98,25 +101,25 @@
           </div>
         {/if}
         <div>
-          <p class="text-muted-foreground">Unit of Measure</p>
+          <p class="text-muted-foreground">{msg.ui_unit_of_measure()}</p>
           <p class="font-medium">{formatUom(product.uom)}</p>
         </div>
         <div>
-          <p class="text-muted-foreground">Current Stock</p>
+          <p class="text-muted-foreground">{msg.ui_current_stock()}</p>
           <p class="font-medium">{product.stock} units</p>
         </div>
         {#if product.lowStockThreshold != null}
           <div>
-            <p class="text-muted-foreground">Low Stock Threshold</p>
+            <p class="text-muted-foreground">{msg.ui_low_stock_threshold()}</p>
             <p class="font-medium">{product.lowStockThreshold} units</p>
           </div>
         {/if}
         <div>
-          <p class="text-muted-foreground">Created</p>
+          <p class="text-muted-foreground">{msg.ui_created()}</p>
           <p class="font-medium">{formatDate(product.createdAt, true)}</p>
         </div>
         <div>
-          <p class="text-muted-foreground">Last Updated</p>
+          <p class="text-muted-foreground">{msg.ui_last_updated()}</p>
           <p class="font-medium">{formatDate(product.updatedAt, true)}</p>
         </div>
       </div>

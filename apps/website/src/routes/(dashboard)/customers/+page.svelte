@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -31,12 +33,12 @@
   const deleteMutation = createMutation(() =>
     orpc.customers.delete.mutationOptions({
       onSuccess: () => {
-        toast.success("Customer deleted successfully");
+        toast.success(msg.ui_customer_deleted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.customers.get.key() });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete customer");
+        toast.error(localizeError(error, "ui_failed_to_delete_customer"));
       },
     }),
   );
@@ -86,8 +88,8 @@
 
   function deleteCustomer(customer: ApiCustomer) {
     confirmDelete({
-      title: "Delete Customer",
-      description: `Are you sure you want to delete "${customer.name}"? This action cannot be undone.`,
+      title: msg.ui_delete_customer(),
+      description: msg.confirm_delete_named({ name: customer.name }),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: customer.id });
       },
@@ -96,24 +98,28 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Customers" }]}>
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_customers() }]}
+  >
     {#snippet actions()}
       <a href="/customers/add" class={buttonVariants()}>
         <PlusIcon class="size-4" />
-        Add Customer
+        {msg.ui_add_customer()}
       </a>
     {/snippet}
   </AdminDashboardHeader>
 
   <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">Customers</h1>
-    <p class="text-muted-foreground text-sm">Manage customer information and order history</p>
+    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_customers()}</h1>
+    <p class="text-muted-foreground text-sm">
+      {msg.ui_manage_customer_information_and_order_history()}
+    </p>
   </div>
 
-  <section class="space-y-6 @container/main">
+  <section class="@container/main space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search
-        placeholder="Search customers by name, contact, phone, or email..."
+        placeholder={msg.ui_search_customers_by_name_contact_phone_or_email()}
         value={searchParams.search}
         oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
       />
@@ -126,16 +132,18 @@
       </div>
     {:else if customers.isError}
       <div class="flex items-center justify-center py-12">
-        <p class="text-red-500">Failed to load customers</p>
+        <p class="text-red-500">{msg.ui_failed_to_load_customers()}</p>
       </div>
     {:else if allCustomers.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
           <UsersIcon class="text-muted-foreground size-8" />
         </div>
-        <h3 class="text-lg font-semibold">No customers found</h3>
+        <h3 class="text-lg font-semibold">{msg.ui_no_customers_found()}</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters ? "Try clearing filters" : "Add your first customer to get started"}
+          {hasFilters
+            ? msg.ui_try_clearing_filters()
+            : msg.ui_add_your_first_customer_to_get_started()}
         </p>
       </div>
     {:else}
@@ -156,7 +164,7 @@
                         <span
                           class="bg-primary/10 text-primary ml-2 rounded px-1.5 py-0.5 align-middle text-xs font-medium"
                         >
-                          Wholesale
+                          {msg.ui_wholesale()}
                         </span>
                       {/if}
                     </Card.Title>
@@ -196,11 +204,11 @@
 
               <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
                 <div>
-                  <p class="text-muted-foreground text-xs">Total Spent</p>
+                  <p class="text-muted-foreground text-xs">{msg.ui_total_spent()}</p>
                   <p class="font-semibold">{formatPrice(customer.totalSpent, shop.currency)}</p>
                 </div>
                 <div class="text-right">
-                  <p class="text-muted-foreground text-xs">Orders</p>
+                  <p class="text-muted-foreground text-xs">{msg.ui_orders()}</p>
                   <p class="font-semibold">{customer.ordersCount}</p>
                 </div>
               </div>
@@ -214,7 +222,7 @@
             </Card.Content>
             <Card.Footer class="flex flex-col gap-2 pt-0">
               <Button variant="outline" class="w-full" href={`/customers/${customer.id}`}>
-                View Details
+                {msg.ui_view_details()}
               </Button>
               <div class="flex w-full gap-2">
                 <Button
@@ -223,14 +231,14 @@
                   onclick={() => deleteCustomer(customer)}
                 >
                   <Trash2Icon class="size-4" />
-                  Delete
+                  {msg.ui_delete()}
                 </Button>
                 <a
                   href={`/customers/${customer.id}/edit`}
                   class={buttonVariants({ variant: "outline", class: "flex-1" })}
                 >
                   <PencilIcon class="size-4" />
-                  Edit
+                  {msg.ui_edit()}
                 </a>
               </div>
             </Card.Footer>
@@ -247,9 +255,9 @@
           >
             {#if customers.isFetchingNextPage}
               <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
+              {msg.ui_loading_b04ba49()}
             {:else}
-              Load More
+              {msg.ui_load_more()}
             {/if}
           </Button>
         </div>

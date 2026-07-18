@@ -20,12 +20,12 @@ export const uploadInvoiceFileHandler = os
 
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Invalid file type. Accepted: JPEG, PNG, PDF",
+        data: { key: "error_invalid_file_type_accepted_jpeg_png_pdf" },
       });
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      throw new ORPCError("BAD_REQUEST", { message: "File size exceeds 10MB limit" });
+      throw new ORPCError("BAD_REQUEST", { data: { key: "error_file_size_exceeds_10mb_limit" } });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -51,7 +51,7 @@ export const uploadInvoiceFileHandler = os
 
     if (!result.changes) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to create invoice file record",
+        data: { key: "error_failed_to_create_invoice_file_record" },
       });
     }
 

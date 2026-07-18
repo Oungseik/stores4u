@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import SaveIcon from "@lucide/svelte/icons/save";
   import type { CurrencyCode } from "@repo/config";
@@ -61,14 +62,14 @@
 
 <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
   <!-- Config controls -->
-  <Card.Root class="shrink-0 w-full max-w-96">
+  <Card.Root class="w-full max-w-96 shrink-0">
     <Card.Header>
-      <Card.Title class="text-base">Invoice layout</Card.Title>
-      <Card.Description>Controls what appears on generated invoices.</Card.Description>
+      <Card.Title class="text-base">{msg.ui_invoice_layout()}</Card.Title>
+      <Card.Description>{msg.ui_controls_what_appears_on_generated_invoices()}</Card.Description>
     </Card.Header>
     <Card.Content class="space-y-5">
       <div class="space-y-2">
-        <p class="text-sm font-medium">Paper width</p>
+        <p class="text-sm font-medium">{msg.ui_paper_width()}</p>
         <RadioGroup
           class="flex gap-4"
           value={config.paperWidth}
@@ -86,39 +87,39 @@
       </div>
 
       <div class="space-y-3">
-        <p class="text-sm font-medium">Header elements</p>
+        <p class="text-sm font-medium">{msg.ui_header_elements()}</p>
         <label class="flex cursor-pointer items-center gap-3">
           <Checkbox
             checked={config.showLogo}
             onCheckedChange={(c) => (config.showLogo = c === true)}
           />
-          <span class="text-sm">Logo</span>
+          <span class="text-sm">{msg.ui_logo()}</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3">
           <Checkbox
             checked={config.showAddress}
             onCheckedChange={(c) => (config.showAddress = c === true)}
           />
-          <span class="text-sm">Address</span>
+          <span class="text-sm">{msg.ui_address()}</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3">
           <Checkbox
             checked={config.showPhone}
             onCheckedChange={(c) => (config.showPhone = c === true)}
           />
-          <span class="text-sm">Phone</span>
+          <span class="text-sm">{msg.ui_phone()}</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3">
           <Checkbox
             checked={config.showEmail}
             onCheckedChange={(c) => (config.showEmail = c === true)}
           />
-          <span class="text-sm">Email</span>
+          <span class="text-sm">{msg.ui_email()}</span>
         </label>
       </div>
 
       <div class="space-y-2">
-        <p class="text-sm font-medium">Footer text</p>
+        <p class="text-sm font-medium">{msg.ui_footer_text()}</p>
         <Textarea
           value={config.footerText}
           oninput={(e) => (config.footerText = e.currentTarget.value)}
@@ -130,10 +131,10 @@
         <Button class="gap-2" disabled={saving} onclick={() => onsave(config)}>
           {#if saving}
             <Loader2Icon class="size-4 animate-spin" />
-            Saving...
+            {msg.ui_saving()}
           {:else}
             <SaveIcon class="size-4" />
-            Save Changes
+            {msg.ui_save_changes()}
           {/if}
         </Button>
       </div>

@@ -50,7 +50,7 @@ export const checkoutHandler = os
       const foundIds = new Set(products.map((p) => p.id));
       const missingIds = productIds.filter((id) => !foundIds.has(id));
       throw new ORPCError("NOT_FOUND", {
-        message: `Products not found: ${missingIds.join(", ")}`,
+        data: { key: "error_products_not_found", values: { products: missingIds.join(", ") } },
       });
     }
 
@@ -58,7 +58,7 @@ export const checkoutHandler = os
     const getProduct = (id: string) => {
       const p = productMap.get(id);
       if (!p) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: `Product ${id} not found` });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { data: { key: "error_product_id_not_found", values: { id } } });
       }
       return p;
     };
@@ -86,7 +86,7 @@ export const checkoutHandler = os
         where: { id: input.customerId },
       });
       if (!found) {
-        throw new ORPCError("NOT_FOUND", { message: "Customer not found" });
+        throw new ORPCError("NOT_FOUND", { data: { key: "error_customer_not_found" } });
       }
       customerId = found.id;
       customerName = found.name;
@@ -126,7 +126,7 @@ export const checkoutHandler = os
 
       if (!createdOrder) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: "Failed to create order",
+          data: { key: "error_failed_to_create_order" },
         });
       }
 
@@ -183,7 +183,7 @@ export const checkoutHandler = os
           });
 
         throw new ORPCError("BAD_REQUEST", {
-          message: `Insufficient stock for: ${insufficient.join(", ")}`,
+          data: { key: "error_insufficient_stock_products", values: { products: insufficient.join(", ") } },
         });
       }
 

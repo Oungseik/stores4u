@@ -1,3 +1,4 @@
+import * as msg from "$lib/paraglide/messages";
 import type { CurrencyCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
@@ -25,35 +26,35 @@ export function createColumns(currency: CurrencyCode): ColumnDef<PurchaseInvoice
   return [
     {
       accessorKey: "invoiceNumber",
-      header: "Invoice",
+      header: msg.ui_invoice(),
       cell: ({ row }) => {
         return renderComponent(InvoiceIdCell, { id: row.original.invoiceNumber });
       },
     },
     {
       accessorKey: "createdAt",
-      header: "Date",
+      header: msg.ui_date(),
       cell: ({ row }) => {
         return renderComponent(DateCell, { date: row.original.createdAt });
       },
     },
     {
       accessorKey: "itemsCount",
-      header: "Items",
+      header: msg.ui_items(),
       cell: ({ row }) => {
         return String(row.original.itemsCount);
       },
     },
     {
       accessorKey: "totalCents",
-      header: "Total",
+      header: msg.ui_total(),
       cell: ({ row }) => {
         return renderComponent(PriceCell, { cents: row.original.totalCents, currency });
       },
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: msg.ui_status(),
       cell: ({ row }) => {
         return renderComponent(StatusCell, { status: row.original.status });
       },

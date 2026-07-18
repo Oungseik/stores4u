@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
@@ -15,18 +17,16 @@
 
   const { data: shop }: PageProps = $props();
 
-  const invoiceSettingsQuery = createQuery(() =>
-    orpc.invoice.get.queryOptions({ input: {} }),
-  );
+  const invoiceSettingsQuery = createQuery(() => orpc.invoice.get.queryOptions({ input: {} }));
 
   const updateInvoiceMutation = createMutation(() =>
     orpc.invoice.update.mutationOptions({
       onSuccess: async () => {
-        toast.success("Invoice settings updated");
+        toast.success(msg.ui_invoice_settings_updated());
         await invoiceSettingsQuery.refetch();
       },
       onError: (error: { message?: string }) => {
-        toast.error(error.message || "Failed to update invoice settings");
+        toast.error(localizeError(error, "ui_failed_to_update_invoice_settings"));
       },
     }),
   );
@@ -54,9 +54,9 @@
 <section class="flex w-full max-w-4xl flex-col gap-4 p-4 md:gap-6 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Settings", href: `/settings` },
-      { label: "Invoice" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_settings(), href: `/settings` },
+      { label: msg.ui_invoice() },
     ]}
   />
 
@@ -66,7 +66,7 @@
     </div>
   {:else if invoiceSettingsQuery.isError}
     <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">Failed to load invoice settings</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_invoice_settings()}</p>
     </div>
   {:else}
     <InvoiceSettingsForm

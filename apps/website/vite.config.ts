@@ -10,7 +10,12 @@ export default defineConfig({
     tailwindcss(),
     sveltekit(),
     devtoolsJson(),
-    paraglideVitePlugin({ project: "./project.inlang", outdir: "./src/lib/paraglide" }),
+    paraglideVitePlugin({
+      strategy: ["cookie", "baseLocale"],
+      cookieName: "PARAGLIDE_LOCALE",
+      project: "./project.inlang",
+      outdir: "./src/lib/paraglide",
+    }),
   ],
   ssr: {
     external: ["sharp", "bun"],

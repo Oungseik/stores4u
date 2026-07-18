@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import CheckIcon from "@lucide/svelte/icons/check";
   import PlusCircleIcon from "@lucide/svelte/icons/plus-circle";
   import XIcon from "@lucide/svelte/icons/x";
@@ -79,7 +80,7 @@
             ? 'text-foreground'
             : 'text-amber-700 dark:text-amber-400'}"
         >
-          {item.invoiceItemName || "Item name..."}
+          {item.invoiceItemName || msg.ui_item_name()}
         </span>
       {/if}
     </div>
@@ -89,7 +90,7 @@
       <Command.Input
         bind:ref={commandInputRef}
         bind:value={productSearch}
-        placeholder="Type name or search products..."
+        placeholder={msg.ui_type_name_or_search_products()}
         oninput={handleSearchInput}
       />
       <Command.List>
@@ -100,7 +101,7 @@
           onSelect={onCreateProduct}
         >
           <PlusCircleIcon class="size-4" />
-          Create new product
+          {msg.ui_create_new_product_a6499e4()}
         </Command.Item>
         <Command.Separator />
 

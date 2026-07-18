@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import MinusIcon from "@lucide/svelte/icons/minus";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PlusIcon from "@lucide/svelte/icons/plus";
@@ -90,14 +91,14 @@
 
   $effect(() => {
     if (productByBarcode.isError) {
-      toast.error(`Product not found: ${lastScannedBarcode}`);
+      toast.error(msg.error_product_not_found_value({ product: lastScannedBarcode ?? "" }));
       lastScannedBarcode = null;
     }
   });
 
   function handleCheckout() {
     if (cart.items.length === 0) {
-      toast.error("Cart is empty");
+      toast.error(msg.ui_cart_is_empty());
       return;
     }
     goto("/checkout");
@@ -116,11 +117,11 @@
       <Tabs.List class="flex-1">
         <Tabs.Trigger value="scan" class="gap-2">
           <ScanLineIcon />
-          Scan
+          {msg.ui_scan()}
         </Tabs.Trigger>
         <Tabs.Trigger value="search" class="gap-2">
           <SearchIcon />
-          Search
+          {msg.ui_search()}
         </Tabs.Trigger>
       </Tabs.List>
     </div>
@@ -141,7 +142,7 @@
         <InputGroup.Addon>
           <SearchIcon />
         </InputGroup.Addon>
-        <InputGroup.Input bind:value={searchQuery} placeholder="Search products..." />
+        <InputGroup.Input bind:value={searchQuery} placeholder={msg.ui_search_products()} />
       </InputGroup.Root>
       {#if searchQuery.length > 0}
         <ProductResults
@@ -162,8 +163,10 @@
           <div class="bg-muted flex size-16 items-center justify-center rounded-full">
             <ShoppingCartIcon class="text-muted-foreground size-8" />
           </div>
-          <h3 class="text-lg font-semibold">Cart is empty</h3>
-          <p class="text-muted-foreground max-w-sm text-sm">Scan or search to add products</p>
+          <h3 class="text-lg font-semibold">{msg.ui_cart_is_empty()}</h3>
+          <p class="text-muted-foreground max-w-sm text-sm">
+            {msg.ui_scan_or_search_to_add_products()}
+          </p>
         </div>
       {:else}
         <div class="space-y-1.5 p-4">
@@ -203,7 +206,7 @@
                       size="icon"
                       class="hover:bg-background size-7 shrink-0"
                       onclick={() => cart.bump(item.id, -1)}
-                      aria-label="Decrease quantity"
+                      aria-label={msg.ui_decrease_quantity()}
                     >
                       <MinusIcon />
                     </Button>
@@ -215,7 +218,7 @@
                       size="icon"
                       class="hover:bg-background size-7 shrink-0"
                       onclick={() => cart.bump(item.id, 1)}
-                      aria-label="Increase quantity"
+                      aria-label={msg.ui_increase_quantity()}
                     >
                       <PlusIcon />
                     </Button>
@@ -228,7 +231,7 @@
                       size="icon"
                       class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
                       onclick={() => cart.remove(item.id)}
-                      aria-label="Remove item"
+                      aria-label={msg.ui_remove_item()}
                     >
                       <Trash2Icon class="size-4" />
                     </Button>
@@ -257,7 +260,7 @@
       </div>
 
       <Button class="px-6" onclick={handleCheckout} disabled={cart.items.length === 0}>
-        Checkout
+        {msg.ui_checkout()}
       </Button>
     </div>
   </section>

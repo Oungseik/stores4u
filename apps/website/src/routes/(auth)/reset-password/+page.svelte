@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
@@ -16,11 +18,11 @@
     defaultValues: { password: "", confirm: "" },
     onSubmit: async ({ value }) => {
       if (!token) {
-        toast.error("Reset token is missing.");
+        toast.error(msg.ui_reset_token_is_missing());
         return;
       }
       if (value.password !== value.confirm) {
-        toast.error("Passwords do not match.");
+        toast.error(msg.ui_passwords_do_not_match_f7c3cd4());
         return;
       }
       isSubmitting = true;
@@ -34,10 +36,10 @@
           const data = await res.json().catch(() => ({}));
           throw new Error(data?.message ?? "Reset failed. The link may be invalid or expired.");
         }
-        toast.success("Password reset. Sign in.");
+        toast.success(msg.ui_password_reset_sign_in());
         await goto("/signin");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Reset failed.");
+        toast.error(localizeError(err, "ui_reset_failed"));
       } finally {
         isSubmitting = false;
       }
@@ -49,12 +51,14 @@
   <div class="flex w-full max-w-sm flex-col gap-6">
     <Card.Root>
       <Card.Header>
-        <Card.Title>Set a new password</Card.Title>
-        <Card.Description>Choose a new password for your account.</Card.Description>
+        <Card.Title>{msg.ui_set_a_new_password()}</Card.Title>
+        <Card.Description>{msg.ui_choose_a_new_password_for_your_account()}</Card.Description>
       </Card.Header>
       <Card.Content>
         {#if !token}
-          <p class="text-destructive text-sm">Reset token is missing. Use the link from your email or administrator.</p>
+          <p class="text-destructive text-sm">
+            {msg.ui_reset_token_is_missing_use_the_link_from_your_email_or_()}
+          </p>
         {:else}
           <form
             class="space-y-4"
@@ -67,7 +71,7 @@
             <form.Field name="password">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>New password</Label>
+                  <Label for={field.name}>{msg.ui_new_password_d850ee1()}</Label>
                   <Input
                     type="password"
                     id="password"
@@ -83,7 +87,7 @@
             <form.Field name="confirm">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>Confirm password</Label>
+                  <Label for={field.name}>{msg.ui_confirm_password()}</Label>
                   <Input
                     type="password"
                     id="confirm"

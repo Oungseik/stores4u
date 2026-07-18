@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
@@ -25,9 +26,7 @@
       input: { orderId: params.id },
     }),
   );
-  const invoiceSettingsQuery = createQuery(() =>
-    orpc.invoice.get.queryOptions({ input: {} }),
-  );
+  const invoiceSettingsQuery = createQuery(() => orpc.invoice.get.queryOptions({ input: {} }));
 
   const order = $derived(orderQuery.data);
 
@@ -61,7 +60,7 @@
           customerPhone: order.customerPhone,
           items: order.items.map((item) => ({
             id: item.id,
-            name: item.product?.name ?? "Unknown Product",
+            name: item.product?.name ?? msg.ui_unknown_product(),
             qty: item.qty,
             unitPriceCents: item.unitPriceCents,
             lineTotalCents: item.lineTotalCents,
@@ -80,9 +79,9 @@
 <div class="flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Orders", href: `/orders` },
-      { label: order ? `Order #${formatOrderId(order.id)}` : "Order Details" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_orders(), href: `/orders` },
+      { label: order ? `Order #${formatOrderId(order.id)}` : msg.ui_order_details() },
     ]}
   />
 
@@ -92,7 +91,7 @@
     </div>
   {:else if orderQuery.isError}
     <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">Failed to load order</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_order()}</p>
     </div>
   {:else if order}
     <!-- Order Header -->
@@ -107,7 +106,7 @@
       </div>
       <Button variant="outline" class="gap-2 shrink-0" onclick={() => (invoiceOpen = true)}>
         <ReceiptIcon class="size-4" />
-        Invoice
+        {msg.ui_invoice()}
       </Button>
     </div>
 
@@ -116,7 +115,7 @@
       <Card.Header>
         <Card.Title class="flex items-center gap-2 text-base">
           <PackageIcon class="size-4" />
-          Order Items
+          {msg.ui_order_items()}
         </Card.Title>
       </Card.Header>
       <Card.Content>
@@ -132,7 +131,7 @@
                   <PackageIcon class="text-muted-foreground size-4" />
                 </div>
                 <div>
-                  <p>{item.product?.name ?? "Unknown Product"}</p>
+                  <p>{item.product?.name ?? msg.ui_unknown_product()}</p>
                   <p class="text-muted-foreground text-xs">{item.product?.sku ?? "—"}</p>
                 </div>
               </div>
@@ -150,7 +149,7 @@
     {#if order.notes}
       <Card.Root>
         <Card.Header>
-          <Card.Title class="text-base">Customer Notes</Card.Title>
+          <Card.Title class="text-base">{msg.ui_customer_notes()}</Card.Title>
         </Card.Header>
         <Card.Content>
           <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
@@ -165,30 +164,30 @@
       <Card.Header>
         <Card.Title class="flex items-center gap-2 text-base">
           <ReceiptIcon class="size-4" />
-          Order Summary
+          {msg.ui_order_summary()}
         </Card.Title>
       </Card.Header>
       <Card.Content>
         <div class="space-y-1.5 rounded-md border p-2.5 text-sm">
           <div class="flex justify-between">
-            <span class="text-muted-foreground">Subtotal</span>
+            <span class="text-muted-foreground">{msg.ui_subtotal()}</span>
             {formatPrice(order.subtotalCents, shop.currency)}
           </div>
           <div class="flex justify-between">
-            <span class="text-muted-foreground">Discount</span>
+            <span class="text-muted-foreground">{msg.ui_discount()}</span>
             {formatPrice(order.discountCents, shop.currency)}
           </div>
           <div class="flex justify-between">
-            <span class="text-muted-foreground">Shipping (Local pickup)</span>
+            <span class="text-muted-foreground">{msg.ui_shipping_local_pickup()}</span>
             {formatPrice(0, shop.currency)}
           </div>
           <div class="flex justify-between border-t pt-2 font-semibold">
-            <span>Total</span>
+            <span>{msg.ui_total()}</span>
             {formatPrice(order.totalCents, shop.currency)}
           </div>
           <div class="flex justify-between text-xs">
-            <span class="text-muted-foreground">Payment Status</span>
-            <span class="text-emerald-600 capitalize">paid</span>
+            <span class="text-muted-foreground">{msg.ui_payment_status()}</span>
+            <span class="text-emerald-600 capitalize">{msg.paid()}</span>
           </div>
         </div>
       </Card.Content>
@@ -197,7 +196,7 @@
     <!-- Customer -->
     <Card.Root>
       <Card.Header>
-        <Card.Title class="text-base">Customer</Card.Title>
+        <Card.Title class="text-base">{msg.ui_customer()}</Card.Title>
       </Card.Header>
       <Card.Content>
         <div class="flex items-center gap-3 rounded-md border p-3 text-sm">
@@ -207,7 +206,7 @@
             </span>
           </div>
           <div>
-            <p class="font-medium">{order.customerName ?? "In-store Purchase"}</p>
+            <p class="font-medium">{order.customerName ?? msg.ui_in_store_purchase()}</p>
             <p class="text-muted-foreground text-sm">{order.customerPhone ?? "—"}</p>
           </div>
         </div>
@@ -220,7 +219,7 @@
   <Dialog.Content class="max-h-[90vh] overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>Invoice #{formatOrderId(order?.id ?? "")}</Dialog.Title>
-      <Dialog.Description>Read-only invoice preview</Dialog.Description>
+      <Dialog.Description>{msg.ui_read_only_invoice_preview()}</Dialog.Description>
     </Dialog.Header>
     {#if invoiceData}
       <div class="bg-muted/40 flex justify-center overflow-x-auto rounded-lg py-4">

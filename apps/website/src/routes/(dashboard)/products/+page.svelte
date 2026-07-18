@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
@@ -56,19 +58,19 @@
   const deleteMutation = createMutation(() =>
     orpc.products.delete.mutationOptions({
       onSuccess: () => {
-        toast.success("Product deleted successfully");
+        toast.success(msg.ui_product_deleted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete product");
+        toast.error(localizeError(error, "ui_failed_to_delete_product"));
       },
     }),
   );
 
   function handleDeleteProduct(id: string) {
     confirmDelete({
-      title: "Delete Product",
-      description: "Are you sure you want to delete this product? This action cannot be undone.",
+      title: msg.ui_delete_product(),
+      description: msg.ui_are_you_sure_you_want_to_delete_this_product_this_actio(),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id });
       },
@@ -130,18 +132,21 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Products" }]}>
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_products() }]}
+  >
     {#snippet actions()}
       <a href="/products/add" class={buttonVariants()}>
-        <PlusIcon class="size-4" /> Add Product
+        <PlusIcon class="size-4" />
+        {msg.ui_add_product()}
       </a>
     {/snippet}
   </AdminDashboardHeader>
 
   <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">Products</h1>
+    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_products()}</h1>
     <p class="text-muted-foreground text-sm">
-      Manage your product catalog, track stock levels, and organize items
+      {msg.ui_manage_your_product_catalog_track_stock_levels_and_orga()}
     </p>
   </div>
 
@@ -170,9 +175,9 @@
     >
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Total Products"
+          title={msg.ui_total_products()}
           value={productStats.data.total}
-          description="In your catalog"
+          description={msg.ui_in_your_catalog()}
           icon={PackageIcon}
           iconBgClass="bg-primary/10"
           iconTextClass="text-primary"
@@ -180,9 +185,9 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Low Stock"
+          title={msg.ui_low_stock()}
           value={productStats.data.lowStock}
-          description="Needs restocking"
+          description={msg.ui_needs_restocking()}
           icon={AlertTriangleIcon}
           iconBgClass="bg-amber-500/10"
           iconTextClass="text-amber-600"
@@ -190,9 +195,9 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Out of Stock"
+          title={msg.ui_out_of_stock()}
           value={productStats.data.outOfStock}
-          description="Unavailable"
+          description={msg.ui_unavailable()}
           icon={XCircleIcon}
           iconBgClass="bg-red-500/10"
           iconTextClass="text-red-600"
@@ -200,9 +205,9 @@
       </div>
       <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
         <StatsCard
-          title="Inventory Value"
+          title={msg.ui_inventory_value()}
           value=""
-          description="Total retail value"
+          description={msg.ui_total_retail_value()}
           icon={DollarSignIcon}
           iconBgClass="bg-emerald-500/10"
           iconTextClass="text-emerald-600"
@@ -213,12 +218,12 @@
     </div>
   {/if}
 
-  <section class="space-y-6 @container/main">
+  <section class="@container/main space-y-6">
     <!-- Filters and Search -->
     <FilterBar.Root {hasFilters} onReset={resetFilters} class="justify-between">
       <div class="flex flex-1 flex-wrap items-center justify-start gap-2 md:gap-4">
         <FilterBar.Search
-          placeholder="Search products, SKU..."
+          placeholder={msg.ui_search_products_sku()}
           value={searchParams.search}
           oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
         />
@@ -230,7 +235,7 @@
           }))}
           value={searchParams.categories}
           onValueChange={(value) => searchParams.update({ categories: value })}
-          placeholder="All Categories"
+          placeholder={msg.ui_all_categories()}
         />
 
         <FilterBar.Reset />
@@ -248,10 +253,10 @@
         size="sm"
         class="shrink-0"
       >
-        <ToggleGroupItem value="card" aria-label="Card view">
+        <ToggleGroupItem value="card" aria-label={msg.ui_card_view()}>
           <LayoutGridIcon class="size-4" />
         </ToggleGroupItem>
-        <ToggleGroupItem value="table" aria-label="Table view">
+        <ToggleGroupItem value="table" aria-label={msg.ui_table_view()}>
           <ListIcon class="size-4" />
         </ToggleGroupItem>
       </ToggleGroup>
@@ -263,16 +268,18 @@
       </div>
     {:else if products.isError}
       <div class="flex items-center justify-center py-12">
-        <p class="text-red-500">Failed to load products</p>
+        <p class="text-red-500">{msg.ui_failed_to_load_products()}</p>
       </div>
     {:else if allProducts.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
           <PackageIcon class="text-muted-foreground size-8" />
         </div>
-        <h3 class="text-lg font-semibold">No products found</h3>
+        <h3 class="text-lg font-semibold">{msg.ui_no_products_found()}</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters ? "Try clearing filters" : "Add your first product to get started"}
+          {hasFilters
+            ? msg.ui_try_clearing_filters()
+            : msg.ui_add_your_first_product_to_get_started()}
         </p>
       </div>
     {:else if searchParams.view === "table"}
@@ -292,15 +299,17 @@
           >
             {#if products.isFetchingNextPage}
               <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
+              {msg.ui_loading_b04ba49()}
             {:else}
-              Load More
+              {msg.ui_load_more()}
             {/if}
           </Button>
         </div>
       {/if}
     {:else}
-      <div class="grid grid-cols-2 gap-3 @[520px]/main:grid-cols-3 @[720px]/main:grid-cols-4 xl:gap-4">
+      <div
+        class="grid grid-cols-2 gap-3 xl:gap-4 @[520px]/main:grid-cols-3 @[720px]/main:grid-cols-4"
+      >
         {#each allProducts as product (product.id)}
           {@const marginPercent =
             product.lastCostCents && product.lastCostCents > 0
@@ -338,7 +347,9 @@
                         : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
                     ]}
                   >
-                    {stockStatus === "out" ? "Out of stock" : "Low stock"}
+                    {stockStatus === "out"
+                      ? msg.ui_out_of_stock_8b78c7a()
+                      : msg.ui_low_stock_a6e1fef()}
                   </span>
                 {/if}
                 <div class="absolute top-2 right-2">
@@ -360,7 +371,7 @@
                           class="flex w-full items-center gap-2"
                         >
                           <PencilIcon class="size-4" />
-                          Edit
+                          {msg.ui_edit()}
                         </a>
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
@@ -373,7 +384,7 @@
                           )}
                       >
                         <ArrowUpDownIcon class="size-4" />
-                        Adjust Stock
+                        {msg.ui_adjust_stock()}
                       </DropdownMenu.Item>
                       <DropdownMenu.Separator />
                       <DropdownMenu.Item
@@ -381,7 +392,7 @@
                         onclick={() => handleDeleteProduct(product.id)}
                       >
                         <Trash2Icon class="size-4" />
-                        Delete
+                        {msg.ui_delete()}
                       </DropdownMenu.Item>
                     </DropdownMenu.Content>
                   </DropdownMenu.Root>
@@ -432,9 +443,9 @@
           >
             {#if products.isFetchingNextPage}
               <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
+              {msg.ui_loading_b04ba49()}
             {:else}
-              Load More
+              {msg.ui_load_more()}
             {/if}
           </Button>
         </div>

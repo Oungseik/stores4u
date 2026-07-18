@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import PackageIcon from "@lucide/svelte/icons/package";
   import type { CurrencyCode } from "@repo/config";
   import * as Command from "@repo/ui/command";
@@ -73,7 +74,7 @@
               <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium">{product.name}</p>
                 <p class="text-muted-foreground text-xs">
-                  {product.sku || product.barcode || "No sku or barcode"}
+                  {product.sku || product.barcode || msg.ui_no_sku_or_barcode()}
                 </p>
               </div>
               <span class="text-sm font-semibold">

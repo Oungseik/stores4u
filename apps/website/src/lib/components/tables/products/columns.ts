@@ -1,3 +1,4 @@
+import * as msg from "$lib/paraglide/messages";
 import type { CurrencyCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
@@ -26,21 +27,21 @@ export function createColumns(
   return [
     {
       accessorKey: "name",
-      header: "Name",
+      header: msg.ui_name(),
       cell: ({ row }) => {
         return renderComponent(NameCell, { name: row.original.name });
       },
     },
     {
       accessorKey: "sku",
-      header: "SKU",
+      header: msg.ui_sku(),
       cell: ({ row }) => {
         return row.original.sku ?? "—";
       },
     },
     {
       accessorKey: "priceCents",
-      header: "Price",
+      header: msg.ui_price(),
       cell: ({ row }) => {
         return renderComponent(PriceCell, { cents: row.original.priceCents, currency });
       },

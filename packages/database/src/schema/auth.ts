@@ -1,4 +1,4 @@
-import { CURRENCIES } from "@repo/config";
+import { CURRENCIES, DEFAULT_LANGUAGE, LANGUAGES } from "@repo/config";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { shopInfo } from "./shop-info";
 
@@ -14,6 +14,10 @@ export const user = sqliteTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
   image: text("image"),
+  // ponytail: UI language is cookie-only (one browser) now; this column is
+  // orphaned (harmless, no migration). Drop via a drizzle migration if it
+  // stays unused for good. Mirrors the twoFactor orphan pattern below.
+  language: text("language", { enum: LANGUAGES }).notNull().default(DEFAULT_LANGUAGE),
   role: text("role", { enum: userRoles }).notNull().default("user"),
   banned: integer("banned", { mode: "boolean" }).default(false).notNull(),
   banReason: text("ban_reason"),

@@ -20,7 +20,7 @@ export const deleteCategoryHandler = os
 
     if (existingProducts.length > 0) {
       throw new ORPCError("FORBIDDEN", {
-        message: "Cannot delete category with associated products.",
+        data: { key: "error_cannot_delete_category_with_associated_products" },
       });
     }
 

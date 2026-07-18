@@ -29,19 +29,19 @@ const input = z.object({
 function getInvoiceFileStateError(status: string) {
   if (status === "PROCESSING") {
     return new ORPCError("BAD_REQUEST", {
-      message: "Invoice is under processing. Please wait until processing finish",
+      data: { key: "error_invoice_is_under_processing_please_wait_until_processin" },
     });
   }
 
   if (status === "REVIEWED") {
     return new ORPCError("BAD_REQUEST", {
-      message: "Invoice is already review. Please upload again if you missed to add some items.",
+      data: { key: "error_invoice_is_already_review_please_upload_again_if_you_mi" },
     });
   }
 
   if (status === "REVIEWING") {
     return new ORPCError("BAD_REQUEST", {
-      message: "Invoice review is in progress. Inventory sync has not completed yet.",
+      data: { key: "error_invoice_review_is_in_progress_inventory_sync_has_not_co" },
     });
   }
 
@@ -57,7 +57,7 @@ export const submitInvoiceReviewHandler = os
 
     if (Number.isNaN(occurredAt.getTime())) {
       throw new ORPCError("BAD_REQUEST", {
-        message: `Invalid invoice date: ${input.invoiceDate}`,
+        data: { key: "error_invalid_invoice_date", values: { date: input.invoiceDate } },
       });
     }
 
@@ -71,7 +71,7 @@ export const submitInvoiceReviewHandler = os
       const foundIds = new Set(products.map((p) => p.id));
       const missingIds = productIds.difference(foundIds);
       throw new ORPCError("NOT_FOUND", {
-        message: `Products not found: ${[...missingIds].join(", ")}`,
+        data: { key: "error_products_not_found", values: { products: [...missingIds].join(", ") } },
       });
     }
 
@@ -85,7 +85,7 @@ export const submitInvoiceReviewHandler = os
           .sync();
 
         if (!existingFile) {
-          throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
+          throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_file_not_found" } });
         }
 
         const fileStateError = getInvoiceFileStateError(existingFile.status);
@@ -102,7 +102,7 @@ export const submitInvoiceReviewHandler = os
           .sync();
 
         if (!existingSupplier) {
-          throw new ORPCError("NOT_FOUND", { message: "Supplier not found" });
+          throw new ORPCError("NOT_FOUND", { data: { key: "error_supplier_not_found" } });
         }
 
         const invoiceForFile = tx.query.purchaseInvoice
@@ -114,7 +114,7 @@ export const submitInvoiceReviewHandler = os
 
         if (invoiceForFile) {
           throw new ORPCError("BAD_REQUEST", {
-            message: "Invoice file already has a purchase invoice",
+            data: { key: "error_invoice_file_already_has_a_purchase_invoice" },
           });
         }
 
@@ -135,7 +135,7 @@ export const submitInvoiceReviewHandler = os
 
         const createdInvoice = insertInvoice.at(0);
         if (!createdInvoice) {
-          throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create invoice" });
+          throw new ORPCError("INTERNAL_SERVER_ERROR", { data: { key: "error_failed_to_create_invoice" } });
         }
 
         const insertedItems = tx

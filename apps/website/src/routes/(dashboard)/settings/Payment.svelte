@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import CreditCardIcon from "@lucide/svelte/icons/credit-card";
   import SaveIcon from "@lucide/svelte/icons/save";
   import { CURRENCIES, type CurrencyCode } from "@repo/config";
@@ -23,7 +24,7 @@
     defaultValues: defaultSettings,
     onSubmit: async ({ value }) => {
       console.log("Saving payment settings:", value);
-      toast.success("Payment settings updated");
+      toast.success(msg.ui_payment_settings_updated());
     },
   }));
 
@@ -43,9 +44,9 @@
   <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <CreditCardIcon class="size-5" />
-      Payment Settings
+      {msg.ui_payment_settings()}
     </Card.Title>
-    <Card.Description>Configure accepted payment methods and currency</Card.Description>
+    <Card.Description>{msg.ui_configure_accepted_payment_methods_and_currency()}</Card.Description>
   </Card.Header>
   <Card.Content>
     <form
@@ -58,7 +59,7 @@
       <paymentForm.Field name="currency">
         {#snippet children(field)}
           <div class="space-y-2">
-            <Label for={field.name}>Default Currency</Label>
+            <Label for={field.name}>{msg.ui_default_currency()}</Label>
             <Select.Root
               type="single"
               value={field.state.value}
@@ -80,14 +81,14 @@
       <Separator />
 
       <div class="space-y-4">
-        <h3 class="text-sm font-medium">Accepted Payment Methods</h3>
+        <h3 class="text-sm font-medium">{msg.ui_accepted_payment_methods()}</h3>
         <div class="space-y-3">
           <paymentForm.Field name="acceptCash">
             {#snippet children(field)}
               <div class="flex items-center justify-between rounded-lg border p-4">
                 <div class="space-y-0.5">
-                  <Label class="text-base">Cash</Label>
-                  <p class="text-muted-foreground text-sm">Accept cash payments</p>
+                  <Label class="text-base">{msg.ui_cash()}</Label>
+                  <p class="text-muted-foreground text-sm">{msg.ui_accept_cash_payments()}</p>
                 </div>
                 <Switch
                   checked={field.state.value}
@@ -101,8 +102,10 @@
             {#snippet children(field)}
               <div class="flex items-center justify-between rounded-lg border p-4">
                 <div class="space-y-0.5">
-                  <Label class="text-base">Credit/Debit Cards</Label>
-                  <p class="text-muted-foreground text-sm">Accept card payments via terminal</p>
+                  <Label class="text-base">{msg.ui_credit_debit_cards()}</Label>
+                  <p class="text-muted-foreground text-sm">
+                    {msg.ui_accept_card_payments_via_terminal()}
+                  </p>
                 </div>
                 <Switch
                   checked={field.state.value}
@@ -116,8 +119,8 @@
             {#snippet children(field)}
               <div class="flex items-center justify-between rounded-lg border p-4">
                 <div class="space-y-0.5">
-                  <Label class="text-base">Digital Wallets</Label>
-                  <p class="text-muted-foreground text-sm">Apple Pay, Google Pay, etc.</p>
+                  <Label class="text-base">{msg.ui_digital_wallets()}</Label>
+                  <p class="text-muted-foreground text-sm">{msg.ui_apple_pay_google_pay_etc()}</p>
                 </div>
                 <Switch
                   checked={field.state.value}
@@ -132,7 +135,7 @@
       <div class="flex justify-end">
         <Button type="submit" class="gap-2">
           <SaveIcon class="size-4" />
-          Save Changes
+          {msg.ui_save_changes()}
         </Button>
       </div>
     </form>

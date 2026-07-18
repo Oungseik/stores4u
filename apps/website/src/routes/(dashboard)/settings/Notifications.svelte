@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import MailIcon from "@lucide/svelte/icons/mail";
   import SaveIcon from "@lucide/svelte/icons/save";
   import { Button } from "@repo/ui/button";
@@ -19,7 +20,7 @@
     defaultValues: defaultSettings,
     onSubmit: async ({ value }) => {
       console.log("Saving notification settings:", value);
-      toast.success("Notification preferences updated");
+      toast.success(msg.ui_notification_preferences_updated());
     },
   }));
 </script>
@@ -28,9 +29,9 @@
   <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <MailIcon class="size-5" />
-      Notification Preferences
+      {msg.ui_notification_preferences()}
     </Card.Title>
-    <Card.Description>Choose what notifications you want to receive</Card.Description>
+    <Card.Description>{msg.ui_choose_what_notifications_you_want_to_receive()}</Card.Description>
   </Card.Header>
   <Card.Content>
     <form
@@ -45,9 +46,9 @@
           {#snippet children(field)}
             <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="space-y-0.5">
-                <Label class="text-base">Email Receipts</Label>
+                <Label class="text-base">{msg.ui_email_receipts()}</Label>
                 <p class="text-muted-foreground text-sm">
-                  Send email copies of receipts to customers
+                  {msg.ui_send_email_copies_of_receipts_to_customers()}
                 </p>
               </div>
               <Switch
@@ -62,9 +63,9 @@
           {#snippet children(field)}
             <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="space-y-0.5">
-                <Label class="text-base">Low Stock Alerts</Label>
+                <Label class="text-base">{msg.ui_low_stock_alerts()}</Label>
                 <p class="text-muted-foreground text-sm">
-                  Get notified when inventory is running low
+                  {msg.ui_get_notified_when_inventory_is_running_low()}
                 </p>
               </div>
               <Switch
@@ -79,8 +80,10 @@
           {#snippet children(field)}
             <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="space-y-0.5">
-                <Label class="text-base">Daily Reports</Label>
-                <p class="text-muted-foreground text-sm">Receive daily sales summary via email</p>
+                <Label class="text-base">{msg.ui_daily_reports()}</Label>
+                <p class="text-muted-foreground text-sm">
+                  {msg.ui_receive_daily_sales_summary_via_email()}
+                </p>
               </div>
               <Switch
                 checked={field.state.value}
@@ -94,8 +97,10 @@
           {#snippet children(field)}
             <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="space-y-0.5">
-                <Label class="text-base">New Order Notifications</Label>
-                <p class="text-muted-foreground text-sm">Real-time alerts for new orders</p>
+                <Label class="text-base">{msg.ui_new_order_notifications()}</Label>
+                <p class="text-muted-foreground text-sm">
+                  {msg.ui_real_time_alerts_for_new_orders()}
+                </p>
               </div>
               <Switch
                 checked={field.state.value}
@@ -109,7 +114,7 @@
       <div class="flex justify-end">
         <Button type="submit" class="gap-2">
           <SaveIcon class="size-4" />
-          Save Changes
+          {msg.ui_save_changes()}
         </Button>
       </div>
     </form>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -54,7 +55,7 @@
         size="icon"
         onclick={goToPrev}
         class="absolute top-1/2 left-3 rounded-full active:translate-y-0"
-        aria-label="Previous image"
+        aria-label={msg.ui_previous_image()}
       >
         <ChevronLeftIcon class="size-5" />
       </Button>
@@ -63,7 +64,7 @@
         size="icon"
         onclick={goToNext}
         class="absolute top-1/2 right-3 rounded-full active:translate-y-0"
-        aria-label="Next image"
+        aria-label={msg.ui_next_image()}
       >
         <ChevronRightIcon class="size-5" />
       </Button>
@@ -90,9 +91,13 @@
           currentIndex
             ? 'border-primary'
             : 'border-transparent hover:border-gray-300'}"
-          aria-label="View image {index + 1}"
+          aria-label={msg.ui_view_image_index_1({ index: index + 1 })}
         >
-          <img src={image.src} alt="Thumbnail {index + 1}" class="size-full object-cover" />
+          <img
+            src={image.src}
+            alt={msg.ui_thumbnail_index_1({ index: index + 1 })}
+            class="size-full object-cover"
+          />
         </Button>
       {/each}
     </div>

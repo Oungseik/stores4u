@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import type { IconProps } from "@lucide/svelte";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import Building2Icon from "@lucide/svelte/icons/building-2";
@@ -52,14 +53,14 @@
   const sidebar = useSidebar();
 
   const mainNavItems: NavItem[] = [
-    { title: "Dashboard", href: "/", icon: LayoutDashboard },
-    { title: "Point of Sale", href: "/cart", icon: ScanBarcodeIcon },
-    { title: "Orders", href: "/orders", icon: ClipboardListIcon },
-    { title: "Customers", href: "/customers", icon: UsersIcon },
-    { title: "Products", href: "/products", icon: BoxIcon },
-    { title: "Product Categories", href: "/products/categories", icon: FolderIcon },
-    { title: "Purchase Invoices", href: "/purchases/invoices", icon: FileTextIcon },
-    { title: "Suppliers", href: "/purchases/suppliers", icon: Building2Icon },
+    { title: msg.ui_dashboard(), href: "/", icon: LayoutDashboard },
+    { title: msg.ui_point_of_sale(), href: "/cart", icon: ScanBarcodeIcon },
+    { title: msg.ui_orders(), href: "/orders", icon: ClipboardListIcon },
+    { title: msg.ui_customers(), href: "/customers", icon: UsersIcon },
+    { title: msg.ui_products(), href: "/products", icon: BoxIcon },
+    { title: msg.ui_product_categories(), href: "/products/categories", icon: FolderIcon },
+    { title: msg.ui_purchase_invoices(), href: "/purchases/invoices", icon: FileTextIcon },
+    { title: msg.ui_suppliers(), href: "/purchases/suppliers", icon: Building2Icon },
   ];
 
   const settingsHref = "/settings";
@@ -99,7 +100,7 @@
             </div>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-semibold">{shop.name}</span>
-              <span class="truncate text-xs opacity-60">Admin Dashboard</span>
+              <span class="truncate text-xs opacity-60">{msg.ui_admin_dashboard()}</span>
             </div>
           </Sidebar.MenuButton>
           <div class="group-data-[collapsible=icon]:hidden">
@@ -138,12 +139,12 @@
 
       <!-- Inventory Group -->
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Inventory</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{msg.ui_inventory()}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
-                tooltipContent="Movements"
+                tooltipContent={msg.ui_movements()}
                 isActive={isActive("/inventory/movements")}
               >
                 {#snippet child({ props })}
@@ -153,7 +154,7 @@
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
                     <ArrowLeftRightIcon class="size-4" />
-                    <span>Movements</span>
+                    <span>{msg.ui_movements()}</span>
                   </a>
                 {/snippet}
               </Sidebar.MenuButton>
@@ -165,18 +166,18 @@
       {#if user.role === "owner"}
         <!-- Team -->
         <Sidebar.Group>
-          <Sidebar.GroupLabel>Team</Sidebar.GroupLabel>
+          <Sidebar.GroupLabel>{msg.ui_team()}</Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton
-                  tooltipContent="Team"
+                  tooltipContent={msg.ui_team()}
                   isActive={sidebar.state === "collapsed" && currentPath.startsWith(teamHref)}
                   aria-expanded={teamOpen}
                   onclick={() => (teamOpen = !teamOpen)}
                 >
                   <UsersIcon class="size-4" />
-                  <span>Team</span>
+                  <span>{msg.ui_team()}</span>
                   <ChevronRightIcon
                     class="ml-auto transition-transform duration-200 {teamOpen ? 'rotate-90' : ''}"
                   />
@@ -192,7 +193,7 @@
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
-                              <span>Members</span>
+                              <span>{msg.ui_members()}</span>
                             </a>
                           {/snippet}
                         </Sidebar.MenuSubButton>
@@ -205,7 +206,7 @@
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
-                              <span>Management</span>
+                              <span>{msg.ui_management()}</span>
                             </a>
                           {/snippet}
                         </Sidebar.MenuSubButton>
@@ -220,18 +221,18 @@
 
         <!-- Settings -->
         <Sidebar.Group class="mt-auto">
-          <Sidebar.GroupLabel>Settings</Sidebar.GroupLabel>
+          <Sidebar.GroupLabel>{msg.ui_settings()}</Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton
-                  tooltipContent="Settings"
+                  tooltipContent={msg.ui_settings()}
                   isActive={sidebar.state === "collapsed" && currentPath.startsWith(settingsHref)}
                   aria-expanded={settingsOpen}
                   onclick={() => (settingsOpen = !settingsOpen)}
                 >
                   <SettingsIcon />
-                  <span>Settings</span>
+                  <span>{msg.ui_settings()}</span>
                   <ChevronRightIcon
                     class="ml-auto transition-transform duration-200 {settingsOpen
                       ? 'rotate-90'
@@ -249,7 +250,7 @@
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
-                              <span>Shop</span>
+                              <span>{msg.ui_shop()}</span>
                             </a>
                           {/snippet}
                         </Sidebar.MenuSubButton>
@@ -265,7 +266,7 @@
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
-                              <span>Invoice</span>
+                              <span>{msg.ui_invoice()}</span>
                             </a>
                           {/snippet}
                         </Sidebar.MenuSubButton>
@@ -335,7 +336,7 @@
                 {#snippet child({ props })}
                   <a href="/accounts" {...props}>
                     <UserIcon class="size-4" />
-                    Account
+                    {msg.ui_account()}
                   </a>
                 {/snippet}
               </DropdownMenu.Item>
@@ -347,7 +348,7 @@
               }}
             >
               <LogOutIcon class="size-4" />
-              Log out
+              {msg.ui_log_out()}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Root>

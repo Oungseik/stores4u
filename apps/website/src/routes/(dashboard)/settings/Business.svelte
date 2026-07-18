@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import BuildingIcon from "@lucide/svelte/icons/building-2";
   import CheckIcon from "@lucide/svelte/icons/check";
   import ClockIcon from "@lucide/svelte/icons/clock";
@@ -56,11 +58,11 @@
   const updateShopMutation = createMutation(() =>
     orpc.shops.update.mutationOptions({
       onSuccess: () => {
-        toast.success("Settings updated successfully");
+        toast.success(msg.ui_settings_updated_successfully());
         invalidateAll();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update settings");
+        toast.error(localizeError(error, "ui_failed_to_update_settings"));
       },
     }),
   );
@@ -78,9 +80,9 @@
   }));
 
   const countries: { value: "MM" | "TH" | "US"; label: string }[] = [
-    { value: "US", label: "United States" },
-    { value: "TH", label: "Thailand" },
-    { value: "MM", label: "Myanmar" },
+    { value: "US", label: msg.ui_united_states() },
+    { value: "TH", label: msg.ui_thailand() },
+    { value: "MM", label: msg.ui_myanmar() },
   ];
 
   let tzOpen = $state(false);
@@ -96,9 +98,9 @@
   <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <BuildingIcon class="size-5" />
-      Business Information
+      {msg.ui_business_information()}
     </Card.Title>
-    <Card.Description>Your business address and contact details</Card.Description>
+    <Card.Description>{msg.ui_your_business_address_and_contact_details()}</Card.Description>
   </Card.Header>
   <Card.Content>
     <form
@@ -109,12 +111,12 @@
       }}
     >
       <div class="space-y-4">
-        <h3 class="text-sm font-medium">Address</h3>
+        <h3 class="text-sm font-medium">{msg.ui_address()}</h3>
         <div class="grid gap-4 sm:grid-cols-2">
           <businessForm.Field name="address">
             {#snippet children(field)}
               <div class="space-y-2 sm:col-span-2">
-                <Label for={field.name}>Street Address</Label>
+                <Label for={field.name}>{msg.ui_street_address()}</Label>
                 <div class="relative">
                   <MapPinIcon
                     class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
@@ -136,7 +138,7 @@
           <businessForm.Field name="city">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>City</Label>
+                <Label for={field.name}>{msg.ui_city()}</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -153,7 +155,7 @@
             <businessForm.Field name="state">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>State</Label>
+                  <Label for={field.name}>{msg.ui_state()}</Label>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -169,7 +171,7 @@
             <businessForm.Field name="zipCode">
               {#snippet children(field)}
                 <div class="space-y-2">
-                  <Label for={field.name}>ZIP Code</Label>
+                  <Label for={field.name}>{msg.ui_zip_code()}</Label>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -186,7 +188,7 @@
           <businessForm.Field name="country">
             {#snippet children(field)}
               <div class="space-y-2 sm:col-span-2">
-                <Label for={field.name}>Country</Label>
+                <Label for={field.name}>{msg.ui_country()}</Label>
                 <Select.Root
                   type="single"
                   value={field.state.value}
@@ -211,12 +213,12 @@
       <Separator />
 
       <div class="space-y-4">
-        <h3 class="text-sm font-medium">Contact Information</h3>
+        <h3 class="text-sm font-medium">{msg.ui_contact_information()}</h3>
         <div class="grid gap-4 sm:grid-cols-2">
           <businessForm.Field name="phone">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Phone Number</Label>
+                <Label for={field.name}>{msg.ui_phone_number()}</Label>
                 <PhoneInput
                   value={field.state.value}
                   name={field.name}
@@ -231,7 +233,7 @@
           <businessForm.Field name="email">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Email Address</Label>
+                <Label for={field.name}>{msg.ui_email_address()}</Label>
                 <div class="relative">
                   <MailIcon
                     class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
@@ -254,7 +256,7 @@
           <businessForm.Field name="taxId">
             {#snippet children(field)}
               <div class="space-y-2">
-                <Label for={field.name}>Tax ID / VAT Number</Label>
+                <Label for={field.name}>{msg.ui_tax_id_vat_number()}</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -272,20 +274,19 @@
       <Separator />
 
       <div class="space-y-4">
-        <h3 class="text-sm font-medium">Localization</h3>
+        <h3 class="text-sm font-medium">{msg.ui_localization()}</h3>
         <businessForm.Field name="timezone">
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label for={field.name}>Timezone</Label>
+              <Label for={field.name}>{msg.ui_timezone()}</Label>
               <p class="text-muted-foreground text-xs">
-                Used for dashboard charts, “today” stats, and date displays. Stored in UTC, shown in
-                this timezone.
+                {msg.ui_used_for_dashboard_charts_today_stats_and_date_displays()}
               </p>
               <Popover.Root bind:open={tzOpen}>
                 <Popover.Trigger
                   id={field.name}
                   name={field.name}
-                  class="bg-transparent hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border px-3 py-2 text-sm"
+                  class="hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm"
                 >
                   <span class="flex items-center gap-2">
                     <ClockIcon class="text-muted-foreground size-4" />
@@ -294,7 +295,7 @@
                 </Popover.Trigger>
                 <Popover.Content class="w-(--bits-popover-anchor-width) p-0" align="start">
                   <Command.Root shouldFilter={false}>
-                    <Command.Input bind:value={tzSearch} placeholder="Search timezone..." />
+                    <Command.Input bind:value={tzSearch} placeholder={msg.ui_search_timezone()} />
                     <Command.List>
                       {#each filteredTimezones as tz (tz)}
                         <Command.Item
@@ -323,10 +324,10 @@
         <Button type="submit" class="gap-2" disabled={updateShopMutation.isPending}>
           {#if updateShopMutation.isPending}
             <Loader2Icon class="size-4 animate-spin" />
-            Saving...
+            {msg.ui_saving()}
           {:else}
             <SaveIcon class="size-4" />
-            Save Changes
+            {msg.ui_save_changes()}
           {/if}
         </Button>
       </div>

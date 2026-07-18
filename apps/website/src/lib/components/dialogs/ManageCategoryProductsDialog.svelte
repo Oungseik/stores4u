@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import FolderIcon from "@lucide/svelte/icons/folder";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import SearchIcon from "@lucide/svelte/icons/search";
@@ -68,12 +70,12 @@
   const updateCategoryProductsMutation = createMutation(() =>
     orpc.categories.updateProducts.mutationOptions({
       onSuccess: () => {
-        toast.success("Products updated successfully");
+        toast.success(msg.ui_products_updated_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
         onClose();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update products");
+        toast.error(localizeError(error, "ui_failed_to_update_products"));
       },
     }),
   );
@@ -106,14 +108,14 @@
   <Dialog.Content class="flex max-h-[85vh] flex-col px-0 sm:max-w-2xl">
     <Dialog.Header class="px-3 sm:px-4">
       <Dialog.Title>Manage Products — {category.name}</Dialog.Title>
-      <Dialog.Description>Add or remove products from this category</Dialog.Description>
+      <Dialog.Description>{msg.ui_add_or_remove_products_from_this_category()}</Dialog.Description>
     </Dialog.Header>
 
     <div class="px-3 sm:px-4">
       <div class="relative mb-3">
         <SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
         <Input
-          placeholder="Search products..."
+          placeholder={msg.ui_search_products()}
           value={productSearch}
           oninput={(e) => (productSearch = e.currentTarget.value)}
           class="pl-9"
@@ -129,7 +131,9 @@
       {:else if allProducts.length === 0}
         <div class="flex flex-col items-center justify-center py-8 text-center">
           <p class="text-muted-foreground text-sm">
-            {debouncedProductSearch.current ? "No products found" : "No products available"}
+            {debouncedProductSearch.current
+              ? msg.ui_no_products_found()
+              : msg.ui_no_products_available()}
           </p>
         </div>
       {:else}
@@ -176,9 +180,9 @@
             >
               {#if products.isFetchingNextPage}
                 <Loader2Icon class="mr-2 size-4 animate-spin" />
-                Loading...
+                {msg.ui_loading_b04ba49()}
               {:else}
-                Load More
+                {msg.ui_load_more()}
               {/if}
             </Button>
           </div>
@@ -187,16 +191,18 @@
     </div>
 
     <Dialog.Footer class="mx-0 mt-4">
-      <Button variant="outline" onclick={() => handleOpenChange(false)}>Cancel</Button>
+      <Button variant="outline" onclick={() => handleOpenChange(false)}>{msg.ui_cancel()}</Button>
       <Button
         onclick={handleUpdateCategoryProducts}
         disabled={updateCategoryProductsMutation.isPending}
       >
         {#if updateCategoryProductsMutation.isPending}
           <Loader2Icon class="mr-2 size-4 animate-spin" />
-          Saving...
+          {msg.ui_saving()}
         {:else}
-          Save ({selectedProductIds.size} product{selectedProductIds.size === 1 ? "" : "s"})
+          {selectedProductIds.size === 1
+            ? msg.ui_save_one_product()
+            : msg.ui_save_products({ count: selectedProductIds.size })}
         {/if}
       </Button>
     </Dialog.Footer>

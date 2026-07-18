@@ -64,7 +64,7 @@ export const getInvoiceHandler = os
     });
 
     if (!invoice) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_not_found" } });
     }
 
     const objectKey = invoice.invoiceFile ? extractObjectKey(invoice.invoiceFile.objectPath) : null;

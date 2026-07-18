@@ -7,11 +7,12 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     return redirect(303, `/signin?return_url=${url.pathname}`);
   }
   if (!isDashboardRole(locals.session.user.role)) {
-    throw error(403, "Dashboard access requires a staff role");
+    throw error(403, "error_dashboard_staff_required");
   }
 
   return {
     user: locals.session.user,
     session: locals.session.session,
+    language: locals.language,
   };
 };

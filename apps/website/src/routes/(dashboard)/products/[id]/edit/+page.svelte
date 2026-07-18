@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button, buttonVariants } from "@repo/ui/button";
 
@@ -31,17 +32,17 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Products", href: `/products` },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_products(), href: `/products` },
       { label: data.product.name, href: `/products/${params.id}` },
-      { label: "Edit" },
+      { label: msg.ui_edit() },
     ]}
   />
 
   <div class="max-w-2xl">
     <div class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight">Edit Product</h1>
-      <p class="text-muted-foreground text-sm">Update product details</p>
+      <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_edit_product()}</h1>
+      <p class="text-muted-foreground text-sm">{msg.ui_update_product_details()}</p>
     </div>
 
     <ProductForm
@@ -51,13 +52,15 @@
     />
 
     <div class="flex items-center gap-2 border-t pt-4">
-      <a href={`/products/${params.id}`} class={buttonVariants({ variant: "outline" })}> Cancel </a>
+      <a href={`/products/${params.id}`} class={buttonVariants({ variant: "outline" })}>
+        {msg.ui_cancel()}
+      </a>
       <Button onclick={() => productFormRef?.submit()} disabled={productFormRef?.getIsPending()}>
         {#if productFormRef?.getIsPending()}
           <Loader2Icon class="mr-2 size-4 animate-spin" />
-          Updating...
+          {msg.ui_updating()}
         {:else}
-          Update Product
+          {msg.ui_update_product()}
         {/if}
       </Button>
     </div>

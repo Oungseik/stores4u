@@ -18,7 +18,7 @@ export const getCustomerHandler = os
     });
 
     if (!found) {
-      throw new ORPCError("NOT_FOUND", { message: "Customer not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_customer_not_found" } });
     }
 
     return found;

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import { type DetailedValue, PhoneInput } from "@repo/ui/phone-input";
@@ -59,12 +61,12 @@
   const createCustomer = createMutation(() =>
     orpc.customers.create.mutationOptions({
       onSuccess: (created) => {
-        toast.success("Customer created successfully");
+        toast.success(msg.ui_customer_created_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
         onSuccess?.(created);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create customer");
+        toast.error(localizeError(error, "ui_failed_to_create_customer"));
       },
     }),
   );
@@ -72,13 +74,13 @@
   const updateCustomer = createMutation(() =>
     orpc.customers.update.mutationOptions({
       onSuccess: (updated) => {
-        toast.success("Customer updated successfully");
+        toast.success(msg.ui_customer_updated_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.customers.get.key() });
         onSuccess?.(updated);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update customer");
+        toast.error(localizeError(error, "ui_failed_to_update_customer"));
       },
     }),
   );
@@ -106,7 +108,11 @@
       const phone = phoneValue(value.phone, phoneDetailed);
       const phone2 = phoneValue(value.phone2, phone2Detailed);
       if (phone === undefined || phone2 === undefined) {
-        toast.error(`${phone === undefined ? "Phone" : "Phone 2"} is invalid`);
+        toast.error(
+          msg.error_invalid_field({
+            field: phone === undefined ? msg.ui_phone() : msg.ui_phone_2(),
+          }),
+        );
         return;
       }
 
@@ -166,13 +172,13 @@
     name="name"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "Name is required").max(255).safeParse(value).error?.issues.at(0)
+        z.string().min(1, msg.ui_name_is_required()).max(255).safeParse(value).error?.issues.at(0)
           ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Customer Name *</Label>
+        <Label for={field.name}>{msg.ui_customer_name()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -180,7 +186,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter customer name"
+          placeholder={msg.ui_enter_customer_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -192,7 +198,7 @@
   <form.Field name="customerType">
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label>Customer Type</Label>
+        <Label>{msg.ui_customer_type()}</Label>
         <RadioGroup
           class="flex gap-4"
           value={field.state.value}
@@ -200,11 +206,11 @@
         >
           <div class="flex items-center gap-2">
             <RadioGroupItem id="customer-type-retail" value="RETAIL" />
-            <Label for="customer-type-retail">Retail</Label>
+            <Label for="customer-type-retail">{msg.ui_retail()}</Label>
           </div>
           <div class="flex items-center gap-2">
             <RadioGroupItem id="customer-type-wholesale" value="WHOLESALE" />
-            <Label for="customer-type-wholesale">Wholesale</Label>
+            <Label for="customer-type-wholesale">{msg.ui_wholesale()}</Label>
           </div>
         </RadioGroup>
       </div>
@@ -220,7 +226,7 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Contact Person</Label>
+        <Label for={field.name}>{msg.ui_contact_person()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -228,7 +234,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter contact name"
+          placeholder={msg.ui_enter_contact_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -247,7 +253,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Phone</Label>
+          <Label for={field.name}>{msg.ui_phone()}</Label>
           <PhoneInput
             value={field.state.value}
             bind:detailedValue={phoneDetailed}
@@ -271,7 +277,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Phone 2</Label>
+          <Label for={field.name}>{msg.ui_phone_2()}</Label>
           <PhoneInput
             value={field.state.value}
             bind:detailedValue={phone2Detailed}
@@ -300,7 +306,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Email</Label>
+          <Label for={field.name}>{msg.ui_email()}</Label>
           <Input
             id={field.name}
             name={field.name}
@@ -326,7 +332,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Tax ID</Label>
+          <Label for={field.name}>{msg.ui_tax_id()}</Label>
           <Input
             id={field.name}
             name={field.name}
@@ -334,7 +340,7 @@
             type="text"
             onblur={field.handleBlur}
             onchange={(e) => field.handleChange(e.currentTarget.value)}
-            placeholder="Tax ID / VAT No."
+            placeholder={msg.ui_tax_id_vat_no()}
           />
           {#if field.state.meta.errors.length}
             <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -353,14 +359,14 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Address</Label>
+        <Label for={field.name}>{msg.ui_address()}</Label>
         <Textarea
           id={field.name}
           name={field.name}
           value={field.state.value}
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter full address"
+          placeholder={msg.ui_enter_full_address()}
           rows={3}
         />
         {#if field.state.meta.errors.length}
@@ -379,7 +385,7 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Payment Terms</Label>
+        <Label for={field.name}>{msg.ui_payment_terms()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -405,14 +411,14 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Notes</Label>
+        <Label for={field.name}>{msg.ui_notes()}</Label>
         <Textarea
           id={field.name}
           name={field.name}
           value={field.state.value}
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Customer notes (preferences, credit history, etc.)"
+          placeholder={msg.ui_customer_notes_preferences_credit_history_etc()}
           rows={3}
         />
         {#if field.state.meta.errors.length}

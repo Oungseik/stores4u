@@ -31,7 +31,7 @@ export const processInvoiceFileHandler = os
     });
 
     if (!file) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_file_not_found" } });
     }
 
     const claimed = db.transaction((tx) => {
@@ -58,7 +58,7 @@ export const processInvoiceFileHandler = os
 
     if (!claimed) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Invoice is already processed, processing, or reviewed.",
+        data: { key: "error_invoice_is_already_processed_processing_or_reviewed" },
       });
     }
 
@@ -103,11 +103,11 @@ export const processInvoiceFileHandler = os
       );
       if (error instanceof InvoiceOcrUnavailableError) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
-          message: "Invoice OCR is unavailable. Check the server configuration and connection.",
+          data: { key: "error_invoice_ocr_is_unavailable_check_the_server_configurati" },
         });
       }
       throw new ORPCError("BAD_REQUEST", {
-        message: "Failed to process invoice: Please upload clear and correctly formatted invoice",
+        data: { key: "error_failed_to_process_invoice_please_upload_clear_and_corre" },
       });
     }
 
@@ -137,7 +137,7 @@ export const processInvoiceFileHandler = os
         .where(eq(purchaseInvoiceFile.id, file.id));
       logger.error({ err: error }, "Failed to save extracted invoice data");
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Failed to save extracted invoice data",
+        data: { key: "error_failed_to_save_extracted_invoice_data" },
       });
     }
 

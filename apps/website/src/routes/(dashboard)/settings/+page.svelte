@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import BuildingIcon from "@lucide/svelte/icons/building-2";
   import PercentIcon from "@lucide/svelte/icons/percent";
   import StoreIcon from "@lucide/svelte/icons/store";
@@ -19,7 +20,9 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Settings" }]} />
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_settings() }]}
+  />
 
   <Tabs.Root bind:value={searchParams.tab} class="w-full max-w-2xl">
     <div class="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
@@ -28,15 +31,15 @@
       >
         <Tabs.Trigger value="profile" class="data-[state=active]:bg-background gap-2">
           <StoreIcon class="size-4" />
-          <span class="hidden sm:inline">Profile</span>
+          <span class="hidden sm:inline">{msg.ui_profile()}</span>
         </Tabs.Trigger>
         <Tabs.Trigger value="business" class="data-[state=active]:bg-background gap-2">
           <BuildingIcon class="size-4" />
-          <span class="hidden sm:inline">Business</span>
+          <span class="hidden sm:inline">{msg.ui_business()}</span>
         </Tabs.Trigger>
         <Tabs.Trigger value="tax" class="data-[state=active]:bg-background gap-2">
           <PercentIcon class="size-4" />
-          <span class="hidden sm:inline">Tax</span>
+          <span class="hidden sm:inline">{msg.ui_tax()}</span>
         </Tabs.Trigger>
       </Tabs.List>
     </div>

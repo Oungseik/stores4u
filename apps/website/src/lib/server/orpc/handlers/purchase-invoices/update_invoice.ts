@@ -36,7 +36,7 @@ export const updateInvoiceHandler = os
 
     if (Number.isNaN(occurredAt.getTime())) {
       throw new ORPCError("BAD_REQUEST", {
-        message: `Invalid invoice date: ${input.invoiceDate}`,
+        data: { key: "error_invalid_invoice_date", values: { date: input.invoiceDate } },
       });
     }
 
@@ -50,7 +50,7 @@ export const updateInvoiceHandler = os
       const foundIds = new Set(products.map((p) => p.id));
       const missingIds = productIds.difference(foundIds);
       throw new ORPCError("NOT_FOUND", {
-        message: `Products not found: ${[...missingIds].join(", ")}`,
+        data: { key: "error_products_not_found", values: { products: [...missingIds].join(", ") } },
       });
     }
 
@@ -64,12 +64,12 @@ export const updateInvoiceHandler = os
           .sync();
 
         if (!existingInvoice) {
-          throw new ORPCError("NOT_FOUND", { message: "Invoice not found" });
+          throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_not_found" } });
         }
 
         if (BLOCKED_STATUSES.has(existingInvoice.status)) {
           throw new ORPCError("BAD_REQUEST", {
-            message: `Cannot edit invoice with status ${existingInvoice.status}`,
+            data: { key: "error_invoice_status_not_editable", values: { status: existingInvoice.status } },
           });
         }
 

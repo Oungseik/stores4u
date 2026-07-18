@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import CheckIcon from "@lucide/svelte/icons/check";
@@ -58,7 +59,7 @@
   <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <Building2Icon class="size-4" />
-      Supplier Information
+      {msg.ui_supplier_information()}
     </Card.Title>
   </Card.Header>
   <Card.Content class="space-y-4">
@@ -72,7 +73,7 @@
         }}
       />
       <Label for="existing-supplier">
-        {isExistingSupplier ? "Existing Supplier" : "Create New Supplier"}
+        {isExistingSupplier ? msg.ui_existing_supplier() : msg.ui_create_new_supplier()}
       </Label>
     </div>
 
@@ -103,9 +104,9 @@
           </Popover.Trigger>
           <Popover.Content class="w-80" align="start">
             <Command.Root class="gap-2" value={selectedSupplier?.name}>
-              <Command.Input placeholder="Search suppliers..." />
+              <Command.Input placeholder={msg.ui_search_suppliers()} />
               <Command.List>
-                <Command.Empty>No suppliers found.</Command.Empty>
+                <Command.Empty>{msg.ui_no_suppliers_found_9e60958()}</Command.Empty>
                 {#each suppliers as supplier}
                   <Command.Item value={supplier.name} onSelect={() => selectSupplier(supplier)}>
                     <CheckIcon
@@ -139,7 +140,7 @@
                 variant="ghost"
                 size="icon"
                 class="size-8 shrink-0"
-                title="Edit supplier"
+                title={msg.ui_edit_supplier_7f86540()}
                 onclick={() => (isEditing = true)}
               >
                 <PencilIcon class="size-4" />

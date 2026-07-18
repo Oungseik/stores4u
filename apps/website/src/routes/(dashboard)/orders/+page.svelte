@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import { parseDate } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -78,18 +79,20 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Orders" }]}>
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_orders() }]}
+  >
     {#snippet actions()}
       <a href="/cart" class={buttonVariants()}>
         <PlusIcon class="size-4" />
-        New Sale
+        {msg.ui_new_sale()}
       </a>
     {/snippet}
   </AdminDashboardHeader>
 
   <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">Orders</h1>
-    <p class="text-muted-foreground text-sm">View and manage customer orders</p>
+    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_orders()}</h1>
+    <p class="text-muted-foreground text-sm">{msg.ui_view_and_manage_customer_orders()}</p>
   </div>
 
   <div
@@ -113,25 +116,25 @@
     {:else if orderStats.data}
       {@const stats = [
         {
-          title: "Today",
+          title: msg.ui_today(),
           stats: orderStats.data.today,
-          description: "Today's revenue",
+          description: msg.ui_today_s_revenue(),
           icon: ReceiptIcon,
           iconBgClass: "bg-amber-500/10",
           iconTextClass: "text-amber-600",
         },
         {
-          title: "This Week",
+          title: msg.ui_this_week(),
           stats: orderStats.data.thisWeek,
-          description: "This week's revenue",
+          description: msg.ui_this_week_s_revenue(),
           icon: PackageIcon,
           iconBgClass: "bg-blue-500/10",
           iconTextClass: "text-blue-600",
         },
         {
-          title: "This Month",
+          title: msg.ui_this_month(),
           stats: orderStats.data.thisMonth,
-          description: "This month's revenue",
+          description: msg.ui_this_month_s_revenue(),
           icon: CalendarIcon,
           iconBgClass: "bg-emerald-500/10",
           iconTextClass: "text-emerald-600",
@@ -157,7 +160,7 @@
   <section class="space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search
-        placeholder="Search orders, customers..."
+        placeholder={msg.ui_search_orders_customers()}
         value={searchParams.search}
         oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
       />
@@ -174,16 +177,18 @@
         </div>
       {:else if orders.isError}
         <div class="flex items-center justify-center py-12">
-          <p class="text-red-500">Failed to load orders</p>
+          <p class="text-red-500">{msg.ui_failed_to_load_orders()}</p>
         </div>
       {:else if allOrders.length === 0}
         <div class="flex flex-col items-center justify-center py-12 text-center">
           <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
             <ShoppingBagIcon class="text-muted-foreground size-8" />
           </div>
-          <h3 class="text-lg font-semibold">No orders found</h3>
+          <h3 class="text-lg font-semibold">{msg.ui_no_orders_found()}</h3>
           <p class="text-muted-foreground max-w-sm text-sm">
-            {hasFilters ? "Try clearing filters" : "Orders will appear here when customers make purchases"}
+            {hasFilters
+              ? msg.ui_try_clearing_filters()
+              : msg.ui_orders_will_appear_here_when_customers_make_purchases()}
           </p>
         </div>
       {:else}
@@ -203,7 +208,7 @@
 
                   <div class="min-w-0 flex-1">
                     <p class="truncate text-left text-sm font-medium">
-                      {order.customerName ?? "In-store Purchase"}
+                      {order.customerName ?? msg.ui_in_store_purchase()}
                     </p>
                     <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
                       <span class="font-semibold">#{formatOrderId(order.id)}</span>
@@ -218,7 +223,7 @@
                     <p class="text-sm font-semibold">
                       {formatPrice(order.totalCents, shop.currency)}
                     </p>
-                    <p class="text-xs text-emerald-600">paid</p>
+                    <p class="text-xs text-emerald-600">{msg.paid()}</p>
                   </div>
                 </a>
               </Card.Content>
@@ -235,9 +240,9 @@
             >
               {#if orders.isFetchingNextPage}
                 <Loader2Icon class="mr-2 size-4 animate-spin" />
-                Loading...
+                {msg.ui_loading_b04ba49()}
               {:else}
-                Load More
+                {msg.ui_load_more()}
               {/if}
             </Button>
           </div>

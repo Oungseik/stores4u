@@ -8,5 +8,5 @@
     "pathPattern": ["./i18n/{locale}.json"]
   },
   "baseLocale": "en",
-  "locales": ["en"]
+  "locales": ["en", "my"]
 }

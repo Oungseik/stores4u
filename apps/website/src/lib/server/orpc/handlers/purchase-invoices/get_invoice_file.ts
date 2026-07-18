@@ -22,7 +22,7 @@ export const getInvoiceFileHandler = os
     });
 
     if (!file) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_file_not_found" } });
     }
 
     const objectKey = extractObjectKey(file.objectPath);

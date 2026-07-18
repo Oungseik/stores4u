@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
@@ -30,12 +32,12 @@
   const createProduct = createMutation(() =>
     orpc.products.create.mutationOptions({
       onSuccess: (result) => {
-        toast.success("Product created");
+        toast.success(msg.ui_product_created());
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
         onCreated?.({ id: result.id, name: result.name, sku: result.sku });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create product");
+        toast.error(localizeError(error, "ui_failed_to_create_product"));
       },
     }),
   );
@@ -70,13 +72,13 @@
     name="name"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "Name is required").max(255).safeParse(value).error?.issues.at(0)
+        z.string().min(1, msg.ui_name_is_required()).max(255).safeParse(value).error?.issues.at(0)
           ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Name *</Label>
+        <Label for={field.name}>{msg.ui_name_d145bb8()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -84,7 +86,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Product name"
+          placeholder={msg.ui_product_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -97,12 +99,13 @@
     name="sku"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "SKU is required").max(100).safeParse(value).error?.issues.at(0)?.message,
+        z.string().min(1, msg.ui_sku_is_required()).max(100).safeParse(value).error?.issues.at(0)
+          ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>SKU *</Label>
+        <Label for={field.name}>{msg.ui_sku_aef8aad()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -124,14 +127,14 @@
       name="price"
       validators={{
         onChange: ({ value }) => {
-          if (!value || value <= 0) return "Must be > 0";
+          if (!value || value <= 0) return msg.ui_must_be_0();
           return undefined;
         },
       }}
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Retail Price ($) *</Label>
+          <Label for={field.name}>{msg.ui_retail_price()}</Label>
           <NumberInput
             value={field.state.value}
             onValueChange={(v) => field.handleChange(v)}
@@ -148,7 +151,7 @@
     </form.Field>
 
     <div class="space-y-2">
-      <Label>UOM *</Label>
+      <Label>{msg.ui_uom()}</Label>
       <Select.Root type="single" bind:value={selectedUom}>
         <Select.Trigger class="w-full">{selectedUom}</Select.Trigger>
         <Select.Content>
@@ -162,14 +165,14 @@
 
   <div class="flex justify-end gap-2 pt-2">
     {#if onCancel}
-      <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+      <Button type="button" variant="outline" onclick={onCancel}>{msg.ui_cancel()}</Button>
     {/if}
     <Button type="submit" disabled={createProduct.isPending}>
       {#if createProduct.isPending}
         <Loader2Icon class="mr-2 size-4 animate-spin" />
-        Creating...
+        {msg.ui_creating()}
       {:else}
-        Create Product
+        {msg.ui_create_product()}
       {/if}
     </Button>
   </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -47,20 +48,20 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Products", href: `/products` },
-      { label: product?.name ?? "Product Details" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_products(), href: `/products` },
+      { label: product?.name ?? msg.ui_product_details() },
     ]}
   >
     {#snippet actions()}
       {#if product}
         <Button variant="outline" size="sm" onclick={() => (showAdjustDialog = true)}>
           <ArrowUpDownIcon data-icon="inline-start" />
-          Adjust Stock
+          {msg.ui_adjust_stock()}
         </Button>
         <a href={`/products/${params.id}/edit`} class={buttonVariants({ size: "sm" })}>
           <PencilIcon data-icon="inline-start" />
-          Edit
+          {msg.ui_edit()}
         </a>
       {/if}
     {/snippet}
@@ -72,7 +73,7 @@
     </div>
   {:else if productQuery.isError}
     <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">Failed to load product</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_product()}</p>
     </div>
   {:else if product}
     {#if hasLowStock}
@@ -80,7 +81,7 @@
         class="border-amber-500/50 bg-amber-50 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/50 dark:text-amber-100 [&>svg]:text-amber-600"
       >
         <AlertTriangleIcon />
-        <Alert.Title>Low Stock Warning</Alert.Title>
+        <Alert.Title>{msg.ui_low_stock_warning()}</Alert.Title>
         <Alert.Description>
           Only {product.stock} units remaining (below threshold of {product.lowStockThreshold}).
         </Alert.Description>

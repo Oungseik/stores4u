@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MailIcon from "@lucide/svelte/icons/mail";
@@ -30,12 +32,12 @@
   const deleteMutation = createMutation(() =>
     orpc.suppliers.delete.mutationOptions({
       onSuccess: () => {
-        toast.success("Supplier deleted successfully");
+        toast.success(msg.ui_supplier_deleted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.get.key() });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete supplier");
+        toast.error(localizeError(error, "ui_failed_to_delete_supplier"));
       },
     }),
   );
@@ -82,8 +84,8 @@
 
   function deleteSupplier(supplier: ApiSupplier) {
     confirmDelete({
-      title: "Delete Supplier",
-      description: `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
+      title: msg.ui_delete_supplier(),
+      description: msg.confirm_delete_named({ name: supplier.name }),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: supplier.id });
       },
@@ -92,24 +94,28 @@
 </script>
 
 <div class="flex flex-col gap-6 p-4 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Suppliers" }]}>
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_suppliers() }]}
+  >
     {#snippet actions()}
       <a href="/purchases/suppliers/add" class={buttonVariants()}>
         <PlusIcon class="size-4" />
-        Add Supplier
+        {msg.ui_add_supplier()}
       </a>
     {/snippet}
   </AdminDashboardHeader>
 
   <div class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">Suppliers</h1>
-    <p class="text-muted-foreground text-sm">Manage supplier information and relationships</p>
+    <h1 class="text-2xl font-semibold tracking-tight">{msg.ui_suppliers()}</h1>
+    <p class="text-muted-foreground text-sm">
+      {msg.ui_manage_supplier_information_and_relationships()}
+    </p>
   </div>
 
-  <section class="space-y-6 @container/main">
+  <section class="@container/main space-y-6">
     <FilterBar.Root {hasFilters} onReset={resetFilters}>
       <FilterBar.Search
-        placeholder="Search suppliers by name, contact, or email..."
+        placeholder={msg.ui_search_suppliers_by_name_contact_or_email()}
         value={searchParams.search}
         oninput={(e) => searchParams.update({ search: e.currentTarget.value })}
       />
@@ -122,16 +128,18 @@
       </div>
     {:else if suppliers.isError}
       <div class="flex items-center justify-center py-12">
-        <p class="text-red-500">Failed to load suppliers</p>
+        <p class="text-red-500">{msg.ui_failed_to_load_suppliers()}</p>
       </div>
     {:else if allSuppliers.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-4 flex size-16 items-center justify-center rounded-full">
           <Building2Icon class="text-muted-foreground size-8" />
         </div>
-        <h3 class="text-lg font-semibold">No suppliers found</h3>
+        <h3 class="text-lg font-semibold">{msg.ui_no_suppliers_found()}</h3>
         <p class="text-muted-foreground max-w-sm text-sm">
-          {hasFilters ? "Try clearing filters" : "Add your first supplier to get started"}
+          {hasFilters
+            ? msg.ui_try_clearing_filters()
+            : msg.ui_add_your_first_supplier_to_get_started()}
         </p>
       </div>
     {:else}
@@ -183,13 +191,13 @@
 
               <div class="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
                 <div>
-                  <p class="text-muted-foreground text-xs">Total Purchases</p>
+                  <p class="text-muted-foreground text-xs">{msg.ui_total_purchases()}</p>
                   <p class="font-semibold">
                     {formatPrice(supplier.totalPurchases, shop.currency)}
                   </p>
                 </div>
                 <div class="text-right">
-                  <p class="text-muted-foreground text-xs">Invoices</p>
+                  <p class="text-muted-foreground text-xs">{msg.ui_invoices()}</p>
                   <p class="font-semibold">{supplier.purchaseInvoicesCount}</p>
                 </div>
               </div>
@@ -203,7 +211,7 @@
             </Card.Content>
             <Card.Footer class="flex flex-col gap-2 pt-0">
               <Button variant="outline" class="w-full" href={`/purchases/suppliers/${supplier.id}`}>
-                View Details
+                {msg.ui_view_details()}
               </Button>
               <div class="flex w-full gap-2">
                 <Button
@@ -212,14 +220,14 @@
                   onclick={() => deleteSupplier(supplier)}
                 >
                   <Trash2Icon class="size-4" />
-                  Delete
+                  {msg.ui_delete()}
                 </Button>
                 <a
                   href={`/purchases/suppliers/${supplier.id}/edit`}
                   class={buttonVariants({ variant: "outline", class: "flex-1" })}
                 >
                   <PencilIcon class="size-4" />
-                  Edit
+                  {msg.ui_edit()}
                 </a>
               </div>
             </Card.Footer>
@@ -236,9 +244,9 @@
           >
             {#if suppliers.isFetchingNextPage}
               <Loader2Icon class="mr-2 size-4 animate-spin" />
-              Loading...
+              {msg.ui_loading_b04ba49()}
             {:else}
-              Load More
+              {msg.ui_load_more()}
             {/if}
           </Button>
         </div>

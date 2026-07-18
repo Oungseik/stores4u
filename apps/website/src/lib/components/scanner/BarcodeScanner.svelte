@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import CameraOffIcon from "@lucide/svelte/icons/camera-off";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
@@ -58,8 +59,8 @@
       isPermissionError =
         err === "Error getting userMedia, error = NotAllowedError: Permission denied";
       scannerError = isPermissionError
-        ? "Camera permission required. To scan barcodes, allow camera access in your browser settings."
-        : "Camera access denied or not available";
+        ? msg.ui_camera_permission_required_to_scan_barcodes_allow_camer()
+        : msg.ui_camera_access_denied_or_not_available();
       console.error("Scanner error:", err);
     }
   }
@@ -102,7 +103,7 @@
       <CameraOffIcon class="text-muted-foreground size-8" />
       <p class="text-muted-foreground text-sm">{scannerError}</p>
       {#if !isPermissionError}
-        <Button variant="outline" size="sm" onclick={startScanner}>Try Again</Button>
+        <Button variant="outline" size="sm" onclick={startScanner}>{msg.ui_try_again()}</Button>
       {/if}
     </div>
   </div>
@@ -111,7 +112,7 @@
     {#if !isScanning}
       <div class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2">
         <Loader2Icon class="size-6 animate-spin" />
-        <p class="text-muted-foreground text-sm">Starting camera...</p>
+        <p class="text-muted-foreground text-sm">{msg.ui_starting_camera()}</p>
       </div>
     {/if}
   </div>

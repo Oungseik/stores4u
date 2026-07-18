@@ -1,4 +1,4 @@
-import { COUNTRIES, CURRENCIES, TIMEZONES } from "@repo/config";
+import { COUNTRIES, CURRENCIES, isValidTimezone } from "@repo/config";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, shop, shopInfo } from "$lib/server/db";
@@ -18,7 +18,7 @@ const input = z.object({
   taxId: z.string().max(100).optional(),
   country: z.enum(COUNTRIES),
   currency: z.enum(CURRENCIES),
-  timezone: z.enum(TIMEZONES as unknown as [string, ...string[]]),
+  timezone: z.string().refine(isValidTimezone),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
 });

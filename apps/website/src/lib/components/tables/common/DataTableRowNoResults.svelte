@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import * as Table from "@repo/ui/table";
 
   type Props = {
@@ -9,5 +10,5 @@
 </script>
 
 <Table.Row>
-  <Table.Cell {colspan} class="h-24 text-center">No results.</Table.Cell>
+  <Table.Cell {colspan} class="h-24 text-center">{msg.ui_no_results()}</Table.Cell>
 </Table.Row>

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MinusIcon from "@lucide/svelte/icons/minus";
   import { ScrollArea } from "@repo/ui/scroll-area";
@@ -41,16 +43,16 @@
   }
 
   const movementTypeOptions: { value: MovementType; label: string }[] = [
-    { value: "ADJUSTMENT", label: "Adjustment" },
-    { value: "CORRECTION", label: "Correction" },
-    { value: "WASTAGE", label: "Wastage" },
-    { value: "RETURN", label: "Return" },
+    { value: "ADJUSTMENT", label: msg.ui_adjustment() },
+    { value: "CORRECTION", label: msg.ui_correction() },
+    { value: "WASTAGE", label: msg.ui_wastage() },
+    { value: "RETURN", label: msg.ui_return() },
   ];
 
   const adjustMutation = createMutation(() =>
     orpc.inventory.adjustStock.mutationOptions({
       onSuccess: () => {
-        toast.success("Stock adjusted successfully");
+        toast.success(msg.ui_stock_adjusted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
         queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
@@ -59,7 +61,7 @@
         onClose();
       },
       onError: (error) => {
-        toast.error(error instanceof Error ? error.message : "Failed to adjust stock");
+        toast.error(localizeError(error, "ui_failed_to_adjust_stock"));
       },
     }),
   );
@@ -102,7 +104,7 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="px-0 sm:max-w-xl">
     <Dialog.Header class="px-3 sm:px-4">
-      <Dialog.Title>Adjust Stock</Dialog.Title>
+      <Dialog.Title>{msg.ui_adjust_stock()}</Dialog.Title>
       <Dialog.Description>
         Adjust stock for {productName}. Current stock: {currentStock}
       </Dialog.Description>
@@ -120,7 +122,7 @@
         <form.Field name="direction">
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label>Direction</Label>
+              <Label>{msg.ui_direction()}</Label>
               <ToggleGroup
                 type="single"
                 value={field.state.value}
@@ -135,11 +137,11 @@
               >
                 <ToggleGroupItem value="ADD" class="flex-1">
                   <PlusIcon class="size-4" />
-                  Add
+                  {msg.ui_add()}
                 </ToggleGroupItem>
                 <ToggleGroupItem value="SUBTRACT" class="flex-1">
                   <MinusIcon class="size-4" />
-                  Subtract
+                  {msg.ui_subtract()}
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
@@ -149,7 +151,7 @@
         <form.Field name="movementType">
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label>Type</Label>
+              <Label>{msg.ui_type()}</Label>
               <Select.Root
                 type="single"
                 value={field.state.value}
@@ -166,7 +168,7 @@
               >
                 <Select.Trigger class="w-full">
                   {movementTypeOptions.find((o) => o.value === field.state.value)?.label ??
-                    "Select type"}
+                    msg.ui_select_type()}
                 </Select.Trigger>
                 <Select.Content>
                   {#each movementTypeOptions as option}
@@ -182,14 +184,14 @@
           name="qty"
           validators={{
             onChange: ({ value }) => {
-              if (!value || value <= 0) return "Quantity must be greater than 0";
+              if (!value || value <= 0) return msg.ui_quantity_must_be_greater_than_0();
               return undefined;
             },
           }}
         >
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label>Quantity</Label>
+              <Label>{msg.ui_quantity()}</Label>
               <NumberInput
                 value={field.state.value}
                 onValueChange={(v) => {
@@ -211,14 +213,14 @@
           name="unitCost"
           validators={{
             onChange: ({ value }) => {
-              if (!value || value < 0) return "Unit cost cannot be negative";
+              if (!value || value < 0) return msg.ui_unit_cost_cannot_be_negative();
               return undefined;
             },
           }}
         >
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label>Unit Cost</Label>
+              <Label>{msg.ui_unit_cost()}</Label>
               <NumberInput
                 value={field.state.value}
                 onValueChange={(v) => field.handleChange(v)}
@@ -237,14 +239,14 @@
           name="date"
           validators={{
             onChange: ({ value }) => {
-              if (!value || value.length === 0) return "Date is required";
+              if (!value || value.length === 0) return msg.ui_date_is_required();
               return undefined;
             },
           }}
         >
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label>Date</Label>
+              <Label>{msg.ui_date()}</Label>
               <Input
                 type="date"
                 value={field.state.value}
@@ -261,11 +263,11 @@
         <form.Field name="reason">
           {#snippet children(field)}
             <div class="space-y-2">
-              <Label>Reason (optional)</Label>
+              <Label>{msg.ui_reason_optional()}</Label>
               <Textarea
                 value={field.state.value}
                 onchange={(e) => field.handleChange(e.currentTarget.value)}
-                placeholder="Why is this adjustment being made?"
+                placeholder={msg.ui_why_is_this_adjustment_being_made()}
                 rows={2}
               />
             </div>
@@ -274,11 +276,11 @@
 
         <div class="text-muted-foreground rounded-lg border p-3 text-sm">
           <div class="flex items-center justify-between">
-            <span>Current stock</span>
+            <span>{msg.ui_current_stock_2ee7623()}</span>
             <span class="font-medium">{currentStock}</span>
           </div>
           <div class="flex items-center justify-between pb-2">
-            <span>{direction === "ADD" ? "Adding" : "Subtracting"}</span>
+            <span>{direction === "ADD" ? msg.ui_adding() : msg.ui_subtracting()}</span>
             <span
               class={direction === "ADD"
                 ? "font-medium text-green-600"
@@ -288,7 +290,7 @@
             </span>
           </div>
           <div class="flex items-center justify-between border-t pt-2">
-            <span class="font-medium">Projected stock</span>
+            <span class="font-medium">{msg.ui_projected_stock()}</span>
             <span class={projectedStock < 0 ? "text-destructive font-semibold" : "font-semibold"}>
               {projectedStock}
             </span>
@@ -303,14 +305,14 @@
         onclick={() => handleOpenChange(false)}
         disabled={adjustMutation.isPending}
       >
-        Cancel
+        {msg.ui_cancel()}
       </Button>
       <Button onclick={() => form.handleSubmit()} disabled={adjustMutation.isPending}>
         {#if adjustMutation.isPending}
           <Loader2Icon class="size-4 animate-spin" />
-          Adjusting...
+          {msg.ui_adjusting()}
         {:else}
-          Confirm Adjustment
+          {msg.ui_confirm_adjustment()}
         {/if}
       </Button>
     </Dialog.Footer>

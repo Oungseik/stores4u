@@ -19,12 +19,12 @@ export const rejectInvoiceFileHandler = os
     });
 
     if (!file) {
-      throw new ORPCError("NOT_FOUND", { message: "Invoice file not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_file_not_found" } });
     }
 
     if (file.status !== "PROCESSED") {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Only processed invoice files can be rejected",
+        data: { key: "error_only_processed_invoice_files_can_be_rejected" },
       });
     }
 

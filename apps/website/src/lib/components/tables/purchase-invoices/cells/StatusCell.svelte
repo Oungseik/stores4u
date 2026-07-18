@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import { Badge } from "@repo/ui/badge";
 
   type Props = {
@@ -10,19 +11,19 @@
   const statusConfig: Record<string, { class: string; label: string }> = {
     VALIDATED: {
       class: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50",
-      label: "Validated",
+      label: msg.ui_validated(),
     },
     PENDING: {
       class: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50",
-      label: "Pending",
+      label: msg.ui_pending(),
     },
     AUTO_ACCEPTED: {
       class: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
-      label: "Auto Accepted",
+      label: msg.ui_auto_accepted(),
     },
     REJECTED: {
       class: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
-      label: "Rejected",
+      label: msg.ui_rejected(),
     },
   };
 

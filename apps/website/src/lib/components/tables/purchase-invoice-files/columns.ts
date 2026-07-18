@@ -1,3 +1,4 @@
+import * as msg from "$lib/paraglide/messages";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 import ActionsCell from "./cells/ActionsCell.svelte";
@@ -46,14 +47,14 @@ export function createColumns(
     },
     {
       accessorKey: "createdAt",
-      header: "Uploaded",
+      header: msg.ui_uploaded(),
       cell: ({ row }) => {
         return renderComponent(DateCell, { date: row.original.createdAt });
       },
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: msg.ui_status(),
       cell: ({ row }) => {
         return renderComponent(StatusCell, { status: row.original.status });
       },

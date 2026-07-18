@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import KeyRoundIcon from "@lucide/svelte/icons/key-round";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import UserPlusIcon from "@lucide/svelte/icons/user-plus";
@@ -26,9 +28,9 @@
     try {
       const res = await orpc.invites.create.call({ role: inviteRole });
       inviteLinks = res.links;
-      toast.success("Invite link generated (expires in 15 min).");
+      toast.success(msg.ui_invite_link_generated_expires_in_15_min());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not create invite.");
+      toast.error(localizeError(err, "ui_could_not_create_invite"));
     } finally {
       isInviting = false;
     }
@@ -45,9 +47,9 @@
     try {
       const res = await orpc.recovery.forUser.call({ email: resetEmail });
       resetLinks = res.links;
-      toast.success("Reset link generated.");
+      toast.success(msg.ui_reset_link_generated());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not generate reset link.");
+      toast.error(localizeError(err, "ui_could_not_generate_reset_link"));
     } finally {
       isResetting = false;
     }
@@ -55,30 +57,30 @@
 </script>
 
 <section class="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-  <AdminDashboardHeader breadcrumbs={[{ label: "Dashboard", href: `/` }, { label: "Team" }]} />
+  <AdminDashboardHeader
+    breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_team() }]}
+  />
 
   <div class="grid w-full max-w-2xl gap-4">
     <Card.Root>
       <Card.Header>
         <Card.Title class="flex items-center gap-2">
           <UserPlusIcon class="size-5" />
-          Invite a team member
+          {msg.ui_invite_a_team_member()}
         </Card.Title>
         <Card.Description>
-          Generate a one-time invite link (expires in 15 min). Copy the offline link to send via SMS
-          when the internet is down, or the online link for email. The recipient opens it on the same
-          wifi or over the internet to set up their account.
+          {msg.ui_generate_a_one_time_invite_link_expires_in_15_min_copy_()}
         </Card.Description>
       </Card.Header>
       <Card.Content class="space-y-4">
         <div class="flex items-end gap-3">
           <div class="space-y-2">
-            <Label for="invite-role">Role</Label>
+            <Label for="invite-role">{msg.ui_role()}</Label>
             <Select.Root type="single" bind:value={inviteRole}>
               <Select.Trigger id="invite-role" class="w-40">{inviteRole}</Select.Trigger>
               <Select.Content>
-                <Select.Item label="Member" value="member">Member</Select.Item>
-                <Select.Item label="Admin" value="admin">Admin</Select.Item>
+                <Select.Item label={msg.ui_member()} value="member">{msg.ui_member()}</Select.Item>
+                <Select.Item label={msg.ui_admin()} value="admin">{msg.ui_admin()}</Select.Item>
               </Select.Content>
             </Select.Root>
           </div>
@@ -96,11 +98,10 @@
       <Card.Header>
         <Card.Title class="flex items-center gap-2">
           <KeyRoundIcon class="size-5" />
-          Reset a member's password
+          {msg.ui_reset_a_member_s_password()}
         </Card.Title>
         <Card.Description>
-          Generate a reset link for a team member who is locked out. Copy the link and hand it over
-          manually (works offline on the same wifi).
+          {msg.ui_generate_a_reset_link_for_a_team_member_who_is_locked_o()}
         </Card.Description>
       </Card.Header>
       <Card.Content class="space-y-4">
@@ -112,7 +113,7 @@
           }}
         >
           <div class="flex-1 space-y-2">
-            <Label for="reset-email">Member email</Label>
+            <Label for="reset-email">{msg.ui_member_email()}</Label>
             <Input
               id="reset-email"
               type="email"

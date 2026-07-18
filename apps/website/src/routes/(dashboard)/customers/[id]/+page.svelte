@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import { goto } from "$app/navigation";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -29,11 +31,11 @@
   const deleteMutation = createMutation(() =>
     orpc.customers.delete.mutationOptions({
       onSuccess: () => {
-        toast.success("Customer deleted successfully");
+        toast.success(msg.ui_customer_deleted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete customer");
+        toast.error(localizeError(error, "ui_failed_to_delete_customer"));
       },
     }),
   );
@@ -64,8 +66,8 @@
   function deleteCustomer() {
     if (!customer) return;
     confirmDelete({
-      title: "Delete Customer",
-      description: `Are you sure you want to delete "${customer.name}"? This action cannot be undone.`,
+      title: msg.ui_delete_customer(),
+      description: msg.confirm_delete_named({ name: customer.name }),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: customer.id });
         goto("/customers");
@@ -77,20 +79,20 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Customers", href: `/customers` },
-      { label: customer?.name ?? "Customer" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_customers(), href: `/customers` },
+      { label: customer?.name ?? msg.ui_customer() },
     ]}
   >
     {#snippet actions()}
       {#if customer}
         <Button variant="destructive" onclick={deleteCustomer}>
           <Trash2Icon class="size-4" />
-          Delete
+          {msg.ui_delete()}
         </Button>
         <a href={`/customers/${params.id}/edit`} class={buttonVariants({ variant: "outline" })}>
           <PencilIcon class="size-4" />
-          Edit
+          {msg.ui_edit()}
         </a>
       {/if}
     {/snippet}
@@ -102,7 +104,7 @@
     </div>
   {:else if customerQuery.isError}
     <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">Failed to load customer</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_customer()}</p>
     </div>
   {:else if customer}
     <section class="max-w-2xl space-y-6">
@@ -120,53 +122,55 @@
 
       <div>
         <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-          Contact Information
+          {msg.ui_contact_information()}
         </h4>
         <div class="space-y-2 rounded-md border p-4 text-sm">
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Customer Type</span>
+            <span class="text-muted-foreground">{msg.ui_customer_type()}</span>
             <span class="font-medium"
-              >{customer.customerType === "WHOLESALE" ? "Wholesale" : "Retail"}</span
+              >{customer.customerType === "WHOLESALE" ? msg.ui_wholesale() : msg.ui_retail()}</span
             >
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Contact Person</span>
+            <span class="text-muted-foreground">{msg.ui_contact_person()}</span>
             <span class="font-medium">{customer.contactName ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Phone</span>
+            <span class="text-muted-foreground">{msg.ui_phone()}</span>
             <span>{customer.phone ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Phone 2</span>
+            <span class="text-muted-foreground">{msg.ui_phone_2()}</span>
             <span>{customer.phone2 ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Email</span>
+            <span class="text-muted-foreground">{msg.ui_email()}</span>
             <span>{customer.email ?? "—"}</span>
           </div>
           <div class="flex items-start justify-between">
-            <span class="text-muted-foreground">Address</span>
+            <span class="text-muted-foreground">{msg.ui_address()}</span>
             <span class="max-w-xs text-right">{customer.address ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Tax ID</span>
+            <span class="text-muted-foreground">{msg.ui_tax_id()}</span>
             <span class="font-medium">{customer.taxId ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Payment Terms</span>
+            <span class="text-muted-foreground">{msg.ui_payment_terms()}</span>
             <span class="font-medium">{customer.paymentTerms ?? "—"}</span>
           </div>
           <div class="flex items-start justify-between">
-            <span class="text-muted-foreground">Notes</span>
-            <span class="max-w-xs whitespace-pre-wrap text-right">{customer.notes ?? "—"}</span>
+            <span class="text-muted-foreground">{msg.ui_notes()}</span>
+            <span class="max-w-xs text-right whitespace-pre-wrap">{customer.notes ?? "—"}</span>
           </div>
         </div>
       </div>
     </section>
 
     <section class="space-y-4">
-      <h4 class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">Orders</h4>
+      <h4 class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+        {msg.ui_orders()}
+      </h4>
 
       {#if orders.isLoading}
         <div class="flex items-center justify-center py-12">
@@ -174,12 +178,14 @@
         </div>
       {:else if orders.isError}
         <div class="flex items-center justify-center py-12">
-          <p class="text-red-500">Failed to load orders</p>
+          <p class="text-red-500">{msg.ui_failed_to_load_orders()}</p>
         </div>
       {:else if allOrders.length === 0}
-        <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center">
+        <div
+          class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center"
+        >
           <ShoppingBagIcon class="size-10 opacity-50" />
-          <p class="text-sm">No orders yet</p>
+          <p class="text-sm">{msg.ui_no_orders_yet()}</p>
         </div>
       {:else}
         <div class="space-y-2">
@@ -210,7 +216,7 @@
                     <p class="text-sm font-semibold">
                       {formatPrice(order.totalCents, shop.currency)}
                     </p>
-                    <p class="text-xs text-emerald-600">paid</p>
+                    <p class="text-xs text-emerald-600">{msg.paid()}</p>
                   </div>
                 </a>
               </Card.Content>
@@ -227,9 +233,9 @@
             >
               {#if orders.isFetchingNextPage}
                 <Loader2Icon class="mr-2 size-4 animate-spin" />
-                Loading...
+                {msg.ui_loading_b04ba49()}
               {:else}
-                Load More
+                {msg.ui_load_more()}
               {/if}
             </Button>
           </div>

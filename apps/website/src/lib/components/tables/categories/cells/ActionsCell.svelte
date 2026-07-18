@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import ListPlusIcon from "@lucide/svelte/icons/list-plus";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -20,8 +21,8 @@
 
   function handleDelete() {
     confirmDelete({
-      title: "Delete Category",
-      description: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+      title: msg.ui_delete_category(),
+      description: msg.confirm_delete_named({ name: category.name }),
       onConfirm: async () => {
         onDelete(category);
       },
@@ -39,16 +40,16 @@
   <DropdownMenu.Content align="end" class="min-w-max">
     <DropdownMenu.Item onclick={() => onManageProducts(category)}>
       <ListPlusIcon class="size-4" />
-      Manage Products
+      {msg.ui_manage_products()}
     </DropdownMenu.Item>
     <DropdownMenu.Item onclick={() => onEdit(category)}>
       <PencilIcon class="size-4" />
-      Edit
+      {msg.ui_edit()}
     </DropdownMenu.Item>
     <DropdownMenu.Separator />
     <DropdownMenu.Item class="text-red-600" onclick={handleDelete}>
       <Trash2Icon class="size-4" />
-      Delete
+      {msg.ui_delete()}
     </DropdownMenu.Item>
   </DropdownMenu.Content>
 </DropdownMenu.Root>

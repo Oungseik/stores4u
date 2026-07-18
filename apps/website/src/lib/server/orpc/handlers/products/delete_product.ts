@@ -22,7 +22,7 @@ export const deleteProductHandler = os
       .where(eq(product.id, input.id));
 
     if (updated.changes === 0) {
-      throw new ORPCError("NOT_FOUND", { message: "Product not found" });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_product_not_found" } });
     }
 
     return { success: true };

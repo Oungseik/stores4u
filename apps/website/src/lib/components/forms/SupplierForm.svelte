@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
@@ -67,12 +69,12 @@
   const createSupplier = createMutation(() =>
     orpc.suppliers.create.mutationOptions({
       onSuccess: (created) => {
-        toast.success("Supplier created successfully");
+        toast.success(msg.ui_supplier_created_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
         onSuccess?.(created);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create supplier");
+        toast.error(localizeError(error, "ui_failed_to_create_supplier"));
       },
     }),
   );
@@ -80,13 +82,13 @@
   const updateSupplier = createMutation(() =>
     orpc.suppliers.update.mutationOptions({
       onSuccess: (updated) => {
-        toast.success("Supplier updated successfully");
+        toast.success(msg.ui_supplier_updated_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.get.key() });
         onSuccess?.(updated);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update supplier");
+        toast.error(localizeError(error, "ui_failed_to_update_supplier"));
       },
     }),
   );
@@ -111,7 +113,11 @@
       const phone = phoneValue(value.phone, phoneDetailed);
       const phone2 = phoneValue(value.phone2, phone2Detailed);
       if (phone === undefined || phone2 === undefined) {
-        toast.error(`${phone === undefined ? "Phone" : "Phone 2"} is invalid`);
+        toast.error(
+          msg.error_invalid_field({
+            field: phone === undefined ? msg.ui_phone() : msg.ui_phone_2(),
+          }),
+        );
         return;
       }
 
@@ -161,13 +167,13 @@
     name="name"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "Name is required").max(255).safeParse(value).error?.issues.at(0)
+        z.string().min(1, msg.ui_name_is_required()).max(255).safeParse(value).error?.issues.at(0)
           ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Supplier Name *</Label>
+        <Label for={field.name}>{msg.ui_supplier_name()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -175,7 +181,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter supplier name"
+          placeholder={msg.ui_enter_supplier_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -193,7 +199,7 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Contact Person</Label>
+        <Label for={field.name}>{msg.ui_contact_person()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -201,7 +207,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter contact name"
+          placeholder={msg.ui_enter_contact_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -220,7 +226,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Phone</Label>
+          <Label for={field.name}>{msg.ui_phone()}</Label>
           <PhoneInput
             value={field.state.value}
             bind:detailedValue={phoneDetailed}
@@ -244,7 +250,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Phone 2</Label>
+          <Label for={field.name}>{msg.ui_phone_2()}</Label>
           <PhoneInput
             value={field.state.value}
             bind:detailedValue={phone2Detailed}
@@ -273,7 +279,7 @@
     >
       {#snippet children(field)}
         <div class="space-y-2">
-          <Label for={field.name}>Email</Label>
+          <Label for={field.name}>{msg.ui_email()}</Label>
           <Input
             id={field.name}
             name={field.name}
@@ -300,14 +306,14 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Address</Label>
+        <Label for={field.name}>{msg.ui_address()}</Label>
         <Textarea
           id={field.name}
           name={field.name}
           value={field.state.value}
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter full address"
+          placeholder={msg.ui_enter_full_address()}
           rows={3}
         />
         {#if field.state.meta.errors.length}
@@ -326,7 +332,7 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Payment Terms</Label>
+        <Label for={field.name}>{msg.ui_payment_terms()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -346,14 +352,14 @@
   {#if showActions || onCancel}
     <div class="flex justify-end gap-2">
       {#if onCancel}
-        <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+        <Button type="button" variant="outline" onclick={onCancel}>{msg.ui_cancel()}</Button>
       {/if}
       <Button type="submit" disabled={createSupplier.isPending || updateSupplier.isPending}>
         {#if createSupplier.isPending || updateSupplier.isPending}
           <Loader2Icon class="mr-2 size-4 animate-spin" />
-          {isEditMode ? "Updating..." : "Creating..."}
+          {isEditMode ? msg.ui_updating() : msg.ui_creating()}
         {:else}
-          {isEditMode ? "Update Supplier" : "Create Supplier"}
+          {isEditMode ? msg.ui_update_supplier() : msg.ui_create_supplier()}
         {/if}
       </Button>
     </div>

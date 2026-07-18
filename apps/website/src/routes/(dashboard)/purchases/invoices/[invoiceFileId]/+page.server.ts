@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ params }) => {
   });
 
   if (!file) {
-    throw error(404, "Invoice file not found");
+    throw error(404, "error_invoice_file_not_found");
   }
 
   if (file.status !== "REVIEWED" && file.status !== "REJECTED") {

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -31,11 +33,11 @@
   const deleteMutation = createMutation(() =>
     orpc.suppliers.delete.mutationOptions({
       onSuccess: () => {
-        toast.success("Supplier deleted successfully");
+        toast.success(msg.ui_supplier_deleted_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete supplier");
+        toast.error(localizeError(error, "ui_failed_to_delete_supplier"));
       },
     }),
   );
@@ -74,8 +76,8 @@
   function deleteSupplier() {
     if (!supplier) return;
     confirmDelete({
-      title: "Delete Supplier",
-      description: `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
+      title: msg.ui_delete_supplier(),
+      description: msg.confirm_delete_named({ name: supplier.name }),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: supplier.id });
         goto("/purchases/suppliers");
@@ -87,24 +89,24 @@
 <div class="flex flex-col gap-6 p-4 md:p-6">
   <AdminDashboardHeader
     breadcrumbs={[
-      { label: "Dashboard", href: `/` },
-      { label: "Purchases", href: `/purchases` },
-      { label: "Suppliers", href: `/purchases/suppliers` },
-      { label: supplier?.name ?? "Supplier" },
+      { label: msg.ui_dashboard(), href: `/` },
+      { label: msg.ui_purchases(), href: `/purchases` },
+      { label: msg.ui_suppliers(), href: `/purchases/suppliers` },
+      { label: supplier?.name ?? msg.ui_supplier() },
     ]}
   >
     {#snippet actions()}
       {#if supplier}
         <Button variant="destructive" onclick={deleteSupplier}>
           <Trash2Icon class="size-4" />
-          Delete
+          {msg.ui_delete()}
         </Button>
         <a
           href={`/purchases/suppliers/${params.supplierId}/edit`}
           class={buttonVariants({ variant: "outline" })}
         >
           <PencilIcon class="size-4" />
-          Edit
+          {msg.ui_edit()}
         </a>
       {/if}
     {/snippet}
@@ -116,7 +118,7 @@
     </div>
   {:else if supplierQuery.isError}
     <div class="flex items-center justify-center py-24">
-      <p class="text-red-500">Failed to load supplier</p>
+      <p class="text-red-500">{msg.ui_failed_to_load_supplier()}</p>
     </div>
   {:else if supplier}
     <section class="max-w-2xl space-y-6">
@@ -134,31 +136,31 @@
 
       <div>
         <h4 class="text-muted-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
-          Contact Information
+          {msg.ui_contact_information()}
         </h4>
         <div class="space-y-2 rounded-md border p-4 text-sm">
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Contact Person</span>
+            <span class="text-muted-foreground">{msg.ui_contact_person()}</span>
             <span class="font-medium">{supplier.contactName ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Phone</span>
+            <span class="text-muted-foreground">{msg.ui_phone()}</span>
             <span>{supplier.phone ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Phone 2</span>
+            <span class="text-muted-foreground">{msg.ui_phone_2()}</span>
             <span>{supplier.phone2 ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Email</span>
+            <span class="text-muted-foreground">{msg.ui_email()}</span>
             <span>{supplier.email ?? "—"}</span>
           </div>
           <div class="flex items-start justify-between">
-            <span class="text-muted-foreground">Address</span>
+            <span class="text-muted-foreground">{msg.ui_address()}</span>
             <span class="max-w-xs text-right">{supplier.address ?? "—"}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted-foreground">Payment Terms</span>
+            <span class="text-muted-foreground">{msg.ui_payment_terms()}</span>
             <span class="font-medium">{supplier.paymentTerms ?? "—"}</span>
           </div>
         </div>
@@ -167,7 +169,7 @@
 
     <section class="space-y-4">
       <h4 class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-        Purchase Invoices
+        {msg.ui_purchase_invoices()}
       </h4>
 
       {#if invoices.isLoading}
@@ -176,12 +178,14 @@
         </div>
       {:else if invoices.isError}
         <div class="flex items-center justify-center py-12">
-          <p class="text-red-500">Failed to load invoices</p>
+          <p class="text-red-500">{msg.ui_failed_to_load_invoices()}</p>
         </div>
       {:else if allInvoices.length === 0}
-        <div class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center">
+        <div
+          class="text-muted-foreground flex flex-col items-center justify-center gap-2 py-12 text-center"
+        >
           <FileTextIcon class="size-10 opacity-50" />
-          <p class="text-sm">No purchase invoices yet</p>
+          <p class="text-sm">{msg.ui_no_purchase_invoices_yet()}</p>
         </div>
       {:else}
         <DataTable {columns} data={allInvoices} loading={false} onRowClick={handleRowClick} />
@@ -195,9 +199,9 @@
             >
               {#if invoices.isFetchingNextPage}
                 <Loader2Icon class="mr-2 size-4 animate-spin" />
-                Loading...
+                {msg.ui_loading_b04ba49()}
               {:else}
-                Load More
+                {msg.ui_load_more()}
               {/if}
             </Button>
           </div>

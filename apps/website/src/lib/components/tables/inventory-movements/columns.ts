@@ -1,3 +1,4 @@
+import * as msg from "$lib/paraglide/messages";
 import type { CurrencyCode } from "@repo/config";
 import { renderComponent } from "@repo/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
@@ -42,14 +43,14 @@ export function createColumns(currency: CurrencyCode): ColumnDef<MovementItem>[]
     },
     {
       accessorKey: "movementType",
-      header: "Type",
+      header: msg.ui_type(),
       cell: ({ row }) => {
         return renderComponent(MovementTypeCell, { movementType: row.original.movementType });
       },
     },
     {
       accessorKey: "qty",
-      header: "Quantity",
+      header: msg.ui_quantity(),
       cell: ({ row }) => {
         return renderComponent(QuantityCell, {
           qty: row.original.qty,
@@ -59,7 +60,7 @@ export function createColumns(currency: CurrencyCode): ColumnDef<MovementItem>[]
     },
     {
       accessorKey: "unitPriceCents",
-      header: "Price",
+      header: msg.ui_price(),
       cell: ({ row }) => {
         return renderComponent(PriceCell, {
           movementType: row.original.movementType,

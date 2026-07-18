@@ -1,5 +1,6 @@
 /// <reference types="@sveltejs/kit" />
 import type { Logger } from "$lib/server/logger";
+import type { Language } from "@repo/config";
 import type { Session, User } from "$lib/server/auth";
 
 declare global {
@@ -11,6 +12,7 @@ declare global {
         session: Session;
         user: User;
       } | null;
+      language: Language;
     }
     // interface PageData {}
     // interface PageState {}

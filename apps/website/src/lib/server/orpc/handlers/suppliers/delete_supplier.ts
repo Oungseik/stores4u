@@ -20,7 +20,7 @@ export const deleteSupplierHandler = os
 
     if (linkedProducts.length > 0 && linkedProducts[0].count > 0) {
       throw new ORPCError("FORBIDDEN", {
-        message: `Cannot delete supplier. This supplier is linked to ${linkedProducts[0].count} product(s).`,
+        data: { key: "error_supplier_linked_products", values: { count: linkedProducts[0].count } },
       });
     }
 
@@ -32,7 +32,7 @@ export const deleteSupplierHandler = os
 
     if (invoices.length > 0 && invoices[0].count > 0) {
       throw new ORPCError("FORBIDDEN", {
-        message: `Cannot delete supplier. This supplier has ${invoices[0].count} purchase invoice(s).`,
+        data: { key: "error_supplier_linked_invoices", values: { count: invoices[0].count } },
       });
     }
 

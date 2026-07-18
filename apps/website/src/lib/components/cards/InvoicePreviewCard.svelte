@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as msg from "$lib/paraglide/messages";
   import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
   import XIcon from "@lucide/svelte/icons/x";
   import * as Card from "@repo/ui/card";
@@ -29,8 +30,8 @@
 <Card.Root class="h-fit xl:sticky xl:top-6 xl:col-start-2 xl:col-end-3 xl:row-start-1 {className}">
   <Card.Header class="flex flex-row items-start justify-between">
     <div>
-      <Card.Title>Invoice Preview</Card.Title>
-      <Card.Description>Original document uploaded</Card.Description>
+      <Card.Title>{msg.ui_invoice_preview()}</Card.Title>
+      <Card.Description>{msg.ui_original_document_uploaded()}</Card.Description>
     </div>
   </Card.Header>
   <Collapsible.Root bind:open>
@@ -38,7 +39,7 @@
       class="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-2 text-sm transition-colors xl:hidden"
     >
       <ChevronsUpDownIcon class="size-4" />
-      {open ? "Hide Preview" : "Show Preview"}
+      {open ? msg.ui_hide_preview() : msg.ui_show_preview()}
     </Collapsible.Trigger>
     <Collapsible.Content>
       <Card.Content>
@@ -47,18 +48,22 @@
             {#if fileType === "application/pdf"}
               <iframe
                 src={imageUrl}
-                title="Invoice PDF"
+                title={msg.ui_invoice_pdf()}
                 class="h-full min-h-96 w-full rounded-lg border"
               ></iframe>
             {:else}
-              <img src={imageUrl} alt="Invoice" class="w-full rounded-lg border object-contain" />
+              <img
+                src={imageUrl}
+                alt={msg.ui_invoice()}
+                class="w-full rounded-lg border object-contain"
+              />
             {/if}
           </ScrollArea>
         {:else}
           <div class="bg-muted flex aspect-[3/4] items-center justify-center rounded-lg border">
             <div class="text-muted-foreground flex flex-col items-center gap-2">
               <XIcon class="size-12" />
-              <p class="text-sm">Unable to load invoice preview</p>
+              <p class="text-sm">{msg.ui_unable_to_load_invoice_preview()}</p>
             </div>
           </div>
         {/if}

@@ -19,7 +19,7 @@ export const load: LayoutServerLoad = async ({ params }) => {
   });
 
   if (!result) {
-    error(404, { message: "Product not found" });
+    error(404, { message: "error_product_not_found" });
   }
 
   return {

@@ -20,7 +20,7 @@ export const uploadHandler = os
     const file = input.file;
 
     if (file.size > MAX_FILE_SIZE) {
-      throw new ORPCError("BAD_REQUEST", { message: "File size exceeds 2MB limit" });
+      throw new ORPCError("BAD_REQUEST", { data: { key: "error_file_size_exceeds_2mb_limit" } });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -29,7 +29,7 @@ export const uploadHandler = os
     const detectedType = detectImageType(buffer);
     if (!detectedType || !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
       throw new ORPCError("BAD_REQUEST", {
-        message: "Invalid image type. Accepted: JPEG, PNG, WebP, SVG",
+        data: { key: "ui_invalid_image_type_accepted_jpeg_png_webp_svg" },
       });
     }
 

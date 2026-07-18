@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
   import { Input } from "@repo/ui/input";
@@ -30,12 +32,12 @@
   const createCategory = createMutation(() =>
     orpc.categories.create.mutationOptions({
       onSuccess: () => {
-        toast.success("Category created successfully");
+        toast.success(msg.ui_category_created_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create category");
+        toast.error(localizeError(error, "ui_failed_to_create_category"));
       },
     }),
   );
@@ -43,12 +45,12 @@
   const updateCategory = createMutation(() =>
     orpc.categories.update.mutationOptions({
       onSuccess: () => {
-        toast.success("Category updated successfully");
+        toast.success(msg.ui_category_updated_successfully());
         queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update category");
+        toast.error(localizeError(error, "ui_failed_to_update_category"));
       },
     }),
   );
@@ -97,13 +99,13 @@
     name="name"
     validators={{
       onChange: ({ value }) =>
-        z.string().min(1, "Name is required").max(255).safeParse(value).error?.issues.at(0)
+        z.string().min(1, msg.ui_name_is_required()).max(255).safeParse(value).error?.issues.at(0)
           ?.message,
     }}
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Category Name *</Label>
+        <Label for={field.name}>{msg.ui_category_name()}</Label>
         <Input
           id={field.name}
           name={field.name}
@@ -111,7 +113,7 @@
           type="text"
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter category name"
+          placeholder={msg.ui_enter_category_name()}
         />
         {#if field.state.meta.errors.length}
           <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -129,14 +131,14 @@
   >
     {#snippet children(field)}
       <div class="space-y-2">
-        <Label for={field.name}>Description</Label>
+        <Label for={field.name}>{msg.ui_description()}</Label>
         <Textarea
           id={field.name}
           name={field.name}
           value={field.state.value}
           onblur={field.handleBlur}
           onchange={(e) => field.handleChange(e.currentTarget.value)}
-          placeholder="Enter category description (optional)"
+          placeholder={msg.ui_enter_category_description_optional()}
           rows={3}
         />
         {#if field.state.meta.errors.length}
@@ -148,14 +150,14 @@
 
   <div class="flex justify-end gap-2">
     {#if onCancel}
-      <Button type="button" variant="outline" onclick={onCancel}>Cancel</Button>
+      <Button type="button" variant="outline" onclick={onCancel}>{msg.ui_cancel()}</Button>
     {/if}
     <Button type="submit" disabled={createCategory.isPending || updateCategory.isPending}>
       {#if createCategory.isPending || updateCategory.isPending}
         <Loader2Icon class="mr-2 size-4 animate-spin" />
-        {isEditMode ? "Updating..." : "Creating..."}
+        {isEditMode ? msg.ui_updating() : msg.ui_creating()}
       {:else}
-        {isEditMode ? "Update Category" : "Create Category"}
+        {isEditMode ? msg.ui_update_category() : msg.ui_create_category()}
       {/if}
     </Button>
   </div>

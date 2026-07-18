@@ -22,7 +22,7 @@ export const resetForUserHandler = os
       columns: { id: true },
     });
     if (!found) {
-      throw new ORPCError("NOT_FOUND", { message: "No user with that email." });
+      throw new ORPCError("NOT_FOUND", { data: { key: "error_no_user_with_that_email" } });
     }
 
     const token = await mintResetToken(found.id);

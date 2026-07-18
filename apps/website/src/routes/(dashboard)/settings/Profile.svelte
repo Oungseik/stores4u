@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { localizeError } from "$lib/error-message";
+  import * as msg from "$lib/paraglide/messages";
   import ImageIcon from "@lucide/svelte/icons/image";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import SaveIcon from "@lucide/svelte/icons/save";
@@ -51,11 +53,11 @@
   const updateShopMutation = createMutation(() =>
     orpc.shops.update.mutationOptions({
       onSuccess: () => {
-        toast.success("Settings updated successfully");
+        toast.success(msg.ui_settings_updated_successfully());
         invalidateAll();
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to update settings");
+        toast.error(localizeError(error, "ui_failed_to_update_settings"));
       },
     }),
   );
@@ -63,7 +65,7 @@
   const uploadMutation = createMutation(() =>
     orpc.images.upload.mutationOptions({
       onError: () => {
-        toast.error("Failed to upload image");
+        toast.error(msg.ui_failed_to_upload_image());
       },
     }),
   );
@@ -82,7 +84,7 @@
 
   async function handleLogoUpload(file: File) {
     if (!isValidImageType(file.type)) {
-      toast.error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
+      toast.error(msg.ui_invalid_image_type_accepted_jpeg_png_webp_svg());
       return;
     }
 
@@ -92,7 +94,7 @@
       profileForm.setFieldValue("logo", result.objectPath);
       logoPreview = result.objectPath;
     } catch {
-      toast.error("Failed to upload logo");
+      toast.error(msg.ui_failed_to_upload_logo());
     } finally {
       isUploadingLogo = false;
     }
@@ -100,7 +102,7 @@
 
   async function handleHeroImageUpload(file: File) {
     if (!isValidImageType(file.type)) {
-      toast.error("Invalid image type. Accepted: JPEG, PNG, WebP, SVG");
+      toast.error(msg.ui_invalid_image_type_accepted_jpeg_png_webp_svg());
       return;
     }
 
@@ -110,7 +112,7 @@
       profileForm.setFieldValue("heroImage", result.objectPath);
       heroImagePreview = result.objectPath;
     } catch {
-      toast.error("Failed to upload hero image");
+      toast.error(msg.ui_failed_to_upload_hero_image());
     } finally {
       isUploadingHeroImage = false;
     }
@@ -139,9 +141,9 @@
   <Card.Header>
     <Card.Title class="flex items-center gap-2">
       <StoreIcon class="size-5" />
-      Shop Profile
+      {msg.ui_shop_profile()}
     </Card.Title>
-    <Card.Description>Manage your shop's public profile and branding</Card.Description>
+    <Card.Description>{msg.ui_manage_your_shop_s_public_profile_and_branding()}</Card.Description>
   </Card.Header>
   <Card.Content>
     <form
@@ -155,20 +157,24 @@
         name="name"
         validators={{
           onChange: ({ value }) =>
-            z.string().min(1, "Shop name is required").max(100).safeParse(value).error?.issues.at(0)
-              ?.message,
+            z
+              .string()
+              .min(1, msg.ui_shop_name_is_required())
+              .max(100)
+              .safeParse(value)
+              .error?.issues.at(0)?.message,
         }}
       >
         {#snippet children(field)}
           <div class="space-y-2">
-            <Label for={field.name}>Shop Name</Label>
+            <Label for={field.name}>{msg.ui_shop_name()}</Label>
             <Input
               id={field.name}
               name={field.name}
               value={field.state.value}
               onblur={field.handleBlur}
               onchange={(e) => field.handleChange(e.currentTarget.value)}
-              placeholder="Your shop name"
+              placeholder={msg.ui_your_shop_name()}
             />
             {#if field.state.meta.errors.length}
               <p class="text-sm text-red-500">{field.state.meta.errors}</p>
@@ -186,7 +192,7 @@
       >
         {#snippet children(field)}
           <div class="space-y-2">
-            <Label for={field.name}>Shop Title</Label>
+            <Label for={field.name}>{msg.ui_shop_title()}</Label>
             <Input
               id={field.name}
               name={field.name}
@@ -195,7 +201,9 @@
               onchange={(e) => field.handleChange(e.currentTarget.value)}
               placeholder="My Awesome Shop - Best Products in Town"
             />
-            <p class="text-muted-foreground text-xs">The display title shown on your shop page</p>
+            <p class="text-muted-foreground text-xs">
+              {msg.ui_the_display_title_shown_on_your_shop_page()}
+            </p>
             {#if field.state.meta.errors.length}
               <p class="text-sm text-red-500">{field.state.meta.errors}</p>
             {/if}
@@ -206,14 +214,14 @@
       <profileForm.Field name="description">
         {#snippet children(field)}
           <div class="space-y-2">
-            <Label for={field.name}>Description</Label>
+            <Label for={field.name}>{msg.ui_description()}</Label>
             <Textarea
               id={field.name}
               name={field.name}
               value={field.state.value}
               onblur={field.handleBlur}
               onchange={(e) => field.handleChange(e.currentTarget.value)}
-              placeholder="Brief description of your shop"
+              placeholder={msg.ui_brief_description_of_your_shop()}
               rows={3}
             />
           </div>
@@ -221,13 +229,13 @@
       </profileForm.Field>
 
       <div class="space-y-2">
-        <Label>Shop Logo</Label>
+        <Label>{msg.ui_shop_logo()}</Label>
         {#if logoPreview}
           <div class="flex items-center gap-4">
             <div class="relative">
               <img
                 src={logoPreview}
-                alt="Shop logo"
+                alt={msg.ui_shop_logo_a2d0c1e()}
                 class="bg-muted flex size-20 items-center justify-center rounded-lg border object-cover"
               />
               <Button
@@ -263,28 +271,28 @@
               {#if isUploadingLogo}
                 <Button type="button" variant="outline" class="pointer-events-none gap-2" disabled>
                   <Loader2Icon class="size-4 animate-spin" />
-                  <span class="ml-2">Uploading...</span>
+                  <span class="ml-2">{msg.ui_uploading()}</span>
                 </Button>
               {:else}
                 <Button type="button" variant="outline" class="pointer-events-none gap-2">
                   <UploadIcon class="size-4" />
-                  Upload Logo
+                  {msg.ui_upload_logo()}
                 </Button>
               {/if}
             </div>
           </div>
         {/if}
-        <p class="text-muted-foreground text-xs">Recommended size: 400x400px. Max 2MB.</p>
+        <p class="text-muted-foreground text-xs">{msg.ui_recommended_size_400x400px_max_2mb()}</p>
       </div>
 
       <div class="space-y-2">
-        <Label>Hero Image</Label>
+        <Label>{msg.ui_hero_image()}</Label>
         {#if heroImagePreview}
           <div class="space-y-4">
             <div class="relative">
               <img
                 src={heroImagePreview}
-                alt="Shop hero banner"
+                alt={msg.ui_shop_hero_banner()}
                 class="bg-muted w-full rounded-lg border object-cover"
               />
               <Button
@@ -295,7 +303,7 @@
                 onclick={handleHeroImageRemove}
               >
                 <XIcon class="mr-1 size-4" />
-                Remove
+                {msg.ui_remove()}
               </Button>
             </div>
           </div>
@@ -321,19 +329,19 @@
               {#if isUploadingHeroImage}
                 <Button type="button" variant="outline" class="pointer-events-none gap-2" disabled>
                   <Loader2Icon class="size-4 animate-spin" />
-                  <span class="ml-2">Uploading...</span>
+                  <span class="ml-2">{msg.ui_uploading()}</span>
                 </Button>
               {:else}
                 <Button type="button" variant="outline" class="pointer-events-none gap-2">
                   <UploadIcon class="size-4" />
-                  Upload Hero Image
+                  {msg.ui_upload_hero_image()}
                 </Button>
               {/if}
             </div>
           </div>
         {/if}
         <p class="text-muted-foreground text-xs">
-          Recommended size: 1920x600px. Max 2MB. This appears at the top of your shop page.
+          {msg.ui_recommended_size_1920x600px_max_2mb_this_appears_at_the()}
         </p>
       </div>
 
@@ -345,10 +353,10 @@
         >
           {#if updateShopMutation.isPending}
             <Loader2Icon class="size-4 animate-spin" />
-            Saving...
+            {msg.ui_saving()}
           {:else}
             <SaveIcon class="size-4" />
-            Save Changes
+            {msg.ui_save_changes()}
           {/if}
         </Button>
       </div>
