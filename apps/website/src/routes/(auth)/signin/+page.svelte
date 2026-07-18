@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -28,7 +29,7 @@
           email: value.email,
           password: value.password,
           rememberMe: true,
-          callbackURL: page.url.searchParams.get("return_url") || "/",
+          callbackURL: localizePath(page.url.searchParams.get("return_url") || "/"),
         },
         {
           onError: ({ error }) => {
@@ -43,7 +44,7 @@
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
-    <a href="/" class="flex items-center gap-2 self-center font-medium">
+    <a href={localizePath("/")} class="flex items-center gap-2 self-center font-medium">
       <img src="/logo.svg" class="size-5" alt={msg.ui_logo_5807dd6()} />
       <span>{PUBLIC_SITE_NAME}</span>
     </a>

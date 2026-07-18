@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button, buttonVariants } from "@repo/ui/button";
@@ -66,12 +67,12 @@
           address: supplier.address,
           paymentTerms: supplier.paymentTerms,
         }}
-        onSuccess={() => goto(`/purchases/suppliers/${params.supplierId}`)}
+        onSuccess={() => goto(localizePath(`/purchases/suppliers/${params.supplierId}`))}
       />
 
       <div class="flex items-center gap-2 border-t pt-4">
         <a
-          href={`/purchases/suppliers/${params.supplierId}`}
+          href={localizePath(`/purchases/suppliers/${params.supplierId}`)}
           class={buttonVariants({ variant: "outline" })}
         >
           {msg.ui_cancel()}

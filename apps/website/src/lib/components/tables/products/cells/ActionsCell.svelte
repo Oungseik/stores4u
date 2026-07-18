@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
@@ -39,7 +40,7 @@
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
     <DropdownMenu.Item>
-      <a href={`/products/${id}/edit`} class="flex items-center gap-2">
+      <a href={localizePath(`/products/${id}/edit`)} class="flex items-center gap-2">
         <PencilIcon class="size-4" />
         {msg.ui_edit()}
       </a>

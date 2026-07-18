@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import { goto } from "$app/navigation";
@@ -70,7 +71,7 @@
       description: msg.confirm_delete_named({ name: customer.name }),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: customer.id });
-        goto("/customers");
+        goto(localizePath("/customers"));
       },
     });
   }
@@ -90,7 +91,10 @@
           <Trash2Icon class="size-4" />
           {msg.ui_delete()}
         </Button>
-        <a href={`/customers/${params.id}/edit`} class={buttonVariants({ variant: "outline" })}>
+        <a
+          href={localizePath(`/customers/${params.id}/edit`)}
+          class={buttonVariants({ variant: "outline" })}
+        >
           <PencilIcon class="size-4" />
           {msg.ui_edit()}
         </a>
@@ -193,7 +197,7 @@
             <Card.Root class="overflow-hidden p-0">
               <Card.Content class="p-0">
                 <a
-                  href={`/orders/${order.id}`}
+                  href={localizePath(`/orders/${order.id}`)}
                   class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
                 >
                   <div

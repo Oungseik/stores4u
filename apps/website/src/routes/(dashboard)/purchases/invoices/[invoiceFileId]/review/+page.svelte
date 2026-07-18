@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
@@ -293,7 +294,7 @@
       });
 
       toast.success(msg.ui_invoice_validated_and_saved_successfully());
-      goto(`/purchases/invoices`);
+      goto(localizePath(`/purchases/invoices`));
     } catch (e) {
       toast.error(localizeError(e, "error_save_invoice"));
     } finally {
@@ -330,7 +331,7 @@
           {
             onSuccess: () => {
               toast.success(msg.ui_invoice_rejected());
-              goto(`/purchases/invoices`);
+              goto(localizePath(`/purchases/invoices`));
             },
             onError: (e) => {
               console.error(e);

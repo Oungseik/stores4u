@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -102,7 +103,7 @@
     breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_customers() }]}
   >
     {#snippet actions()}
-      <a href="/customers/add" class={buttonVariants()}>
+      <a href={localizePath("/customers/add")} class={buttonVariants()}>
         <PlusIcon class="size-4" />
         {msg.ui_add_customer()}
       </a>
@@ -221,7 +222,11 @@
               {/if}
             </Card.Content>
             <Card.Footer class="flex flex-col gap-2 pt-0">
-              <Button variant="outline" class="w-full" href={`/customers/${customer.id}`}>
+              <Button
+                variant="outline"
+                class="w-full"
+                href={localizePath(`/customers/${customer.id}`)}
+              >
                 {msg.ui_view_details()}
               </Button>
               <div class="flex w-full gap-2">
@@ -234,7 +239,7 @@
                   {msg.ui_delete()}
                 </Button>
                 <a
-                  href={`/customers/${customer.id}/edit`}
+                  href={localizePath(`/customers/${customer.id}/edit`)}
                   class={buttonVariants({ variant: "outline", class: "flex-1" })}
                 >
                   <PencilIcon class="size-4" />

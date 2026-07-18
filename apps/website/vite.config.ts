@@ -11,7 +11,7 @@ export default defineConfig({
     sveltekit(),
     devtoolsJson(),
     paraglideVitePlugin({
-      strategy: ["cookie", "baseLocale"],
+      strategy: ["url", "preferredLanguage", "cookie", "baseLocale"],
       cookieName: "PARAGLIDE_LOCALE",
       project: "./project.inlang",
       outdir: "./src/lib/paraglide",

@@ -1,3 +1,4 @@
+import { localizePath } from "$lib/localize-path";
 import { error, redirect } from "@sveltejs/kit";
 import { isDashboardRole } from "$lib/server/auth";
 import { db } from "$lib/server/db";
@@ -5,7 +6,7 @@ import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
   if (!locals.session) {
-    return redirect(303, `/signin?return_url=${url.pathname}`);
+    return redirect(303, localizePath(`/signin?return_url=${url.pathname}`));
   }
   if (!isDashboardRole(locals.session.user.role)) {
     throw error(403, "error_dashboard_staff_required");
@@ -16,7 +17,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   });
 
   if (!shop) {
-    return redirect(303, "/setup");
+    return redirect(303, localizePath("/setup"));
   }
 
   return {

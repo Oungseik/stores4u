@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { getRequestEvent } from "$app/server";
+import { localizePath } from "$lib/localize-path";
 import { db } from "$lib/server/db";
 import { sendAuthEmail } from "$lib/server/email";
 import { buildLinks, type LinkPair } from "$lib/server/links";
@@ -38,7 +39,7 @@ export const requestMagicLinkHandler = os.input(input).handler(async ({ input })
   const origin = getRequestEvent().url.origin;
   const links = buildLinks({
     token,
-    path: "/api/auth/magic-link/verify?callbackURL=/",
+    path: `/api/auth/magic-link/verify?callbackURL=${encodeURIComponent(localizePath("/"))}`,
     requestOrigin: origin,
   });
   const emailSent = await sendAuthEmail({

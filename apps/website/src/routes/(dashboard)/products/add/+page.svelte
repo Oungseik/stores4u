@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button, buttonVariants } from "@repo/ui/button";
@@ -26,10 +27,12 @@
       <p class="text-muted-foreground text-sm">{msg.ui_create_a_new_product_for_your_shop()}</p>
     </div>
 
-    <ProductForm bind:this={productFormRef} onSuccess={() => goto(`/products`)} />
+    <ProductForm bind:this={productFormRef} onSuccess={() => goto(localizePath(`/products`))} />
 
     <div class="flex items-center gap-2 border-t pt-4">
-      <a href="/products" class={buttonVariants({ variant: "outline" })}> {msg.ui_cancel()} </a>
+      <a href={localizePath("/products")} class={buttonVariants({ variant: "outline" })}>
+        {msg.ui_cancel()}
+      </a>
       <Button onclick={() => productFormRef?.submit()} disabled={productFormRef?.getIsPending()}>
         {#if productFormRef?.getIsPending()}
           <Loader2Icon class="mr-2 size-4 animate-spin" />

@@ -1,3 +1,4 @@
+import { localizePath } from "$lib/localize-path";
 import { error, redirect } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import type { PageServerLoad } from "./$types";
@@ -13,6 +14,6 @@ export const load: PageServerLoad = async ({ params }) => {
   }
 
   if (file.status !== "REVIEWED" && file.status !== "REJECTED") {
-    return redirect(303, `/purchases/invoices/${params.invoiceFileId}/review`);
+    return redirect(303, localizePath(`/purchases/invoices/${params.invoiceFileId}/review`));
   }
 };

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
@@ -61,7 +62,7 @@
   // cart.clear() in onSuccess would otherwise hijack goto(/orders/[id]).
   $effect(() => {
     if (cart.items.length === 0 && !checkoutMutation.isPending && !checkoutMutation.isSuccess) {
-      goto("/cart");
+      goto(localizePath("/cart"));
     }
   });
 
@@ -77,7 +78,7 @@
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.revenueTrend.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
         queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
-        goto(`/orders/${result.orderId}`);
+        goto(localizePath(`/orders/${result.orderId}`));
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_checkout_failed"));
@@ -121,7 +122,7 @@
       ]}
     >
       {#snippet actions()}
-        <a href="/cart" class={buttonVariants({ variant: "outline" })}>
+        <a href={localizePath("/cart")} class={buttonVariants({ variant: "outline" })}>
           <ArrowLeftIcon class="size-4" />
           {msg.ui_back_to_cart()}
         </a>

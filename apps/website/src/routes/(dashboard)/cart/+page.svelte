@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import MinusIcon from "@lucide/svelte/icons/minus";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -101,7 +102,7 @@
       toast.error(msg.ui_cart_is_empty());
       return;
     }
-    goto("/checkout");
+    goto(localizePath("/checkout"));
   }
 </script>
 

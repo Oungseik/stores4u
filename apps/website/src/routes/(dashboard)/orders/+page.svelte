@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import { parseDate } from "@internationalized/date";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
@@ -83,7 +84,7 @@
     breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_orders() }]}
   >
     {#snippet actions()}
-      <a href="/cart" class={buttonVariants()}>
+      <a href={localizePath("/cart")} class={buttonVariants()}>
         <PlusIcon class="size-4" />
         {msg.ui_new_sale()}
       </a>
@@ -197,7 +198,7 @@
             <Card.Root class="overflow-hidden p-0">
               <Card.Content class="p-0">
                 <a
-                  href={`/orders/${order.id}`}
+                  href={localizePath(`/orders/${order.id}`)}
                   class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5"
                 >
                   <div

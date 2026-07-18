@@ -3,6 +3,8 @@ import { redirect } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 import { building } from "$app/environment";
+import { localizePath } from "$lib/localize-path";
+import { deLocalizeUrl } from "$lib/paraglide/runtime";
 import { paraglideMiddleware } from "$lib/paraglide/server";
 import { auth } from "$lib/server/auth";
 import { db } from "$lib/server/db";
@@ -24,7 +26,7 @@ const firstRunAuthPaths = [
  * - Shop exists → /setup and public signup are closed.
  */
 const setupGate: Handle = async ({ event, resolve }) => {
-  const path = event.url.pathname;
+  const path = deLocalizeUrl(event.url).pathname;
   const firstUser = await db.query.user.findFirst({ columns: { id: true } });
   const existingShop = await db.query.shop.findFirst({ columns: { id: true } });
 
@@ -44,10 +46,10 @@ const setupGate: Handle = async ({ event, resolve }) => {
     if (path.startsWith("/api/auth/")) {
       return firstRunAuthPaths.includes(path) || path.startsWith("/api/auth/callback/")
         ? resolve(event)
-        : redirect(303, "/setup");
+        : redirect(303, localizePath("/setup"));
     }
 
-    return redirect(303, "/setup");
+    return redirect(303, localizePath("/setup"));
   }
 
   if (!existingShop) {
@@ -62,20 +64,19 @@ const setupGate: Handle = async ({ event, resolve }) => {
       return resolve(event);
     }
 
-    return redirect(303, "/setup");
+    return redirect(303, localizePath("/setup"));
   }
 
   if (path === "/setup" || path === "/api/auth/sign-up/email") {
-    return redirect(303, "/");
+    return redirect(303, localizePath("/"));
   }
 
   return resolve(event);
 };
 
-// Cookie-only language preference (one browser): Paraglide strategy ["cookie",
-// "baseLocale"] reads PARAGLIDE_LOCALE straight from the request. No DB lookup,
-// no cookie forcing. We only expose the resolved locale as locals.language so
-// /accounts can seed its dropdown.
+// URL-first language preference: Paraglide establishes the request locale and
+// de-localizes its URL before the route guards run. The cookie remains a fallback
+// and locals.language seeds the /accounts selector.
 const handleParaglide: Handle = async ({ event, resolve }) => {
   return paraglideMiddleware(event.request, ({ request, locale }) => {
     event.request = request;
@@ -88,7 +89,7 @@ const handleParaglide: Handle = async ({ event, resolve }) => {
 };
 
 const rateLimitHandle: Handle = async ({ event, resolve }) => {
-  if (event.url.pathname.startsWith("/api/queue/")) {
+  if (deLocalizeUrl(event.url).pathname.startsWith("/api/queue/")) {
     return resolve(event);
   }
 
@@ -108,11 +109,11 @@ const rateLimitHandle: Handle = async ({ event, resolve }) => {
 };
 
 const authHandle: Handle = async ({ event, resolve }) => {
-  if (event.url.pathname.startsWith("/api/auth")) {
+  if (deLocalizeUrl(event.url).pathname.startsWith("/api/auth")) {
     return svelteKitHandler({ event, resolve, auth, building });
   }
 
-  if (event.url.pathname.startsWith("/api/queue/")) {
+  if (deLocalizeUrl(event.url).pathname.startsWith("/api/queue/")) {
     return resolve(event);
   }
 
@@ -139,8 +140,8 @@ const loggingHandle: Handle = async ({ event, resolve }) => {
 
 export const handle: Handle = sequence(
   loggingHandle,
+  handleParaglide,
   rateLimitHandle,
   setupGate,
   authHandle,
-  handleParaglide,
 );

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import CheckIcon from "@lucide/svelte/icons/check";
@@ -197,7 +198,7 @@
       });
 
       toast.success(msg.ui_invoice_updated_successfully());
-      goto(`/purchases/invoices/${params.invoiceFileId}`);
+      goto(localizePath(`/purchases/invoices/${params.invoiceFileId}`));
     } catch (e) {
       toast.error(localizeError(e, "ui_failed_to_update_invoice"));
     } finally {

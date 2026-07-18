@@ -1,10 +1,12 @@
+import { localizePath } from "$lib/localize-path";
+import { deLocalizeUrl } from "$lib/paraglide/runtime";
 import { redirect } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
   const session = locals.session?.session;
-  const pathname = url.pathname;
+  const pathname = deLocalizeUrl(url).pathname;
 
   // Public auth routes viewable without a session.
   const publicPrefixes = [
@@ -21,7 +23,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   }
 
   if (!session) {
-    return redirect(303, "/signin");
+    return redirect(303, localizePath("/signin"));
   }
 
   // Signed in: send to store setup if no store exists, else to the app.
@@ -32,8 +34,8 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   }
 
   if (!shop) {
-    return redirect(303, "/setup");
+    return redirect(303, localizePath("/setup"));
   }
 
-  return redirect(303, url.searchParams.get("return_url") ?? "/");
+  return redirect(303, localizePath(url.searchParams.get("return_url") ?? "/"));
 };

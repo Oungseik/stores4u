@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import BanknoteIcon from "@lucide/svelte/icons/banknote";
@@ -306,8 +307,8 @@
           class="group relative justify-between overflow-hidden p-6 transition-shadow hover:shadow-md sm:col-span-2 lg:col-span-1"
         >
           <div class="flex flex-col gap-3">
-            <div class="flex size-11 items-center justify-center rounded-lg bg-primary/10">
-              <ScanBarcodeIcon class="size-5 text-primary" />
+            <div class="bg-primary/10 flex size-11 items-center justify-center rounded-lg">
+              <ScanBarcodeIcon class="text-primary size-5" />
             </div>
             <div>
               <h3 class="text-base font-semibold">{msg.ui_start_selling()}</h3>
@@ -316,7 +317,7 @@
               </p>
             </div>
           </div>
-          <a href="/cart" class={buttonVariants({ class: "w-fit" })}>
+          <a href={localizePath("/cart")} class={buttonVariants({ class: "w-fit" })}>
             {msg.ui_open_point_of_sale()}
             <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
           </a>
@@ -328,8 +329,8 @@
         <!-- Products -->
         <Card.Root class="group justify-between p-6 transition-shadow hover:shadow-md">
           <div class="flex flex-col gap-3">
-            <div class="flex size-11 items-center justify-center rounded-lg bg-muted">
-              <PackageIcon class="size-5 text-muted-foreground" />
+            <div class="bg-muted flex size-11 items-center justify-center rounded-lg">
+              <PackageIcon class="text-muted-foreground size-5" />
             </div>
             <div>
               <h3 class="text-base font-semibold">{msg.ui_products()}</h3>
@@ -338,7 +339,10 @@
               </p>
             </div>
           </div>
-          <a href="/products" class={buttonVariants({ variant: "outline", class: "w-fit" })}>
+          <a
+            href={localizePath("/products")}
+            class={buttonVariants({ variant: "outline", class: "w-fit" })}
+          >
             {msg.ui_manage()}
             <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
           </a>
@@ -347,8 +351,8 @@
         <!-- Orders -->
         <Card.Root class="group justify-between p-6 transition-shadow hover:shadow-md">
           <div class="flex flex-col gap-3">
-            <div class="flex size-11 items-center justify-center rounded-lg bg-muted">
-              <ShoppingCartIcon class="size-5 text-muted-foreground" />
+            <div class="bg-muted flex size-11 items-center justify-center rounded-lg">
+              <ShoppingCartIcon class="text-muted-foreground size-5" />
             </div>
             <div>
               <h3 class="text-base font-semibold">{msg.ui_orders()}</h3>
@@ -357,7 +361,10 @@
               </p>
             </div>
           </div>
-          <a href="/orders" class={buttonVariants({ variant: "outline", class: "w-fit" })}>
+          <a
+            href={localizePath("/orders")}
+            class={buttonVariants({ variant: "outline", class: "w-fit" })}
+          >
             {msg.ui_view()}
             <ArrowRightIcon class="size-4 transition-transform group-hover:translate-x-0.5" />
           </a>

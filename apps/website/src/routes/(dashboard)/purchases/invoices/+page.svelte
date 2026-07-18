@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
@@ -300,7 +301,9 @@
             <Card.Content class="p-0">
               <div class="hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2.5">
                 <a
-                  href={`/purchases/invoices/${file.id}${file.status === "REJECTED" ? "/review" : ""}`}
+                  href={localizePath(
+                    `/purchases/invoices/${file.id}${file.status === "REJECTED" ? "/review" : ""}`,
+                  )}
                   class="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div
@@ -363,7 +366,9 @@
                         <DropdownMenu.Item>
                           {#snippet child()}
                             <a
-                              href={`/purchases/invoices/${file.id}${file.status === "REJECTED" ? "/review" : ""}`}
+                              href={localizePath(
+                                `/purchases/invoices/${file.id}${file.status === "REJECTED" ? "/review" : ""}`,
+                              )}
                               class={buttonVariants({
                                 variant: "ghost",
                                 class: "w-full justify-start px-2!",
@@ -382,7 +387,7 @@
                           <DropdownMenu.Item>
                             {#snippet child()}
                               <a
-                                href={`/purchases/invoices/${file.id}/edit`}
+                                href={localizePath(`/purchases/invoices/${file.id}/edit`)}
                                 class={buttonVariants({
                                   variant: "ghost",
                                   class: "w-full justify-start",

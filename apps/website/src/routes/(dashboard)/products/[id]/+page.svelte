@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
   import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
@@ -59,7 +60,10 @@
           <ArrowUpDownIcon data-icon="inline-start" />
           {msg.ui_adjust_stock()}
         </Button>
-        <a href={`/products/${params.id}/edit`} class={buttonVariants({ size: "sm" })}>
+        <a
+          href={localizePath(`/products/${params.id}/edit`)}
+          class={buttonVariants({ size: "sm" })}
+        >
           <PencilIcon data-icon="inline-start" />
           {msg.ui_edit()}
         </a>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -29,7 +30,7 @@
           password: value.password,
         });
         toast.success(msg.ui_account_created_welcome_aboard());
-        await goto("/");
+        await goto(localizePath("/"));
       } catch (err) {
         toast.error(localizeError(err, "error_accept_invite"));
       } finally {
@@ -41,7 +42,7 @@
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
-    <a href="/" class="text-center font-medium">
+    <a href={localizePath("/")} class="text-center font-medium">
       <img src="/logo.svg" class="mr-1 inline size-5 align-middle" alt={msg.ui_logo_5807dd6()} />
       {PUBLIC_SITE_NAME}
     </a>

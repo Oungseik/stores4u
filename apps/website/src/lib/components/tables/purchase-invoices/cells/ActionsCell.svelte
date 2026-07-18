@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import EyeIcon from "@lucide/svelte/icons/eye";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
@@ -41,7 +42,7 @@
       <EyeIcon class="mr-2 size-4" />
       {msg.ui_view_details()}
     </DropdownMenu.Item>
-    <DropdownMenu.Item onclick={() => goto(`/purchases/invoices/${id}/edit`)}>
+    <DropdownMenu.Item onclick={() => goto(localizePath(`/purchases/invoices/${id}/edit`))}>
       <PencilIcon class="size-4" />
       {msg.ui_edit()}
     </DropdownMenu.Item>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button, buttonVariants } from "@repo/ui/button";
@@ -48,11 +49,14 @@
     <ProductForm
       bind:this={productFormRef}
       {initialData}
-      onSuccess={() => goto(`/products/${params.id}`)}
+      onSuccess={() => goto(localizePath(`/products/${params.id}`))}
     />
 
     <div class="flex items-center gap-2 border-t pt-4">
-      <a href={`/products/${params.id}`} class={buttonVariants({ variant: "outline" })}>
+      <a
+        href={localizePath(`/products/${params.id}`)}
+        class={buttonVariants({ variant: "outline" })}
+      >
         {msg.ui_cancel()}
       </a>
       <Button onclick={() => productFormRef?.submit()} disabled={productFormRef?.getIsPending()}>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
@@ -37,7 +38,7 @@
           throw new Error(data?.message ?? "Reset failed. The link may be invalid or expired.");
         }
         toast.success(msg.ui_password_reset_sign_in());
-        await goto("/signin");
+        await goto(localizePath("/signin"));
       } catch (err) {
         toast.error(localizeError(err, "ui_reset_failed"));
       } finally {

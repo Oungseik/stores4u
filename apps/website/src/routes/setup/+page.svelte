@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import CheckIcon from "@lucide/svelte/icons/check";
@@ -47,7 +48,7 @@
       onSuccess: (data) => {
         // ponytail: redirect target from the mutation result, not needsAccount
         // on the page — the owner was just created in this submit.
-        goto(data.needsAccount ? "/signin?setup=1" : "/");
+        goto(localizePath(data.needsAccount ? "/signin?setup=1" : "/"));
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_setup_failed"));

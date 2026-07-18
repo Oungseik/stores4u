@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as Breadcrumb from "@repo/ui/breadcrumb";
   import { Separator } from "@repo/ui/separator";
   import * as Sidebar from "@repo/ui/sidebar";
@@ -24,8 +25,9 @@
           {#each breadcrumbs as item, i}
             <Breadcrumb.Item>
               {#if item.href}
-                <Breadcrumb.Link class="max-w-[64px] truncate lg:max-w-none" href={item.href}
-                  >{item.label}</Breadcrumb.Link
+                <Breadcrumb.Link
+                  class="max-w-[64px] truncate lg:max-w-none"
+                  href={localizePath(item.href)}>{item.label}</Breadcrumb.Link
                 >
               {:else}
                 <Breadcrumb.Page class="max-w-[64px] truncate lg:max-w-none"

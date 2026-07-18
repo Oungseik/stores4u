@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
   import CameraIcon from "@lucide/svelte/icons/camera";
@@ -41,7 +42,7 @@
   const session = $derived(data.session);
   let selectedLanguage = $derived(data.language);
 
-  // Cookie-only: setLocale writes PARAGLIDE_LOCALE and reloads so all messages update.
+  // setLocale reloads onto the localized URL and keeps the cookie fallback in sync.
   function handleLanguageChange(value: string) {
     if (value !== "en" && value !== "my") return;
     setLocale(value);
@@ -237,7 +238,7 @@
           return;
         }
         toast.success(msg.ui_account_deleted());
-        window.location.href = "/";
+        window.location.href = localizePath("/");
       },
     });
   }
@@ -256,7 +257,7 @@
       <div class="flex items-center gap-3">
         <h1 class="text-lg font-semibold">{msg.ui_account_settings()}</h1>
       </div>
-      <a class={buttonVariants({ variant: "ghost", size: "sm" })} href="/">
+      <a class={buttonVariants({ variant: "ghost", size: "sm" })} href={localizePath("/")}>
         <ArrowLeftIcon class="size-4" />
         <span class="hidden sm:inline">{msg.ui_back_to_app()}</span>
       </a>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import type { IconProps } from "@lucide/svelte";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
@@ -65,21 +66,21 @@
 
   const settingsHref = "/settings";
 
-  const isActive = (href: string) => currentPath === href;
+  const isActive = (href: string) => currentPath === localizePath(href);
   // $state (not $derived): binding open to a $derived breaks manual collapse.
   // untrack: capture only the initial route state; the effect below handles
   // subsequent settings-route entries, and manual toggles persist otherwise.
-  let settingsOpen = $state(untrack(() => currentPath.startsWith(settingsHref)));
+  let settingsOpen = $state(untrack(() => currentPath.startsWith(localizePath(settingsHref))));
   // Auto-expand when entering a settings route; manual collapse is preserved
   // (this only opens, never closes, so it never fights a user toggle).
   $effect(() => {
-    if (currentPath.startsWith(settingsHref)) settingsOpen = true;
+    if (currentPath.startsWith(localizePath(settingsHref))) settingsOpen = true;
   });
 
   const teamHref = "/team";
-  let teamOpen = $state(untrack(() => currentPath.startsWith(teamHref)));
+  let teamOpen = $state(untrack(() => currentPath.startsWith(localizePath(teamHref))));
   $effect(() => {
-    if (currentPath.startsWith(teamHref)) teamOpen = true;
+    if (currentPath.startsWith(localizePath(teamHref))) teamOpen = true;
   });
 </script>
 
@@ -122,7 +123,7 @@
                 <Sidebar.MenuButton tooltipContent={item.title} isActive={isActive(item.href)}>
                   {#snippet child({ props })}
                     <a
-                      href={item.href}
+                      href={localizePath(item.href)}
                       {...props}
                       onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                     >
@@ -149,7 +150,7 @@
               >
                 {#snippet child({ props })}
                   <a
-                    href="/inventory/movements"
+                    href={localizePath("/inventory/movements")}
                     {...props}
                     onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                   >
@@ -172,7 +173,8 @@
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton
                   tooltipContent={msg.ui_team()}
-                  isActive={sidebar.state === "collapsed" && currentPath.startsWith(teamHref)}
+                  isActive={sidebar.state === "collapsed" &&
+                    currentPath.startsWith(localizePath(teamHref))}
                   aria-expanded={teamOpen}
                   onclick={() => (teamOpen = !teamOpen)}
                 >
@@ -189,7 +191,7 @@
                         <Sidebar.MenuSubButton class="w-full" isActive={isActive("/team/members")}>
                           {#snippet child({ props })}
                             <a
-                              href="/team/members"
+                              href={localizePath("/team/members")}
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
@@ -202,7 +204,7 @@
                         <Sidebar.MenuSubButton class="w-full" isActive={isActive(teamHref)}>
                           {#snippet child({ props })}
                             <a
-                              href={teamHref}
+                              href={localizePath(teamHref)}
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
@@ -227,7 +229,8 @@
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton
                   tooltipContent={msg.ui_settings()}
-                  isActive={sidebar.state === "collapsed" && currentPath.startsWith(settingsHref)}
+                  isActive={sidebar.state === "collapsed" &&
+                    currentPath.startsWith(localizePath(settingsHref))}
                   aria-expanded={settingsOpen}
                   onclick={() => (settingsOpen = !settingsOpen)}
                 >
@@ -246,7 +249,7 @@
                         <Sidebar.MenuSubButton class="w-full" isActive={isActive(settingsHref)}>
                           {#snippet child({ props })}
                             <a
-                              href={settingsHref}
+                              href={localizePath(settingsHref)}
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
@@ -258,11 +261,11 @@
                       <Sidebar.MenuSubItem>
                         <Sidebar.MenuSubButton
                           class="w-full"
-                          isActive={currentPath.startsWith("/settings/invoice")}
+                          isActive={currentPath.startsWith(localizePath("/settings/invoice"))}
                         >
                           {#snippet child({ props })}
                             <a
-                              href="/settings/invoice"
+                              href={localizePath("/settings/invoice")}
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
@@ -334,7 +337,7 @@
             <DropdownMenu.Group>
               <DropdownMenu.Item>
                 {#snippet child({ props })}
-                  <a href="/accounts" {...props}>
+                  <a href={localizePath("/accounts")} {...props}>
                     <UserIcon class="size-4" />
                     {msg.ui_account()}
                   </a>
@@ -344,7 +347,7 @@
             <DropdownMenu.Separator />
             <DropdownMenu.Item
               onclick={() => {
-                authClient.signOut().then(() => (window.location.href = "/"));
+                authClient.signOut().then(() => (window.location.href = localizePath("/")));
               }}
             >
               <LogOutIcon class="size-4" />

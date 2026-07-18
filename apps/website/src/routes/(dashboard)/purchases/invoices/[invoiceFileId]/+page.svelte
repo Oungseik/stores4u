@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
@@ -74,7 +75,7 @@
     {#snippet actions()}
       {#if !isRejected}
         <a
-          href={`/purchases/invoices/${params.invoiceFileId}/edit`}
+          href={localizePath(`/purchases/invoices/${params.invoiceFileId}/edit`)}
           class={buttonVariants({ variant: "outline" })}
         >
           <PencilIcon class="size-4" />

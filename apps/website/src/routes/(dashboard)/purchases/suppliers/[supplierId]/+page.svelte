@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import Building2Icon from "@lucide/svelte/icons/building-2";
@@ -69,7 +70,7 @@
 
   function handleRowClick(invoice: PurchaseInvoiceItem) {
     if (invoice.invoiceFileId) {
-      goto(`/purchases/invoices/${invoice.invoiceFileId}`);
+      goto(localizePath(`/purchases/invoices/${invoice.invoiceFileId}`));
     }
   }
 
@@ -80,7 +81,7 @@
       description: msg.confirm_delete_named({ name: supplier.name }),
       onConfirm: async () => {
         await deleteMutation.mutateAsync({ id: supplier.id });
-        goto("/purchases/suppliers");
+        goto(localizePath("/purchases/suppliers"));
       },
     });
   }
@@ -102,7 +103,7 @@
           {msg.ui_delete()}
         </Button>
         <a
-          href={`/purchases/suppliers/${params.supplierId}/edit`}
+          href={localizePath(`/purchases/suppliers/${params.supplierId}/edit`)}
           class={buttonVariants({ variant: "outline" })}
         >
           <PencilIcon class="size-4" />

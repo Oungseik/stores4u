@@ -25,9 +25,11 @@ Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `re
 
 - `DATABASE_PATH` must be set (see root `.env`). The package scripts load it via `with-env` (`dotenv -e ../../.env --`).
 - Generated migrations live in `./drizzle` (gitignored); use `db:generate` + `db:migrate`.
+- Build JavaScript with `tsdown --no-dts`; this private source-exported workspace package uses `tsgo --noEmit` for type checking and does not bundle Drizzle declarations.
 
 ## Verification
 
+- `bun run build` (`tsdown --no-dts`, successful JavaScript emit expected)
 - `bun run typecheck` (root turbo → `tsgo --noEmit` here via `@typescript/native-preview`, 0 errors expected)
 
 ## Child DOX Index

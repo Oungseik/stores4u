@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { Button } from "@repo/ui/button";
@@ -28,7 +29,7 @@
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
   <div class="flex w-full max-w-sm flex-col gap-6">
-    <a href="/signin" class="text-center font-medium">{msg.ui_back_to_sign_in()}</a>
+    <a href={localizePath("/signin")} class="text-center font-medium">{msg.ui_back_to_sign_in()}</a>
     <Card.Root>
       <Card.Header>
         <Card.Title>{msg.ui_sign_in_with_a_link()}</Card.Title>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
@@ -62,7 +63,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/purchases/invoices/${id}`}
+              href={localizePath(`/purchases/invoices/${id}`)}
             >
               <SearchIcon class="size-4" />
               {msg.ui_review()}
@@ -74,7 +75,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/purchases/invoices/${id}`}
+              href={localizePath(`/purchases/invoices/${id}`)}
             >
               <SearchIcon class="size-4" />
               {msg.ui_view_details()}
@@ -85,7 +86,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/purchases/invoices/${id}/edit`}
+              href={localizePath(`/purchases/invoices/${id}/edit`)}
             >
               <PencilIcon class="size-4" />
               {msg.ui_edit()}
@@ -97,7 +98,7 @@
           {#snippet child()}
             <a
               class={buttonVariants({ variant: "ghost", class: "w-full justify-start" })}
-              href={`/purchases/invoices/${id}/review`}
+              href={localizePath(`/purchases/invoices/${id}/review`)}
             >
               <SearchIcon class="size-4" />
               {msg.ui_view_details()}

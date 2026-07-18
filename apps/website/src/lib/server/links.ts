@@ -1,4 +1,5 @@
 import { BETTER_AUTH_URL } from "$env/static/private";
+import { localizePath } from "$lib/localize-path";
 
 export type LinkPair = {
   /** Same-host link — reachable on LAN / offline from the request's origin. */
@@ -28,8 +29,9 @@ export function buildLinks({
    * `new URL(request.url).origin` or `event.url.origin`. */
   requestOrigin: string;
 }): LinkPair {
-  const sep = path.includes("?") ? "&" : "?";
-  const rest = `${path}${sep}token=${encodeURIComponent(token)}`;
+  const localizedPath = localizePath(path);
+  const sep = localizedPath.includes("?") ? "&" : "?";
+  const rest = `${localizedPath}${sep}token=${encodeURIComponent(token)}`;
   const offline = `${requestOrigin.replace(/\/$/, "")}${rest}`;
   const online = `${BETTER_AUTH_URL.replace(/\/$/, "")}${rest}`;
   return { offline, online };

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { buttonVariants } from "@repo/ui/button";
   import { page } from "$app/state";
   import { localizeError } from "$lib/error-message";
@@ -14,6 +15,6 @@
     <p class="text-muted-foreground text-sm">{page.status}</p>
     <h1 class="text-2xl font-semibold">{msg.something_went_wrong()}</h1>
     <p class="text-muted-foreground">{localizeError(page.error)}</p>
-    <a href="/" class={buttonVariants()}>{msg.ui_go_back()}</a>
+    <a href={localizePath("/")} class={buttonVariants()}>{msg.ui_go_back()}</a>
   </div>
 </main>

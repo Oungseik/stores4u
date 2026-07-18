@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import { goto } from "$app/navigation";
@@ -32,7 +33,7 @@
         if (cancelled) return;
         status = "ok";
         toast.success(msg.ui_email_verified());
-        redirect = setTimeout(() => goto("/signin"), 1200);
+        redirect = setTimeout(() => goto(localizePath("/signin")), 1200);
       } catch {
         if (cancelled) return;
         status = "error";
@@ -61,7 +62,8 @@
           <Card.Description
             >{msg.ui_ask_for_a_new_link_or_sign_in_if_already_verified()}</Card.Description
           >
-          <a href="/signin" class="text-primary text-sm">{msg.ui_go_to_sign_in()}</a>
+          <a href={localizePath("/signin")} class="text-primary text-sm">{msg.ui_go_to_sign_in()}</a
+          >
         {/if}
       </Card.Header>
     </Card.Root>

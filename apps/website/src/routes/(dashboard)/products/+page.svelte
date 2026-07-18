@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizePath } from "$lib/localize-path";
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";
@@ -136,7 +137,7 @@
     breadcrumbs={[{ label: msg.ui_dashboard(), href: `/` }, { label: msg.ui_products() }]}
   >
     {#snippet actions()}
-      <a href="/products/add" class={buttonVariants()}>
+      <a href={localizePath("/products/add")} class={buttonVariants()}>
         <PlusIcon class="size-4" />
         {msg.ui_add_product()}
       </a>
@@ -287,7 +288,7 @@
         {columns}
         data={allProducts}
         loading={false}
-        onRowClick={(product) => goto(`/products/${product.id}`)}
+        onRowClick={(product) => goto(localizePath(`/products/${product.id}`))}
       />
 
       {#if products.hasNextPage}
@@ -325,7 +326,7 @@
                 : "ok"}
 
           <Card.Root class="group overflow-hidden p-0">
-            <a href={`/products/${product.id}`} class="block">
+            <a href={localizePath(`/products/${product.id}`)} class="block">
               <div class="bg-muted/40 relative aspect-[3/2] overflow-hidden">
                 {#if product.image}
                   <img
@@ -367,7 +368,7 @@
                     <DropdownMenu.Content align="end">
                       <DropdownMenu.Item>
                         <a
-                          href={`/products/${product.id}/edit`}
+                          href={localizePath(`/products/${product.id}/edit`)}
                           class="flex w-full items-center gap-2"
                         >
                           <PencilIcon class="size-4" />
