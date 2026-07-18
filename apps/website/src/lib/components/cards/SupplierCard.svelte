@@ -107,7 +107,7 @@
               <Command.Input placeholder={msg.ui_search_suppliers()} />
               <Command.List>
                 <Command.Empty>{msg.ui_no_suppliers_found_9e60958()}</Command.Empty>
-                {#each suppliers as supplier}
+                {#each suppliers as supplier (supplier.id)}
                   <Command.Item value={supplier.name} onSelect={() => selectSupplier(supplier)}>
                     <CheckIcon
                       class={["size-4", selectedSupplier?.id !== supplier.id && "text-transparent"]}

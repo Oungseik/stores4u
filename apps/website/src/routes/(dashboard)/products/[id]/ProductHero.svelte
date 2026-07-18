@@ -127,7 +127,7 @@
 
     {#if product.categories.length > 1}
       <div class="flex flex-wrap gap-2">
-        {#each product.categories.slice(1) as category}
+        {#each product.categories.slice(1) as category (category.id)}
           <Badge variant="secondary">{category.name}</Badge>
         {/each}
       </div>

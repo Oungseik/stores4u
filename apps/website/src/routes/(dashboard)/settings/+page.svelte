@@ -53,7 +53,7 @@
     </Tabs.Content>
 
     <Tabs.Content value="tax" class="mt-6">
-      <Tax {shop} />
+      <Tax />
     </Tabs.Content>
   </Tabs.Root>
 </section>

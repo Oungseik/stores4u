@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as msg from "$lib/paraglide/messages";
-  import { parseDate, type DateValue } from "@internationalized/date";
+  import { parseDate } from "@internationalized/date";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import ListIcon from "@lucide/svelte/icons/list";

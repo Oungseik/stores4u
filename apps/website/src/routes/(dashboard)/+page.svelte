@@ -81,7 +81,7 @@
       class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 xl:grid xl:grid-cols-4 xl:overflow-x-visible"
     >
       {#if isLoading}
-        {#each { length: 4 } as _}
+        {#each [1, 2, 3, 4] as placeholder (placeholder)}
           <div class="min-w-[300px] flex-shrink-0 snap-center xl:min-w-0">
             <Card.Root class="h-[170px]">
               <Card.Header class="flex flex-row items-center justify-between space-y-0">

@@ -15,6 +15,7 @@
   import { confirmDelete } from "@repo/ui/confirm-delete-dialog";
   import * as DropdownMenu from "@repo/ui/dropdown-menu";
   import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
+  import { SvelteMap } from "svelte/reactivity";
   import { toast } from "svelte-sonner";
 
   import { goto } from "$app/navigation";
@@ -73,7 +74,7 @@
 
   const aliasesByProductId = $derived(
     (() => {
-      const map = new Map<string, string[]>();
+      const map = new SvelteMap<string, string[]>();
       for (const p of productsQuery.data?.items ?? []) {
         if (p.aliases?.length) {
           map.set(p.id, p.aliases);

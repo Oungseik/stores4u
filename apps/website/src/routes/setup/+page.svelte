@@ -218,7 +218,7 @@
                       "Select currency"}
                   </Select.Trigger>
                   <Select.Content>
-                    {#each currencies as curr}
+                    {#each currencies as curr (curr.value)}
                       <Select.Item value={curr.value}>{curr.label}</Select.Item>
                     {/each}
                   </Select.Content>

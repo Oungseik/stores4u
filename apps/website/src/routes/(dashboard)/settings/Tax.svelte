@@ -16,16 +16,6 @@
 
   import { orpc } from "$lib/orpc_client";
 
-  import type { PageProps } from "./$types";
-
-  type Shop = PageProps["data"];
-
-  interface Props {
-    shop: Shop;
-  }
-
-  let { shop }: Props = $props();
-
   const taxSettingsQuery = createQuery(() =>
     orpc.tax.get.queryOptions({
       input: {},

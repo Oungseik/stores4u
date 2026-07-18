@@ -83,7 +83,7 @@
   <!-- Thumbnails -->
   {#if allImages.length > 1}
     <div class="flex gap-2">
-      {#each allImages as image, index}
+      {#each allImages as image, index (image)}
         <Button
           variant="ghost"
           onclick={() => goToIndex(index)}

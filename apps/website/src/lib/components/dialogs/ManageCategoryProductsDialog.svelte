@@ -15,6 +15,7 @@
     useQueryClient,
   } from "@tanstack/svelte-query";
   import { Debounced } from "runed";
+  import { SvelteSet } from "svelte/reactivity";
   import { toast } from "svelte-sonner";
 
   import type { CategoryItem } from "$lib/components/tables/categories/columns";
@@ -29,7 +30,7 @@
   let { open, onClose, category }: Props = $props();
 
   let productSearch = $state("");
-  let selectedProductIds = $state<Set<string>>(new Set());
+  const selectedProductIds = new SvelteSet<string>();
   let initialProductIdsLoaded = $state(false);
 
   const queryClient = useQueryClient();
@@ -62,7 +63,7 @@
 
   $effect(() => {
     if (categoryProducts.data && !initialProductIdsLoaded) {
-      selectedProductIds = new Set(categoryProducts.data.productIds);
+      for (const productId of categoryProducts.data.productIds) selectedProductIds.add(productId);
       initialProductIdsLoaded = true;
     }
   });
@@ -88,13 +89,11 @@
   }
 
   function toggleProduct(productId: string) {
-    const next = new Set(selectedProductIds);
-    if (next.has(productId)) {
-      next.delete(productId);
+    if (selectedProductIds.has(productId)) {
+      selectedProductIds.delete(productId);
     } else {
-      next.add(productId);
+      selectedProductIds.add(productId);
     }
-    selectedProductIds = next;
   }
 
   function handleOpenChange(value: boolean) {

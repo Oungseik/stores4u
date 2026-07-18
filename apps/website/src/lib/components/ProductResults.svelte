@@ -33,12 +33,12 @@
 </script>
 
 <Command.Root
-  class="bg-popover absolute top-full w-[calc(100%-32px)] mx-auto right-0 left-0 z-50 h-fit overflow-hidden rounded-md border shadow-md"
+  class="bg-popover absolute top-full right-0 left-0 z-50 mx-auto h-fit w-[calc(100%-32px)] overflow-hidden rounded-md border shadow-md"
 >
   <Command.List>
     {#if isLoading && products.length === 0}
       <div class="flex flex-col gap-2 p-2">
-        {#each { length: 3 } as _}
+        {#each [1, 2, 3] as placeholder (placeholder)}
           <div class="flex items-center gap-3 px-2 py-2">
             <Skeleton class="size-10 shrink-0 rounded-md" />
             <div class="min-w-0 flex-1 space-y-1.5">

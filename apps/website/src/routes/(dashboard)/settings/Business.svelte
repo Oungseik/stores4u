@@ -35,14 +35,6 @@
 
   let { shop }: Props = $props();
 
-  const profileSettings = $derived({
-    name: shop.name ?? "",
-    title: shop.title ?? "",
-    description: shop.description ?? "",
-    logo: shop.logo ?? "",
-    heroImage: shop.heroImage ?? "",
-  });
-
   const businessSettings = $derived({
     address: shop.address ?? "",
     city: shop.city ?? "",
@@ -199,7 +191,7 @@
                       "Select country"}
                   </Select.Trigger>
                   <Select.Content>
-                    {#each countries as country}
+                    {#each countries as country (country.value)}
                       <Select.Item value={country.value}>{country.label}</Select.Item>
                     {/each}
                   </Select.Content>

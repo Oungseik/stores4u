@@ -42,7 +42,6 @@
   let mode = $state<CustomerMode>("walk-in");
   let selectedCustomer = $state<CreatedCustomer | null>(null);
 
-  // svelte-ignore non_reactive_update
   let customerFormRef: CustomerForm | null = $state(null);
 
   let searchQuery = $state("");

@@ -86,9 +86,6 @@
   );
 
   // svelte-ignore state_referenced_locally
-  const isEditMode = !!initialData;
-
-  // svelte-ignore state_referenced_locally
   const defaultValues = {
     name: initialData?.name ?? "",
     customerType: (initialData?.customerType ?? "RETAIL") as CustomerType,

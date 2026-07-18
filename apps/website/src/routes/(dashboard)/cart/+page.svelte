@@ -43,7 +43,7 @@
   const productSearch = createQuery(() =>
     orpc.products.list.queryOptions({
       input: { search: debouncedSearch.current, pageSize: 10 },
-      enabled: true && debouncedSearch.current.length > 0 && searchParams.mode === "search",
+      enabled: debouncedSearch.current.length > 0 && searchParams.mode === "search",
     }),
   );
 
@@ -52,7 +52,7 @@
   const productByBarcode = createQuery(() =>
     orpc.products.get.queryOptions({
       input: { barcode: lastScannedBarcode ?? "" },
-      enabled: true && !!lastScannedBarcode,
+      enabled: !!lastScannedBarcode,
     }),
   );
 

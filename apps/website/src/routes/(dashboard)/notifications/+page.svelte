@@ -16,10 +16,7 @@
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
-  import type { PageProps } from "./$types";
   import { receive, send } from "./transition";
-
-  const { params }: PageProps = $props();
 
   type NotificationType = "low_stock" | "out_of_stock" | "info";
 

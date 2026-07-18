@@ -62,7 +62,7 @@
         supplierId: params.supplierId,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: true && !!params.supplierId,
+      enabled: !!params.supplierId,
     }),
   );
 

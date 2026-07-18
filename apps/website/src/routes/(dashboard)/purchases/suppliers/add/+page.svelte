@@ -8,7 +8,6 @@
   import SupplierForm from "$lib/components/forms/SupplierForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
-  // svelte-ignore non_reactive_update
   let supplierFormRef: SupplierForm | null = null;
 </script>
 

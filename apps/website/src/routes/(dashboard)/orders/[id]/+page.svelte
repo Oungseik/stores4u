@@ -122,7 +122,7 @@
         </Card.Header>
         <Card.Content>
           <div class="rounded-md border text-sm">
-            {#each order.items as item, i}
+            {#each order.items as item, i (item.id)}
               <div
                 class="flex items-center justify-between p-2.5 {i !== order.items.length - 1
                   ? 'border-b'

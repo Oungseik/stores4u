@@ -8,7 +8,6 @@
   import ProductForm from "$lib/components/forms/ProductForm.svelte";
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
 
-  // svelte-ignore non_reactive_update
   let productFormRef: ProductForm | null = null;
 </script>
 

@@ -171,7 +171,7 @@
                     msg.ui_select_type()}
                 </Select.Trigger>
                 <Select.Content>
-                  {#each movementTypeOptions as option}
+                  {#each movementTypeOptions as option (option.value)}
                     <Select.Item value={option.value}>{option.label}</Select.Item>
                   {/each}
                 </Select.Content>

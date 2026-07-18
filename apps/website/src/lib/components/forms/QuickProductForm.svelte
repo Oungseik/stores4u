@@ -155,7 +155,7 @@
       <Select.Root type="single" bind:value={selectedUom}>
         <Select.Trigger class="w-full">{selectedUom}</Select.Trigger>
         <Select.Content>
-          {#each uoms as uom}
+          {#each uoms as uom (uom)}
             <Select.Item value={uom}>{uom}</Select.Item>
           {/each}
         </Select.Content>

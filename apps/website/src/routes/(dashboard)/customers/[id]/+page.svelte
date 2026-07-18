@@ -58,7 +58,7 @@
         customerId: params.id,
       }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: true && !!params.id,
+      enabled: !!params.id,
     }),
   );
 
