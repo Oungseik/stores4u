@@ -20,7 +20,7 @@ Owns: presentational and primitive components (button, card, sidebar, data-table
 
 ## Verification
 
-- `bun run check-types` (root turbo task)
+- `bun run typecheck` (root Turbo task)
 
 ## Child DOX Index
 

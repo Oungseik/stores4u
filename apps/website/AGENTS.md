@@ -37,6 +37,7 @@ Owns: routing, UI, server logic (oRPC handlers, better-auth, Mistral OCR invoice
 
 ## Work Guidance
 
+- ESLint checks authored `src/**/*.svelte` files without TypeScript project service; Biome handles repository-wide TypeScript/JavaScript linting.
 - `DATABASE_PATH` must be set (see `.env.example`). Run `bun run db:migrate` to create/sync the schema into the SQLite file.
 - Drizzle migrations (`drizzle/`) are gitignored; use `db:generate` + `db:migrate` .
 - Offline password reset: `RESET_EMAIL=... RESET_PASSWORD=... bun run scripts/reset-password.ts` resets an owner/admin password directly against `DATABASE_PATH` (lockout escape hatch; bypasses the session-gated admin API; both email + password read from env so neither hits argv / shell history). Owner/admin roles only; refuses member/user.
