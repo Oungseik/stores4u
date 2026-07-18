@@ -23,7 +23,6 @@
   import * as Tabs from "@repo/ui/tabs";
   import { createMutation } from "@tanstack/svelte-query";
   import { useSearchParams } from "runed/kit";
-  import { untrack } from "svelte";
   import { toast } from "svelte-sonner";
 
   import { invalidateAll } from "$app/navigation";
@@ -31,7 +30,6 @@
   import { orpc } from "$lib/orpc_client";
   import { accountsTabSchema } from "$lib/search_param";
 
-  import type { Language } from "@repo/config";
   import * as Select from "@repo/ui/select";
   import * as msg from "$lib/paraglide/messages";
   import { setLocale } from "$lib/paraglide/runtime";
@@ -41,15 +39,12 @@
   const { data }: PageProps = $props();
   let user = $derived(data.user);
   const session = $derived(data.session);
-  let selectedLanguage = $state<Language>(untrack(() => data.language));
+  let selectedLanguage = $derived(data.language);
 
-  // Cookie-only: setLocale writes PARAGLIDE_LOCALE directly, no DB call.
-  async function handleLanguageChange(value: string) {
+  // Cookie-only: setLocale writes PARAGLIDE_LOCALE and reloads so all messages update.
+  function handleLanguageChange(value: string) {
     if (value !== "en" && value !== "my") return;
-    selectedLanguage = value;
-    setLocale(value, { reload: false });
-    await invalidateAll();
-    toast.success(msg.language_updated());
+    setLocale(value);
   }
 
   const searchParams = useSearchParams(accountsTabSchema, { noScroll: true });
