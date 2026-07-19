@@ -105,7 +105,7 @@
         containerId="stores4u-barcode-scanner"
         onScan={handleBarcodeScan}
         enabled={searchParams.mode === "scan"}
-        class="bg-muted relative h-25 w-full overflow-hidden rounded-lg"
+        class="bg-muted relative h-36 w-full overflow-hidden rounded-lg"
       />
     </Tabs.Content>
 

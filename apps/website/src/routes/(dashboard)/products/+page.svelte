@@ -301,9 +301,7 @@
         </div>
       {/if}
     {:else}
-      <div
-        class="grid grid-cols-2 gap-3 xl:gap-4 @[520px]/main:grid-cols-3 @[720px]/main:grid-cols-4"
-      >
+      <div class="grid grid-cols-1 gap-3 xl:gap-4 @[768px]/main:grid-cols-4">
         {#each allProducts as product (product.id)}
           {@const marginPercent =
             product.lastCostCents && product.lastCostCents > 0
@@ -318,7 +316,7 @@
                 ? "low"
                 : "ok"}
 
-          <Card.Root class="group overflow-hidden p-0">
+          <Card.Root class="group relative overflow-hidden p-0">
             <a href={localizePath(`/products/${product.id}`)} class="block">
               <div class="bg-muted/40 relative aspect-[3/2] overflow-hidden">
                 {#if product.image}
@@ -346,51 +344,6 @@
                       : msg.ui_low_stock_a6e1fef()}
                   </span>
                 {/if}
-                <div class="absolute top-2 right-2">
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger
-                      class={buttonVariants({ variant: "secondary", size: "icon" }) +
-                        " size-7 opacity-0 shadow-sm transition-opacity group-hover:opacity-100"}
-                      onclick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                    >
-                      <MoreVerticalIcon class="size-3.5" />
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align="end">
-                      <DropdownMenu.Item>
-                        <a
-                          href={localizePath(`/products/${product.id}/edit`)}
-                          class="flex w-full items-center gap-2"
-                        >
-                          <PencilIcon class="size-4" />
-                          {msg.ui_edit()}
-                        </a>
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Item
-                        onclick={() =>
-                          handleAdjustProduct(
-                            product.id,
-                            product.name,
-                            product.stock,
-                            product.lastCostCents,
-                          )}
-                      >
-                        <ArrowUpDownIcon class="size-4" />
-                        {msg.ui_adjust_stock()}
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Separator />
-                      <DropdownMenu.Item
-                        class="text-destructive"
-                        onclick={() => handleDeleteProduct(product.id)}
-                      >
-                        <Trash2Icon class="size-4" />
-                        {msg.ui_delete()}
-                      </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
-                </div>
               </div>
 
               <div class="flex flex-col gap-1.5 p-3">
@@ -424,6 +377,49 @@
                 </div>
               </div>
             </a>
+
+            <div class="absolute top-2 right-2">
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger
+                  aria-label={msg.ui_more()}
+                  class={buttonVariants({ variant: "secondary", size: "icon" }) +
+                    " size-7 shadow-sm"}
+                >
+                  <MoreVerticalIcon class="size-3.5" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="end">
+                  <DropdownMenu.Item>
+                    <a
+                      href={localizePath(`/products/${product.id}/edit`)}
+                      class="flex w-full items-center gap-2"
+                    >
+                      <PencilIcon class="size-4" />
+                      {msg.ui_edit()}
+                    </a>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item
+                    onclick={() =>
+                      handleAdjustProduct(
+                        product.id,
+                        product.name,
+                        product.stock,
+                        product.lastCostCents,
+                      )}
+                  >
+                    <ArrowUpDownIcon class="size-4" />
+                    {msg.ui_adjust_stock()}
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Item
+                    class="text-destructive"
+                    onclick={() => handleDeleteProduct(product.id)}
+                  >
+                    <Trash2Icon class="size-4" />
+                    {msg.ui_delete()}
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            </div>
           </Card.Root>
         {/each}
       </div>

@@ -169,8 +169,8 @@
                 </div>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger
-                    class={buttonVariants({ variant: "ghost", size: "icon" }) +
-                      " size-8 opacity-0 group-hover:opacity-100"}
+                    aria-label={msg.ui_more()}
+                    class={buttonVariants({ variant: "ghost", size: "icon" }) + " size-8"}
                   >
                     <MoreVerticalIcon class="size-4" />
                   </DropdownMenu.Trigger>

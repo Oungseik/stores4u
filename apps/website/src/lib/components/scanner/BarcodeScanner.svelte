@@ -49,7 +49,10 @@
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 250, height: 150 },
+          qrbox: (viewfinderWidth, viewfinderHeight) => ({
+            width: Math.min(250, Math.floor(viewfinderWidth * 0.8)),
+            height: Math.min(80, Math.floor(viewfinderHeight * 0.6)),
+          }),
         },
         (decodedText) => {
           if (acceptScan(decodedText)) onScan?.(decodedText);
@@ -98,7 +101,7 @@
 </script>
 
 {#if !isScanning && scannerError}
-  <div class="relative h-full w-full {className}">
+  <div class="relative w-full {className}">
     <div
       class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center"
     >
@@ -110,7 +113,7 @@
     </div>
   </div>
 {:else}
-  <div id={containerId} class="relative h-full w-full {className}">
+  <div id={containerId} class="scanner-viewport relative w-full {className}">
     {#if !isScanning}
       <div class="bg-muted absolute inset-0 flex flex-col items-center justify-center gap-2">
         <Loader2Icon class="size-6 animate-spin" />
@@ -119,3 +122,10 @@
     {/if}
   </div>
 {/if}
+
+<style>
+  .scanner-viewport :global(video) {
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
