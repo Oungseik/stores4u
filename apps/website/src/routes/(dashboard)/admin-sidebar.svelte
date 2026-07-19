@@ -60,8 +60,8 @@
     { title: msg.ui_customers(), href: "/customers", icon: UsersIcon },
     { title: msg.ui_products(), href: "/products", icon: BoxIcon },
     { title: msg.ui_product_categories(), href: "/products/categories", icon: FolderIcon },
-    { title: msg.ui_purchase_invoices(), href: "/purchases/invoices", icon: FileTextIcon },
     { title: msg.ui_suppliers(), href: "/purchases/suppliers", icon: Building2Icon },
+    { title: msg.ui_purchase_invoices(), href: "/purchases/invoices", icon: FileTextIcon },
   ];
 
   const settingsHref = "/settings";
