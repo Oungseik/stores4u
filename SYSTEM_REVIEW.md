@@ -96,9 +96,9 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 The review baseline passed:
 
 - `bun run check`
-- `bun run test` (11 tests)
+- `bun run test` (Vitest; 27 tests)
 - `bun run build`
-- `bun test deploy/deploy.test.ts` (5 tests)
+- `bun run test:deploy` (Vitest; 5 tests)
 - `cd apps/website && bun src/lib/server/ocr/mistral-invoice.check.ts`
 - `bash -n deploy/linux.sh`
 - `git diff --check`

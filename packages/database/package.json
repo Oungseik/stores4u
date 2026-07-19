@@ -12,7 +12,7 @@
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run format",
-    "test": "bun test",
+    "test": "bun --bun vitest --run",
     "db:generate": "bun --bun run with-env drizzle-kit generate",
     "db:migrate": "bun --bun run with-env drizzle-kit migrate",
     "db:studio": "bun --bun run with-env drizzle-kit studio"
@@ -33,6 +33,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "1.0.0-rc.4",
     "tsdown": "0.22.9",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   }
 }

@@ -26,7 +26,7 @@ Owns the shared deployment configurator, certificate onboarding page, SQLite pre
 
 ## Verification
 
-- `bun test deploy/deploy.test.ts`
+- `bun run test:deploy` (Vitest under Bun)
 - `bash -n deploy/linux.sh`
 - Run each installer on its target OS before publishing an installation release.
 

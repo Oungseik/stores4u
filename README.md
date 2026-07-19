@@ -46,7 +46,7 @@ The production process is `bun run apps/website/build/index.js`; do not use Vite
 - `bun run preview` - preview the built website
 - `bun run typecheck` - run type checks
 - `bun run check` - run workspace checks
-- `bun run test` - run workspace tests
+- `bun run test` - run all website, database, and deployment tests with Vitest
 - `bun run format` - run workspace formatting
 - `bun run db:generate` - generate Drizzle migrations
 - `bun run db:migrate` - apply Drizzle migrations

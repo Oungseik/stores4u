@@ -1,8 +1,10 @@
 import { randomBytes, X509Certificate } from "node:crypto";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const repoRoot = resolve(import.meta.dir, "..");
+const deployDir = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(deployDir, "..");
 
 function envValue(contents: string, key: string) {
   const raw = contents.match(new RegExp(`^${key}=(.*)$`, "m"))?.[1]?.trim();
@@ -42,7 +44,7 @@ export function validateLanHost(value: string) {
 export async function configureDeployment(
   lanHost: string,
   root = repoRoot,
-  templatePath = resolve(import.meta.dir, "bootstrap.html"),
+  templatePath = resolve(deployDir, "bootstrap.html"),
 ) {
   const host = validateLanHost(lanHost);
   const envPath = resolve(root, ".env");

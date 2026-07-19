@@ -31,7 +31,7 @@ Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `re
 
 - `bun run build` (`tsdown --no-dts`, successful JavaScript emit expected)
 - `bun run typecheck` (root turbo → `tsgo --noEmit` here via `@typescript/native-preview`, 0 errors expected)
-- `bun test packages/database/src/database-path.test.ts` (migrate and runtime-open one temporary relative-path database)
+- `bun run test` (Vitest under Bun; migrates and runtime-opens one temporary relative-path database)
 
 ## Child DOX Index
 

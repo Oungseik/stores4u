@@ -1,9 +1,10 @@
 import { Database } from "bun:sqlite";
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, rename, rm } from "node:fs/promises";
-import { basename, isAbsolute, resolve } from "node:path";
+import { basename, dirname, isAbsolute, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const repoRoot = resolve(import.meta.dir, "..");
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export async function backupDatabase(
   configuredPath: string,

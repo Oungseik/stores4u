@@ -1,11 +1,13 @@
 import { Database } from "bun:sqlite";
-import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, test } from "vitest";
 import { backupDatabase, restoreDatabase } from "./backup-db";
 import { configureDeployment, validateLanHost } from "./configure";
 
+const deployDir = dirname(fileURLToPath(import.meta.url));
 const temporaryRoots: string[] = [];
 
 afterEach(async () => {
@@ -31,7 +33,7 @@ describe("deployment configuration", () => {
     const result = await configureDeployment(
       "192.168.1.50",
       root,
-      resolve(import.meta.dir, "bootstrap.html"),
+      resolve(deployDir, "bootstrap.html"),
     );
     const env = await readFile(resolve(root, ".env"), "utf8");
     const caddyfile = await readFile(result.caddyfile, "utf8");
@@ -48,7 +50,7 @@ describe("deployment configuration", () => {
 
   test("generates a secret when the template is empty", async () => {
     const root = await temporaryRoot();
-    await configureDeployment("store.local", root, resolve(import.meta.dir, "bootstrap.html"));
+    await configureDeployment("store.local", root, resolve(deployDir, "bootstrap.html"));
     const env = await readFile(resolve(root, ".env"), "utf8");
     expect(env).toMatch(/^BETTER_AUTH_SECRET="[a-f0-9]{64}"$/m);
   });
@@ -57,7 +59,7 @@ describe("deployment configuration", () => {
     const root = await temporaryRoot();
     await mkdir(resolve(root, ".env"));
     await expect(
-      configureDeployment("store.local", root, resolve(import.meta.dir, "bootstrap.html")),
+      configureDeployment("store.local", root, resolve(deployDir, "bootstrap.html")),
     ).rejects.toThrow();
   });
 
@@ -91,5 +93,5 @@ test("database backup checkpoints and copies the SQLite file", async () => {
   restored.close();
 
   await restoreDatabase(null, "databases/store.db", root);
-  expect(await Bun.file(databasePath).exists()).toBeFalse();
+  expect(await Bun.file(databasePath).exists()).toBe(false);
 });

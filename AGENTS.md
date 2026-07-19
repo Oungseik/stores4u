@@ -71,6 +71,7 @@ Default section order:
 - Work through the correctness and feature backlog in root `SYSTEM_REVIEW.md` one item at a time, keeping its checkboxes and acceptance notes current.
 - Turbo runs in strict environment mode; add every server runtime variable used by an app to root `turbo.json` `globalEnv`. Purchase-invoice OCR requires `MISTRAL_API_KEY` there so root `.env` reaches `apps/website`.
 - Biome treats unused imports as lint errors repo-wide (`correctness.noUnusedImports: "error"`).
+- Vitest is the sole test framework repo-wide. Root `bun run test` runs website, database, and deployment projects under Bun; do not import `bun:test` or add another runner.
 
 ## Closeout
 

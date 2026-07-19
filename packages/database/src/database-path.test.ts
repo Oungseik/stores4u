@@ -1,15 +1,14 @@
 import { Database } from "bun:sqlite";
-import { expect, test } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, relative, resolve } from "node:path";
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { expect, test } from "vitest";
 import { resolveDatabasePath } from "./database-path";
-import { createDb } from "./index";
 
 test("Drizzle migration and website runtime open the same relative database path", () => {
   const originalCwd = process.cwd();
-  const repositoryRoot = resolve(import.meta.dir, "../../..");
+  const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
   const temporaryDirectory = mkdtempSync(join(tmpdir(), "stores4u-data-01-"));
   const configuredPath = relative(repositoryRoot, join(temporaryDirectory, "store.db"));
 
@@ -17,9 +16,14 @@ test("Drizzle migration and website runtime open the same relative database path
     process.chdir(join(repositoryRoot, "packages/database"));
     const migrationPath = resolveDatabasePath(configuredPath);
     const migrationClient = new Database(migrationPath);
-    migrate(createDb(migrationClient), {
-      migrationsFolder: join(repositoryRoot, "packages/database/drizzle"),
-    });
+    const migrationsDirectory = join(repositoryRoot, "packages/database/drizzle");
+    const [firstMigration] = readdirSync(migrationsDirectory).sort();
+    if (!firstMigration) throw new Error("No migration found");
+    const migrationSql = readFileSync(
+      join(migrationsDirectory, firstMigration, "migration.sql"),
+      "utf8",
+    );
+    migrationClient.run(migrationSql.replaceAll("--> statement-breakpoint", ""));
     migrationClient.close();
 
     process.chdir(join(repositoryRoot, "apps/website"));

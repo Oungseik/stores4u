@@ -13,8 +13,7 @@
     "lint": "biome lint --write . && eslint \"src/**/*.svelte\" --fix --cache",
     "format": "prettier --write . && biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run format",
-    "test:unit": "vitest",
-    "test": "bun --bun run test:unit -- --run"
+    "test": "bun --bun vitest --run"
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
