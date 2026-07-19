@@ -18,10 +18,11 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Files: upload handlers, `src/lib/server/storage.ts`, and `/storage/[...key]`.
   - Acceptance: invoice uploads accept only magic-byte-detected JPEG, PNG, or PDF content and use canonical keys/MIME; image uploads reject SVG and emit WebP; storage responses derive safe types from keys, force unknown types to download, and set CSP, CORP, and anti-sniffing headers. Direct upload regressions cover disguised HTML and active SVG.
 
-- [ ] **SEC-03 — Protect internal catalog RPC reads**
+- [x] **SEC-03 — Protect internal catalog RPC reads**
   - Require a dashboard role for product/category reads unless a separate storefront-safe API is deliberately introduced.
   - Do not expose cost or internal stock data publicly.
   - Add maximum page sizes and unauthenticated-request tests.
+  - Acceptance: product list/get and category list/product-membership reads use `protectedShopMiddleware`; list inputs cap `pageSize` at 100; direct-handler regressions reject missing sessions with `UNAUTHORIZED`, non-dashboard `user` sessions with `FORBIDDEN`, and page sizes above 100 with `BAD_REQUEST`.
 
 ## High — data correctness
 

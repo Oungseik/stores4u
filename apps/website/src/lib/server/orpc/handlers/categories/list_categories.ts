@@ -1,16 +1,16 @@
 import { z } from "zod";
 import { db, eq, productCategory } from "$lib/server/db";
-import { os, shopMiddleware } from "$lib/server/orpc/base";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   cursor: z.string().optional(),
-  pageSize: z.number().int().positive().default(12),
+  pageSize: z.number().int().positive().max(100).default(12),
 });
 
 export const listCategoriesHandler = os
   .route({ method: "GET" })
   .input(input)
-  .use(shopMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input }) => {
     const categories = await db.query.category.findMany({
       where: input.cursor ? { id: { gte: input.cursor } } : undefined,

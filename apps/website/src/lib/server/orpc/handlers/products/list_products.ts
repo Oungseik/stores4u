@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { db } from "$lib/server/db";
 
-import { os, shopMiddleware } from "$lib/server/orpc/base";
+import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   cursor: z.string().optional(),
-  pageSize: z.number().int().positive().default(12),
+  pageSize: z.number().int().positive().max(100).default(12),
   order: z.enum(["asc", "desc"]).default("desc"),
   search: z.string().optional(),
   categories: z.array(z.string()).optional(),
@@ -19,7 +19,7 @@ const input = z.object({
 export const listProductsHandler = os
   .route({ method: "GET" })
   .input(input)
-  .use(shopMiddleware)
+  .use(protectedShopMiddleware)
   .handler(async ({ input }) => {
     const products = await db.query.product.findMany({
       where: {
