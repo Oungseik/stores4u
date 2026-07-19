@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db, taxSettings } from "$lib/server/db";
 
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { os, ownerMiddleware, shopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   enabled: z.boolean(),
@@ -11,8 +11,8 @@ const input = z.object({
 
 export const updateTaxSettingsHandler = os
   .input(input)
-  .use(authMiddleware)
-  .use(protectedShopMiddleware)
+  .use(ownerMiddleware)
+  .use(shopMiddleware)
   .handler(async ({ input }) => {
     const now = new Date();
 

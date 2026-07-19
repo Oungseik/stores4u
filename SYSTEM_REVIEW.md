@@ -4,10 +4,11 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 
 ## Critical — release blockers
 
-- [ ] **SEC-01 — Enforce owner-only settings at the API boundary**
+- [x] **SEC-01 — Enforce owner-only settings at the API boundary**
   - Replace dashboard-role authorization with `ownerMiddleware` for store, tax, and invoice-setting mutations.
   - Cover direct admin/member RPC calls with authorization tests.
   - Files: `apps/website/src/lib/server/orpc/handlers/{shops/update_shop,invoice/update_invoice_settings,tax/update_tax_settings}.ts`.
+  - Acceptance: all three mutations run `ownerMiddleware` before resolving the shop; direct calls from both `admin` and `member` reject with `FORBIDDEN` in `owner-mutations.test.ts`.
 
 - [ ] **SEC-02 — Prevent same-origin stored XSS from uploads**
   - Validate purchase-invoice content from magic bytes rather than caller MIME or filename.

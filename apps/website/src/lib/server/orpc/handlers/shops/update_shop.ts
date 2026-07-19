@@ -2,7 +2,7 @@ import { COUNTRIES, CURRENCIES, isValidTimezone } from "@repo/config";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, shop, shopInfo } from "$lib/server/db";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { os, ownerMiddleware, shopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
@@ -25,8 +25,8 @@ const input = z.object({
 
 export const updateShopHandler = os
   .input(input)
-  .use(authMiddleware)
-  .use(protectedShopMiddleware)
+  .use(ownerMiddleware)
+  .use(shopMiddleware)
   .handler(async ({ input, context }) => {
     const oldLogo = context.shop.logo;
     const oldHeroImage = context.shop.shopInfo?.heroImage;

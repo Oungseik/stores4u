@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db, invoiceSettings } from "$lib/server/db";
-import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
+import { os, ownerMiddleware, shopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
   paperWidth: z.enum(["58", "80"]),
@@ -13,8 +13,8 @@ const input = z.object({
 
 export const updateInvoiceSettingsHandler = os
   .input(input)
-  .use(authMiddleware)
-  .use(protectedShopMiddleware)
+  .use(ownerMiddleware)
+  .use(shopMiddleware)
   .handler(async ({ input }) => {
     const now = new Date();
 
