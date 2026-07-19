@@ -30,24 +30,12 @@
 
   let { shop }: Props = $props();
 
-  const shopSettings = $derived({
-    profile: {
-      name: shop.name ?? "",
-      title: shop.title ?? "",
-      description: shop.description ?? "",
-      logo: shop.logo ?? "",
-      heroImage: shop.heroImage ?? "",
-    },
-    business: {
-      address: shop.address ?? "",
-      city: shop.city ?? "",
-      state: shop.state ?? "",
-      zipCode: shop.zipCode ?? "",
-      country: shop.country ?? "US",
-      phone: shop.phone ?? "",
-      email: shop.email ?? "",
-      taxId: shop.taxId ?? "",
-    },
+  const profileSettings = $derived({
+    name: shop.name ?? "",
+    title: shop.title ?? "",
+    description: shop.description ?? "",
+    logo: shop.logo ?? "",
+    heroImage: shop.heroImage ?? "",
   });
 
   const updateShopMutation = createMutation(() =>
@@ -129,10 +117,9 @@
   }
 
   const profileForm = createForm(() => ({
-    defaultValues: shopSettings.profile,
-    onSubmit: async () => {
-      // TODO: redesign settings page with separate shop info form
-      // await updateShopMutation.mutateAsync({...});
+    defaultValues: profileSettings,
+    onSubmit: async ({ value }) => {
+      await updateShopMutation.mutateAsync(value);
     },
   }));
 </script>
@@ -159,6 +146,7 @@
           onChange: ({ value }) =>
             z
               .string()
+              .trim()
               .min(1, msg.ui_shop_name_is_required())
               .max(100)
               .safeParse(value)
@@ -172,7 +160,6 @@
               id={field.name}
               name={field.name}
               value={field.state.value}
-              onblur={field.handleBlur}
               onchange={(e) => field.handleChange(e.currentTarget.value)}
               placeholder={msg.ui_your_shop_name()}
             />
@@ -197,7 +184,6 @@
               id={field.name}
               name={field.name}
               value={field.state.value}
-              onblur={field.handleBlur}
               onchange={(e) => field.handleChange(e.currentTarget.value)}
               placeholder="My Awesome Shop - Best Products in Town"
             />
@@ -219,7 +205,6 @@
               id={field.name}
               name={field.name}
               value={field.state.value}
-              onblur={field.handleBlur}
               onchange={(e) => field.handleChange(e.currentTarget.value)}
               placeholder={msg.ui_brief_description_of_your_shop()}
               rows={3}

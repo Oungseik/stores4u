@@ -71,8 +71,9 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Compute COGS from sale movements, not all purchase inventory.
   - Do not hide real losses by clamping estimated profit to zero.
 
-- [ ] **FEATURE-01 — Implement or remove the no-op Shop Profile save**
-  - Never present a save action that silently does nothing.
+- [x] **FEATURE-01 — Implement or remove the no-op Shop Profile save**
+  - Profile save persists name, title, description, logo, and hero image through `orpc.shops.update`.
+  - Profile and Business updates preserve fields owned by the other tab.
 
 - [ ] **FEATURE-02 — Implement or remove mock notifications**
   - Notification preferences must persist before showing success.

@@ -6,19 +6,19 @@ import { os, ownerMiddleware, shopMiddleware } from "$lib/server/orpc/base";
 import { extractObjectKey, removeImage } from "$lib/server/storage";
 
 const input = z.object({
-  name: z.string().min(1).max(100).optional(),
+  name: z.string().trim().min(1).max(100).optional(),
   title: z.string().max(200).optional(),
   description: z.string().max(1000).optional(),
-  address: z.string().min(1).max(200),
-  city: z.string().min(1).max(100),
-  phone: z.string().min(1).max(50),
-  state: z.string().min(1).max(100),
-  zipCode: z.string().min(1).max(20),
-  email: z.email().max(200),
+  address: z.string().min(1).max(200).optional(),
+  city: z.string().min(1).max(100).optional(),
+  phone: z.string().min(1).max(50).optional(),
+  state: z.string().min(1).max(100).optional(),
+  zipCode: z.string().min(1).max(20).optional(),
+  email: z.email().max(200).optional(),
   taxId: z.string().max(100).optional(),
-  country: z.enum(COUNTRIES),
-  currency: z.enum(CURRENCIES),
-  timezone: z.string().refine(isValidTimezone),
+  country: z.enum(COUNTRIES).optional(),
+  currency: z.enum(CURRENCIES).optional(),
+  timezone: z.string().refine(isValidTimezone).optional(),
   logo: z.string().max(500).optional(),
   heroImage: z.string().max(500).optional(),
 });
@@ -48,9 +48,9 @@ export const updateShopHandler = os
       await db
         .update(shopInfo)
         .set({
-          title: input.title ?? "",
-          description: input.description ?? null,
-          heroImage: input.heroImage ?? null,
+          title: input.title,
+          description: input.description === undefined ? undefined : input.description || null,
+          heroImage: input.heroImage === undefined ? undefined : input.heroImage || null,
           address: input.address,
           city: input.city,
           state: input.state,
@@ -58,8 +58,8 @@ export const updateShopHandler = os
           country: input.country,
           phone: input.phone,
           email: input.email,
-          taxId: input.taxId ?? null,
-          logo: input.logo ?? null,
+          taxId: input.taxId === undefined ? undefined : input.taxId || null,
+          logo: input.logo === undefined ? undefined : input.logo || null,
           updatedAt: new Date(),
         })
         .where(eq(shopInfo.id, context.shop.shopInfoId));
@@ -71,13 +71,13 @@ export const updateShopHandler = os
         title: input.title ?? "",
         description: input.description ?? null,
         heroImage: input.heroImage ?? null,
-        address: input.address,
-        city: input.city,
-        state: input.state,
-        zipCode: input.zipCode,
-        country: input.country,
-        phone: input.phone,
-        email: input.email,
+        address: input.address ?? "",
+        city: input.city ?? "",
+        state: input.state ?? "",
+        zipCode: input.zipCode ?? "",
+        country: input.country ?? "US",
+        phone: input.phone ?? "",
+        email: input.email ?? "",
         taxId: input.taxId ?? null,
         logo: input.logo ?? null,
       });
@@ -85,14 +85,14 @@ export const updateShopHandler = os
     }
 
     // Clean up old images
-    if (oldLogo && oldLogo !== input.logo) {
+    if (input.logo !== undefined && oldLogo && oldLogo !== input.logo) {
       const oldLogoKey = extractObjectKey(oldLogo);
       if (oldLogoKey) {
         await removeImage(oldLogoKey).catch(() => {});
       }
     }
 
-    if (oldHeroImage && oldHeroImage !== input.heroImage) {
+    if (input.heroImage !== undefined && oldHeroImage && oldHeroImage !== input.heroImage) {
       const oldHeroImageKey = extractObjectKey(oldHeroImage);
       if (oldHeroImageKey) {
         await removeImage(oldHeroImageKey).catch(() => {});

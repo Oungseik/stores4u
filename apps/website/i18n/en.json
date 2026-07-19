@@ -582,6 +582,8 @@
   "ui_walk_in": "Walk-in",
   "ui_wastage": "Wastage",
   "error_invalid_field": "{field} is invalid",
+  "error_field_required": "{field} is required",
+  "error_field_too_long": "{field} must be {max} characters or fewer",
   "error_product_not_found_value": "Product not found: {product}",
   "confirm_delete_named": "Are you sure you want to delete “{name}”? This action cannot be undone.",
   "files_uploaded": "{count} file(s) uploaded successfully",

@@ -8,8 +8,21 @@ vi.mock("zod", async (importOriginal) => {
 vi.mock("$lib/server/auth", () => ({
   isDashboardRole: (role: unknown) => ["owner", "admin", "member"].includes(String(role)),
 }));
+const dbMocks = vi.hoisted(() => ({
+  findShop: vi.fn(),
+  insert: vi.fn(),
+  set: vi.fn(),
+  update: vi.fn(),
+  where: vi.fn(),
+}));
+
+vi.mock("drizzle-orm", () => ({ eq: vi.fn() }));
 vi.mock("$lib/server/db", () => ({
-  db: {},
+  db: {
+    query: { shop: { findFirst: dbMocks.findShop } },
+    insert: dbMocks.insert,
+    update: dbMocks.update,
+  },
   invoiceSettings: {},
   shop: {},
   shopInfo: {},
@@ -44,7 +57,7 @@ const inputs = {
   tax: { enabled: true, name: "Tax", rate: 5 },
 };
 
-const contextFor = (role: "admin" | "member") => {
+const contextFor = (role: "owner" | "admin" | "member") => {
   const now = new Date();
   return {
     session: {
@@ -83,3 +96,34 @@ for (const role of ["admin", "member"] as const) {
     }
   });
 }
+
+test("shop profile updates preserve omitted business fields", async () => {
+  dbMocks.findShop.mockResolvedValue({
+    id: "shop-id",
+    logo: null,
+    shopInfoId: "shop-info-id",
+    shopInfo: { heroImage: null },
+  });
+  dbMocks.where.mockResolvedValue(undefined);
+  dbMocks.set.mockReturnValue({ where: dbMocks.where });
+  dbMocks.update.mockReturnValue({ set: dbMocks.set });
+
+  await call(
+    updateShopHandler,
+    { name: "New name", title: "New title", description: "New description" },
+    { context: contextFor("owner") },
+  );
+
+  expect(dbMocks.set).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({ name: "New name", timezone: undefined }),
+  );
+  expect(dbMocks.set).toHaveBeenNthCalledWith(
+    2,
+    expect.objectContaining({
+      title: "New title",
+      description: "New description",
+      address: undefined,
+    }),
+  );
+});

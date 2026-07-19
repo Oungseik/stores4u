@@ -20,8 +20,9 @@
   import { createForm } from "@tanstack/svelte-form";
   import { createMutation } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
+  import { z } from "zod";
 
-  import { TIMEZONES } from "@repo/config";
+  import { COUNTRIES, isValidTimezone, TIMEZONES } from "@repo/config";
   import { invalidateAll } from "$app/navigation";
   import { orpc } from "$lib/orpc_client";
 
@@ -47,6 +48,33 @@
     timezone: shop.timezone ?? "UTC",
   });
 
+  const requiredText = (field: string, max: number) =>
+    z
+      .string()
+      .trim()
+      .min(1, msg.error_field_required({ field }))
+      .max(max, msg.error_field_too_long({ field, max }));
+
+  const businessSchema = z.object({
+    address: requiredText(msg.ui_street_address(), 200),
+    city: requiredText(msg.ui_city(), 100),
+    state: requiredText(msg.ui_state(), 100),
+    zipCode: requiredText(msg.ui_zip_code(), 20),
+    country: z.enum(COUNTRIES, {
+      error: msg.error_invalid_field({ field: msg.ui_country() }),
+    }),
+    phone: requiredText(msg.ui_phone_number(), 50),
+    email: requiredText(msg.ui_email_address(), 200).pipe(
+      z.email({ error: msg.error_invalid_field({ field: msg.ui_email_address() }) }),
+    ),
+    taxId: z
+      .string()
+      .max(100, msg.error_field_too_long({ field: msg.ui_tax_id_vat_number(), max: 100 })),
+    timezone: z
+      .string()
+      .refine(isValidTimezone, msg.error_invalid_field({ field: msg.ui_timezone() })),
+  });
+
   const updateShopMutation = createMutation(() =>
     orpc.shops.update.mutationOptions({
       onSuccess: () => {
@@ -61,12 +89,11 @@
 
   const businessForm = createForm(() => ({
     defaultValues: businessSettings,
+    validators: { onChange: businessSchema },
     onSubmit: async ({ value }) => {
       await updateShopMutation.mutateAsync({
-        name: shop.name,
         ...value,
         country: value.country as "MM" | "TH" | "US",
-        currency: shop.currency,
       });
     },
   }));
@@ -97,6 +124,7 @@
   <Card.Content>
     <form
       class="space-y-6"
+      novalidate
       onsubmit={(e) => {
         e.preventDefault();
         businessForm.handleSubmit();
@@ -117,12 +145,18 @@
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
-                    onblur={field.handleBlur}
+                    aria-invalid={field.state.meta.errors.length > 0}
+                    aria-describedby={`${field.name}-error`}
                     onchange={(e) => field.handleChange(e.currentTarget.value)}
                     placeholder="123 Main Street"
                     class="pl-10"
                   />
                 </div>
+                {#if field.state.meta.errors[0]}
+                  <p id={`${field.name}-error`} class="text-destructive text-sm">
+                    {field.state.meta.errors[0].message}
+                  </p>
+                {/if}
               </div>
             {/snippet}
           </businessForm.Field>
@@ -135,10 +169,16 @@
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onblur={field.handleBlur}
+                  aria-invalid={field.state.meta.errors.length > 0}
+                  aria-describedby={`${field.name}-error`}
                   onchange={(e) => field.handleChange(e.currentTarget.value)}
                   placeholder="New York"
                 />
+                {#if field.state.meta.errors[0]}
+                  <p id={`${field.name}-error`} class="text-destructive text-sm">
+                    {field.state.meta.errors[0].message}
+                  </p>
+                {/if}
               </div>
             {/snippet}
           </businessForm.Field>
@@ -152,10 +192,16 @@
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
-                    onblur={field.handleBlur}
+                    aria-invalid={field.state.meta.errors.length > 0}
+                    aria-describedby={`${field.name}-error`}
                     onchange={(e) => field.handleChange(e.currentTarget.value)}
                     placeholder="NY"
                   />
+                  {#if field.state.meta.errors[0]}
+                    <p id={`${field.name}-error`} class="text-destructive text-sm">
+                      {field.state.meta.errors[0].message}
+                    </p>
+                  {/if}
                 </div>
               {/snippet}
             </businessForm.Field>
@@ -168,10 +214,16 @@
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
-                    onblur={field.handleBlur}
+                    aria-invalid={field.state.meta.errors.length > 0}
+                    aria-describedby={`${field.name}-error`}
                     onchange={(e) => field.handleChange(e.currentTarget.value)}
                     placeholder="10001"
                   />
+                  {#if field.state.meta.errors[0]}
+                    <p id={`${field.name}-error`} class="text-destructive text-sm">
+                      {field.state.meta.errors[0].message}
+                    </p>
+                  {/if}
                 </div>
               {/snippet}
             </businessForm.Field>
@@ -186,7 +238,11 @@
                   value={field.state.value}
                   onValueChange={(value) => field.handleChange(value as "MM" | "TH" | "US")}
                 >
-                  <Select.Trigger class="w-full">
+                  <Select.Trigger
+                    class="w-full"
+                    aria-invalid={field.state.meta.errors.length > 0}
+                    aria-describedby={`${field.name}-error`}
+                  >
                     {countries.find((c) => c.value === field.state.value)?.label ??
                       "Select country"}
                   </Select.Trigger>
@@ -196,6 +252,11 @@
                     {/each}
                   </Select.Content>
                 </Select.Root>
+                {#if field.state.meta.errors[0]}
+                  <p id={`${field.name}-error`} class="text-destructive text-sm">
+                    {field.state.meta.errors[0].message}
+                  </p>
+                {/if}
               </div>
             {/snippet}
           </businessForm.Field>
@@ -214,10 +275,15 @@
                 <PhoneInput
                   value={field.state.value}
                   name={field.name}
-                  class="z-1"
+                  class={field.state.meta.errors.length ? "border-destructive z-1" : "z-1"}
                   placeholder="+1 (555) 123-4567"
                   onValueChange={(value) => field.handleChange(value)}
                 />
+                {#if field.state.meta.errors[0]}
+                  <p id={`${field.name}-error`} class="text-destructive text-sm">
+                    {field.state.meta.errors[0].message}
+                  </p>
+                {/if}
               </div>
             {/snippet}
           </businessForm.Field>
@@ -234,13 +300,19 @@
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
-                    onblur={field.handleBlur}
+                    aria-invalid={field.state.meta.errors.length > 0}
+                    aria-describedby={`${field.name}-error`}
                     onchange={(e) => field.handleChange(e.currentTarget.value)}
                     placeholder="hello@yourshop.com"
                     type="email"
                     class="pl-10"
                   />
                 </div>
+                {#if field.state.meta.errors[0]}
+                  <p id={`${field.name}-error`} class="text-destructive text-sm">
+                    {field.state.meta.errors[0].message}
+                  </p>
+                {/if}
               </div>
             {/snippet}
           </businessForm.Field>
@@ -253,10 +325,16 @@
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onblur={field.handleBlur}
+                  aria-invalid={field.state.meta.errors.length > 0}
+                  aria-describedby={`${field.name}-error`}
                   onchange={(e) => field.handleChange(e.currentTarget.value)}
                   placeholder="12-3456789"
                 />
+                {#if field.state.meta.errors[0]}
+                  <p id={`${field.name}-error`} class="text-destructive text-sm">
+                    {field.state.meta.errors[0].message}
+                  </p>
+                {/if}
               </div>
             {/snippet}
           </businessForm.Field>
@@ -278,6 +356,8 @@
                 <Popover.Trigger
                   id={field.name}
                   name={field.name}
+                  aria-invalid={field.state.meta.errors.length > 0}
+                  aria-describedby={`${field.name}-error`}
                   class="hover:bg-accent hover:text-accent-foreground flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm"
                 >
                   <span class="flex items-center gap-2">
@@ -307,6 +387,11 @@
                   </Command.Root>
                 </Popover.Content>
               </Popover.Root>
+              {#if field.state.meta.errors[0]}
+                <p id={`${field.name}-error`} class="text-destructive text-sm">
+                  {field.state.meta.errors[0].message}
+                </p>
+              {/if}
             </div>
           {/snippet}
         </businessForm.Field>

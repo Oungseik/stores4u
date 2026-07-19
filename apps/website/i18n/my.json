@@ -582,6 +582,8 @@
   "ui_walk_in": "လမ်းလျှောက်ပါ။",
   "ui_wastage": "အလေအလွင့်",
   "error_invalid_field": "{field} မမှန်ပါ",
+  "error_field_required": "{field} လိုအပ်ပါသည်",
+  "error_field_too_long": "{field} သည် စာလုံး {max} လုံးထက် မပိုရပါ",
   "error_product_not_found_value": "ကုန်ပစ္စည်း မတွေ့ပါ: {product}",
   "confirm_delete_named": "“{name}” ကို ဖျက်ရန် သေချာပါသလား။ ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။",
   "files_uploaded": "ဖိုင် {count} ခု အောင်မြင်စွာ တင်ပြီးပါပြီ",
