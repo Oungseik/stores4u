@@ -1,4 +1,3 @@
-import { randomUUIDv7 } from "bun";
 import { sql } from "drizzle-orm";
 import { check, index, integer, real, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { z } from "zod";
@@ -68,7 +67,7 @@ export const purchaseInvoiceFile = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     objectPath: text("object_path").notNull(),
     filename: text("filename").notNull(),
     fileType: text("file_type").notNull(),
@@ -105,7 +104,7 @@ export const purchaseInvoiceOcrResult = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     photoUrl: text("photo_url").notNull(),
     invoiceFileId: text("invoice_file_id").references(() => purchaseInvoiceFile.id),
     rawJson: text("raw_json", { mode: "json" }).$type<unknown>().notNull(),
@@ -130,7 +129,7 @@ export const purchaseInvoice = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     invoiceNumber: text("invoice_number").notNull(),
     supplierId: text("supplier_id")
       .notNull()
@@ -172,7 +171,7 @@ export const purchaseInvoiceItem = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     purchaseInvoiceId: text("purchase_invoice_id")
       .notNull()
       .references(() => purchaseInvoice.id, { onDelete: "cascade" }),

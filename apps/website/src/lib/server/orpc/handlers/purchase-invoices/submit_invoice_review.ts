@@ -76,13 +76,11 @@ export const submitInvoiceReviewHandler = os
     }
 
     try {
-      db.transaction((tx) => {
-        const existingFile = tx.query.purchaseInvoiceFile
-          .findFirst({
-            where: { id: input.invoiceFileId },
-            with: { ocrResult: true },
-          })
-          .sync();
+      await db.transaction(async (tx) => {
+        const existingFile = await tx.query.purchaseInvoiceFile.findFirst({
+          where: { id: input.invoiceFileId },
+          with: { ocrResult: true },
+        });
 
         if (!existingFile) {
           throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_file_not_found" } });
@@ -94,23 +92,19 @@ export const submitInvoiceReviewHandler = os
         }
 
         const supplierId = input.supplierId;
-        const existingSupplier = tx.query.supplier
-          .findFirst({
-            where: { id: supplierId },
-            columns: { id: true },
-          })
-          .sync();
+        const existingSupplier = await tx.query.supplier.findFirst({
+          where: { id: supplierId },
+          columns: { id: true },
+        });
 
         if (!existingSupplier) {
           throw new ORPCError("NOT_FOUND", { data: { key: "error_supplier_not_found" } });
         }
 
-        const invoiceForFile = tx.query.purchaseInvoice
-          .findFirst({
-            where: { invoiceFileId: input.invoiceFileId, supplierId },
-            columns: { id: true },
-          })
-          .sync();
+        const invoiceForFile = await tx.query.purchaseInvoice.findFirst({
+          where: { invoiceFileId: input.invoiceFileId, supplierId },
+          columns: { id: true },
+        });
 
         if (invoiceForFile) {
           throw new ORPCError("BAD_REQUEST", {
@@ -118,7 +112,7 @@ export const submitInvoiceReviewHandler = os
           });
         }
 
-        const insertInvoice = tx
+        const insertInvoice = await tx
           .insert(purchaseInvoice)
           .values({
             ...input,
@@ -130,8 +124,7 @@ export const submitInvoiceReviewHandler = os
             validatedBy: context.session.user.id,
             validatedAt: new Date(),
           })
-          .returning({ id: purchaseInvoice.id })
-          .all();
+          .returning({ id: purchaseInvoice.id });
 
         const createdInvoice = insertInvoice.at(0);
         if (!createdInvoice) {
@@ -140,42 +133,39 @@ export const submitInvoiceReviewHandler = os
           });
         }
 
-        const insertedItems = tx
+        const insertedItems = await tx
           .insert(purchaseInvoiceItem)
           .values(input.items.map((item) => ({ ...item, purchaseInvoiceId: createdInvoice.id })))
-          .returning({ id: purchaseInvoiceItem.id })
-          .all();
+          .returning({ id: purchaseInvoiceItem.id });
 
         const aliases = input.items
           .filter((item) => item.saveAlias === true && !!item.productId && !!item.invoiceItemName)
           .map((item) => ({ productId: item.productId, alias: item.invoiceItemName }));
 
         if (aliases.length > 0) {
-          tx.insert(productAlias).values(aliases).onConflictDoNothing().run();
+          await tx.insert(productAlias).values(aliases).onConflictDoNothing();
         }
 
         const supplierProducts = [...new Set(input.items.map((item) => item.productId))];
         if (supplierProducts.length > 0) {
-          tx.insert(productSupplier)
+          await tx
+            .insert(productSupplier)
             .values(
               supplierProducts.map((productId) => ({ productId, supplierId: input.supplierId })),
             )
-            .onConflictDoNothing()
-            .run();
+            .onConflictDoNothing();
         }
 
-        tx.insert(inventoryMovement)
-          .values(
-            input.items.map((item, index) => ({
-              ...item,
-              purchaseInvoiceItemId: insertedItems[index].id,
-              movementType: "PURCHASE" as const,
-              referenceType: "PURCHASE_INVOICE" as const,
-              referenceId: createdInvoice.id,
-              occurredAt: occurredAt,
-            })),
-          )
-          .run();
+        await tx.insert(inventoryMovement).values(
+          input.items.map((item, index) => ({
+            ...item,
+            purchaseInvoiceItemId: insertedItems[index].id,
+            movementType: "PURCHASE" as const,
+            referenceType: "PURCHASE_INVOICE" as const,
+            referenceId: createdInvoice.id,
+            occurredAt: occurredAt,
+          })),
+        );
 
         const qtyByProduct = input.items.reduce<Record<string, number>>((acc, item) => {
           acc[item.productId] = (acc[item.productId] ?? 0) + item.qty;
@@ -189,15 +179,15 @@ export const submitInvoiceReviewHandler = os
           sql.raw(" "),
         );
 
-        tx.update(product)
+        await tx
+          .update(product)
           .set({ stock: sql`case ${product.id} ${productCases} else ${product.stock} end` })
-          .where(inArray(product.id, Object.keys(qtyByProduct)))
-          .run();
+          .where(inArray(product.id, Object.keys(qtyByProduct)));
 
-        tx.update(purchaseInvoiceFile)
+        await tx
+          .update(purchaseInvoiceFile)
           .set({ status: "REVIEWED" })
-          .where(eq(purchaseInvoiceFile.id, existingFile.id))
-          .run();
+          .where(eq(purchaseInvoiceFile.id, existingFile.id));
       });
     } catch (error) {
       if (error instanceof ORPCError) {

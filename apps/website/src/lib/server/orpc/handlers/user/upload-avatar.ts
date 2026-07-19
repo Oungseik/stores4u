@@ -1,11 +1,10 @@
 import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
-import sharp from "sharp";
 import { z } from "zod";
 import { db, user } from "$lib/server/db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
-import { isAllowedImageType } from "$lib/server/utils/magic_bytes";
+import { detectImageFileType } from "$lib/server/utils/magic_bytes";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -26,22 +25,17 @@ export const uploadAvatarHandler = os
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    if (!isAllowedImageType(buffer)) {
+    const detectedType = detectImageFileType(buffer);
+    if (!detectedType) {
       throw new ORPCError("BAD_REQUEST", {
         data: { key: "ui_invalid_image_type_accepted_jpeg_png_webp" },
       });
     }
 
     const userId = context.session.user.id;
-    const uuid = Bun.randomUUIDv7();
-    const objectKey = `avatars/${userId}/${uuid}.webp`;
+    const objectKey = `avatars/${userId}/${crypto.randomUUID()}.${detectedType.extension}`;
 
-    const finalBuffer = await sharp(buffer)
-      .resize(256, 256, { fit: "cover" })
-      .webp({ quality: 80 })
-      .toBuffer();
-
-    await putObject(objectKey, finalBuffer);
+    await putObject(objectKey, buffer);
     const objectPath = getObjectUrl(objectKey);
 
     await db

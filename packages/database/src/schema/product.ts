@@ -1,10 +1,9 @@
-import { randomUUIDv7 } from "bun";
 import { index, integer, primaryKey, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
 export const category = sqliteTable("category", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => randomUUIDv7()),
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull().unique(),
   description: text("description"),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -21,7 +20,7 @@ export const product = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     sku: text("sku").notNull().unique(),
     name: text("name").notNull(),
     image: text("image"),
@@ -40,7 +39,7 @@ export const product = sqliteTable(
       .$onUpdateFn(() => new Date())
       .notNull(),
   },
-  (t) => [index("product_sku_idx").on(t.sku), index("product_name_idx").on(t.name)],
+  (t) => [index("product_name_idx").on(t.name)],
 );
 
 export const productCategory = sqliteTable(
@@ -64,7 +63,7 @@ export const productAlias = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     productId: text("product_id")
       .notNull()
       .references(() => product.id, { onDelete: "cascade" }),
@@ -84,7 +83,7 @@ export const productImage = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     productId: text("product_id")
       .notNull()
       .references(() => product.id, { onDelete: "cascade" }),

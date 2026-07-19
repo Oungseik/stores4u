@@ -16,7 +16,7 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Reject, sanitize, or rasterize SVG product images.
   - Add safe response headers and regression tests for disguised HTML and active SVG.
   - Files: upload handlers, `src/lib/server/storage.ts`, and `/storage/[...key]`.
-  - Acceptance: invoice uploads accept only magic-byte-detected JPEG, PNG, or PDF content and use canonical keys/MIME; image uploads reject SVG and emit WebP; storage responses derive safe types from keys, force unknown types to download, and set CSP, CORP, and anti-sniffing headers. Direct upload regressions cover disguised HTML and active SVG.
+  - Acceptance: invoice uploads accept only magic-byte-detected JPEG, PNG, or PDF content and use canonical keys/MIME; image uploads reject SVG and retain magic-byte-detected JPEG, PNG, or WebP with canonical extensions; storage responses derive safe types from keys, force unknown types to download, and set CSP, CORP, and anti-sniffing headers. Direct upload regressions cover disguised HTML and active SVG.
 
 - [x] **SEC-03 — Protect internal catalog RPC reads**
   - Require a dashboard role for product/category reads unless a separate storefront-safe API is deliberately introduced.
@@ -26,11 +26,10 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 
 ## High — data correctness
 
-- [x] **DATA-01 — Resolve one database path consistently in local development**
-  - Make relative `DATABASE_PATH` values resolve from the repository root in both Drizzle commands and the website process, or require an absolute path everywhere.
-  - Prove migration and runtime open the same temporary database.
-  - Update setup documentation and env comments.
-  - Acceptance: `resolveDatabasePath` is shared by Drizzle, website runtime, and the password-reset script; its regression migrates and runtime-opens the same temporary database from package and app working directories.
+- [x] **DATA-01 — Use one Turso database consistently**
+  - Runtime, Drizzle Kit, and the password-reset script use `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN`.
+  - The Worker uses the web libSQL client; migrations use the committed Drizzle history.
+  - Acceptance: the database factory executes against libSQL, the website builds for Workers, and deploy-time migration succeeds against a disposable libSQL database.
 
 - [x] **DATA-02 — Make stock subtraction concurrency-safe**
   - Move the stock sufficiency condition into the transactional update and check affected rows.
@@ -82,27 +81,29 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 - [ ] **FEATURE-03 — Decide remaining deferred UI scope**
   - Track thermal printing, team member management, and service-worker caching as separate features only when they are scheduled; do not present them as complete.
 
-- [ ] **BUILD-01 — Add every website runtime/build variable to Turbo tracking**
-  - At minimum add `STORAGE_DRIVER` and `STORAGE_LOCAL_DIR` to root `turbo.json` `globalEnv`.
-  - Audit SMTP, logging, and OpenTelemetry variables against actual runtime usage.
-  - Verify changing storage driver invalidates the website build cache.
+- [x] **BUILD-01 — Track Worker runtime/build variables**
+  - Turbo tracks Turso, Better Auth, OAuth, OCR, and public app variables.
+  - Local-storage, SMTP, Bun-server, and Node OpenTelemetry variables were removed with the local deployment runtime.
 
 ## Deployment validation
 
-- [ ] **DEPLOY-01 — Smoke-test the Linux installer with Caddy/systemd**
-- [ ] **DEPLOY-02 — Smoke-test the Windows installer with Caddy/WinSW**
-- [ ] **DEPLOY-03 — Exercise update rollback against a real migrated database**
+- [x] **DEPLOY-01 — Build and Wrangler dry-run the Cloudflare Worker**
+- [x] **DEPLOY-02 — Apply committed migrations to a disposable libSQL database**
+- [x] **DEPLOY-03 — Run the first authenticated live deploy and smoke `/health`, `/setup`, auth, Turso, and R2**
+- [x] **DEPLOY-04 — Persist production credentials and deploy them atomically**
+  - Ignored root `.env.prod` is reused by normal and fresh-account deployments.
+  - Build and migration complete before `wrangler deploy --secrets-file` changes the live Worker; normal deploys do not rotate credentials.
 
 ## Baseline verification
 
 The review baseline passed:
 
 - `bun run check`
-- `bun run test` (Vitest; 27 tests)
+- `bun run test` (Vitest; 24 tests)
+- `bun run typecheck`
 - `bun run build`
-- `bun run test:deploy` (Vitest; 5 tests)
-- `cd apps/website && bun src/lib/server/ocr/mistral-invoice.check.ts`
-- `bash -n deploy/linux.sh`
+- `cd apps/website && bunx wrangler deploy --dry-run`
+- deploy-time migration against a disposable libSQL database
+- authenticated deployment to `https://stores4u.mhemaungthuwin.workers.dev`
+- live `/health`, `/setup`, Better Auth session, Turso migration replay, and R2 upload/read/delete smoke tests
 - `git diff --check`
-
-Target-OS deployment smoke tests were not available in the review environment.

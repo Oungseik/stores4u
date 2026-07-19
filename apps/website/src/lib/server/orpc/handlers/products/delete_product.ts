@@ -21,7 +21,7 @@ export const deleteProductHandler = os
       .set({ isArchived: true, updatedAt: new Date() })
       .where(eq(product.id, input.id));
 
-    if (updated.changes === 0) {
+    if (updated.rowsAffected === 0) {
       throw new ORPCError("NOT_FOUND", { data: { key: "error_product_not_found" } });
     }
 

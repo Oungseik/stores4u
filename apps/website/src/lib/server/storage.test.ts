@@ -1,26 +1,25 @@
 import { expect, test } from "vitest";
-import { safeJoinPath, storageContentType, storageResponseHeaders } from "./storage";
+import {
+  extractObjectKey,
+  isSafeObjectKey,
+  storageContentType,
+  storageResponseHeaders,
+} from "./storage";
 
-const ROOT = "/srv/storage";
-
-test("safeJoinPath keeps keys under root", () => {
-  expect(safeJoinPath(ROOT, "images/abc.webp")).toBe("/srv/storage/images/abc.webp");
-  expect(safeJoinPath(ROOT, "a/b/c.bin")).toBe("/srv/storage/a/b/c.bin");
+test("storage keys reject empty and traversal segments", () => {
+  expect(isSafeObjectKey("images/abc.webp")).toBe(true);
+  expect(isSafeObjectKey("")).toBe(false);
+  expect(isSafeObjectKey("../secret")).toBe(false);
+  expect(isSafeObjectKey("images/../secret")).toBe(false);
+  expect(isSafeObjectKey("/images/abc.webp")).toBe(false);
 });
 
-test("safeJoinPath blocks path traversal", () => {
-  expect(safeJoinPath(ROOT, "../../etc/passwd")).toBeNull();
-  expect(safeJoinPath(ROOT, "../storage-secret")).toBeNull();
-  expect(safeJoinPath(ROOT, "/etc/passwd")).toBeNull(); // absolute escape
-});
-
-test("safeJoinPath normalizes dot-segments that stay inside", () => {
-  expect(safeJoinPath(ROOT, "images/../x.webp")).toBe("/srv/storage/x.webp");
-});
-
-test("safeJoinPath rejects empty/root-equal keys", () => {
-  expect(safeJoinPath(ROOT, "")).toBeNull();
-  expect(safeJoinPath(ROOT, ".")).toBeNull();
+test("stored app URLs resolve back to their R2 key", () => {
+  expect(extractObjectKey("/storage/images/abc.webp")).toBe("images/abc.webp");
+  expect(extractObjectKey("https://store.example/storage/invoice-files/id.pdf")).toBe(
+    "invoice-files/id.pdf",
+  );
+  expect(extractObjectKey("https://other.example/file.pdf")).toBeNull();
 });
 
 test("storage derives safe content types from canonical extensions", () => {

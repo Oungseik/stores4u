@@ -49,7 +49,7 @@ export const session = sqliteTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
-  (t) => [index("session_user_id_idx").on(t.userId), index("token_idx").on(t.token)],
+  (t) => [index("session_user_id_idx").on(t.userId)],
 );
 
 export const account = sqliteTable(
@@ -106,7 +106,7 @@ export const twoFactor = sqliteTable(
 export const shop = sqliteTable("shop", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Bun.randomUUIDv7()),
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   currency: text("currency", { enum: CURRENCIES }).notNull().default("USD"),
   timezone: text("timezone").notNull(),
@@ -127,17 +127,16 @@ export type ShopSelect = typeof shop.$inferSelect;
 export type ShopInsert = typeof shop.$inferInsert;
 
 // Owner-generated, one-time, TTL invite links for dashboard staff onboarding.
-// Manual transport (copy/paste → SMS/voice): the owner hands the link to the
-// recipient, who opens it on the same wifi (offline link) or over the
-// internet (online link). Accept creates a new user with the role baked into
-// the token. Not a better-auth concept (no org plugin) — own table.
+// The owner hands the link to the recipient manually. Accept creates a new
+// user with the role baked into the token. Not a better-auth concept (no org
+// plugin) — own table.
 export const inviteRoles = ["admin", "member"] as const;
 export type InviteRole = (typeof inviteRoles)[number];
 
 export const invite = sqliteTable("invite", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Bun.randomUUIDv7()),
+    .$defaultFn(() => crypto.randomUUID()),
   token: text("token").notNull().unique(),
   role: text("role", { enum: inviteRoles }).notNull(),
   createdById: text("created_by_id")

@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { and, db, eq, gte, inventoryMovement, product, sql } from "$lib/server/db";
-
 import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
 const manualMovementTypes = ["ADJUSTMENT", "CORRECTION", "WASTAGE", "RETURN"] as const;
@@ -19,13 +18,13 @@ const input = z.object({
 export const adjustStockHandler = os
   .input(input)
   .use(protectedShopMiddleware)
-  .handler(({ input }) => {
+  .handler(async ({ input }) => {
     const signedQty = input.direction === "ADD" ? input.qty : -input.qty;
     const occurredAt = new Date(input.date);
     const now = new Date();
 
-    return db.transaction((tx) => {
-      const updatedProduct = tx
+    return db.transaction(async (tx) => {
+      const [updatedProduct] = await tx
         .update(product)
         .set({
           stock: sql`${product.stock} + ${signedQty}`,
@@ -36,15 +35,14 @@ export const adjustStockHandler = os
             ? and(eq(product.id, input.productId), gte(product.stock, input.qty))
             : eq(product.id, input.productId),
         )
-        .returning({ id: product.id, stock: product.stock })
-        .get();
+        .returning({ id: product.id, stock: product.stock });
 
       if (!updatedProduct) {
-        const currentProduct = tx
+        const [currentProduct] = await tx
           .select({ stock: product.stock })
           .from(product)
           .where(eq(product.id, input.productId))
-          .get();
+          .limit(1);
 
         if (!currentProduct) {
           throw new ORPCError("NOT_FOUND", {
@@ -60,19 +58,17 @@ export const adjustStockHandler = os
         });
       }
 
-      tx.insert(inventoryMovement)
-        .values({
-          productId: input.productId,
-          movementType: input.movementType,
-          qty: signedQty,
-          unitCostCents: input.unitCostCents,
-          referenceType: "MANUAL",
-          referenceId: null,
-          reason: input.reason ?? null,
-          occurredAt,
-          createdAt: now,
-        })
-        .run();
+      await tx.insert(inventoryMovement).values({
+        productId: input.productId,
+        movementType: input.movementType,
+        qty: signedQty,
+        unitCostCents: input.unitCostCents,
+        referenceType: "MANUAL",
+        referenceId: null,
+        reason: input.reason ?? null,
+        occurredAt,
+        createdAt: now,
+      });
 
       return {
         productId: updatedProduct.id,

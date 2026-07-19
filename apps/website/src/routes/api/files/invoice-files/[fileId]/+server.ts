@@ -37,7 +37,8 @@ export async function GET({
     return new Response("Invalid file path", { status: 500 });
   }
 
-  const stream = getObjectStream(objectKey);
+  const stream = await getObjectStream(objectKey);
+  if (!stream) return new Response("Not Found", { status: 404 });
 
   return new Response(stream, { headers: storageResponseHeaders(objectKey) });
 }

@@ -2,36 +2,34 @@
 
 ## Purpose
 
-The single-store database package: the merged Drizzle schema, a SQLite client factory, and Drizzle Kit config/scripts.
+The single-store database package: merged Drizzle schema, Turso/libSQL client factory, and deploy-time migration config.
 
 ## Ownership
 
-Owns: `src/schema/**` (better-auth tables + store domain tables + one merged `relations.ts`), the `createDb` client factory, the shared `resolveDatabasePath` resolver, `drizzle.config.ts`, and the `db:*` scripts.
+Owns `src/schema/**`, `createDb(client)`, `drizzle.config.ts`, committed `drizzle/` migrations, and the `db:*` scripts.
 
 ## Local Contracts
 
-- Single SQLite database at `DATABASE_PATH` (default `databases/store.db`). `resolveDatabasePath` keeps absolute values unchanged and resolves relative values from the repository root (located by `turbo.json`) so package-cwd Drizzle commands and app-cwd/runtime consumers open the same file. No Turso, no per-store files.
-- `src/index.ts` re-exports `drizzle-orm` operators, the full schema, and `relations`; exports `createDb(client)` which builds the Drizzle instance from a `bun:sqlite` client. `createDb` runs `PRAGMA foreign_keys = ON` on the client so the schema's declared `references()` + `onDelete` rules are enforced (SQLite ships FK enforcement OFF; neither drizzle nor `bun:sqlite` flips it).
-- `relations.ts` also exports a bundled `schema` object (the full tables map). Drizzle 1.x no longer exposes `db._.fullSchema`, so better-auth's drizzle adapter needs `schema` passed explicitly — `createDb` consumers (e.g. `apps/website` auth) import this `schema` and hand it to `drizzleAdapter(db, { provider, schema })`.
-- The schema merges better-auth tables (`auth.ts`, `shop-info.ts`) with the store domain (`product`, `order`, `supplier`, `customer`, `inventory`, `purchaseInvoice`, `tax`, `invoice-settings`, `image`) plus the app-owned `invite` table (owner-generated, one-time, 15-min TTL invite links for dashboard staff; `role`, `createdById`/`consumedById` → `user`, consumed on accept). `shop` is one global row with no `userId` owner FK; it carries `currency` and `timezone` (IANA name, set to server-local at setup, editable in Settings → Business) used for store-local date boundaries and display. `product` carries an `isArchived` soft-delete flag (archive-only; a hard delete would orphan `order_item` / `inventory_movement` / `purchase_invoice_item` history, which have no `onDelete`).
-- `order` carries an optional `customerId` FK → `customer.id` (`onDelete: set null`) plus denormalized snapshot columns `customerName` / `customerPhone`. The snapshot freezes customer identity at sale time so historical invoices survive customer edits/deletion (deleting a customer nulls the FK but the order still displays its snapshot). Checkout snapshots name/phone from the customer row when a `customerId` is supplied; walk-in orders leave the FK null.
-- `customer.customerType` is a discriminator enum (`customerTypes`: `"WHOLESALE"` | `"RETAIL"`, default `"RETAIL"`) distinguishing wholesale from retail/walk-in contacts; future invoice and pricing work branches on it. `taxId` / `paymentTerms` are wholesale-relevant fields but the type is the authoritative flag.
-- `user` carries the better-auth `admin` plugin columns: `role` (`"owner" | "admin" | "member" | "user"`, default `"user"`), `banned`, `banReason`, `banExpires`; the `language` column (`"en" | "my"`, default `"en"`) is orphaned — UI language is cookie-only now, no read/write. `session` carries `impersonatedBy`. Dashboard authorization is based on `user.role`; there is no shop-role column and no `shopRoles` enum.
-- Consumed by `apps/website` through its env-wiring shim at `src/lib/server/db` (which reads `DATABASE_PATH` via `$env/static/private`, resolves it with `resolveDatabasePath`, opens `new Database(...)`, and calls `createDb`). The package itself never touches SvelteKit `$env`.
-- Depends on `@repo/config` (country/currency enums used by the auth + shop-info schema).
-- Purchase-invoice OCR monetary cent fields are integers, and OCR confidence is constrained to `0..1` so the shared Zod contract matches SQLite checks.
+- One Turso database stores Better Auth and store-domain data. Runtime and migration credentials are `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`; there is no local production SQLite file or per-store database.
+- `src/index.ts` re-exports Drizzle operators, the full schema, and `relations`; `createDb` builds the async `drizzle-orm/libsql/web` instance from a libSQL client.
+- Transaction callbacks and their queries are async. Await the transaction and every query inside it; Bun SQLite's synchronous `.run()`, `.get()`, `.all()`, and relational `.sync()` APIs are not valid.
+- `relations.ts` exports the bundled `schema` object required by Better Auth's Drizzle adapter.
+- The schema merges Better Auth tables with the store domain and app-owned invite table. `shop` is one global row with no owner FK.
+- Depends on `@repo/config` for shared country/currency enums.
 
 ## Work Guidance
 
-- `DATABASE_PATH` must be set (see root `.env`). The package scripts load it via `with-env` (`dotenv -e ../../.env --`); relative values are repository-root-relative, not package-cwd-relative.
-- Generated migrations live in `./drizzle` (gitignored); use `db:generate` + `db:migrate`. Production installers normalize `DATABASE_PATH` to an absolute path, mirror this history to ignored `databases/migrations`, and restore it before generation so migration tasks target the app database without replaying a fresh initial migration.
-- Build JavaScript with `tsdown --no-dts`; this private source-exported workspace package uses `tsgo --noEmit` for type checking and does not bundle Drizzle declarations.
+- Root `.env` supplies Turso credentials to Drizzle Kit through `with-env`.
+- Generated migrations live in committed `./drizzle`. Run `bun run db:generate` after schema edits and commit the result.
+- Production migrations run only through root `bun run deploy` or `scripts/deploy-new-account.sh`; do not migrate on Worker startup or as part of normal development.
+- Build JavaScript with `tsdown --no-dts`; use `tsgo --noEmit` for type checking.
 
 ## Verification
 
-- `bun run build` (`tsdown --no-dts`, successful JavaScript emit expected)
-- `bun run typecheck` (root turbo → `tsgo --noEmit` here via `@typescript/native-preview`, 0 errors expected)
-- `bun run test` (Vitest under Bun; migrates and runtime-opens one temporary relative-path database)
+- `bun run build`
+- `bun run typecheck`
+- `bun run test`
+- Validate deploy migrations against a disposable libSQL database when migration files change.
 
 ## Child DOX Index
 

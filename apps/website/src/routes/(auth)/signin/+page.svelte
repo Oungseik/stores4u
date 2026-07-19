@@ -17,7 +17,7 @@
   let isSubmitting = $state(false);
   const defaultValues = { email: "", password: "" };
 
-  // Sign-in page stays email/password. Linked Google/Facebook accounts can use
+  // Sign-in page stays email/password. Linked Google accounts can use
   // OAuth directly; unlinked OAuth cannot create accounts after setup.
 
   const form = createForm(() => ({

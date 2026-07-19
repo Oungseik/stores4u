@@ -22,7 +22,7 @@ export async function mintVerification(opts: {
 }): Promise<void> {
   const now = new Date();
   await db.insert(verification).values({
-    id: Bun.randomUUIDv7(),
+    id: crypto.randomUUID(),
     identifier: opts.identifier,
     value: opts.value,
     expiresAt: new Date(now.getTime() + opts.ttlMs),

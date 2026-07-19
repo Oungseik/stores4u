@@ -1,20 +1,16 @@
+import adapter from "@sveltejs/adapter-cloudflare";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { mdsvex } from "mdsvex";
-import adapter from "svelte-adapter-bun";
 
 const config = {
   preprocess: [vitePreprocess(), mdsvex()],
   extensions: [".svelte", ".svx"],
   kit: {
-    adapter: adapter(),
+    adapter: adapter({ config: "wrangler.jsonc" }),
     env: { dir: "../../" },
     alias: {
       "@lib": "../../packages/ui/src/lib",
       "@lib/*": "../../packages/ui/src/lib/*",
-    },
-    experimental: {
-      tracing: { server: true },
-      instrumentation: { server: true },
     },
   },
   compilerOptions: {},

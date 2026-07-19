@@ -38,38 +38,33 @@ export const acceptInviteHandler = os.input(input).handler(async ({ input }) => 
     throw new ORPCError("BAD_REQUEST", { data: { key: "error_that_email_is_already_in_use" } });
   }
 
-  const userId = Bun.randomUUIDv7();
+  const userId = crypto.randomUUID();
   const passwordHash = await hashPassword(input.password);
 
   // Atomic: user + credential + invite consume all succeed or all roll back.
-  // Sync bun:sqlite transaction (matches the OCR handler pattern).
-  db.transaction((tx) => {
-    tx.insert(user)
-      .values({
-        id: userId,
-        name: input.name,
-        email: input.email,
-        emailVerified: true,
-        role: row.role as InviteRole,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-    tx.insert(account)
-      .values({
-        id: Bun.randomUUIDv7(),
-        accountId: userId,
-        providerId: "credential",
-        userId,
-        password: passwordHash,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-    tx.update(invite)
+  await db.transaction(async (tx) => {
+    await tx.insert(user).values({
+      id: userId,
+      name: input.name,
+      email: input.email,
+      emailVerified: true,
+      role: row.role as InviteRole,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await tx.insert(account).values({
+      id: crypto.randomUUID(),
+      accountId: userId,
+      providerId: "credential",
+      userId,
+      password: passwordHash,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await tx
+      .update(invite)
       .set({ consumedAt: now, consumedById: userId })
-      .where(eq(invite.token, input.token))
-      .run();
+      .where(eq(invite.token, input.token));
   });
 
   await auth.api.signInEmail({

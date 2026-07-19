@@ -93,10 +93,7 @@ const rateLimitHandle: Handle = async ({ event, resolve }) => {
     return resolve(event);
   }
 
-  const clientIP = event.request.headers.get("X-Forwarded-For");
-  if (clientIP === null) {
-    return resolve(event);
-  }
+  const clientIP = event.getClientAddress();
 
   const cost = event.request.method === "GET" || event.request.method === "OPTIONS" ? 1 : 2;
   try {
@@ -119,11 +116,6 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
   const session = await auth.api.getSession({ headers: event.request.headers });
   event.locals.session = session;
-
-  if (session?.user?.id && event.tracing?.root) {
-    event.tracing.root.setAttribute("userId", session.user.id);
-    event.tracing.root.setAttribute("userEmail", session.user.email);
-  }
 
   return resolve(event);
 };

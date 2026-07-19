@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@repo/database",
-  "description": "Single-store Drizzle schema, SQLite client factory, and Drizzle Kit config",
+  "description": "Single-store Drizzle schema, Turso client factory, and Drizzle Kit config",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -24,6 +24,7 @@
     }
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
     "@repo/config": "workspace:*",
     "drizzle-orm": "1.0.0-rc.4",
     "zod": "^4.4.3"

@@ -8,6 +8,7 @@
       "!**/*.css",
       "!**/node_modules",
       "!**/paraglide",
+      "!worker-configuration.d.ts",
       "!build",
       "!.vercel",
       "!.svelte-kit",

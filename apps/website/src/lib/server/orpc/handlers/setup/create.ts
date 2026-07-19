@@ -69,7 +69,7 @@ export const setupCreateHandler = os.input(input).handler(async ({ input, contex
 
   try {
     await db.insert(shop).values({
-      id: Bun.randomUUIDv7(),
+      id: crypto.randomUUID(),
       name: input.storeName,
       currency: input.currency,
       timezone: input.timezone,

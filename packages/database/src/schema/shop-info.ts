@@ -4,7 +4,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const shopInfo = sqliteTable("shopInfo", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Bun.randomUUIDv7()),
+    .$defaultFn(() => crypto.randomUUID()),
   logo: text("logo"),
   title: text("title").notNull(),
   description: text("description"),

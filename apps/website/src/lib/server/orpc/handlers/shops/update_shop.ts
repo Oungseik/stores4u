@@ -65,7 +65,7 @@ export const updateShopHandler = os
         .where(eq(shopInfo.id, context.shop.shopInfoId));
     } else {
       // Create new shopInfo and link to shop
-      const infoId = Bun.randomUUIDv7();
+      const infoId = crypto.randomUUID();
       await db.insert(shopInfo).values({
         id: infoId,
         title: input.title ?? "",

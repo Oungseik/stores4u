@@ -11,7 +11,9 @@
 - **ORPC**: Type-safe RPC framework.
 - **Better Auth**: Authentication library.
 - **Drizzle ORM**: Type-safe SQL ORM.
-- **SQLite**: Single local relational database (auth + store data).
+- **Turso/libSQL**: Single cloud relational database (auth + store data).
+- **Cloudflare Workers**: Production application runtime.
+- **Cloudflare R2**: Upload storage.
 - **Zod**: Schema validation library.
 
 ## Development Tools

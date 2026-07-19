@@ -31,8 +31,8 @@ export const processInvoiceFileHandler = os
       throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_file_not_found" } });
     }
 
-    const claimed = db.transaction((tx) => {
-      const row = tx
+    const claimed = await db.transaction(async (tx) => {
+      const [row] = await tx
         .update(purchaseInvoiceFile)
         .set({ status: "PROCESSING", updatedAt: new Date() })
         .where(
@@ -41,13 +41,12 @@ export const processInvoiceFileHandler = os
             inArray(purchaseInvoiceFile.status, ["UPLOADED", "FAILED", "REJECTED"]),
           ),
         )
-        .returning({ id: purchaseInvoiceFile.id })
-        .get();
+        .returning({ id: purchaseInvoiceFile.id });
 
       if (row) {
-        tx.delete(purchaseInvoiceOcrResult)
-          .where(eq(purchaseInvoiceOcrResult.invoiceFileId, file.id))
-          .run();
+        await tx
+          .delete(purchaseInvoiceOcrResult)
+          .where(eq(purchaseInvoiceOcrResult.invoiceFileId, file.id));
       }
 
       return row;
@@ -109,23 +108,21 @@ export const processInvoiceFileHandler = os
     }
 
     try {
-      db.transaction((tx) => {
-        tx.insert(purchaseInvoiceOcrResult)
-          .values({
-            photoUrl,
-            invoiceFileId: file.id,
-            rawJson: extractedData,
-            extractedText: extractedData.rawText ?? null,
-            extractedData,
-            confidenceScore: extractedData.confidence,
-            createdAt: now,
-          })
-          .run();
+      await db.transaction(async (tx) => {
+        await tx.insert(purchaseInvoiceOcrResult).values({
+          photoUrl,
+          invoiceFileId: file.id,
+          rawJson: extractedData,
+          extractedText: extractedData.rawText ?? null,
+          extractedData,
+          confidenceScore: extractedData.confidence,
+          createdAt: now,
+        });
 
-        tx.update(purchaseInvoiceFile)
+        await tx
+          .update(purchaseInvoiceFile)
           .set({ status: "PROCESSED", updatedAt: now })
-          .where(eq(purchaseInvoiceFile.id, file.id))
-          .run();
+          .where(eq(purchaseInvoiceFile.id, file.id));
       });
     } catch (error) {
       await db

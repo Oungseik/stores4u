@@ -9,17 +9,17 @@
  *   RESET_EMAIL='foo@bar.com' RESET_PASSWORD='newpass' bun run scripts/reset-password.ts
  *
  * Both email and password are read from the env so neither appears in argv /
- * shell history. Requires DATABASE_PATH (bun loads .env automatically).
+ * shell history. Requires Turso credentials (Bun loads .env automatically).
  */
-import { Database } from "bun:sqlite";
-import { account, createDb, eq, resolveDatabasePath } from "@repo/database";
+import { createClient } from "@libsql/client";
+import { account, createDb, eq } from "@repo/database";
 import { hashPassword } from "better-auth/crypto";
 
 const MIN_PASSWORD_LENGTH = 8;
 
-const dbPath = process.env.DATABASE_PATH;
-if (!dbPath) {
-  console.error("✗ DATABASE_PATH is not set (put it in .env or export it).");
+const databaseUrl = process.env.TURSO_DATABASE_URL;
+if (!databaseUrl) {
+  console.error("✗ TURSO_DATABASE_URL is not set (put it in .env or export it).");
   process.exit(1);
 }
 
@@ -38,7 +38,11 @@ if (newPassword.length < MIN_PASSWORD_LENGTH) {
   console.error(`✗ Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
   process.exit(1);
 }
-const db = createDb(new Database(resolveDatabasePath(dbPath)));
+const client = createClient({
+  url: databaseUrl,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+const db = createDb(client);
 
 const target = await db.query.user.findFirst({
   where: { email },
@@ -68,4 +72,4 @@ await db
   .set({ password: await hashPassword(newPassword) })
   .where(eq(account.id, cred.id));
 console.log(`✓ Password reset for ${target.email} (${target.role}).`);
-process.exit(0);
+client.close();

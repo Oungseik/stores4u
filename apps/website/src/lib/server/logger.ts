@@ -1,52 +1,24 @@
-import { isSpanContextValid, trace } from "@opentelemetry/api";
-import pino from "pino";
-import { env } from "$env/dynamic/public";
+type Fields = Record<string, unknown>;
+type LogInput = string | Fields;
 
-const LOG_LEVEL = process.env.LOG_LEVEL || "info";
-const ENVIRONMENT = env.PUBLIC_ENVIRONMENT;
+export type Logger = {
+  child(fields: Fields): Logger;
+  error(input: LogInput, message?: string): void;
+  warn(input: LogInput, message?: string): void;
+};
 
-function getTraceContext() {
-  const activeSpan = trace.getActiveSpan();
-  if (!activeSpan) {
-    return {};
-  }
-
-  const spanContext = activeSpan.spanContext();
-  if (!isSpanContextValid(spanContext)) {
-    return {};
-  }
+function createLogger(context: Fields = {}): Logger {
+  const write = (level: "error" | "warn", input: LogInput, message?: string) => {
+    const text = typeof input === "string" ? input : (message ?? level);
+    const fields = typeof input === "string" ? context : { ...context, ...input };
+    console[level](text, fields);
+  };
 
   return {
-    trace_id: spanContext.traceId,
-    span_id: spanContext.spanId,
-    trace_flags: spanContext.traceFlags,
+    child: (fields) => createLogger({ ...context, ...fields }),
+    error: (input, message) => write("error", input, message),
+    warn: (input, message) => write("warn", input, message),
   };
 }
 
-const pinoTransport =
-  ENVIRONMENT === "development"
-    ? {
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "SYS:standard",
-          ignore: "pid,hostname",
-        },
-      }
-    : undefined;
-
-export const logger = pino({
-  level: LOG_LEVEL,
-  transport: pinoTransport,
-  mixin() {
-    return getTraceContext();
-  },
-  formatters: {
-    level(label) {
-      return { level: label };
-    },
-  },
-  timestamp: pino.stdTimeFunctions.isoTime,
-});
-
-export type Logger = typeof logger;
+export const logger = createLogger();

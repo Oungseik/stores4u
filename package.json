@@ -14,15 +14,14 @@
     "lint": "turbo $@ lint",
     "format": "turbo $@ format",
     "check": "turbo $@ typecheck lint format",
-    "test": "bun run test:website && bun run test:database && bun run test:deploy",
+    "test": "bun run test:website && bun run test:database",
     "test:website": "cd apps/website && bun run test",
     "test:database": "cd packages/database && bun run test",
-    "test:deploy": "bun --bun vitest --run --config deploy/vitest.config.ts",
     "shadcn-extras": "pnpm dlx jsrepo add --cwd packages/ui",
     "shadcn": "pnpm dlx shadcn-svelte@latest add -c packages/ui",
     "db:studio": "turbo db:studio",
     "db:generate": "turbo db:generate",
-    "db:migrate": "turbo db:migrate"
+    "deploy": "bun scripts/deploy.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.4",

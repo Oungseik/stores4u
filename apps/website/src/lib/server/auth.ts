@@ -3,17 +3,18 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, magicLink, role } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
+import { building } from "$app/environment";
 import { getRequestEvent } from "$app/server";
-import {
-  BETTER_AUTH_SECRET,
-  BETTER_AUTH_URL,
-  FACEBOOK_CLIENT_ID,
-  FACEBOOK_CLIENT_SECRET,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-} from "$env/static/private";
+import { env as privateEnv } from "$env/dynamic/private";
 import { env } from "$env/dynamic/public";
 import { sendAuthEmail } from "$lib/server/email";
+
+const { BETTER_AUTH_SECRET, BETTER_AUTH_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = privateEnv;
+
+if (!BETTER_AUTH_SECRET && !building) throw new Error("BETTER_AUTH_SECRET is not set");
+if (!BETTER_AUTH_URL && !building) throw new Error("BETTER_AUTH_URL is not set");
+const authSecret = BETTER_AUTH_SECRET || "build-time-placeholder-secret-32-chars";
+const authBaseUrl = BETTER_AUTH_URL || "http://localhost";
 
 export const dashboardRoles = ["owner", "admin", "member"] as const;
 export type DashboardRole = (typeof dashboardRoles)[number];
@@ -37,11 +38,11 @@ const sessionManageActions = ["list", "revoke", "delete"] as const;
 const noAdminPower = role({ user: [], session: [] });
 
 export const auth = betterAuth({
-  baseURL: env.PUBLIC_ENVIRONMENT === "development" ? undefined : BETTER_AUTH_URL,
+  baseURL: env.PUBLIC_ENVIRONMENT === "development" ? undefined : authBaseUrl,
   database: drizzleAdapter(db, { provider: "sqlite", schema }),
   session: { cookieCache: { enabled: true, maxAge: 5 * 60 } },
-  secret: BETTER_AUTH_SECRET,
-  // No implicit linking: a matching Google/Facebook email never silently
+  secret: authSecret,
+  // No implicit linking: a matching Google email never silently
   // creates or links an account. Post-setup creation is blocked in the user
   // create hook below; linked OAuth signin still works.
   account: { accountLinking: { enabled: true, disableImplicitLinking: true } },
@@ -64,7 +65,7 @@ export const auth = betterAuth({
     sendOnSignUp: false,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, token }) => {
-      const url = `${BETTER_AUTH_URL.replace(/\/$/, "")}/verify-account?token=${token}`;
+      const url = `${authBaseUrl.replace(/\/$/, "")}/verify-account?token=${token}`;
       await sendAuthEmail({
         email: user.email,
         subject: "Verify your email",
@@ -78,17 +79,6 @@ export const auth = betterAuth({
       prompt: "select_account",
       clientId: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-    },
-    facebook: {
-      clientId: FACEBOOK_CLIENT_ID,
-      clientSecret: FACEBOOK_CLIENT_SECRET,
-      scopes: [
-        "email",
-        "public_profile",
-        "pages_show_list",
-        "pages_manage_posts",
-        "pages_read_engagement",
-      ],
     },
   },
   plugins: [

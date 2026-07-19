@@ -1,15 +1,15 @@
 import { defineConfig } from "drizzle-kit";
-import { resolveDatabasePath } from "./src/database-path";
 
-if (!process.env.DATABASE_PATH) throw new Error("DATABASE_PATH is not set");
-const databasePath = resolveDatabasePath(process.env.DATABASE_PATH);
+if (!process.env.TURSO_DATABASE_URL) throw new Error("TURSO_DATABASE_URL is not set");
+if (!process.env.TURSO_AUTH_TOKEN) throw new Error("TURSO_AUTH_TOKEN is not set");
 
 export default defineConfig({
   schema: "./src/schema",
   out: "./drizzle",
-  dialect: "sqlite",
+  dialect: "turso",
   dbCredentials: {
-    url: `file:${databasePath}`,
+    url: process.env.TURSO_DATABASE_URL,
+    authToken: process.env.TURSO_AUTH_TOKEN,
   },
   verbose: true,
   strict: true,

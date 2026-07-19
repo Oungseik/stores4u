@@ -1,4 +1,3 @@
-import { randomUUIDv7 } from "bun";
 import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { customer } from "./customer";
 import { product } from "./product";
@@ -12,7 +11,7 @@ export const order = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     customerId: text("customer_id").references(() => customer.id, {
       onDelete: "set null",
     }),
@@ -41,7 +40,7 @@ export const orderItem = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     orderId: text("order_id")
       .notNull()
       .references(() => order.id, { onDelete: "cascade" }),

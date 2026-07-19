@@ -55,13 +55,11 @@ export const updateInvoiceHandler = os
     }
 
     try {
-      db.transaction((tx) => {
+      await db.transaction(async (tx) => {
         // 1. FETCH existing invoice by ID
-        const existingInvoice = tx.query.purchaseInvoice
-          .findFirst({
-            where: { id: input.invoiceId },
-          })
-          .sync();
+        const existingInvoice = await tx.query.purchaseInvoice.findFirst({
+          where: { id: input.invoiceId },
+        });
 
         if (!existingInvoice) {
           throw new ORPCError("NOT_FOUND", { data: { key: "error_invoice_not_found" } });
@@ -77,12 +75,10 @@ export const updateInvoiceHandler = os
         }
 
         // 2. FETCH existing items
-        const existingItems = tx.query.purchaseInvoiceItem
-          .findMany({
-            where: { purchaseInvoiceId: input.invoiceId },
-            columns: { id: true, productId: true, qty: true },
-          })
-          .sync();
+        const existingItems = await tx.query.purchaseInvoiceItem.findMany({
+          where: { purchaseInvoiceId: input.invoiceId },
+          columns: { id: true, productId: true, qty: true },
+        });
 
         // 3. REVERSE OLD STOCK
         if (existingItems.length > 0) {
@@ -98,51 +94,48 @@ export const updateInvoiceHandler = os
             sql.raw(" "),
           );
 
-          tx.update(product)
+          await tx
+            .update(product)
             .set({ stock: sql`case ${product.id} ${reverseCases} else ${product.stock} end` })
-            .where(inArray(product.id, Object.keys(oldQtyByProduct)))
-            .run();
+            .where(inArray(product.id, Object.keys(oldQtyByProduct)));
         }
 
         // 4. DELETE OLD DATA (movements first for FK constraint)
-        tx.delete(inventoryMovement)
+        await tx
+          .delete(inventoryMovement)
           .where(
             sql`${inventoryMovement.referenceId} = ${input.invoiceId} AND ${inventoryMovement.movementType} = ${sql.raw("'PURCHASE'")}`,
-          )
-          .run();
+          );
 
-        tx.delete(purchaseInvoiceItem)
-          .where(eq(purchaseInvoiceItem.purchaseInvoiceId, input.invoiceId))
-          .run();
+        await tx
+          .delete(purchaseInvoiceItem)
+          .where(eq(purchaseInvoiceItem.purchaseInvoiceId, input.invoiceId));
 
         // 5. UPDATE INVOICE (preserve photoUrl, status, validatedBy, validatedAt, createdAt)
-        tx.update(purchaseInvoice)
+        await tx
+          .update(purchaseInvoice)
           .set({ ...input })
-          .where(eq(purchaseInvoice.id, input.invoiceId))
-          .run();
+          .where(eq(purchaseInvoice.id, input.invoiceId));
 
         // 6. INSERT NEW ITEMS
-        const insertedItems = tx
+        const insertedItems = await tx
           .insert(purchaseInvoiceItem)
           .values(input.items.map((item) => ({ ...item, purchaseInvoiceId: input.invoiceId })))
-          .returning({ id: purchaseInvoiceItem.id })
-          .all();
+          .returning({ id: purchaseInvoiceItem.id });
 
         // 7. CREATE NEW MOVEMENTS
-        tx.insert(inventoryMovement)
-          .values(
-            input.items.map((item, index) => ({
-              productId: item.productId,
-              qty: item.qty,
-              unitCostCents: item.unitCostCents,
-              purchaseInvoiceItemId: insertedItems[index].id,
-              movementType: "PURCHASE" as const,
-              referenceType: "PURCHASE_INVOICE" as const,
-              referenceId: input.invoiceId,
-              occurredAt: occurredAt,
-            })),
-          )
-          .run();
+        await tx.insert(inventoryMovement).values(
+          input.items.map((item, index) => ({
+            productId: item.productId,
+            qty: item.qty,
+            unitCostCents: item.unitCostCents,
+            purchaseInvoiceItemId: insertedItems[index].id,
+            movementType: "PURCHASE" as const,
+            referenceType: "PURCHASE_INVOICE" as const,
+            referenceId: input.invoiceId,
+            occurredAt: occurredAt,
+          })),
+        );
 
         // 8. APPLY NEW STOCK
         const newQtyByProduct = input.items.reduce<Record<string, number>>((acc, item) => {
@@ -157,12 +150,12 @@ export const updateInvoiceHandler = os
           sql.raw(" "),
         );
 
-        tx.update(product)
+        await tx
+          .update(product)
           .set({
             stock: sql`case ${product.id} ${applyCases} else ${product.stock} end`,
           })
-          .where(inArray(product.id, Object.keys(newQtyByProduct)))
-          .run();
+          .where(inArray(product.id, Object.keys(newQtyByProduct)));
 
         // 9. UPSERT ALIASES & SUPPLIER LINKS
         const aliases = input.items
@@ -172,20 +165,20 @@ export const updateInvoiceHandler = os
             alias: item.invoiceItemName,
           }));
         if (aliases.length > 0) {
-          tx.insert(productAlias).values(aliases).onConflictDoNothing().run();
+          await tx.insert(productAlias).values(aliases).onConflictDoNothing();
         }
 
         const supplierProducts = [...new Set(input.items.map((item) => item.productId))];
         if (supplierProducts.length > 0) {
-          tx.insert(productSupplier)
+          await tx
+            .insert(productSupplier)
             .values(
               supplierProducts.map((productId) => ({
                 productId,
                 supplierId: input.supplierId,
               })),
             )
-            .onConflictDoNothing()
-            .run();
+            .onConflictDoNothing();
         }
       });
     } catch (error) {

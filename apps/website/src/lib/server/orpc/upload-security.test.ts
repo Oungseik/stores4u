@@ -3,7 +3,7 @@ import { beforeEach, expect, test, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   putObject: vi.fn(),
-  values: vi.fn(async () => ({ changes: 1 })),
+  values: vi.fn(async () => ({ rowsAffected: 1 })),
 }));
 
 vi.mock("zod", async (importOriginal) => {

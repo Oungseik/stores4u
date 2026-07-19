@@ -17,9 +17,6 @@ export default defineConfig({
       outdir: "./src/lib/paraglide",
     }),
   ],
-  ssr: {
-    external: ["sharp", "bun"],
-  },
   server: {
     allowedHosts: ["local.stores4u.app"],
     fs: {

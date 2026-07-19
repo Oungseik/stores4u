@@ -1,4 +1,3 @@
-import { randomUUIDv7 } from "bun";
 import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { product } from "./product";
 import { purchaseInvoiceItem } from "./purchaseInvoice";
@@ -21,7 +20,7 @@ export const inventoryMovement = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => randomUUIDv7()),
+      .$defaultFn(() => crypto.randomUUID()),
     productId: text("product_id")
       .notNull()
       .references(() => product.id),

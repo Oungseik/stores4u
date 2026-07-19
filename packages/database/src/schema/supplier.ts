@@ -1,11 +1,10 @@
-import { randomUUIDv7 } from "bun";
 import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { product } from "./product";
 
 export const supplier = sqliteTable("supplier", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => randomUUIDv7()),
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   contactName: text("contact_name"),
   phone: text("phone"),

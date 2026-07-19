@@ -112,8 +112,8 @@ export const checkoutHandler = os
       ),
     );
 
-    const result = db.transaction((tx) => {
-      const orderRecord = tx
+    const result = await db.transaction(async (tx) => {
+      const orderRecord = await tx
         .insert(order)
         .values({
           customerId,
@@ -127,8 +127,7 @@ export const checkoutHandler = os
           createdAt: now,
           updatedAt: now,
         })
-        .returning({ id: order.id })
-        .all();
+        .returning({ id: order.id });
       const createdOrder = orderRecord[0];
 
       if (!createdOrder) {
@@ -140,7 +139,7 @@ export const checkoutHandler = os
       const orderItems = input.items.map((item) => {
         const unitPriceCents = getProduct(item.productId).priceCents;
         return {
-          id: Bun.randomUUIDv7(),
+          id: crypto.randomUUID(),
           orderId: createdOrder.id,
           productId: item.productId,
           qty: item.qty,
@@ -150,7 +149,7 @@ export const checkoutHandler = os
         };
       });
 
-      tx.insert(orderItem).values(orderItems).run();
+      await tx.insert(orderItem).values(orderItems);
 
       const productCases = sql.join(
         [...requestedQtyByProduct.entries()].map(
@@ -159,7 +158,7 @@ export const checkoutHandler = os
         sql.raw(" "),
       );
 
-      const updateResult = tx
+      const updateResult = await tx
         .update(product)
         .set({
           stock: sql`case ${product.id} ${productCases} else ${product.stock} end`,
@@ -178,10 +177,9 @@ export const checkoutHandler = os
               )} else 0 END`,
             ),
           ),
-        )
-        .run() as unknown as { changes: number };
+        );
 
-      if (updateResult.changes !== productIds.length) {
+      if (updateResult.rowsAffected !== productIds.length) {
         const insufficient = [...requestedQtyByProduct.entries()]
           .filter(([id, requested]) => getProduct(id).stock < requested)
           .map(([id, requested]) => {
@@ -197,21 +195,19 @@ export const checkoutHandler = os
         });
       }
 
-      tx.insert(inventoryMovement)
-        .values(
-          input.items.map((item) => ({
-            productId: item.productId,
-            movementType: "SALE" as const,
-            qty: -item.qty,
-            unitCostCents: latestCostByProduct.get(item.productId) ?? 0,
-            unitPriceCents: getProduct(item.productId).priceCents,
-            referenceType: "ORDER" as const,
-            referenceId: createdOrder.id,
-            occurredAt: now,
-            createdAt: now,
-          })),
-        )
-        .run();
+      await tx.insert(inventoryMovement).values(
+        input.items.map((item) => ({
+          productId: item.productId,
+          movementType: "SALE" as const,
+          qty: -item.qty,
+          unitCostCents: latestCostByProduct.get(item.productId) ?? 0,
+          unitPriceCents: getProduct(item.productId).priceCents,
+          referenceType: "ORDER" as const,
+          referenceId: createdOrder.id,
+          occurredAt: now,
+          createdAt: now,
+        })),
+      );
 
       return {
         orderId: createdOrder.id,

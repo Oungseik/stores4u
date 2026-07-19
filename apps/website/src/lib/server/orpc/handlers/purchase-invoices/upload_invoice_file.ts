@@ -32,14 +32,14 @@ export const uploadInvoiceFileHandler = os
       });
     }
 
-    const objectKey = `invoice-files/${Bun.randomUUIDv7()}.${detectedType.extension}`;
+    const objectKey = `invoice-files/${crypto.randomUUID()}.${detectedType.extension}`;
 
     await putObject(objectKey, buffer);
 
     const objectPath = getObjectUrl(objectKey);
     const now = new Date();
 
-    const result = (await db.insert(purchaseInvoiceFile).values({
+    const result = await db.insert(purchaseInvoiceFile).values({
       objectPath,
       filename: file.name,
       fileType: detectedType.mime,
@@ -47,9 +47,9 @@ export const uploadInvoiceFileHandler = os
       status: "UPLOADED",
       createdAt: now,
       updatedAt: now,
-    })) as unknown as { changes: number };
+    });
 
-    if (!result.changes) {
+    if (!result.rowsAffected) {
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
         data: { key: "error_failed_to_create_invoice_file_record" },
       });
