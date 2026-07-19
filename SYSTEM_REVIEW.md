@@ -32,10 +32,11 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Update setup documentation and env comments.
   - Acceptance: `resolveDatabasePath` is shared by Drizzle, website runtime, and the password-reset script; its regression migrates and runtime-opens the same temporary database from package and app working directories.
 
-- [ ] **DATA-02 — Make stock subtraction concurrency-safe**
+- [x] **DATA-02 — Make stock subtraction concurrency-safe**
   - Move the stock sufficiency condition into the transactional update and check affected rows.
   - Do not insert a movement when the stock update fails.
   - Add a concurrent subtraction regression test.
+  - Acceptance: manual subtraction conditionally updates stock inside the transaction; only a successful update inserts its movement; two concurrent full-stock subtractions produce one success, one insufficient-stock rejection, zero remaining stock, and one movement.
 
 - [ ] **DATA-03 — Enforce valid checkout money and quantities**
   - Prevent discounts from producing negative totals.

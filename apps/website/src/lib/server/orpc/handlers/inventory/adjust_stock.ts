@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { db, eq, inventoryMovement, product, sql } from "$lib/server/db";
+import { and, db, eq, gte, inventoryMovement, product, sql } from "$lib/server/db";
 
 import { os, protectedShopMiddleware } from "$lib/server/orpc/base";
 
@@ -19,32 +19,47 @@ const input = z.object({
 export const adjustStockHandler = os
   .input(input)
   .use(protectedShopMiddleware)
-  .handler(async ({ input }) => {
+  .handler(({ input }) => {
     const signedQty = input.direction === "ADD" ? input.qty : -input.qty;
     const occurredAt = new Date(input.date);
     const now = new Date();
 
-    const existingProduct = await db.query.product.findFirst({
-      where: { id: input.productId },
-      columns: { id: true, name: true, stock: true },
-    });
+    return db.transaction((tx) => {
+      const updatedProduct = tx
+        .update(product)
+        .set({
+          stock: sql`${product.stock} + ${signedQty}`,
+          updatedAt: now,
+        })
+        .where(
+          input.direction === "SUBTRACT"
+            ? and(eq(product.id, input.productId), gte(product.stock, input.qty))
+            : eq(product.id, input.productId),
+        )
+        .returning({ id: product.id, stock: product.stock })
+        .get();
 
-    if (!existingProduct) {
-      throw new ORPCError("NOT_FOUND", {
-        data: { key: "error_product_not_found" },
-      });
-    }
+      if (!updatedProduct) {
+        const currentProduct = tx
+          .select({ stock: product.stock })
+          .from(product)
+          .where(eq(product.id, input.productId))
+          .get();
 
-    if (input.direction === "SUBTRACT" && existingProduct.stock < input.qty) {
-      throw new ORPCError("BAD_REQUEST", {
-        data: {
-          key: "error_insufficient_stock",
-          values: { available: existingProduct.stock, requested: input.qty },
-        },
-      });
-    }
+        if (!currentProduct) {
+          throw new ORPCError("NOT_FOUND", {
+            data: { key: "error_product_not_found" },
+          });
+        }
 
-    db.transaction((tx) => {
+        throw new ORPCError("BAD_REQUEST", {
+          data: {
+            key: "error_insufficient_stock",
+            values: { available: currentProduct.stock, requested: input.qty },
+          },
+        });
+      }
+
       tx.insert(inventoryMovement)
         .values({
           productId: input.productId,
@@ -59,22 +74,9 @@ export const adjustStockHandler = os
         })
         .run();
 
-      tx.update(product)
-        .set({
-          stock: sql`${product.stock} + ${signedQty}`,
-          updatedAt: now,
-        })
-        .where(eq(product.id, input.productId))
-        .run();
+      return {
+        productId: updatedProduct.id,
+        stock: updatedProduct.stock,
+      };
     });
-
-    const updatedProduct = await db.query.product.findFirst({
-      where: { id: input.productId },
-      columns: { id: true, stock: true },
-    });
-
-    return {
-      productId: input.productId,
-      stock: updatedProduct?.stock ?? existingProduct.stock + signedQty,
-    };
   });
