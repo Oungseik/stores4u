@@ -12,7 +12,7 @@
  * shell history. Requires DATABASE_PATH (bun loads .env automatically).
  */
 import { Database } from "bun:sqlite";
-import { account, createDb, eq } from "@repo/database";
+import { account, createDb, eq, resolveDatabasePath } from "@repo/database";
 import { hashPassword } from "better-auth/crypto";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -38,7 +38,7 @@ if (newPassword.length < MIN_PASSWORD_LENGTH) {
   console.error(`✗ Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
   process.exit(1);
 }
-const db = createDb(new Database(dbPath));
+const db = createDb(new Database(resolveDatabasePath(dbPath)));
 
 const target = await db.query.user.findFirst({
   where: { email },

@@ -26,10 +26,11 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 
 ## High — data correctness
 
-- [ ] **DATA-01 — Resolve one database path consistently in local development**
+- [x] **DATA-01 — Resolve one database path consistently in local development**
   - Make relative `DATABASE_PATH` values resolve from the repository root in both Drizzle commands and the website process, or require an absolute path everywhere.
   - Prove migration and runtime open the same temporary database.
   - Update setup documentation and env comments.
+  - Acceptance: `resolveDatabasePath` is shared by Drizzle, website runtime, and the password-reset script; its regression migrates and runtime-opens the same temporary database from package and app working directories.
 
 - [ ] **DATA-02 — Make stock subtraction concurrency-safe**
   - Move the stock sufficiency condition into the transactional update and check affected rows.

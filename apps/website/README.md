@@ -16,14 +16,14 @@ Run from the repository root:
 
 ```bash
 bun install
-cp apps/website/.env.example .env
+cp .env.example .env
 mkdir -p databases
 bun run db:generate
 bun run db:migrate
 bun run dev
 ```
 
-The SvelteKit config reads environment variables from the repository root, so keep the runtime `.env` at the root.
+The SvelteKit config reads environment variables from the repository root, so keep the runtime `.env` there. Relative `DATABASE_PATH` values also resolve from that root for both Drizzle commands and the website process.
 
 ## Scripts
 

@@ -22,12 +22,14 @@ This repository is a Bun workspace managed with Turbo. The product is the Svelte
 
 ```bash
 bun install
-cp apps/website/.env.example .env
+cp .env.example .env
 mkdir -p databases
 bun run db:generate
 bun run db:migrate
 bun run dev
 ```
+
+Relative `DATABASE_PATH` values are resolved from the repository root, so the default `databases/store.db` is shared by Drizzle commands and the website regardless of package working directory.
 
 Open the dev server, complete `/setup`, then sign in as the first owner.
 

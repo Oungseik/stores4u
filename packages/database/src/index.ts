@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/bun-sqlite";
 import { relations } from "./schema";
 
 export * from "drizzle-orm";
+export * from "./database-path";
 export * from "./schema";
 
 /** Build the single Drizzle instance over a `bun:sqlite` client. */

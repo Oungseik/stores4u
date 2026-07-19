@@ -6,11 +6,11 @@ The SvelteKit application — the dashboard product. Single-store-per-server: on
 
 ## Ownership
 
-Owns: routing, UI, server logic (oRPC handlers, better-auth, Mistral OCR invoice extraction). The Drizzle schema and SQLite client factory live in `@repo/database` (`packages/database`); `src/lib/server/db` is a thin env-wiring shim that opens the `bun:sqlite` client from `DATABASE_PATH`, calls `createDb`, and re-exports everything from `@repo/database`.
+Owns: routing, UI, server logic (oRPC handlers, better-auth, Mistral OCR invoice extraction). The Drizzle schema, SQLite client factory, and repository-root database-path resolver live in `@repo/database` (`packages/database`); `src/lib/server/db` is a thin env-wiring shim that resolves `DATABASE_PATH`, opens the `bun:sqlite` client, calls `createDb`, and re-exports everything from `@repo/database`.
 
 ## Local Contracts
 
-- **One database**: the schema lives in `@repo/database` (`packages/database/src/schema`), which merges better-auth tables (`auth.ts`, `shop-info.ts`) with the store domain (`product`, `order`, `supplier`, `customer`, `inventory`, `purchaseInvoice`, `tax`, `image`) and one merged `relations.ts`. `src/lib/server/db/index.ts` is the env-wiring shim: it reads `DATABASE_PATH` from `$env/static/private`, opens the `bun:sqlite` client, and calls `createDb`; it re-exports `drizzle-orm` operators and the full schema from `@repo/database`. Handlers keep importing tables, operators, and `db` from `$lib/server/db` (the shim) or directly from `@repo/database`.
+- **One database**: the schema lives in `@repo/database` (`packages/database/src/schema`), which merges better-auth tables (`auth.ts`, `shop-info.ts`) with the store domain (`product`, `order`, `supplier`, `customer`, `inventory`, `purchaseInvoice`, `tax`, `image`) and one merged `relations.ts`. `src/lib/server/db/index.ts` is the env-wiring shim: it reads `DATABASE_PATH` from `$env/static/private`, resolves relative values from the repository root with `resolveDatabasePath`, opens the `bun:sqlite` client, and calls `createDb`; it re-exports `drizzle-orm` operators and the full schema from `@repo/database`. Handlers keep importing tables, operators, and `db` from `$lib/server/db` (the shim) or directly from `@repo/database`.
 - **Foreign keys are enforced**: `createDb` runs `PRAGMA foreign_keys = ON`, so the schema's `references()` + `onDelete` rules fire. Hard-delete handlers must guard history before deleting (see `delete_supplier`, `delete_category`, `delete_invoice_file`); a `references()` with no `onDelete` blocks the delete at the DB when child rows exist. Exception: `customers.delete` needs no guard — `order.customerId` is `ON DELETE SET NULL`, so deleting a customer orphans order links while the order's snapshot columns (`customer_name`/`customer_phone`) keep historical invoices intact.
 - **Product removal is soft-delete**: `products.delete` sets `product.isArchived = true`; the row stays so order / inventory / purchase-invoice history keeps its FK target. Active-catalog reads (`products.list`, `products.checkout`, `products.stats`, `dashboard.stats`) filter `isArchived = false`; history reads (orders, inventory movements, `products.statsProduct` by id, `products.get`) still include archived products.
 - **Add/edit management routes**: customers and suppliers use dedicated add/edit pages (`/customers/add`, `/customers/[id]/edit`, `/purchases/suppliers/add`, `/purchases/suppliers/[supplierId]/edit`) that mirror product add/edit pages. Add/edit navigation uses anchors styled with `buttonVariants`, not click handlers that call `goto` or open dialogs.
@@ -39,7 +39,7 @@ Owns: routing, UI, server logic (oRPC handlers, better-auth, Mistral OCR invoice
 ## Work Guidance
 
 - ESLint checks authored `src/**/*.svelte` files without TypeScript project service; Biome handles repository-wide TypeScript/JavaScript linting.
-- `DATABASE_PATH` must be set (see `.env.example`). Run `bun run db:migrate` to create/sync the schema into the SQLite file.
+- `DATABASE_PATH` must be set in the root `.env` (see the root `.env.example`). Relative values resolve from the repository root. Run `bun run db:migrate` to create/sync the schema into the SQLite file.
 - Drizzle migrations (`drizzle/`) are gitignored; use `db:generate` + `db:migrate` .
 - Offline password reset: `RESET_EMAIL=... RESET_PASSWORD=... bun run scripts/reset-password.ts` resets an owner/admin password directly against `DATABASE_PATH` (lockout escape hatch; bypasses the session-gated admin API; both email + password read from env so neither hits argv / shell history). Owner/admin roles only; refuses member/user.
 
@@ -51,6 +51,6 @@ Owns: routing, UI, server logic (oRPC handlers, better-auth, Mistral OCR invoice
 
 ## Child DOX Index
 
-- `src/lib/server/db` — thin env-wiring shim over `@repo/database` (reads `DATABASE_PATH`, builds `db`/`client`, re-exports schema + operators).
+- `src/lib/server/db` — thin env-wiring shim over `@repo/database` (resolves `DATABASE_PATH` from the repository root, builds `db`/`client`, re-exports schema + operators).
 - `src/lib/server/orpc` — oRPC router, handlers, middlewares.
 - `src/lib/server/ocr` — Mistral OCR invoice extraction (`mistral-invoice.ts`), used by the purchase-invoice workflow.

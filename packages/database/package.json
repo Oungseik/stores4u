@@ -12,6 +12,7 @@
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run format",
+    "test": "bun test",
     "db:generate": "bun --bun run with-env drizzle-kit generate",
     "db:migrate": "bun --bun run with-env drizzle-kit migrate",
     "db:studio": "bun --bun run with-env drizzle-kit studio"
