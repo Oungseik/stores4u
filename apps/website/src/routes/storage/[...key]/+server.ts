@@ -1,5 +1,5 @@
 import { stat } from "node:fs/promises";
-import { LOCAL_ROOT, safeJoinPath } from "$lib/server/storage";
+import { LOCAL_ROOT, safeJoinPath, storageResponseHeaders } from "$lib/server/storage";
 
 export async function GET({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
@@ -13,7 +13,5 @@ export async function GET({ params }: { params: Promise<{ key: string }> }) {
     return new Response("Not Found", { status: 404 });
   }
 
-  return new Response(Bun.file(resolved), {
-    headers: { "Cache-Control": "private, max-age=3600" },
-  });
+  return new Response(Bun.file(resolved), { headers: storageResponseHeaders(key) });
 }

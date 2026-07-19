@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db, user } from "$lib/server/db";
 import { authMiddleware, os } from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
-import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";
+import { isAllowedImageType } from "$lib/server/utils/magic_bytes";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -26,16 +26,9 @@ export const uploadAvatarHandler = os
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const detectedType = detectImageType(buffer);
-    if (!detectedType || !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
+    if (!isAllowedImageType(buffer)) {
       throw new ORPCError("BAD_REQUEST", {
         data: { key: "ui_invalid_image_type_accepted_jpeg_png_webp" },
-      });
-    }
-
-    if (detectedType === "image/svg+xml") {
-      throw new ORPCError("BAD_REQUEST", {
-        data: { key: "error_svg_is_not_supported_for_avatars" },
       });
     }
 
@@ -48,7 +41,7 @@ export const uploadAvatarHandler = os
       .webp({ quality: 80 })
       .toBuffer();
 
-    await putObject(objectKey, finalBuffer, "image/webp");
+    await putObject(objectKey, finalBuffer);
     const objectPath = getObjectUrl(objectKey);
 
     await db

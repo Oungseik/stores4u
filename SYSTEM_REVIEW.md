@@ -10,12 +10,13 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Files: `apps/website/src/lib/server/orpc/handlers/{shops/update_shop,invoice/update_invoice_settings,tax/update_tax_settings}.ts`.
   - Acceptance: all three mutations run `ownerMiddleware` before resolving the shop; direct calls from both `admin` and `member` reject with `FORBIDDEN` in `owner-mutations.test.ts`.
 
-- [ ] **SEC-02 — Prevent same-origin stored XSS from uploads**
+- [x] **SEC-02 — Prevent same-origin stored XSS from uploads**
   - Validate purchase-invoice content from magic bytes rather than caller MIME or filename.
   - Generate canonical extensions; never serve uploaded HTML as active same-origin content.
   - Reject, sanitize, or rasterize SVG product images.
   - Add safe response headers and regression tests for disguised HTML and active SVG.
   - Files: upload handlers, `src/lib/server/storage.ts`, and `/storage/[...key]`.
+  - Acceptance: invoice uploads accept only magic-byte-detected JPEG, PNG, or PDF content and use canonical keys/MIME; image uploads reject SVG and emit WebP; storage responses derive safe types from keys, force unknown types to download, and set CSP, CORP, and anti-sniffing headers. Direct upload regressions cover disguised HTML and active SVG.
 
 - [ ] **SEC-03 — Protect internal catalog RPC reads**
   - Require a dashboard role for product/category reads unless a separate storefront-safe API is deliberately introduced.

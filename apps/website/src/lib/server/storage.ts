@@ -1,5 +1,5 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, extname, relative, resolve } from "node:path";
 import { S3Client } from "bun";
 import {
   STORAGE_ACCESS_KEY_ID,
@@ -37,6 +37,31 @@ function getS3(): S3Client {
 export const LOCAL_PREFIX = "/storage";
 export const LOCAL_ROOT = resolve(process.cwd(), STORAGE_LOCAL_DIR || "databases/storage");
 
+const SAFE_CONTENT_TYPES: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".pdf": "application/pdf",
+};
+
+export function storageContentType(key: string): string {
+  return SAFE_CONTENT_TYPES[extname(key).toLowerCase()] ?? "application/octet-stream";
+}
+
+export function storageResponseHeaders(key: string): Record<string, string> {
+  const contentType = storageContentType(key);
+  const headers: Record<string, string> = {
+    "Cache-Control": "private, max-age=3600",
+    "Content-Security-Policy": "sandbox; default-src 'none'",
+    "Content-Type": contentType,
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "X-Content-Type-Options": "nosniff",
+  };
+  if (contentType === "application/octet-stream") headers["Content-Disposition"] = "attachment";
+  return headers;
+}
+
 /** Resolve a key under root, or null if it escapes root. Pure + testable. */
 export function safeJoinPath(root: string, key: string): string | null {
   const resolved = resolve(root, key);
@@ -63,14 +88,16 @@ export function presignDownload(key: string, _expiresIn = 900): string {
   return getS3().presign(key, { expiresIn: _expiresIn, method: "GET" });
 }
 
-export async function putObject(key: string, data: Buffer, contentType: string): Promise<void> {
+export async function putObject(key: string, data: Buffer): Promise<void> {
   if (isLocal) {
     const path = localPath(key);
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, data);
     return;
   }
-  await getS3().file(key).write(data, { type: contentType });
+  await getS3()
+    .file(key)
+    .write(data, { type: storageContentType(key) });
 }
 
 export async function getObject(key: string): Promise<Buffer> {

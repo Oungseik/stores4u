@@ -75,7 +75,7 @@
   let isUploadingLogo = $state(false);
   let isUploadingHeroImage = $state(false);
 
-  const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"] as const;
+  const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
   type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
 
   function isValidImageType(type: string): type is AcceptedImageType {
@@ -84,7 +84,7 @@
 
   async function handleLogoUpload(file: File) {
     if (!isValidImageType(file.type)) {
-      toast.error(msg.ui_invalid_image_type_accepted_jpeg_png_webp_svg());
+      toast.error(msg.ui_invalid_image_type_accepted_jpeg_png_webp());
       return;
     }
 
@@ -102,7 +102,7 @@
 
   async function handleHeroImageUpload(file: File) {
     if (!isValidImageType(file.type)) {
-      toast.error(msg.ui_invalid_image_type_accepted_jpeg_png_webp_svg());
+      toast.error(msg.ui_invalid_image_type_accepted_jpeg_png_webp());
       return;
     }
 
@@ -257,7 +257,7 @@
             <div class="relative">
               <Input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                accept="image/jpeg,image/png,image/webp"
                 class={[
                   "absolute inset-0 cursor-pointer opacity-0",
                   isUploadingLogo && "invisible",
@@ -315,7 +315,7 @@
             <div class="relative">
               <Input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                accept="image/jpeg,image/png,image/webp"
                 class={[
                   "absolute inset-0 cursor-pointer opacity-0",
                   isUploadingHeroImage && "invisible",

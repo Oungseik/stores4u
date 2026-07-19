@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db, image } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
-import { ALLOWED_IMAGE_TYPES, detectImageType } from "$lib/server/utils/magic_bytes";
+import { isAllowedImageType } from "$lib/server/utils/magic_bytes";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -26,40 +26,24 @@ export const uploadHandler = os
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const detectedType = detectImageType(buffer);
-    if (!detectedType || !ALLOWED_IMAGE_TYPES.includes(detectedType)) {
+    if (!isAllowedImageType(buffer)) {
       throw new ORPCError("BAD_REQUEST", {
-        data: { key: "ui_invalid_image_type_accepted_jpeg_png_webp_svg" },
+        data: { key: "ui_invalid_image_type_accepted_jpeg_png_webp" },
       });
     }
 
-    const uuid = Bun.randomUUIDv7();
-    let objectKey: string;
-    let finalBuffer: Buffer;
-    let finalContentType: string;
-    let finalSize: number;
+    const objectKey = `images/${Bun.randomUUIDv7()}.webp`;
+    const finalBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
 
-    if (detectedType === "image/svg+xml") {
-      objectKey = `images/${uuid}.svg`;
-      finalBuffer = buffer;
-      finalContentType = "image/svg+xml";
-      finalSize = buffer.length;
-    } else {
-      objectKey = `images/${uuid}.webp`;
-      finalBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
-      finalContentType = "image/webp";
-      finalSize = finalBuffer.length;
-    }
-
-    await putObject(objectKey, finalBuffer, finalContentType);
+    await putObject(objectKey, finalBuffer);
 
     const objectPath = getObjectUrl(objectKey);
 
     await db.insert(image).values({
       objectPath,
       filename: file.name,
-      type: finalContentType,
-      size: finalSize,
+      type: "image/webp",
+      size: finalBuffer.length,
     });
 
     return { objectPath };

@@ -3,8 +3,8 @@ import { z } from "zod";
 import { db, purchaseInvoiceFile } from "$lib/server/db";
 import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/base";
 import { getObjectUrl, putObject } from "$lib/server/storage";
+import { detectInvoiceFileType } from "$lib/server/utils/magic_bytes";
 
-const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const input = z.object({
@@ -18,12 +18,6 @@ export const uploadInvoiceFileHandler = os
   .handler(async ({ input }) => {
     const file = input.file;
 
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      throw new ORPCError("BAD_REQUEST", {
-        data: { key: "error_invalid_file_type_accepted_jpeg_png_pdf" },
-      });
-    }
-
     if (file.size > MAX_FILE_SIZE) {
       throw new ORPCError("BAD_REQUEST", { data: { key: "error_file_size_exceeds_10mb_limit" } });
     }
@@ -31,10 +25,16 @@ export const uploadInvoiceFileHandler = os
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const extension = file.name.split(".").pop() ?? "bin";
-    const objectKey = `invoice-files/${Bun.randomUUIDv7()}.${extension}`;
+    const detectedType = detectInvoiceFileType(buffer);
+    if (!detectedType) {
+      throw new ORPCError("BAD_REQUEST", {
+        data: { key: "error_invalid_file_type_accepted_jpeg_png_pdf" },
+      });
+    }
 
-    await putObject(objectKey, buffer, file.type);
+    const objectKey = `invoice-files/${Bun.randomUUIDv7()}.${detectedType.extension}`;
+
+    await putObject(objectKey, buffer);
 
     const objectPath = getObjectUrl(objectKey);
     const now = new Date();
@@ -42,8 +42,8 @@ export const uploadInvoiceFileHandler = os
     const result = (await db.insert(purchaseInvoiceFile).values({
       objectPath,
       filename: file.name,
-      fileType: file.type,
-      size: file.size,
+      fileType: detectedType.mime,
+      size: buffer.length,
       status: "UPLOADED",
       createdAt: now,
       updatedAt: now,

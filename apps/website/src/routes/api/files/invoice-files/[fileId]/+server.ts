@@ -1,6 +1,6 @@
 import { isDashboardRole } from "$lib/server/auth";
 import { db } from "$lib/server/db";
-import { extractObjectKey, getObjectStream } from "$lib/server/storage";
+import { extractObjectKey, getObjectStream, storageResponseHeaders } from "$lib/server/storage";
 
 export async function GET({
   params,
@@ -39,11 +39,5 @@ export async function GET({
 
   const stream = getObjectStream(objectKey);
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": file.fileType,
-      "Content-Disposition": `inline; filename="${file.filename}"`,
-      "Cache-Control": "private, max-age=3600",
-    },
-  });
+  return new Response(stream, { headers: storageResponseHeaders(objectKey) });
 }

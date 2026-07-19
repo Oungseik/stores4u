@@ -373,7 +373,7 @@
     <Label>{msg.ui_product_images()}</Label>
 
     <FileDropZone.Root
-      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+      accept="image/jpeg,image/png,image/webp"
       maxFileSize={2 * 1024 * 1024}
       disabled={isUploadingImage}
       fileCount={imageEntries.length}

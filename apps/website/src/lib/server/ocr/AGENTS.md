@@ -13,6 +13,7 @@ Consumed by: `orpc.purchaseInvoices.processFile` (`src/lib/server/orpc/handlers/
 
 - **Single OCR call, structured output**: `processInvoice` sends the file to Mistral and parses `response.documentAnnotation` against `ExtractedInvoiceDataSchema`. No separate verification/chat call and no local "is-it-an-invoice" gate — the user is responsible for uploading a correct invoice.
 - **No preprocessing**: the buffer is passed to Mistral as-is. No `pdftoppm`, no PDF-to-image rendering.
+- **Caller input contract**: the purchase-invoice upload handler detects JPEG/PNG/PDF from magic bytes and persists that canonical MIME; `processFile` passes the persisted value here rather than a browser claim.
 - **PDF input**: sent inline as a `data:application/pdf;base64,...` document URL.
 - **Image input**: sent inline as a `data:${mimeType};base64,...` image URL.
 - **Schema source of truth**: the JSON schema handed to Mistral is generated from `ExtractedInvoiceDataSchema` via `z.toJSONSchema` (zod v4 built-in) with the `$schema` key stripped, so the wire schema cannot drift from the DB schema.

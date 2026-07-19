@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { safeJoinPath } from "./storage";
+import { safeJoinPath, storageContentType, storageResponseHeaders } from "./storage";
 
 const ROOT = "/srv/storage";
 
@@ -21,4 +21,19 @@ test("safeJoinPath normalizes dot-segments that stay inside", () => {
 test("safeJoinPath rejects empty/root-equal keys", () => {
   expect(safeJoinPath(ROOT, "")).toBeNull();
   expect(safeJoinPath(ROOT, ".")).toBeNull();
+});
+
+test("storage derives safe content types from canonical extensions", () => {
+  expect(storageContentType("invoice-files/id.pdf")).toBe("application/pdf");
+  expect(storageContentType("images/id.webp")).toBe("image/webp");
+  expect(storageContentType("invoice-files/disguised.html")).toBe("application/octet-stream");
+});
+
+test("unsafe stored files are attachments with anti-sniffing headers", () => {
+  expect(storageResponseHeaders("images/active.svg")).toMatchObject({
+    "Content-Disposition": "attachment",
+    "Content-Security-Policy": "sandbox; default-src 'none'",
+    "Content-Type": "application/octet-stream",
+    "X-Content-Type-Options": "nosniff",
+  });
 });
