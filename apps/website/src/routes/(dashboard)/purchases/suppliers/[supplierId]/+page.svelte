@@ -35,7 +35,7 @@
     orpc.suppliers.delete.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_supplier_deleted_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.key(), refetchType: "none" });
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_failed_to_delete_supplier"));

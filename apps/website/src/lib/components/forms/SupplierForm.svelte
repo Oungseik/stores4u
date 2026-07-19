@@ -70,7 +70,7 @@
     orpc.suppliers.create.mutationOptions({
       onSuccess: (created) => {
         toast.success(msg.ui_supplier_created_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.key() });
         onSuccess?.(created);
       },
       onError: (error) => {
@@ -83,8 +83,9 @@
     orpc.suppliers.update.mutationOptions({
       onSuccess: (updated) => {
         toast.success(msg.ui_supplier_updated_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.suppliers.list.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.suppliers.get.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
         onSuccess?.(updated);
       },
       onError: (error) => {

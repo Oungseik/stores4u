@@ -72,11 +72,11 @@
           `Order ${result.orderId}: ${result.itemCount} items for ${formatPrice(result.totalCents, shop.currency)}`,
         );
         cart.clear();
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.dashboard.revenueTrend.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.orders.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.customers.key() });
         goto(localizePath(`/orders/${result.orderId}`));
       },
       onError: (error) => {

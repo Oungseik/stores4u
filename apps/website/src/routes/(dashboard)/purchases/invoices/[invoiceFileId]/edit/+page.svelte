@@ -142,12 +142,11 @@
   const updateMutation = createMutation(() =>
     orpc.purchaseInvoices.updateInvoice.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.list.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getInvoice.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
       },
     }),
   );
@@ -261,9 +260,6 @@
           bind:items={invoiceData.items}
           {products}
           currency={shop.currency}
-          onProductCreated={() => {
-            queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-          }}
         />
 
         <InvoiceDetailsCard

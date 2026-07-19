@@ -11,11 +11,12 @@
   import { NumberInput } from "@repo/ui/number-input";
   import { Switch } from "@repo/ui/switch";
   import { createForm } from "@tanstack/svelte-form";
-  import { createMutation, createQuery } from "@tanstack/svelte-query";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
   import { orpc } from "$lib/orpc_client";
 
+  const queryClient = useQueryClient();
   const taxSettingsQuery = createQuery(() =>
     orpc.tax.get.queryOptions({
       input: {},
@@ -26,7 +27,7 @@
     orpc.tax.update.mutationOptions({
       onSuccess: async () => {
         toast.success(msg.ui_vat_settings_updated());
-        await taxSettingsQuery.refetch();
+        await queryClient.invalidateQueries({ queryKey: orpc.tax.key() });
         taxForm.reset();
       },
       onError: (error: { message?: string }) => {

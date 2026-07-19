@@ -22,7 +22,7 @@
   import { Input } from "@repo/ui/input";
   import { Label } from "@repo/ui/label";
   import * as Tabs from "@repo/ui/tabs";
-  import { createMutation } from "@tanstack/svelte-query";
+  import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { useSearchParams } from "runed/kit";
   import { toast } from "svelte-sonner";
 
@@ -38,6 +38,7 @@
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
+  const queryClient = useQueryClient();
   let user = $derived(data.user);
   const session = $derived(data.session);
   let selectedLanguage = $derived(data.language);
@@ -67,7 +68,9 @@
       { file },
       {
         onSuccess: (result) => {
-          user.name = result.objectPath;
+          user.image = result.objectPath;
+          queryClient.invalidateQueries({ queryKey: orpc.members.key() });
+          invalidateAll();
           toast.success(msg.ui_avatar_updated());
         },
         onError: (error) => {
@@ -93,6 +96,7 @@
       return;
     }
     toast.success(msg.ui_name_updated());
+    queryClient.invalidateQueries({ queryKey: orpc.members.key() });
     await invalidateAll();
     isUpdatingProfile = false;
   }

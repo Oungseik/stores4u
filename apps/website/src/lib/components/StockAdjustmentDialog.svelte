@@ -53,9 +53,9 @@
     orpc.inventory.adjustStock.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_stock_adjusted_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
         form.reset();
         form.setFieldValue("date", getTodayString());
         onClose();

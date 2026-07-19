@@ -77,7 +77,8 @@
     orpc.categories.delete.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_category_deleted_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_failed_to_delete_category"));

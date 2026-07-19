@@ -34,12 +34,10 @@
     items = $bindable([]),
     products = [],
     currency,
-    onProductCreated,
   }: {
     items: InvoiceItem[];
     products: ProductOption[];
     currency: CurrencyCode;
-    onProductCreated?: (product: { id: string; name: string; sku: string }) => void;
   } = $props();
 
   let productSearchOpen = $state<string | null>(null);
@@ -99,7 +97,6 @@
   }
 
   function handleProductCreated(product: { id: string; name: string; sku: string }) {
-    onProductCreated?.(product);
     if (createProductForItemId) {
       selectProduct(createProductForItemId, product);
     }

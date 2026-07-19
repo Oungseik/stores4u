@@ -33,7 +33,8 @@
     orpc.customers.delete.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_customer_deleted_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.customers.key(), refetchType: "none" });
+        queryClient.invalidateQueries({ queryKey: orpc.orders.key() });
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_failed_to_delete_customer"));

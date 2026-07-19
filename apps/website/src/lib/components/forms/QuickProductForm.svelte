@@ -33,7 +33,9 @@
     orpc.products.create.mutationOptions({
       onSuccess: (result) => {
         toast.success(msg.ui_product_created());
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
         onCreated?.({ id: result.id, name: result.name, sku: result.sku });
       },
       onError: (error) => {

@@ -2,7 +2,7 @@
   import { localizeError } from "$lib/error-message";
   import * as msg from "$lib/paraglide/messages";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
-  import { createMutation, createQuery } from "@tanstack/svelte-query";
+  import { createMutation, createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
@@ -16,6 +16,7 @@
   import type { PageProps } from "./$types";
 
   const { data: shop }: PageProps = $props();
+  const queryClient = useQueryClient();
 
   const invoiceSettingsQuery = createQuery(() => orpc.invoice.get.queryOptions({ input: {} }));
 
@@ -23,7 +24,7 @@
     orpc.invoice.update.mutationOptions({
       onSuccess: async () => {
         toast.success(msg.ui_invoice_settings_updated());
-        await invoiceSettingsQuery.refetch();
+        await queryClient.invalidateQueries({ queryKey: orpc.invoice.key() });
       },
       onError: (error: { message?: string }) => {
         toast.error(localizeError(error, "ui_failed_to_update_invoice_settings"));

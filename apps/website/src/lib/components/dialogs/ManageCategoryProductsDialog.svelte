@@ -72,7 +72,8 @@
     orpc.categories.updateProducts.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_products_updated_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
         onClose();
       },
       onError: (error) => {

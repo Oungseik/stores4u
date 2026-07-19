@@ -52,7 +52,9 @@
     orpc.products.create.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_product_created_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
         onSuccess?.();
       },
       onError: (error) => {
@@ -65,7 +67,12 @@
     orpc.products.update.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_product_updated_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.orders.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
         onSuccess?.();
       },
       onError: (error) => {

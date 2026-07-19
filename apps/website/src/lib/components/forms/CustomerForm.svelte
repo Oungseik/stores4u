@@ -62,7 +62,7 @@
     orpc.customers.create.mutationOptions({
       onSuccess: (created) => {
         toast.success(msg.ui_customer_created_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.customers.key() });
         onSuccess?.(created);
       },
       onError: (error) => {
@@ -75,8 +75,7 @@
     orpc.customers.update.mutationOptions({
       onSuccess: (updated) => {
         toast.success(msg.ui_customer_updated_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.customers.list.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.customers.get.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.customers.key() });
         onSuccess?.(updated);
       },
       onError: (error) => {

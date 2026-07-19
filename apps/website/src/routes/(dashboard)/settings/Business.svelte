@@ -18,7 +18,7 @@
   import * as Select from "@repo/ui/select";
   import { Separator } from "@repo/ui/separator";
   import { createForm } from "@tanstack/svelte-form";
-  import { createMutation } from "@tanstack/svelte-query";
+  import { createMutation, useQueryClient } from "@tanstack/svelte-query";
   import { toast } from "svelte-sonner";
   import { z } from "zod";
 
@@ -29,6 +29,8 @@
   import type { PageProps } from "./$types";
 
   type Shop = PageProps["data"];
+
+  const queryClient = useQueryClient();
 
   interface Props {
     shop: Shop;
@@ -79,6 +81,7 @@
     orpc.shops.update.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_settings_updated_successfully());
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
         invalidateAll();
       },
       onError: (error) => {

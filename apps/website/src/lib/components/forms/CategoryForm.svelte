@@ -33,7 +33,7 @@
     orpc.categories.create.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_category_created_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
         onSuccess?.();
       },
       onError: (error) => {
@@ -46,7 +46,8 @@
     orpc.categories.update.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_category_updated_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.categories.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.categories.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
         onSuccess?.();
       },
       onError: (error) => {

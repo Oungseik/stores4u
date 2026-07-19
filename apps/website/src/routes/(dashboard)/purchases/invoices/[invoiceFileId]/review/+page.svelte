@@ -159,7 +159,8 @@
       {
         onSuccess: () => {
           toast.success(msg.ui_processing_started());
-          queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
+          queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
+          queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
           isProcessing = false;
         },
         onError: (error) => {
@@ -306,12 +307,11 @@
   const submitReviewMutation = createMutation(() =>
     orpc.purchaseInvoices.submitReview.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.getFile.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.products.get.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.dashboard.stats.key() });
-        queryClient.invalidateQueries({ queryKey: orpc.inventory.listMovements.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.inventory.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.suppliers.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
       },
     }),
   );
@@ -332,6 +332,8 @@
           {
             onSuccess: () => {
               toast.success(msg.ui_invoice_rejected());
+              queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
+              queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
               goto(localizePath(`/purchases/invoices`));
             },
             onError: (e) => {
@@ -513,9 +515,6 @@
             bind:items={invoiceData.items}
             {products}
             currency={shop.currency}
-            onProductCreated={() => {
-              queryClient.invalidateQueries({ queryKey: orpc.products.list.key() });
-            }}
           />
 
           <InvoiceDetailsCard

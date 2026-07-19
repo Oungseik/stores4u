@@ -104,7 +104,8 @@
     orpc.purchaseInvoices.processFile.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_invoice_processed_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
         processingFileId = null;
       },
       onError: (error) => {
@@ -120,7 +121,8 @@
     orpc.purchaseInvoices.deleteFile.mutationOptions({
       onSuccess: () => {
         toast.success(msg.ui_file_deleted_successfully());
-        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_failed_to_delete_file"));
@@ -165,7 +167,7 @@
 
     if (successCount > 0) {
       toast.success(msg.files_uploaded({ count: successCount }));
-      queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.listFiles.key() });
+      queryClient.invalidateQueries({ queryKey: orpc.purchaseInvoices.key() });
     }
 
     uploadProgress = { current: 0, total: 0 };
