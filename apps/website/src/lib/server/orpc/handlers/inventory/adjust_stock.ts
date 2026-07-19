@@ -10,7 +10,7 @@ const input = z.object({
   productId: z.string().min(1),
   direction: z.enum(["ADD", "SUBTRACT"]),
   movementType: z.enum(manualMovementTypes),
-  qty: z.number().positive(),
+  qty: z.number().int().positive(),
   unitCostCents: z.number().int().min(0),
   date: z.string().min(1),
   reason: z.string().max(1000).optional(),

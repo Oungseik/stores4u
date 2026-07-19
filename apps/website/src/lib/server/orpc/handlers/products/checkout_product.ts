@@ -16,7 +16,7 @@ import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/ba
 
 const checkoutItem = z.object({
   productId: z.string().min(1),
-  qty: z.number().positive(),
+  qty: z.number().int().positive(),
 });
 
 const input = z.object({
@@ -76,6 +76,11 @@ export const checkoutHandler = os
     }
 
     const totalCents = subtotalCents - input.discountCents + vatCents;
+    if (totalCents < 0) {
+      throw new ORPCError("BAD_REQUEST", {
+        data: { key: "error_discount_exceeds_order_amount" },
+      });
+    }
 
     // Resolve customer: when a customerId is supplied, validate it exists and
     // snapshot name/phone from the customer row onto the order (overrides any

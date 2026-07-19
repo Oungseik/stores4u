@@ -716,6 +716,7 @@
   "error_product_id_not_found": "Product {id} not found",
   "error_insufficient_stock_products": "Insufficient stock for: {products}",
   "error_insufficient_stock": "Insufficient stock. Available: {available}, requested: {requested}",
+  "error_discount_exceeds_order_amount": "Discount cannot exceed the order amount.",
   "error_input_validation": "Check the highlighted fields and try again.",
   "error_invalid_credentials": "Email or password is incorrect.",
   "error_email_not_verified": "Verify your email before signing in.",

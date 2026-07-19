@@ -38,10 +38,11 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Add a concurrent subtraction regression test.
   - Acceptance: manual subtraction conditionally updates stock inside the transaction; only a successful update inserts its movement; two concurrent full-stock subtractions produce one success, one insufficient-stock rejection, zero remaining stock, and one movement.
 
-- [ ] **DATA-03 — Enforce valid checkout money and quantities**
+- [x] **DATA-03 — Enforce valid checkout money and quantities**
   - Prevent discounts from producing negative totals.
   - Decide whether quantities are integral or fractional; then keep stock and cent calculations consistent and rounded.
   - Add boundary tests for excessive discounts and fractional quantities.
+  - Acceptance: checkout rejects discounts above subtotal plus rounded VAT; checkout, manual adjustment, and purchase-invoice stock inputs require positive whole-unit quantities; direct checkout regressions reject excessive discounts and fractional quantities.
 
 - [ ] **DATA-04 — Fix product image lifecycle and gallery behavior**
   - Reordering images must not delete retained objects.

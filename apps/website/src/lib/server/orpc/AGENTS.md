@@ -14,6 +14,7 @@ Owns: `base.ts`, `router.ts`, `handlers/`, and colocated `*.test.ts` files.
 - Product and category list inputs cap `pageSize` at 100.
 - Store, tax, and invoice-setting mutations run `ownerMiddleware` before `shopMiddleware`.
 - Manual stock subtraction uses a conditional stock update inside its transaction; a failed update records no inventory movement.
+- Stock-writing inputs use positive whole-unit quantities across checkout, manual adjustments, and purchase invoices. Checkout rejects discounts above subtotal plus rounded VAT so persisted order totals cannot be negative.
 - `protectedShopMiddleware` rejects missing sessions and non-dashboard roles before resolving the single shop.
 
 ## Work Guidance

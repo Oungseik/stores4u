@@ -3,7 +3,7 @@ import { z } from "zod";
 export const purchaseInvoiceItemInput = z.object({
   productId: z.string().min(1),
   invoiceItemName: z.string().min(1).max(500),
-  qty: z.number().positive(),
+  qty: z.number().int().positive(),
   unitCostCents: z.number().int().min(0),
   lineSubtotalCents: z.number().int().min(0),
   vatCents: z.number().int().min(0).default(0),

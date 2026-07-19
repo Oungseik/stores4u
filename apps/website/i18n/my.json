@@ -716,6 +716,7 @@
   "error_product_id_not_found": "ကုန်ပစ္စည်း {id} ကို မတွေ့ပါ",
   "error_insufficient_stock_products": "ဤကုန်ပစ္စည်းများအတွက် လက်ကျန် မလုံလောက်ပါ: {products}",
   "error_insufficient_stock": "လက်ကျန် မလုံလောက်ပါ။ ရရှိနိုင်မှု: {available}၊ တောင်းဆိုမှု: {requested}",
+  "error_discount_exceeds_order_amount": "လျှော့ဈေးသည် အော်ဒါတန်ဖိုးထက် မကျော်လွန်ရပါ။",
   "error_input_validation": "မှားယွင်းနေသော အကွက်များကို စစ်ဆေးပြီး ထပ်မံကြိုးစားပါ။",
   "error_invalid_credentials": "အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ပါ။",
   "error_email_not_verified": "ဝင်ရောက်မီ သင့်အီးမေးလ်ကို အတည်ပြုပါ။",
