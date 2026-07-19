@@ -15,7 +15,7 @@
   import { Separator } from "@repo/ui/separator";
   import * as Sidebar from "@repo/ui/sidebar";
   import * as Tabs from "@repo/ui/tabs";
-  import { createQuery } from "@tanstack/svelte-query";
+  import { createQuery, useQueryClient } from "@tanstack/svelte-query";
   import { goto } from "$app/navigation";
   import { Debounced } from "runed";
   import { useSearchParams } from "runed/kit";
@@ -32,11 +32,10 @@
 
   const { data: shop }: PageProps = $props();
 
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams(checkoutModeSchema, { noScroll: true });
   let searchQuery = $state("");
   const debouncedSearch = new Debounced(() => searchQuery, 300);
-
-  let lastScannedBarcode = $state<string | null>(null);
 
   const isDebouncing = $derived(searchQuery !== debouncedSearch.current);
 
@@ -49,19 +48,14 @@
 
   const isSearching = $derived(isDebouncing || productSearch.isFetching);
 
-  const productByBarcode = createQuery(() =>
-    orpc.products.get.queryOptions({
-      input: { barcode: lastScannedBarcode ?? "" },
-      enabled: !!lastScannedBarcode,
-    }),
-  );
-
-  function addToCart(id: string, barcode: string | null = null) {
-    const existingItem = cart.items.find((item) => item.id === id);
-    if (existingItem) {
-      cart.bump(id, 1);
-    } else {
-      lastScannedBarcode = barcode;
+  async function handleBarcodeScan(barcode: string) {
+    try {
+      const product = await queryClient.fetchQuery(
+        orpc.products.get.queryOptions({ input: { barcode } }),
+      );
+      cart.add(product);
+    } catch {
+      toast.error(msg.error_product_not_found_value({ product: barcode }));
     }
   }
 
@@ -75,27 +69,6 @@
     cart.add(product);
     searchQuery = "";
   }
-
-  $effect(() => {
-    if (productByBarcode.data) {
-      const product = productByBarcode.data;
-      cart.add({
-        id: product.id,
-        barcode: product.barcode,
-        name: product.name,
-        priceCents: product.priceCents,
-        image: product.image,
-      });
-      lastScannedBarcode = null;
-    }
-  });
-
-  $effect(() => {
-    if (productByBarcode.isError) {
-      toast.error(msg.error_product_not_found_value({ product: lastScannedBarcode ?? "" }));
-      lastScannedBarcode = null;
-    }
-  });
 
   function handleCheckout() {
     if (cart.items.length === 0) {
@@ -130,9 +103,9 @@
     <Tabs.Content value="scan" class="shrink-0 border-b-4 p-4">
       <BarcodeScanner
         containerId="stores4u-barcode-scanner"
-        onScan={addToCart}
+        onScan={handleBarcodeScan}
         enabled={searchParams.mode === "scan"}
-        class="bg-muted relative h-40 w-full overflow-hidden rounded-lg"
+        class="bg-muted relative h-30 w-full overflow-hidden rounded-lg"
       />
     </Tabs.Content>
 

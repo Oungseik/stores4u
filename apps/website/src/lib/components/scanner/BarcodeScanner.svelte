@@ -7,6 +7,7 @@
   import { tick } from "svelte";
 
   import { browser } from "$app/environment";
+  import { createBarcodeScanFilter } from "./scan-filter";
 
   interface Props {
     containerId?: string;
@@ -26,6 +27,7 @@
   let scannerError = $state<string | null>(null);
   let isPermissionError = $state(false);
   let html5QrCode: Html5Qrcode | null = null;
+  const acceptScan = createBarcodeScanFilter();
 
   async function startScanner() {
     if (!browser) return;
@@ -50,7 +52,7 @@
           qrbox: { width: 250, height: 150 },
         },
         (decodedText) => {
-          onScan?.(decodedText);
+          if (acceptScan(decodedText)) onScan?.(decodedText);
         },
         () => {},
       );
