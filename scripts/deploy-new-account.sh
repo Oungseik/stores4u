@@ -104,7 +104,7 @@ trap 'rm -f "$smoke_file"' EXIT
 curl --retry 5 --retry-all-errors --retry-delay 2 --fail --silent "$worker_url/health" >/dev/null
 curl --retry 5 --retry-all-errors --retry-delay 2 --fail --silent "$worker_url/setup" >/dev/null
 printf 'stores4u-r2-ok' >"$smoke_file"
-(cd apps/website && bunx wrangler r2 object put "$R2_BUCKET/deploy-smoke.txt" --file "$smoke_file" --content-type text/plain --remote -y >/dev/null)
+(cd apps/website && bunx wrangler r2 object put "$R2_BUCKET/deploy-smoke.txt" --file "$smoke_file" --content-type text/plain --remote >/dev/null)
 [[ $(curl --retry 5 --retry-all-errors --retry-delay 2 --fail --silent "$worker_url/storage/deploy-smoke.txt") == "stores4u-r2-ok" ]]
 (cd apps/website && bunx wrangler r2 object delete "$R2_BUCKET/deploy-smoke.txt" --remote >/dev/null)
 

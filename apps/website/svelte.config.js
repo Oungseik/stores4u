@@ -6,7 +6,7 @@ const config = {
   preprocess: [vitePreprocess(), mdsvex()],
   extensions: [".svelte", ".svx"],
   kit: {
-    adapter: adapter({ config: "wrangler.jsonc" }),
+    adapter: adapter({ config: "wrangler.jsonc", platformProxy: { environment: "dev" } }),
     env: { dir: "../../" },
     alias: {
       "@lib": "../../packages/ui/src/lib",

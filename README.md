@@ -14,9 +14,12 @@ Single-store point-of-sale, inventory, purchasing, and dashboard app built with 
 ```bash
 bun install
 cp .env.example .env
-# Fill TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, BETTER_AUTH_SECRET, BETTER_AUTH_URL
+# Use a dedicated development Turso database and development-only auth secret.
+# Keep BETTER_AUTH_URL=http://localhost:5173.
 bun run dev
 ```
+
+Local Vite development uses the remote `stores4u-dev` R2 bucket through Wrangler's `dev` environment. Production continues to use the top-level `stores4u` binding and `.env.prod`; do not reuse production database or auth credentials in `.env`.
 
 Normal development does not run migrations. After schema changes, generate and commit them:
 

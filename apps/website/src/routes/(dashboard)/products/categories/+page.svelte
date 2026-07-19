@@ -147,7 +147,7 @@
         </p>
       </div>
     {:else}
-      <div class="grid grid-cols-1 gap-4 @[340px]/main:grid-cols-2 @[680px]/main:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 @[768px]/main:grid-cols-2 @[1024px]/main:grid-cols-3">
         {#each allCategories as category (category.id)}
           <Card.Root class="group transition-all duration-200 hover:shadow-md">
             <Card.Header>

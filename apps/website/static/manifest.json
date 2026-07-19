@@ -1,6 +1,6 @@
 {
-  "name": "Stores4U",
-  "short_name": "Stores4U",
+  "name": "stores4u",
+  "short_name": "stores4u",
   "description": "Modern point-of-sale and inventory management",
   "start_url": "/",
   "theme_color": "#0f172a",

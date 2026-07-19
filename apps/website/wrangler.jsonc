@@ -16,7 +16,22 @@
   ],
   "vars": {
     "PUBLIC_ENVIRONMENT": "production",
-    "PUBLIC_SITE_NAME": "Kagom"
+    "PUBLIC_SITE_NAME": "stores4u"
+  },
+  "env": {
+    "dev": {
+      "vars": {
+        "PUBLIC_ENVIRONMENT": "development",
+        "PUBLIC_SITE_NAME": "stores4u"
+      },
+      "r2_buckets": [
+        {
+          "binding": "STORAGE",
+          "bucket_name": "stores4u-dev",
+          "remote": true
+        }
+      ]
+    }
   },
   "observability": {
     "enabled": true
