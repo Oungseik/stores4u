@@ -128,14 +128,12 @@
     </div>
 
     <Tabs.Content value="scan" class="shrink-0 border-b-4 p-4">
-      <div class="h-48">
-        <BarcodeScanner
-          containerId="stores4u-barcode-scanner"
-          onScan={addToCart}
-          enabled={searchParams.mode === "scan"}
-          class="bg-muted relative h-40 w-full overflow-hidden rounded-lg"
-        />
-      </div>
+      <BarcodeScanner
+        containerId="stores4u-barcode-scanner"
+        onScan={addToCart}
+        enabled={searchParams.mode === "scan"}
+        class="bg-muted relative h-40 w-full overflow-hidden rounded-lg"
+      />
     </Tabs.Content>
 
     <Tabs.Content value="search" class="relative flex flex-col gap-3 p-4">
