@@ -515,7 +515,7 @@
           bind:this={scannerRef}
           containerId="product-barcode-scanner"
           onScan={handleScan}
-          class="bg-muted relative h-30 w-full overflow-hidden rounded-lg"
+          class="bg-muted relative h-25 w-full overflow-hidden rounded-lg"
         />
         <Button
           type="button"
