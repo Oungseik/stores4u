@@ -1,12 +1,16 @@
 <script lang="ts">
   import * as msg from "$lib/paraglide/messages";
+  import ImageDownIcon from "@lucide/svelte/icons/image-down";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import PrinterIcon from "@lucide/svelte/icons/printer";
   import ReceiptIcon from "@lucide/svelte/icons/receipt";
   import * as Card from "@repo/ui/card";
   import { Button } from "@repo/ui/button";
   import * as Dialog from "@repo/ui/dialog";
+  import { Spinner } from "@repo/ui/spinner";
   import { createQuery } from "@tanstack/svelte-query";
+  import { toast } from "svelte-sonner";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import Invoice, {
@@ -46,7 +50,8 @@
   const invoiceData = $derived<InvoiceData | null>(
     order
       ? {
-          title: shop.title ?? shop.name,
+          shopName: shop.name,
+          description: shop.description,
           logo: shop.logo,
           address: shop.address,
           city: shop.city,
@@ -74,6 +79,33 @@
   );
 
   let invoiceOpen = $state(false);
+  let invoiceElement = $state<HTMLDivElement | null>(null);
+  let imageExporting = $state(false);
+
+  async function saveInvoiceImage() {
+    if (!invoiceElement || !order) return;
+
+    imageExporting = true;
+    try {
+      const { saveOrShareInvoiceImage } = await import("$lib/invoice-image");
+      await saveOrShareInvoiceImage(invoiceElement, `invoice-${formatOrderId(order.id)}.png`);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        toast.error(msg.ui_failed_to_export_invoice_image());
+      }
+    } finally {
+      imageExporting = false;
+    }
+  }
+
+  function printInvoice() {
+    document.body.classList.add("printing-invoice");
+    try {
+      window.print();
+    } finally {
+      document.body.classList.remove("printing-invoice");
+    }
+  }
 </script>
 
 <div class="flex w-full flex-col gap-6 p-4 md:p-6">
@@ -106,8 +138,8 @@
             Placed on {formatDate(order.createdAt, true)}
           </p>
         </div>
-        <Button variant="outline" class="shrink-0 gap-2" onclick={() => (invoiceOpen = true)}>
-          <ReceiptIcon class="size-4" />
+        <Button variant="outline" class="shrink-0" onclick={() => (invoiceOpen = true)}>
+          <ReceiptIcon data-icon="inline-start" />
           {msg.ui_invoice()}
         </Button>
       </div>
@@ -219,17 +251,46 @@
 </div>
 
 <Dialog.Root bind:open={invoiceOpen}>
-  <Dialog.Content class="max-h-[90vh] overflow-y-auto">
+  <Dialog.Content data-invoice-print-dialog class="max-h-[90vh] overflow-y-auto">
     <Dialog.Header>
       <Dialog.Title>Invoice #{formatOrderId(order?.id ?? "")}</Dialog.Title>
-      <Dialog.Description>{msg.ui_read_only_invoice_preview()}</Dialog.Description>
+      <Dialog.Description>{msg.ui_invoice_export_description()}</Dialog.Description>
     </Dialog.Header>
     {#if invoiceData}
       <div class="bg-muted/40 flex justify-center overflow-x-auto rounded-lg py-4">
-        <div class="bg-background shadow-md">
-          <Invoice data={invoiceData} config={invoiceConfig} currency={shop.currency} />
+        <div class="shadow-md">
+          <Invoice
+            bind:ref={invoiceElement}
+            data={invoiceData}
+            config={invoiceConfig}
+            currency={shop.currency}
+          />
         </div>
       </div>
+      <Dialog.Footer>
+        <Button
+          variant="outline"
+          class="w-full sm:w-auto"
+          disabled={!invoiceElement || imageExporting}
+          onclick={printInvoice}
+        >
+          <PrinterIcon data-icon="inline-start" />
+          {msg.ui_print()}
+        </Button>
+        <Button
+          class="w-full sm:w-auto"
+          disabled={!invoiceElement || imageExporting}
+          onclick={saveInvoiceImage}
+        >
+          {#if imageExporting}
+            <Spinner data-icon="inline-start" />
+            {msg.ui_preparing_image()}
+          {:else}
+            <ImageDownIcon data-icon="inline-start" />
+            {msg.ui_save_or_share_image()}
+          {/if}
+        </Button>
+      </Dialog.Footer>
     {/if}
   </Dialog.Content>
 </Dialog.Root>

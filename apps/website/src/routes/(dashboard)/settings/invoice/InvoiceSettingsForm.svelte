@@ -16,14 +16,29 @@
     type InvoiceData,
   } from "$lib/components/invoice/Invoice.svelte";
 
+  type InvoiceShopDetails = Pick<
+    InvoiceData,
+    | "shopName"
+    | "description"
+    | "logo"
+    | "address"
+    | "city"
+    | "state"
+    | "zipCode"
+    | "phone"
+    | "email"
+  >;
+
   let {
     initialConfig,
     currency,
+    shopDetails,
     saving = false,
     onsave,
   }: {
     initialConfig: InvoiceConfig;
     currency: CurrencyCode;
+    shopDetails: InvoiceShopDetails;
     saving?: boolean;
     onsave: (config: InvoiceConfig) => void | Promise<void>;
   } = $props();
@@ -34,16 +49,9 @@
   // config thereafter, and a refetch must not clobber them.
   let config = $state<InvoiceConfig>(untrack(() => ({ ...initialConfig })));
 
-  // Static preview data — hardcoded, never live order data.
-  const PREVIEW_DATA: InvoiceData = {
-    title: "Acme Store",
-    logo: null,
-    address: "123 Market Street",
-    city: "Springfield",
-    state: "IL",
-    zipCode: "62704",
-    phone: "(555) 010-2030",
-    email: "hello@acme.store",
+  // Real shop header + representative order data.
+  const previewData = $derived<InvoiceData>({
+    ...shopDetails,
     orderId: "0192f8a1b3c4d5e6",
     createdAt: new Date(),
     customerName: "Jane Doe",
@@ -57,7 +65,7 @@
     discountCents: 100,
     vatCents: 95,
     totalCents: 1345,
-  };
+  });
 </script>
 
 <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -141,10 +149,10 @@
     </Card.Content>
   </Card.Root>
 
-  <!-- Live preview (static hardcoded data) -->
+  <!-- Live preview: same renderer and shop header as order invoices. -->
   <div class="bg-muted/40 flex flex-1 justify-center overflow-x-auto rounded-lg py-4">
     <div class="bg-background shadow-md">
-      <Invoice {config} data={PREVIEW_DATA} {currency} />
+      <Invoice {config} data={previewData} {currency} />
     </div>
   </div>
 </div>

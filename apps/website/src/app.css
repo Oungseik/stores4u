@@ -278,3 +278,49 @@
     animation: none !important;
   }
 }
+
+@media print {
+  @page {
+    margin: 0;
+  }
+
+  body.printing-invoice * {
+    visibility: hidden !important;
+  }
+
+  body.printing-invoice [data-invoice-print-dialog],
+  body.printing-invoice [data-invoice-print-dialog] * {
+    visibility: visible !important;
+  }
+
+  body.printing-invoice [data-invoice-print-dialog] {
+    position: absolute;
+    inset: 0 auto auto 0;
+    display: block;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    overflow: visible;
+    transform: none;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  body.printing-invoice [data-invoice-print-dialog] > :not(:has([data-invoice-print])) {
+    display: none !important;
+  }
+
+  body.printing-invoice [data-invoice-print-dialog] > :has([data-invoice-print]) {
+    display: block;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  body.printing-invoice [data-invoice-print-dialog] :has(> [data-invoice-print]) {
+    box-shadow: none;
+  }
+}

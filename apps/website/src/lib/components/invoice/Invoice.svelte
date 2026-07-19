@@ -11,7 +11,8 @@
 
   /** Shop + order fields the renderer needs. Constructed by each consumer. */
   export interface InvoiceData {
-    title: string;
+    shopName: string;
+    description?: string | null;
     logo?: string | null;
     address?: string | null;
     city?: string | null;
@@ -57,17 +58,26 @@
     data,
     config,
     currency,
-  }: { data: InvoiceData; config: InvoiceConfig; currency: CurrencyCode } = $props();
+    ref = $bindable(null),
+  }: {
+    data: InvoiceData;
+    config: InvoiceConfig;
+    currency: CurrencyCode;
+    ref?: HTMLDivElement | null;
+  } = $props();
 
   // ponytail: disable compact notation on receipts — full amounts always.
   const money = (cents: number) => formatPrice(cents, currency, false);
 </script>
 
-<div class="receipt" style="width: {config.paperWidth}mm;">
+<div bind:this={ref} class="receipt" data-invoice-print style="width: {config.paperWidth}mm;">
   {#if config.showLogo && data.logo}
     <img class="logo" src={data.logo} alt="" />
   {/if}
-  <div class="center bold">{data.title}</div>
+  <div class="center bold">{data.shopName}</div>
+  {#if data.description}
+    <div class="center muted">{data.description}</div>
+  {/if}
   {#if config.showAddress && (data.address || data.city)}
     {#if data.address}<div class="center">{data.address}</div>{/if}
     <div class="center">
@@ -138,6 +148,9 @@
 
 <style>
   .receipt {
+    box-sizing: border-box;
+    background: #fff;
+    color: #000;
     font-family: ui-monospace, "Courier New", monospace;
     font-size: 12px;
     line-height: 1.5;
@@ -153,10 +166,10 @@
     gap: 8px;
   }
   .receipt .rule {
-    height: 1px;
+    height: 0;
     margin: 6px 0;
+    border-top: 1px dashed currentColor;
     opacity: 0.5;
-    background-image: repeating-linear-gradient(to right, currentColor 0 3px, transparent 3px 6px);
   }
   .receipt .muted {
     opacity: 0.7;

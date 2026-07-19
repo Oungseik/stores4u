@@ -80,7 +80,8 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - The notification page must use real data or be removed from navigation.
 
 - [ ] **FEATURE-03 — Decide remaining deferred UI scope**
-  - Track thermal printing, team member management, and service-worker caching as separate features only when they are scheduled; do not present them as complete.
+  - Invoice PNG save/share and browser/OS printing are implemented; direct Web Bluetooth printer protocols and PDF export remain deferred.
+  - Track team member management and service-worker caching as separate features only when they are scheduled; do not present them as complete.
 
 - [x] **BUILD-01 — Track Worker runtime/build variables**
   - Turbo tracks Turso, Better Auth, OAuth, OCR, and public app variables.
@@ -100,7 +101,7 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 The review baseline passed:
 
 - `bun run check`
-- `bun run test` (Vitest; 24 tests)
+- `bun run test` (Vitest; 29 tests across website and database)
 - `bun run typecheck`
 - `bun run build`
 - `cd apps/website && bunx wrangler deploy --dry-run`

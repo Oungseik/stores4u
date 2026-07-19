@@ -74,6 +74,17 @@
       <InvoiceSettingsForm
         {initialConfig}
         currency={shop.currency}
+        shopDetails={{
+          shopName: shop.name,
+          description: shop.description,
+          logo: shop.logo,
+          address: shop.address,
+          city: shop.city,
+          state: shop.state,
+          zipCode: shop.zipCode,
+          phone: shop.phone,
+          email: shop.email,
+        }}
         saving={updateInvoiceMutation.isPending}
         onsave={save}
       />
