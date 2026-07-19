@@ -43,7 +43,7 @@
 
   const productsQuery = createQuery(() =>
     orpc.products.list.queryOptions({
-      input: { pageSize: 1000 },
+      input: { pageSize: 100 },
     }),
   );
 

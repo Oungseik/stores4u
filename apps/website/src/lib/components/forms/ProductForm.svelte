@@ -44,7 +44,7 @@
 
   const categoriesQuery = createQuery(() =>
     orpc.categories.list.queryOptions({
-      input: { pageSize: 1000 },
+      input: { pageSize: 100 },
     }),
   );
 
