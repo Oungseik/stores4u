@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type { CurrencyCode } from "@repo/config";
+  import type { CountryCode, CurrencyCode } from "@repo/config";
 
   export interface InvoiceItemData {
     id: string;
@@ -17,7 +17,7 @@
     address?: string | null;
     city?: string | null;
     state?: string | null;
-    zipCode?: string | null;
+    country?: CountryCode | null;
     phone?: string | null;
     email?: string | null;
     orderId: string;
@@ -35,6 +35,8 @@
     paperWidth: "58" | "80";
     showLogo: boolean;
     showAddress: boolean;
+    showState: boolean;
+    showCountry: boolean;
     showPhone: boolean;
     showEmail: boolean;
     footerText: string;
@@ -45,6 +47,8 @@
     paperWidth: "80",
     showLogo: true,
     showAddress: true,
+    showState: true,
+    showCountry: true,
     showPhone: true,
     showEmail: false,
     footerText: "Thank you for your business!",
@@ -53,6 +57,7 @@
 
 <script lang="ts">
   import { formatDate, formatOrderId, formatPrice } from "$lib/utils";
+  import { invoiceAddressLines } from "./invoice-address";
 
   let {
     data,
@@ -68,6 +73,7 @@
 
   // ponytail: disable compact notation on receipts — full amounts always.
   const money = (cents: number) => formatPrice(cents, currency, false);
+  const addressLines = $derived(invoiceAddressLines(data, config));
 </script>
 
 <div bind:this={ref} class="receipt" data-invoice-print style="width: {config.paperWidth}mm;">
@@ -78,12 +84,9 @@
   {#if data.description}
     <div class="center muted">{data.description}</div>
   {/if}
-  {#if config.showAddress && (data.address || data.city)}
-    {#if data.address}<div class="center">{data.address}</div>{/if}
-    <div class="center">
-      {data.city ?? ""}{data.state ? `, ${data.state}` : ""}{data.zipCode ? ` ${data.zipCode}` : ""}
-    </div>
-  {/if}
+  {#if addressLines[0]}<div class="center">{addressLines[0]}</div>{/if}
+  {#if addressLines[1]}<div class="center">{addressLines[1]}</div>{/if}
+  {#if addressLines[2]}<div class="center">{addressLines[2]}</div>{/if}
   {#if config.showPhone && data.phone}
     <div class="center">{data.phone}</div>
   {/if}

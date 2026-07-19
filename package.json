@@ -2,10 +2,7 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "svelte_kit_starter",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo $@ dev",
     "preview": "turbo $@ preview",
@@ -21,6 +18,7 @@
     "shadcn": "pnpm dlx shadcn-svelte@latest add -c packages/ui",
     "db:studio": "turbo db:studio",
     "db:generate": "turbo db:generate",
+    "db:migrate": "turbo db:migrate",
     "deploy": "bun scripts/deploy.ts"
   },
   "devDependencies": {

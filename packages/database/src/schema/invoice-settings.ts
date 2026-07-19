@@ -5,6 +5,8 @@ export const invoiceSettings = sqliteTable("invoice_settings", {
   paperWidth: text("paper_width").default("80").notNull(),
   showLogo: integer("show_logo", { mode: "boolean" }).default(true).notNull(),
   showAddress: integer("show_address", { mode: "boolean" }).default(true).notNull(),
+  showState: integer("show_state", { mode: "boolean" }).default(true).notNull(),
+  showCountry: integer("show_country", { mode: "boolean" }).default(true).notNull(),
   showPhone: integer("show_phone", { mode: "boolean" }).default(true).notNull(),
   showEmail: integer("show_email", { mode: "boolean" }).default(false).notNull(),
   footerText: text("footer_text").default("Thank you for your business!").notNull(),

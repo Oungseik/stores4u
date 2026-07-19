@@ -39,6 +39,8 @@ const inputs = {
     paperWidth: "80" as const,
     showLogo: true,
     showAddress: true,
+    showState: true,
+    showCountry: true,
     showPhone: true,
     showEmail: true,
     footerText: "Thanks",

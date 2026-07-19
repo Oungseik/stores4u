@@ -1,5 +1,5 @@
 import { createClient } from "@libsql/client";
-import { unlink } from "node:fs/promises";
+import { readFile, unlink } from "node:fs/promises";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { expect, test, vi } from "vitest";
 
@@ -17,6 +17,35 @@ test("createDb executes through a libSQL client", async () => {
 
   expect(result.rows[0]).toEqual({ ok: 1 });
   client.close();
+});
+
+test("invoice settings migration keeps hidden addresses hidden", async () => {
+  const url = `file:/tmp/stores4u-migration-${crypto.randomUUID()}.db`;
+  const client = createClient({ url });
+  const migrations = new URL("../drizzle/", import.meta.url);
+
+  try {
+    await client.executeMultiple(
+      await readFile(new URL("20260719063208_dark_omega_red/migration.sql", migrations), "utf8"),
+    );
+    await client.execute(
+      "INSERT INTO invoice_settings (id, show_address, created_at, updated_at) VALUES ('default', false, 0, 0)",
+    );
+    await client.executeMultiple(
+      await readFile(
+        new URL("20260719142312_friendly_baron_strucker/migration.sql", migrations),
+        "utf8",
+      ),
+    );
+
+    const result = await client.execute(
+      "SELECT show_state, show_country FROM invoice_settings WHERE id = 'default'",
+    );
+    expect(result.rows[0]).toMatchObject({ show_state: 0, show_country: 0 });
+  } finally {
+    client.close();
+    await unlink(new URL(url)).catch(() => undefined);
+  }
 });
 
 test("initial migration enforces unique session tokens and product SKUs", async () => {

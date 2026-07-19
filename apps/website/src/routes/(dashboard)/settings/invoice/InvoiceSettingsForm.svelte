@@ -24,7 +24,7 @@
     | "address"
     | "city"
     | "state"
-    | "zipCode"
+    | "country"
     | "phone"
     | "email"
   >;
@@ -109,6 +109,20 @@
             onCheckedChange={(c) => (config.showAddress = c === true)}
           />
           <span class="text-sm">{msg.ui_address()}</span>
+        </label>
+        <label class="flex cursor-pointer items-center gap-3">
+          <Checkbox
+            checked={config.showState}
+            onCheckedChange={(c) => (config.showState = c === true)}
+          />
+          <span class="text-sm">{msg.ui_state()}</span>
+        </label>
+        <label class="flex cursor-pointer items-center gap-3">
+          <Checkbox
+            checked={config.showCountry}
+            onCheckedChange={(c) => (config.showCountry = c === true)}
+          />
+          <span class="text-sm">{msg.ui_country()}</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3">
           <Checkbox

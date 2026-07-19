@@ -41,6 +41,8 @@
       paperWidth: s.paperWidth === "58" ? "58" : "80",
       showLogo: s.showLogo,
       showAddress: s.showAddress,
+      showState: s.showState,
+      showCountry: s.showCountry,
       showPhone: s.showPhone,
       showEmail: s.showEmail,
       footerText: s.footerText,
@@ -81,7 +83,7 @@
           address: shop.address,
           city: shop.city,
           state: shop.state,
-          zipCode: shop.zipCode,
+          country: shop.country,
           phone: shop.phone,
           email: shop.email,
         }}
