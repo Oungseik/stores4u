@@ -65,6 +65,7 @@ Both paths load `.env.prod`, build first, apply committed migrations, then deplo
 
 ```text
 apps/website        SvelteKit Worker application and Wrangler config
+nix                 Dendritic flake-parts modules
 packages/config     Shared enums and domain constants
 packages/database   Drizzle schema, Turso client factory, committed migrations
 packages/ui         Shared Svelte 5 UI components

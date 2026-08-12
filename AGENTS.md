@@ -72,7 +72,7 @@ Default section order:
 - Turbo runs in strict environment mode; add every Worker runtime/build variable used by an app to root `turbo.json` `globalEnv`. Purchase-invoice OCR requires `MISTRAL_API_KEY` there so root `.env` reaches `apps/website`.
 - Biome treats unused imports as lint errors repo-wide (`correctness.noUnusedImports: "error"`).
 - Vitest is the sole test framework repo-wide. Root `bun run test` runs website and database projects under Bun; do not import `bun:test` or add another runner.
-- Root `flake.nix` re-exports and installs Wrangler from the pinned `Oungseik/dentritic-nix-config` input. Use the Nix-provided CLI; do not add Wrangler directly to `package.json` or invoke it through `bunx`.
+- Nix uses the dendritic pattern: root `flake.nix` wires `flake-parts` + `import-tree`, while feature modules live under `nix/`. Wrangler is re-exported from the pinned `Oungseik/dentritic-nix-config` input; use the Nix-provided CLI, never a direct `package.json` dependency or `bunx`.
 
 ## Closeout
 
@@ -107,6 +107,7 @@ When the user requests a durable behavior change, record it here or in the relev
 
 ## Child DOX Index
 
+- `nix` — dendritic flake-parts modules for development and website outputs. See `nix/AGENTS.md`.
 - `apps/website` — the SvelteKit application (the product). See `apps/website/AGENTS.md`.
 - `packages/config` — shared config, enums, domain constants. See `packages/config/AGENTS.md`.
 - `packages/database` — single-store Drizzle schema, Turso/libSQL client factory, Drizzle Kit config. See `packages/database/AGENTS.md`.
