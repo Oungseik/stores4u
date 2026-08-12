@@ -4,6 +4,14 @@ Stores4u is a single-store retail system used by dashboard staff to manage store
 
 ## Language
 
+**Receipt**:
+Proof of payment generated for a paid customer POS order.
+_Avoid_: Invoice
+
+**Purchase Invoice**:
+A supplier document recording products and costs received by the store.
+_Avoid_: Receipt
+
 **User Language Preference**:
 A dashboard user’s choice of language for application UI. It does not translate store data or customer-facing documents.
 _Avoid_: Shop language, system language

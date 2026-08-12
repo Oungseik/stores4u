@@ -16,8 +16,8 @@ import { dashboardRevenueTrendHandler } from "./handlers/dashboard/revenue_trend
 import { dashboardStatsHandler } from "./handlers/dashboard/stats";
 import { deleteImageHandler } from "./handlers/images/delete";
 import { uploadHandler } from "./handlers/images/upload";
-import { getInvoiceSettingsHandler } from "./handlers/invoice/get_invoice_settings";
-import { updateInvoiceSettingsHandler } from "./handlers/invoice/update_invoice_settings";
+import { getReceiptSettingsHandler } from "./handlers/receipt/get_receipt_settings";
+import { updateReceiptSettingsHandler } from "./handlers/receipt/update_receipt_settings";
 import { adjustStockHandler } from "./handlers/inventory/adjust_stock";
 import { listMovementsHandler } from "./handlers/inventory/list_movements";
 import { createInviteHandler } from "./handlers/invites/create";
@@ -139,9 +139,9 @@ export const router = os.router({
   shops: {
     update: updateShopHandler,
   },
-  invoice: {
-    get: getInvoiceSettingsHandler,
-    update: updateInvoiceSettingsHandler,
+  receipt: {
+    get: getReceiptSettingsHandler,
+    update: updateReceiptSettingsHandler,
   },
   suppliers: {
     create: createSupplierHandler,

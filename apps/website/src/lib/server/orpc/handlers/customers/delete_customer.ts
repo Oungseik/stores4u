@@ -13,6 +13,6 @@ export const deleteCustomerHandler = os
   .handler(async ({ input }) => {
     // No history guard: order.customerId is ON DELETE SET NULL, so deleting a
     // customer orphans order links while the order's snapshot columns
-    // (customer_name/customer_phone) keep historical invoices intact.
+    // (customer_name/customer_phone) keep historical receipts intact.
     await db.delete(customer).where(eq(customer.id, input.id));
   });

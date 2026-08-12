@@ -1,6 +1,6 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const invoiceSettings = sqliteTable("invoice_settings", {
+export const receiptSettings = sqliteTable("receipt_settings", {
   id: text("id").primaryKey().default("default"),
   paperWidth: text("paper_width").default("80").notNull(),
   showLogo: integer("show_logo", { mode: "boolean" }).default(true).notNull(),
@@ -19,5 +19,5 @@ export const invoiceSettings = sqliteTable("invoice_settings", {
     .notNull(),
 });
 
-export type InvoiceSettingsSelect = typeof invoiceSettings.$inferSelect;
-export type InvoiceSettingsInsert = typeof invoiceSettings.$inferInsert;
+export type ReceiptSettingsSelect = typeof receiptSettings.$inferSelect;
+export type ReceiptSettingsInsert = typeof receiptSettings.$inferInsert;

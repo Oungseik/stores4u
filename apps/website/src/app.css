@@ -284,16 +284,16 @@
     margin: 0;
   }
 
-  body.printing-invoice * {
+  body.printing-receipt * {
     visibility: hidden !important;
   }
 
-  body.printing-invoice [data-invoice-print-dialog],
-  body.printing-invoice [data-invoice-print-dialog] * {
+  body.printing-receipt [data-receipt-print-dialog],
+  body.printing-receipt [data-receipt-print-dialog] * {
     visibility: visible !important;
   }
 
-  body.printing-invoice [data-invoice-print-dialog] {
+  body.printing-receipt [data-receipt-print-dialog] {
     position: absolute;
     inset: 0 auto auto 0;
     display: block;
@@ -302,25 +302,27 @@
     max-height: none;
     padding: 0;
     overflow: visible;
+    animation: none !important;
     transform: none;
+    opacity: 1;
     border: 0;
     border-radius: 0;
     background: #fff;
     box-shadow: none;
   }
 
-  body.printing-invoice [data-invoice-print-dialog] > :not(:has([data-invoice-print])) {
+  body.printing-receipt [data-receipt-print-dialog] > :not(:has([data-receipt-print])) {
     display: none !important;
   }
 
-  body.printing-invoice [data-invoice-print-dialog] > :has([data-invoice-print]) {
+  body.printing-receipt [data-receipt-print-dialog] > :has([data-receipt-print]) {
     display: block;
     padding: 0;
     overflow: visible;
     background: transparent;
   }
 
-  body.printing-invoice [data-invoice-print-dialog] :has(> [data-invoice-print]) {
+  body.printing-receipt [data-receipt-print-dialog] :has(> [data-receipt-print]) {
     box-shadow: none;
   }
 }

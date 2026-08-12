@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { db, invoiceSettings } from "$lib/server/db";
+import { db, receiptSettings } from "$lib/server/db";
 import { os, ownerMiddleware, shopMiddleware } from "$lib/server/orpc/base";
 
 const input = z.object({
@@ -13,7 +13,7 @@ const input = z.object({
   footerText: z.string().max(500),
 });
 
-export const updateInvoiceSettingsHandler = os
+export const updateReceiptSettingsHandler = os
   .input(input)
   .use(ownerMiddleware)
   .use(shopMiddleware)
@@ -21,7 +21,7 @@ export const updateInvoiceSettingsHandler = os
     const now = new Date();
 
     await db
-      .insert(invoiceSettings)
+      .insert(receiptSettings)
       .values({
         id: "default",
         paperWidth: input.paperWidth,
@@ -35,7 +35,7 @@ export const updateInvoiceSettingsHandler = os
         updatedAt: now,
       })
       .onConflictDoUpdate({
-        target: invoiceSettings.id,
+        target: receiptSettings.id,
         set: {
           paperWidth: input.paperWidth,
           showLogo: input.showLogo,

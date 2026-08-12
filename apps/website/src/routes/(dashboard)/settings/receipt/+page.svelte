@@ -7,36 +7,36 @@
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
   import {
-    DEFAULT_INVOICE_CONFIG,
-    type InvoiceConfig,
-  } from "$lib/components/invoice/Invoice.svelte";
+    DEFAULT_RECEIPT_CONFIG,
+    type ReceiptConfig,
+  } from "$lib/components/receipt/Receipt.svelte";
   import { orpc } from "$lib/orpc_client";
 
-  import InvoiceSettingsForm from "./InvoiceSettingsForm.svelte";
+  import ReceiptSettingsForm from "./ReceiptSettingsForm.svelte";
   import type { PageProps } from "./$types";
 
   const { data: shop }: PageProps = $props();
   const queryClient = useQueryClient();
 
-  const invoiceSettingsQuery = createQuery(() => orpc.invoice.get.queryOptions({ input: {} }));
+  const receiptSettingsQuery = createQuery(() => orpc.receipt.get.queryOptions({ input: {} }));
 
-  const updateInvoiceMutation = createMutation(() =>
-    orpc.invoice.update.mutationOptions({
+  const updateReceiptMutation = createMutation(() =>
+    orpc.receipt.update.mutationOptions({
       onSuccess: async () => {
-        toast.success(msg.ui_invoice_settings_updated());
-        await queryClient.invalidateQueries({ queryKey: orpc.invoice.key() });
+        toast.success(msg.ui_receipt_settings_updated());
+        await queryClient.invalidateQueries({ queryKey: orpc.receipt.key() });
       },
       onError: (error: { message?: string }) => {
-        toast.error(localizeError(error, "ui_failed_to_update_invoice_settings"));
+        toast.error(localizeError(error, "ui_failed_to_update_receipt_settings"));
       },
     }),
   );
 
   // Resolved config fed to the form as its initial seed. The form only mounts
   // inside the {:else} below, so this is already the saved row (or defaults).
-  const initialConfig = $derived.by<InvoiceConfig>(() => {
-    const s = invoiceSettingsQuery.data?.settings;
-    if (!s) return { ...DEFAULT_INVOICE_CONFIG };
+  const initialConfig = $derived.by<ReceiptConfig>(() => {
+    const s = receiptSettingsQuery.data?.settings;
+    if (!s) return { ...DEFAULT_RECEIPT_CONFIG };
     return {
       paperWidth: s.paperWidth === "58" ? "58" : "80",
       showLogo: s.showLogo,
@@ -49,8 +49,8 @@
     };
   });
 
-  async function save(config: InvoiceConfig) {
-    await updateInvoiceMutation.mutateAsync(config);
+  async function save(config: ReceiptConfig) {
+    await updateReceiptMutation.mutateAsync(config);
   }
 </script>
 
@@ -59,21 +59,21 @@
     breadcrumbs={[
       { label: msg.ui_dashboard(), href: `/` },
       { label: msg.ui_settings(), href: `/settings` },
-      { label: msg.ui_invoice() },
+      { label: msg.ui_receipt() },
     ]}
   />
 
   <div class="w-full max-w-4xl">
-    {#if invoiceSettingsQuery.isPending}
+    {#if receiptSettingsQuery.isPending}
       <div class="flex items-center justify-center py-24">
         <Loader2Icon class="text-muted-foreground size-6 animate-spin" />
       </div>
-    {:else if invoiceSettingsQuery.isError}
+    {:else if receiptSettingsQuery.isError}
       <div class="flex items-center justify-center py-24">
-        <p class="text-red-500">{msg.ui_failed_to_load_invoice_settings()}</p>
+        <p class="text-red-500">{msg.ui_failed_to_load_receipt_settings()}</p>
       </div>
     {:else}
-      <InvoiceSettingsForm
+      <ReceiptSettingsForm
         {initialConfig}
         currency={shop.currency}
         shopDetails={{
@@ -87,7 +87,7 @@
           phone: shop.phone,
           email: shop.email,
         }}
-        saving={updateInvoiceMutation.isPending}
+        saving={updateReceiptMutation.isPending}
         onsave={save}
       />
     {/if}

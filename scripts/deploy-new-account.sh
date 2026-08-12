@@ -26,7 +26,7 @@ EOF
   exit 0
 fi
 
-for command in bun turso openssl curl; do
+for command in bun turso openssl curl wrangler; do
   command -v "$command" >/dev/null || { echo "Missing command: $command" >&2; exit 1; }
 done
 
@@ -48,12 +48,12 @@ if [[ ${1:-} != "--keep-login" ]]; then
   turso auth login
 
   echo "[2/7] Authenticate the target user's Cloudflare account"
-  (cd apps/website && bunx wrangler logout >/dev/null 2>&1 || true; bunx wrangler login)
+  (cd apps/website && wrangler logout >/dev/null 2>&1 || true; wrangler login)
 else
   echo "[1/7] Reuse the current Turso login"
   turso auth whoami
   echo "[2/7] Reuse the current Cloudflare login"
-  (cd apps/website && bunx wrangler whoami)
+  (cd apps/website && wrangler whoami)
 fi
 
 set_env() {
@@ -75,14 +75,14 @@ set_env TURSO_DATABASE_URL "$(turso db show "$DATABASE_NAME" --url)"
 set_env TURSO_AUTH_TOKEN "$(turso db tokens create "$DATABASE_NAME")"
 
 echo "[4/7] Create the Cloudflare R2 bucket"
-if (cd apps/website && bunx wrangler r2 bucket list) | grep -q "^name:[[:space:]]*$R2_BUCKET$"; then
+if (cd apps/website && wrangler r2 bucket list) | grep -q "^name:[[:space:]]*$R2_BUCKET$"; then
   read -r -p "R2 bucket '$R2_BUCKET' exists. Reuse it? [y/N] " reuse_bucket
   [[ $reuse_bucket =~ ^[Yy]$ ]] || exit 1
 else
-  (cd apps/website && bunx wrangler r2 bucket create "$R2_BUCKET")
+  (cd apps/website && wrangler r2 bucket create "$R2_BUCKET")
 fi
 
-if (cd apps/website && bunx wrangler deployments status) >/dev/null 2>&1; then
+if (cd apps/website && wrangler deployments status) >/dev/null 2>&1; then
   read -r -p "Worker 'stores4u' exists. Replace its deployment? [y/N] " reuse_worker
   [[ $reuse_worker =~ ^[Yy]$ ]] || exit 1
 fi
@@ -104,8 +104,8 @@ trap 'rm -f "$smoke_file"' EXIT
 curl --retry 5 --retry-all-errors --retry-delay 2 --fail --silent "$worker_url/health" >/dev/null
 curl --retry 5 --retry-all-errors --retry-delay 2 --fail --silent "$worker_url/setup" >/dev/null
 printf 'stores4u-r2-ok' >"$smoke_file"
-(cd apps/website && bunx wrangler r2 object put "$R2_BUCKET/deploy-smoke.txt" --file "$smoke_file" --content-type text/plain --remote >/dev/null)
+(cd apps/website && wrangler r2 object put "$R2_BUCKET/deploy-smoke.txt" --file "$smoke_file" --content-type text/plain --remote >/dev/null)
 [[ $(curl --retry 5 --retry-all-errors --retry-delay 2 --fail --silent "$worker_url/storage/deploy-smoke.txt") == "stores4u-r2-ok" ]]
-(cd apps/website && bunx wrangler r2 object delete "$R2_BUCKET/deploy-smoke.txt" --remote >/dev/null)
+(cd apps/website && wrangler r2 object delete "$R2_BUCKET/deploy-smoke.txt" --remote >/dev/null)
 
 echo "Deployment complete: $worker_url"

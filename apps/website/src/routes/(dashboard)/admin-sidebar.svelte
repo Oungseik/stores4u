@@ -261,15 +261,15 @@
                       <Sidebar.MenuSubItem>
                         <Sidebar.MenuSubButton
                           class="w-full"
-                          isActive={currentPath.startsWith(localizePath("/settings/invoice"))}
+                          isActive={currentPath.startsWith(localizePath("/settings/receipt"))}
                         >
                           {#snippet child({ props })}
                             <a
-                              href={localizePath("/settings/invoice")}
+                              href={localizePath("/settings/receipt")}
                               {...props}
                               onclick={() => sidebar.isMobile && sidebar.setOpenMobile(false)}
                             >
-                              <span>{msg.ui_invoice()}</span>
+                              <span>{msg.ui_receipt()}</span>
                             </a>
                           {/snippet}
                         </Sidebar.MenuSubButton>

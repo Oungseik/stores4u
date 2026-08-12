@@ -77,7 +77,7 @@
         queryClient.invalidateQueries({ queryKey: orpc.dashboard.key() });
         queryClient.invalidateQueries({ queryKey: orpc.inventory.key() });
         queryClient.invalidateQueries({ queryKey: orpc.customers.key() });
-        goto(localizePath(`/orders/${result.orderId}`));
+        goto(localizePath(`/orders/${result.orderId}?print=receipt`));
       },
       onError: (error) => {
         toast.error(localizeError(error, "ui_checkout_failed"));

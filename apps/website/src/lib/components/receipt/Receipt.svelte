@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import type { CountryCode, CurrencyCode } from "@repo/config";
 
-  export interface InvoiceItemData {
+  export interface ReceiptItemData {
     id: string;
     name: string;
     qty: number;
@@ -10,7 +10,7 @@
   }
 
   /** Shop + order fields the renderer needs. Constructed by each consumer. */
-  export interface InvoiceData {
+  export interface ReceiptData {
     shopName: string;
     description?: string | null;
     logo?: string | null;
@@ -24,14 +24,14 @@
     createdAt: Date | string;
     customerName?: string | null;
     customerPhone?: string | null;
-    items: InvoiceItemData[];
+    items: ReceiptItemData[];
     subtotalCents: number;
     discountCents: number;
     vatCents: number;
     totalCents: number;
   }
 
-  export interface InvoiceConfig {
+  export interface ReceiptConfig {
     paperWidth: "58" | "80";
     showLogo: boolean;
     showAddress: boolean;
@@ -43,7 +43,7 @@
   }
 
   // Single source for defaults: settings form initial values + order-dialog fallback.
-  export const DEFAULT_INVOICE_CONFIG: InvoiceConfig = {
+  export const DEFAULT_RECEIPT_CONFIG: ReceiptConfig = {
     paperWidth: "80",
     showLogo: true,
     showAddress: true,
@@ -57,7 +57,7 @@
 
 <script lang="ts">
   import { formatDate, formatOrderId, formatPrice } from "$lib/utils";
-  import { invoiceAddressLines } from "./invoice-address";
+  import { receiptAddressLines } from "./receipt-address";
 
   let {
     data,
@@ -65,18 +65,18 @@
     currency,
     ref = $bindable(null),
   }: {
-    data: InvoiceData;
-    config: InvoiceConfig;
+    data: ReceiptData;
+    config: ReceiptConfig;
     currency: CurrencyCode;
     ref?: HTMLDivElement | null;
   } = $props();
 
   // ponytail: disable compact notation on receipts — full amounts always.
   const money = (cents: number) => formatPrice(cents, currency, false);
-  const addressLines = $derived(invoiceAddressLines(data, config));
+  const addressLines = $derived(receiptAddressLines(data, config));
 </script>
 
-<div bind:this={ref} class="receipt" data-invoice-print style="width: {config.paperWidth}mm;">
+<div bind:this={ref} class="receipt" data-receipt-print style="width: {config.paperWidth}mm;">
   {#if config.showLogo && data.logo}
     <img class="logo" src={data.logo} alt="" />
   {/if}

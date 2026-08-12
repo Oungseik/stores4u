@@ -3,7 +3,7 @@ import { account, invite, session, shop, twoFactor, user } from "./auth";
 import { customer } from "./customer";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
-import { invoiceSettings } from "./invoice-settings";
+import { receiptSettings } from "./receipt-settings";
 import { category, product, productAlias, productCategory, productImage } from "./product";
 import {
   purchaseInvoice,
@@ -41,7 +41,7 @@ export const schema = {
   inventoryMovement,
   order,
   orderItem,
-  invoiceSettings,
+  receiptSettings,
   taxSettings,
 };
 

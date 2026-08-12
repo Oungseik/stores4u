@@ -352,7 +352,7 @@
             <div>
               <h3 class="text-base font-semibold">{msg.ui_orders()}</h3>
               <p class="text-muted-foreground text-sm leading-relaxed">
-                {msg.ui_review_completed_sales_check_order_details_and_reprint_()}
+                {msg.ui_review_completed_sales_check_order_details_and_reprint_receipts()}
               </p>
             </div>
           </div>

@@ -11,17 +11,17 @@ Single-store point-of-sale, inventory, purchasing, and dashboard app built with 
 
 ## Local development
 
+Run the one-time interactive setup, then start Vite:
+
 ```bash
-bun install
-cp .env.example .env
-# Use a dedicated development Turso database and development-only auth secret.
-# Keep BETTER_AUTH_URL=http://localhost:5173.
+nix develop
+bun run setup
 bun run dev
 ```
 
-Local Vite development uses the remote `stores4u-dev` R2 bucket through Wrangler's `dev` environment. Production continues to use the top-level `stores4u` binding and `.env.prod`; do not reuse production database or auth credentials in `.env`.
+The Nix shell supplies Wrangler from `Oungseik/dentritic-nix-config`. Setup installs JavaScript dependencies, authenticates Turso and Cloudflare when needed, creates or reuses the isolated `stores4u-dev` Turso database and R2 bucket, writes generated development credentials to ignored root `.env`, and applies committed migrations. `bun run dev` only starts the app; it does not provision resources or run migrations. Production continues to use the top-level `stores4u` binding and `.env.prod`.
 
-Normal development does not run migrations. After schema changes, generate and commit them:
+After schema changes, generate and commit migrations:
 
 ```bash
 bun run db:generate
@@ -50,6 +50,7 @@ Both paths load `.env.prod`, build first, apply committed migrations, then deplo
 
 ## Commands
 
+- `bun run setup` — provision and configure a development machine
 - `bun run dev` — local Vite development
 - `bun run build` — build the workspaces and Cloudflare Worker output
 - `bun run deploy` — build, migrate Turso, deploy the configured Worker
@@ -67,5 +68,5 @@ apps/website        SvelteKit Worker application and Wrangler config
 packages/config     Shared enums and domain constants
 packages/database   Drizzle schema, Turso client factory, committed migrations
 packages/ui         Shared Svelte 5 UI components
-scripts             Production and fresh-account deployment automation
+scripts             Development setup and production deployment automation
 ```

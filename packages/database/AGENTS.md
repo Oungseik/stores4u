@@ -15,6 +15,7 @@ Owns `src/schema/**`, `createDb(client)`, `drizzle.config.ts`, committed `drizzl
 - Transaction callbacks and their queries are async. Await the transaction and every query inside it; Bun SQLite's synchronous `.run()`, `.get()`, `.all()`, and relational `.sync()` APIs are not valid.
 - `relations.ts` exports the bundled `schema` object required by Better Auth's Drizzle adapter.
 - The schema merges Better Auth tables with the store domain and app-owned invite table. `shop` is one global row with no owner FK.
+- `receipt_settings` is the singleton display configuration for paid customer POS receipts; supplier documents remain purchase invoices.
 - Depends on `@repo/config` for shared country/currency enums.
 
 ## Work Guidance

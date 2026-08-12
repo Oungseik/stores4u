@@ -9,8 +9,8 @@
     "build": "bunx --bun vite build",
     "preview": "bunx --bun vite preview --host",
     "prepare": "svelte-kit sync || echo ''",
-    "cf-types": "wrangler types --include-runtime=false",
-    "cf-types:check": "wrangler types --include-runtime=false --check",
+    "cf-types": "nix develop ../.. -c wrangler types --include-runtime=false",
+    "cf-types:check": "nix develop ../.. -c wrangler types --include-runtime=false --check",
     "typecheck": "bun run cf-types:check && svelte-kit sync && svelte-check --tsgo-experimental-api --tsconfig ./tsconfig.json",
     "lint": "biome lint --write . && eslint \"src/**/*.svelte\" --fix --cache",
     "format": "prettier --write . && biome format --write .",
@@ -52,8 +52,7 @@
     "typescript-eslint": "^8.64.0",
     "vite": "^8.1.5",
     "vite-plugin-devtools-json": "^1.0.0",
-    "vitest": "^4.1.10",
-    "wrangler": "^4.38.0"
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@inlang/paraglide-js": "^2.22.0",

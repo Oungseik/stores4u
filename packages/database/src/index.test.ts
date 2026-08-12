@@ -19,9 +19,8 @@ test("createDb executes through a libSQL client", async () => {
   client.close();
 });
 
-test("invoice settings migration keeps hidden addresses hidden", async () => {
-  const url = `file:/tmp/stores4u-migration-${crypto.randomUUID()}.db`;
-  const client = createClient({ url });
+test("receipt settings rename preserves existing configuration", async () => {
+  const client = createClient({ url: "file::memory:" });
   const migrations = new URL("../drizzle/", import.meta.url);
 
   try {
@@ -37,14 +36,16 @@ test("invoice settings migration keeps hidden addresses hidden", async () => {
         "utf8",
       ),
     );
+    await client.executeMultiple(
+      await readFile(new URL("20260720024707_open_clea/migration.sql", migrations), "utf8"),
+    );
 
     const result = await client.execute(
-      "SELECT show_state, show_country FROM invoice_settings WHERE id = 'default'",
+      "SELECT show_state, show_country FROM receipt_settings WHERE id = 'default'",
     );
     expect(result.rows[0]).toMatchObject({ show_state: 0, show_country: 0 });
   } finally {
     client.close();
-    await unlink(new URL(url)).catch(() => undefined);
   }
 });
 

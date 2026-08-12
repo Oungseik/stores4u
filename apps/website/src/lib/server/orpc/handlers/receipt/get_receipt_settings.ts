@@ -4,12 +4,12 @@ import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/ba
 
 const input = z.object({});
 
-export const getInvoiceSettingsHandler = os
+export const getReceiptSettingsHandler = os
   .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)
   .handler(async () => {
-    const settings = await db.query.invoiceSettings.findFirst();
+    const settings = await db.query.receiptSettings.findFirst();
     return { settings };
   });

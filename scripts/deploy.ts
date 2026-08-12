@@ -54,4 +54,4 @@ if (process.argv.includes("--check")) process.exit(0);
 
 await run(["bun", `--env-file=${envFile}`, "run", "build"]);
 await run(["bun", `--env-file=${envFile}`, "turbo", "db:migrate"]);
-await run(["bunx", "wrangler", "deploy", "--secrets-file", envFile], `${root}/apps/website`);
+await run(["wrangler", "deploy", "--secrets-file", envFile], `${root}/apps/website`);

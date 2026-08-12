@@ -23,19 +23,19 @@ vi.mock("$lib/server/db", () => ({
     insert: dbMocks.insert,
     update: dbMocks.update,
   },
-  invoiceSettings: {},
+  receiptSettings: {},
   shop: {},
   shopInfo: {},
   taxSettings: {},
 }));
 vi.mock("$lib/server/storage", () => ({ extractObjectKey: vi.fn(), removeImage: vi.fn() }));
 
-import { updateInvoiceSettingsHandler } from "./handlers/invoice/update_invoice_settings";
+import { updateReceiptSettingsHandler } from "./handlers/receipt/update_receipt_settings";
 import { updateShopHandler } from "./handlers/shops/update_shop";
 import { updateTaxSettingsHandler } from "./handlers/tax/update_tax_settings";
 
 const inputs = {
-  invoice: {
+  receipt: {
     paperWidth: "80" as const,
     showLogo: true,
     showAddress: true,
@@ -89,7 +89,7 @@ for (const role of ["admin", "member"] as const) {
     const context = contextFor(role);
     const calls = [
       () => call(updateShopHandler, inputs.shop, { context }),
-      () => call(updateInvoiceSettingsHandler, inputs.invoice, { context }),
+      () => call(updateReceiptSettingsHandler, inputs.receipt, { context }),
       () => call(updateTaxSettingsHandler, inputs.tax, { context }),
     ];
 

@@ -11,13 +11,13 @@
   import { Textarea } from "@repo/ui/textarea";
   import { untrack } from "svelte";
 
-  import Invoice, {
-    type InvoiceConfig,
-    type InvoiceData,
-  } from "$lib/components/invoice/Invoice.svelte";
+  import Receipt, {
+    type ReceiptConfig,
+    type ReceiptData,
+  } from "$lib/components/receipt/Receipt.svelte";
 
-  type InvoiceShopDetails = Pick<
-    InvoiceData,
+  type ReceiptShopDetails = Pick<
+    ReceiptData,
     | "shopName"
     | "description"
     | "logo"
@@ -36,21 +36,21 @@
     saving = false,
     onsave,
   }: {
-    initialConfig: InvoiceConfig;
+    initialConfig: ReceiptConfig;
     currency: CurrencyCode;
-    shopDetails: InvoiceShopDetails;
+    shopDetails: ReceiptShopDetails;
     saving?: boolean;
-    onsave: (config: InvoiceConfig) => void | Promise<void>;
+    onsave: (config: ReceiptConfig) => void | Promise<void>;
   } = $props();
 
   // Draft state seeded once at mount. Parent only mounts this after settings
   // have loaded, so initialConfig already reflects the saved row (or defaults).
   // untrack: we deliberately capture only the initial value; user edits drive
   // config thereafter, and a refetch must not clobber them.
-  let config = $state<InvoiceConfig>(untrack(() => ({ ...initialConfig })));
+  let config = $state<ReceiptConfig>(untrack(() => ({ ...initialConfig })));
 
   // Real shop header + representative order data.
-  const previewData = $derived<InvoiceData>({
+  const previewData = $derived<ReceiptData>({
     ...shopDetails,
     orderId: "0192f8a1b3c4d5e6",
     createdAt: new Date(),
@@ -72,8 +72,8 @@
   <!-- Config controls -->
   <Card.Root class="w-full max-w-96 shrink-0">
     <Card.Header>
-      <Card.Title class="text-base">{msg.ui_invoice_layout()}</Card.Title>
-      <Card.Description>{msg.ui_controls_what_appears_on_generated_invoices()}</Card.Description>
+      <Card.Title class="text-base">{msg.ui_receipt_layout()}</Card.Title>
+      <Card.Description>{msg.ui_controls_what_appears_on_generated_receipts()}</Card.Description>
     </Card.Header>
     <Card.Content class="space-y-5">
       <div class="space-y-2">
@@ -163,10 +163,10 @@
     </Card.Content>
   </Card.Root>
 
-  <!-- Live preview: same renderer and shop header as order invoices. -->
+  <!-- Live preview: same renderer and shop header as order receipts. -->
   <div class="bg-muted/40 flex flex-1 justify-center overflow-x-auto rounded-lg py-4">
     <div class="bg-background shadow-md">
-      <Invoice {config} data={previewData} {currency} />
+      <Receipt {config} data={previewData} {currency} />
     </div>
   </div>
 </div>

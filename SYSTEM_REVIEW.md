@@ -5,9 +5,9 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 ## Critical — release blockers
 
 - [x] **SEC-01 — Enforce owner-only settings at the API boundary**
-  - Replace dashboard-role authorization with `ownerMiddleware` for store, tax, and invoice-setting mutations.
+  - Replace dashboard-role authorization with `ownerMiddleware` for store, tax, and receipt-setting mutations.
   - Cover direct admin/member RPC calls with authorization tests.
-  - Files: `apps/website/src/lib/server/orpc/handlers/{shops/update_shop,invoice/update_invoice_settings,tax/update_tax_settings}.ts`.
+  - Files: `apps/website/src/lib/server/orpc/handlers/{shops/update_shop,receipt/update_receipt_settings,tax/update_tax_settings}.ts`.
   - Acceptance: all three mutations run `ownerMiddleware` before resolving the shop; direct calls from both `admin` and `member` reject with `FORBIDDEN` in `owner-mutations.test.ts`.
 
 - [x] **SEC-02 — Prevent same-origin stored XSS from uploads**
@@ -80,7 +80,7 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - The notification page must use real data or be removed from navigation.
 
 - [ ] **FEATURE-03 — Decide remaining deferred UI scope**
-  - Invoice PNG save/share and browser/OS printing are implemented; direct Web Bluetooth printer protocols and PDF export remain deferred.
+  - Receipt PNG save/share and browser/OS printing are implemented. Successful checkout opens the order receipt and invokes the print dialog once; direct Web Bluetooth printer protocols, silent printing, automatic Gallery saving, and PDF export remain deferred.
   - Track team member management and service-worker caching as separate features only when they are scheduled; do not present them as complete.
 
 - [x] **BUILD-01 — Track Worker runtime/build variables**
@@ -104,7 +104,7 @@ The review baseline passed:
 - `bun run test` (Vitest; 29 tests across website and database)
 - `bun run typecheck`
 - `bun run build`
-- `cd apps/website && bunx wrangler deploy --dry-run`
+- `cd apps/website && wrangler deploy --dry-run`
 - deploy-time migration against a disposable libSQL database
 - authenticated deployment to `https://stores4u.mhemaungthuwin.workers.dev`
 - live `/health`, `/setup`, Better Auth session, Turso migration replay, and R2 upload/read/delete smoke tests

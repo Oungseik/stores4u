@@ -2,6 +2,10 @@
   description = "Stores For You Nix entrypoints";
 
   inputs = {
+    dendritic-config = {
+      url = "github:Oungseik/dentritic-nix-config";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     utils.url = "github:numtide/flake-utils";
   };
@@ -9,6 +13,7 @@
   outputs =
     {
       self,
+      dendritic-config,
       nixpkgs,
       utils,
     }:
@@ -17,6 +22,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         lib = pkgs.lib;
+        wrangler = dendritic-config.packages.${system}.wrangler;
 
         websiteLibs = with pkgs; [
           cairo
@@ -86,8 +92,8 @@
 
         devShell = pkgs.mkShell {
           packages =
-            with pkgs;
-            [
+            [ wrangler ]
+            ++ (with pkgs; [
               biome
               bun
               gnumake
@@ -97,7 +103,7 @@
               pnpm
               python3
               turso-cli
-            ]
+            ])
             ++ websiteLibs;
 
           LD_LIBRARY_PATH = ldLibraryPath;
@@ -108,6 +114,7 @@
         apps.default = websiteApp;
 
         packages.website = website;
+        packages.wrangler = wrangler;
         packages.default = website;
 
         devShells.default = devShell;

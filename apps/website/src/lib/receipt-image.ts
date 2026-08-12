@@ -1,10 +1,10 @@
 import { toBlob } from "html-to-image";
 
-export async function saveOrShareInvoiceImage(node: HTMLElement, filename: string) {
+export async function saveOrShareReceiptImage(node: HTMLElement, filename: string) {
   await document.fonts?.ready;
   // ponytail: one 3× canvas; paginate only if very large orders hit browser canvas limits.
   const blob = await toBlob(node, { backgroundColor: "#fff", pixelRatio: 3 });
-  if (!blob) throw new Error("Invoice image generation failed");
+  if (!blob) throw new Error("Receipt image generation failed");
 
   const file = new File([blob], filename, { type: "image/png" });
   if (navigator.canShare?.({ files: [file] })) {

@@ -4,6 +4,7 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
+    "setup": "./scripts/setup-dev.sh",
     "dev": "turbo $@ dev",
     "preview": "turbo $@ preview",
     "build": "turbo $@ build",

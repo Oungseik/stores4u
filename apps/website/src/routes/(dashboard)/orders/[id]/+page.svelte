@@ -10,15 +10,18 @@
   import * as Dialog from "@repo/ui/dialog";
   import { Spinner } from "@repo/ui/spinner";
   import { createQuery } from "@tanstack/svelte-query";
+  import { replaceState } from "$app/navigation";
+  import { page } from "$app/state";
   import { toast } from "svelte-sonner";
 
   import AdminDashboardHeader from "$lib/components/headers/AdminDashboardHeader.svelte";
-  import Invoice, {
-    DEFAULT_INVOICE_CONFIG,
-    type InvoiceConfig,
-    type InvoiceData,
-  } from "$lib/components/invoice/Invoice.svelte";
+  import Receipt, {
+    DEFAULT_RECEIPT_CONFIG,
+    type ReceiptConfig,
+    type ReceiptData,
+  } from "$lib/components/receipt/Receipt.svelte";
   import { orpc } from "$lib/orpc_client";
+  import { printReceipt } from "$lib/receipt-print";
   import { formatDate, formatOrderId, formatPrice } from "$lib/utils";
 
   import type { PageProps } from "./$types";
@@ -30,26 +33,26 @@
       input: { orderId: params.id },
     }),
   );
-  const invoiceSettingsQuery = createQuery(() => orpc.invoice.get.queryOptions({ input: {} }));
+  const receiptSettingsQuery = createQuery(() => orpc.receipt.get.queryOptions({ input: {} }));
 
   const order = $derived(orderQuery.data);
 
-  const invoiceConfig = $derived<InvoiceConfig>(
-    invoiceSettingsQuery.data?.settings
+  const receiptConfig = $derived<ReceiptConfig>(
+    receiptSettingsQuery.data?.settings
       ? {
-          paperWidth: invoiceSettingsQuery.data.settings.paperWidth === "58" ? "58" : "80",
-          showLogo: invoiceSettingsQuery.data.settings.showLogo,
-          showAddress: invoiceSettingsQuery.data.settings.showAddress,
-          showState: invoiceSettingsQuery.data.settings.showState,
-          showCountry: invoiceSettingsQuery.data.settings.showCountry,
-          showPhone: invoiceSettingsQuery.data.settings.showPhone,
-          showEmail: invoiceSettingsQuery.data.settings.showEmail,
-          footerText: invoiceSettingsQuery.data.settings.footerText,
+          paperWidth: receiptSettingsQuery.data.settings.paperWidth === "58" ? "58" : "80",
+          showLogo: receiptSettingsQuery.data.settings.showLogo,
+          showAddress: receiptSettingsQuery.data.settings.showAddress,
+          showState: receiptSettingsQuery.data.settings.showState,
+          showCountry: receiptSettingsQuery.data.settings.showCountry,
+          showPhone: receiptSettingsQuery.data.settings.showPhone,
+          showEmail: receiptSettingsQuery.data.settings.showEmail,
+          footerText: receiptSettingsQuery.data.settings.footerText,
         }
-      : { ...DEFAULT_INVOICE_CONFIG },
+      : { ...DEFAULT_RECEIPT_CONFIG },
   );
 
-  const invoiceData = $derived<InvoiceData | null>(
+  const receiptData = $derived<ReceiptData | null>(
     order
       ? {
           shopName: shop.name,
@@ -80,32 +83,42 @@
       : null,
   );
 
-  let invoiceOpen = $state(false);
-  let invoiceElement = $state<HTMLDivElement | null>(null);
+  const autoPrintRequested = page.url.searchParams.get("print") === "receipt";
+  let receiptOpen = $state(autoPrintRequested);
+  let receiptElement = $state<HTMLDivElement | null>(null);
   let imageExporting = $state(false);
+  let autoPrintPending = $state(autoPrintRequested);
 
-  async function saveInvoiceImage() {
-    if (!invoiceElement || !order) return;
+  $effect(() => {
+    if (!autoPrintRequested || page.url.searchParams.get("print") !== "receipt") return;
+
+    const url = new URL(page.url);
+    url.searchParams.delete("print");
+    // Same localized URL, not navigation; only consume the one-shot print flag.
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
+    replaceState(url, page.state);
+  });
+
+  $effect(() => {
+    if (!autoPrintPending || !receiptElement || receiptSettingsQuery.isPending) return;
+
+    autoPrintPending = false;
+    void printReceipt(receiptElement);
+  });
+
+  async function saveReceiptImage() {
+    if (!receiptElement || !order) return;
 
     imageExporting = true;
     try {
-      const { saveOrShareInvoiceImage } = await import("$lib/invoice-image");
-      await saveOrShareInvoiceImage(invoiceElement, `invoice-${formatOrderId(order.id)}.png`);
+      const { saveOrShareReceiptImage } = await import("$lib/receipt-image");
+      await saveOrShareReceiptImage(receiptElement, `receipt-${formatOrderId(order.id)}.png`);
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
-        toast.error(msg.ui_failed_to_export_invoice_image());
+        toast.error(msg.ui_failed_to_export_receipt_image());
       }
     } finally {
       imageExporting = false;
-    }
-  }
-
-  function printInvoice() {
-    document.body.classList.add("printing-invoice");
-    try {
-      window.print();
-    } finally {
-      document.body.classList.remove("printing-invoice");
     }
   }
 </script>
@@ -140,9 +153,9 @@
             Placed on {formatDate(order.createdAt, true)}
           </p>
         </div>
-        <Button variant="outline" class="shrink-0" onclick={() => (invoiceOpen = true)}>
+        <Button variant="outline" class="shrink-0" onclick={() => (receiptOpen = true)}>
           <ReceiptIcon data-icon="inline-start" />
-          {msg.ui_invoice()}
+          {msg.ui_receipt()}
         </Button>
       </div>
 
@@ -252,19 +265,19 @@
   </div>
 </div>
 
-<Dialog.Root bind:open={invoiceOpen}>
-  <Dialog.Content data-invoice-print-dialog class="max-h-[90vh] overflow-y-auto">
+<Dialog.Root bind:open={receiptOpen}>
+  <Dialog.Content data-receipt-print-dialog class="max-h-[90vh] overflow-y-auto">
     <Dialog.Header>
-      <Dialog.Title>Invoice #{formatOrderId(order?.id ?? "")}</Dialog.Title>
-      <Dialog.Description>{msg.ui_invoice_export_description()}</Dialog.Description>
+      <Dialog.Title>{msg.ui_receipt()} #{formatOrderId(order?.id ?? "")}</Dialog.Title>
+      <Dialog.Description>{msg.ui_receipt_export_description()}</Dialog.Description>
     </Dialog.Header>
-    {#if invoiceData}
+    {#if receiptData}
       <div class="bg-muted/40 flex justify-center overflow-x-auto rounded-lg py-4">
         <div class="shadow-md">
-          <Invoice
-            bind:ref={invoiceElement}
-            data={invoiceData}
-            config={invoiceConfig}
+          <Receipt
+            bind:ref={receiptElement}
+            data={receiptData}
+            config={receiptConfig}
             currency={shop.currency}
           />
         </div>
@@ -273,23 +286,23 @@
         <Button
           variant="outline"
           class="w-full sm:w-auto"
-          disabled={!invoiceElement || imageExporting}
-          onclick={printInvoice}
+          disabled={!receiptElement || imageExporting}
+          onclick={() => receiptElement && printReceipt(receiptElement)}
         >
           <PrinterIcon data-icon="inline-start" />
           {msg.ui_print()}
         </Button>
         <Button
           class="w-full sm:w-auto"
-          disabled={!invoiceElement || imageExporting}
-          onclick={saveInvoiceImage}
+          disabled={!receiptElement || imageExporting}
+          onclick={saveReceiptImage}
         >
           {#if imageExporting}
             <Spinner data-icon="inline-start" />
             {msg.ui_preparing_image()}
           {:else}
             <ImageDownIcon data-icon="inline-start" />
-            {msg.ui_save_or_share_image()}
+            {msg.ui_save_or_share_receipt_image()}
           {/if}
         </Button>
       </Dialog.Footer>

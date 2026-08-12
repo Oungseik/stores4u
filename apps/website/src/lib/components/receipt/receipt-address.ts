@@ -14,7 +14,7 @@ type AddressConfig = {
   showCountry: boolean;
 };
 
-export function invoiceAddressLines(data: AddressData, config: AddressConfig): string[] {
+export function receiptAddressLines(data: AddressData, config: AddressConfig): string[] {
   const lines: string[] = [];
 
   if (config.showAddress && data.address) lines.push(data.address);
