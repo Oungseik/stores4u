@@ -7,8 +7,8 @@ Own the repository's dendritic Nix flake modules.
 ## Ownership
 
 - Root `flake.nix` is the entry point; `import-tree` automatically loads feature-oriented modules from this directory.
-- `development.nix` owns supported systems, the development shell, and the re-exported Wrangler package.
-- `website.nix` owns the website package and app outputs.
+- `development.nix` owns supported systems and the development shell.
+- `website.nix` owns the website package and app outputs (builds and runs the adapter-bun server via Bun).
 - `_website-libs.nix` owns native libraries shared by development and website execution.
 
 ## Local Contracts
@@ -16,8 +16,8 @@ Own the repository's dendritic Nix flake modules.
 - Keep each public `*.nix` file independently valid as a top-level flake-parts module.
 - Add or remove public modules without maintaining a manual import list.
 - Prefix private helpers with `_` so `import-tree` ignores them.
-- Preserve `packages.wrangler`, `packages.website`, `apps.website`, their defaults, and `devShells.default`.
-- Re-export Wrangler from `dendritic-config`; do not maintain its derivation here.
+- Preserve `packages.website`, `apps.website`, their defaults, and `devShells.default`.
+- No external flake inputs beyond `nixpkgs`, `flake-parts`, and `import-tree`.
 
 ## Work Guidance
 
@@ -26,7 +26,7 @@ Own the repository's dendritic Nix flake modules.
 ## Verification
 
 - `nix flake check`
-- `nix develop -c wrangler --version`
+- `nix develop -c bun --version`
 
 ## Child DOX Index
 
