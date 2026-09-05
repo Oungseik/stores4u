@@ -12,9 +12,9 @@ if [[ ${1:-} == "--help" ]]; then
   cat <<'EOF'
 Usage: ./scripts/setup-dev.sh
 
-Prepares a development machine: installs dependencies, authenticates Turso and
-Cloudflare when needed, creates/reuses isolated development resources, writes
-.env, and applies committed database migrations.
+Prepares a development machine: installs dependencies, authenticates Turso
+when needed, creates/reuses isolated development resources, writes .env,
+prepares local upload storage, and applies committed database migrations.
 
 Optional environment variables:
   TURSO_GROUP_NAME       default: stores4u-dev
@@ -24,7 +24,7 @@ EOF
   exit 0
 fi
 
-for command in bun turso openssl wrangler; do
+for command in bun turso openssl; do
   command -v "$command" >/dev/null || { echo "Missing command: $command" >&2; exit 1; }
 done
 
@@ -43,9 +43,8 @@ set_env() {
 echo "[1/5] Install dependencies"
 bun install
 
-echo "[2/5] Authenticate development accounts"
+echo "[2/5] Authenticate the development Turso account"
 turso auth whoami >/dev/null 2>&1 || turso auth login
-(cd apps/website && wrangler whoami >/dev/null 2>&1) || (cd apps/website && wrangler login)
 
 echo "[3/5] Create or reuse the development Turso database"
 if ! turso group show "$GROUP_NAME" >/dev/null 2>&1; then
@@ -63,9 +62,8 @@ set_env BETTER_AUTH_URL "http://localhost:5173"
 set_env PUBLIC_SITE_NAME "stores4u"
 set_env PUBLIC_ENVIRONMENT "development"
 
-echo "[4/5] Create or reuse the development R2 bucket"
-R2_BUCKET=$(bun -e 'const config = await Bun.file("apps/website/wrangler.jsonc").json(); process.stdout.write(config.env.dev.r2_buckets.find((bucket) => bucket.binding === "STORAGE").bucket_name)')
-(cd apps/website && wrangler r2 bucket info "$R2_BUCKET" >/dev/null 2>&1) || (cd apps/website && wrangler r2 bucket create "$R2_BUCKET")
+echo "[4/5] Prepare local file storage"
+mkdir -p apps/website/.storage
 
 echo "[5/5] Apply committed database migrations"
 bun run db:migrate

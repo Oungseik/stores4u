@@ -54,4 +54,7 @@ if (process.argv.includes("--check")) process.exit(0);
 
 await run(["bun", `--env-file=${envFile}`, "run", "build"]);
 await run(["bun", `--env-file=${envFile}`, "turbo", "db:migrate"]);
-await run(["wrangler", "deploy", "--secrets-file", envFile], `${root}/apps/website`);
+console.log("\nBuild and migrations complete.");
+console.log(
+  "Next: sync apps/website/build plus .env.prod to the Lightsail VM and restart the service (set STORAGE_DIR there for uploaded-file storage).",
+);
