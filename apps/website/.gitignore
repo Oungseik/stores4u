@@ -157,3 +157,6 @@ dist
 
 drizzle
 uploads
+
+# Local file storage (dev default)
+.storage/
