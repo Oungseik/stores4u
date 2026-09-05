@@ -24,7 +24,7 @@ export async function sendAuthEmail(input: AuthEmailInput): Promise<boolean> {
   });
 }
 
-/** Cloudflare Workers do not provide SMTP; auth links remain copyable in the UI. */
+/** Email delivery is not configured on the server yet; auth links remain copyable in the UI. */
 export async function sendEmail(input: SendEmailInput): Promise<boolean> {
   logger.warn(
     { to: input.to, subject: input.subject },
