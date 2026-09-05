@@ -1,6 +1,6 @@
 # Stores4U Website
 
-The SvelteKit product app deployed to Cloudflare Workers. It uses Turso/libSQL for data and the `STORAGE` Cloudflare R2 binding for uploads.
+The SvelteKit product app served by `svelte-adapter-bun`. It uses Turso/libSQL for data and local-disk storage (`STORAGE_DIR`) for uploads.
 
 ## Development
 
@@ -12,20 +12,19 @@ cp .env.example .env
 bun run dev
 ```
 
-Root `.env` must provide Turso and Better Auth credentials. Wrangler configuration is in `wrangler.jsonc`; local Vite development receives its Cloudflare bindings through the adapter proxy.
+Root `.env` must provide Turso and Better Auth credentials. Uploads go to gitignored `apps/website/.storage` unless `STORAGE_DIR` is set.
 
-## Deployment
+## Production
 
-Use root `bun run deploy` with ignored root `.env.prod`. It builds the Worker, applies committed Drizzle migrations to Turso, then deploys code and secrets together through Wrangler. Do not add startup migrations.
+Use root `bun run deploy` with ignored root `.env.prod`. It validates credentials, builds the Bun-server output, then applies committed Drizzle migrations to Turso. Delivering `apps/website/build/` to the Lightsail VM, loading `.env.prod` plus `STORAGE_DIR` into its service environment, and restarting are operator steps (see root README). Do not add startup migrations.
 
-Required Worker secrets:
+Required service environment:
 
 - `TURSO_DATABASE_URL`
 - `TURSO_AUTH_TOKEN`
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
-
-Create the R2 bucket named in `wrangler.jsonc` before first deploy.
+- `STORAGE_DIR`
 
 ## Main routes
 

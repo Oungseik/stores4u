@@ -12,8 +12,8 @@
 - **Better Auth**: Authentication library.
 - **Drizzle ORM**: Type-safe SQL ORM.
 - **Turso/libSQL**: Single cloud relational database (auth + store data).
-- **Cloudflare Workers**: Production application runtime.
-- **Cloudflare R2**: Upload storage.
+- **AWS Lightsail VM**: Production host — plain Bun service (`svelte-adapter-bun`).
+- **Local disk**: Upload storage under `STORAGE_DIR`.
 - **Zod**: Schema validation library.
 
 ## Development Tools

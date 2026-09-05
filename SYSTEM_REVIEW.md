@@ -28,8 +28,8 @@ Address one item at a time, in listed order unless a dependency requires otherwi
 
 - [x] **DATA-01 — Use one Turso database consistently**
   - Runtime, Drizzle Kit, and the password-reset script use `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN`.
-  - The Worker uses the web libSQL client; migrations use the committed Drizzle history.
-  - Acceptance: the database factory executes against libSQL, the website builds for Workers, and deploy-time migration succeeds against a disposable libSQL database.
+  - The app uses the web libSQL client; migrations use the committed Drizzle history.
+  - Acceptance: the database factory executes against libSQL, the website builds for svelte-adapter-bun, and deploy-time migration succeeds against a disposable libSQL database.
 
 - [x] **DATA-02 — Make stock subtraction concurrency-safe**
   - Move the stock sufficiency condition into the transactional update and check affected rows.
@@ -83,29 +83,26 @@ Address one item at a time, in listed order unless a dependency requires otherwi
   - Receipt PNG save/share and browser/OS printing are implemented. Successful checkout opens the order receipt and invokes the print dialog once; direct Web Bluetooth printer protocols, silent printing, automatic Gallery saving, and PDF export remain deferred.
   - Track team member management and service-worker caching as separate features only when they are scheduled; do not present them as complete.
 
-- [x] **BUILD-01 — Track Worker runtime/build variables**
+- [x] **BUILD-01 — Track app build-time variables**
   - Turbo tracks Turso, Better Auth, OAuth, OCR, and public app variables.
-  - Local-storage, SMTP, Bun-server, and Node OpenTelemetry variables were removed with the local deployment runtime.
+  - Worker/Wrangler, SMTP, Bun-server, and Node OpenTelemetry variables were removed with their runtimes.
 
 ## Deployment validation
 
-- [x] **DEPLOY-01 — Build and Wrangler dry-run the Cloudflare Worker**
-- [x] **DEPLOY-02 — Apply committed migrations to a disposable libSQL database**
-- [x] **DEPLOY-03 — Run the first authenticated live deploy and smoke `/health`, `/setup`, auth, Turso, and R2**
-- [x] **DEPLOY-04 — Persist production credentials and deploy them atomically**
-  - Ignored root `.env.prod` is reused by normal and fresh-account deployments.
-  - Build and migration complete before `wrangler deploy --secrets-file` changes the live Worker; normal deploys do not rotate credentials.
+The Cloudflare deploy-validation era (Wrangler dry-run, `stores4u.mhemaungthuwin.workers.dev`, R2 smoke tests) is obsolete after the Lightsail migration. Current validated pipeline:
+
+- [x] **DEPLOY-02 — Apply committed migrations to a disposable libSQL database** (unchanged tooling)
+- [x] **DEPLOY-05 — Validate `.env.prod`, build the adapter-bun output, and migrate with `.env.prod` loaded** (`bun scripts/deploy.ts --check` plus `bun run deploy` build/migrate stages)
+- [ ] **DEPLOY-06 — First Lightsail VM provision**: service installs `nix run .#website` behind TLS, sets `STORAGE_DIR`, loads `.env.prod`, restarts cleanly, and passes live `/health`, auth, and upload/read/delete smoke tests
 
 ## Baseline verification
 
-The review baseline passed:
+The review baseline passed after the Lightsail migration:
 
-- `bun run check`
-- `bun run test` (Vitest; 29 tests across website and database)
+- `bun run test` (Vitest; 30 website + database tests)
 - `bun run typecheck`
-- `bun run build`
-- `cd apps/website && wrangler deploy --dry-run`
+- `vite build` producing `apps/website/build/index.js` (svelte-adapter-bun)
+- built server smoke: `/health` returns `{"status":"ok"}` and `/signin` renders on `node apps/website/build/index.js`
 - deploy-time migration against a disposable libSQL database
-- authenticated deployment to `https://stores4u.mhemaungthuwin.workers.dev`
-- live `/health`, `/setup`, Better Auth session, Turso migration replay, and R2 upload/read/delete smoke tests
+- `nix flake check`
 - `git diff --check`
