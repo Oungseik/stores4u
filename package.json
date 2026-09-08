@@ -15,8 +15,8 @@
     "test": "bun run test:website && bun run test:database",
     "test:website": "cd apps/website && bun run test",
     "test:database": "cd packages/database && bun run test",
-    "shadcn-extras": "pnpm dlx jsrepo add --cwd packages/ui",
-    "shadcn": "pnpm dlx shadcn-svelte@latest add -c packages/ui",
+    "shadcn-extras": "bunx jsrepo add --cwd packages/ui",
+    "shadcn": "bunx shadcn-svelte@latest add -c packages/ui",
     "db:studio": "turbo db:studio",
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
@@ -28,7 +28,7 @@
     "turbo": "^2.10.5",
     "vitest": "^4.1.10"
   },
-  "packageManager": "bun@1.2.8",
+  "packageManager": "bun@1.4.1",
   "resolutions": {
     "@tanstack/query-core": "5.96.2",
     "drizzle-kit": "1.0.0-rc.4",

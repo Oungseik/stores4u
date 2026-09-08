@@ -16,7 +16,6 @@
             gnumake
             nodejs
             pkg-config
-            pnpm
             python3
           ])
           ++ websiteLibs;
