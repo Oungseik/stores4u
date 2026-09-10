@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "promise"],
+  "env": { "browser": true, "node": true, "es2024": true },
+  "categories": { "correctness": "error", "suspicious": "error", "perf": "warn" },
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }
+    ],
+    "no-param-reassign": "error",
+    "prefer-as-const": "error",
+    "default-param-last": "error",
+    "prefer-enum-initializers": "error",
+    "one-var": ["error", "never"],
+    "no-inferrable-types": "error",
+    "no-else-return": ["error", { "allowElseIf": true }],
+
+    "no-shadow": "off",
+    "no-underscore-dangle": "off",
+    "no-await-in-loop": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "unicorn/require-module-specifiers": "off"
+  },
+  "ignorePatterns": [".agents/**"]
+}

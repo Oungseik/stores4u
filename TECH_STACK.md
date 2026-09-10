@@ -18,9 +18,9 @@
 
 ## Development Tools
 - **TypeScript**: Typed superset of JavaScript.
-- **Biome**: Fast linter and formatter.
+- **Oxlint**: Rust linter for JS/TS and Svelte `<script>` blocks — the only linter.
+- **Biome**: Formatter and import organizer.
 - **Turbo**: Build system for monorepos.
 - **Vite**: Fast build tool.
-- **ESLint**: JavaScript linter.
-- **Prettier**: Code formatter.
+- **Prettier**: Svelte and Markdown formatter.
 - **Vitest**: Testing framework.

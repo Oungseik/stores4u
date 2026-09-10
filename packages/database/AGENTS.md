@@ -29,6 +29,7 @@ Owns `src/schema/**`, `createDb(client)`, `drizzle.config.ts`, committed `drizzl
 
 - `bun run build`
 - `bun run typecheck`
+- `bun run lint` (root Turbo task, `oxlint --fix .`)
 - `bun run test`
 - Validate deploy migrations against a disposable libSQL database when migration files change.
 

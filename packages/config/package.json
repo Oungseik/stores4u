@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
-    "lint": "biome lint --write .",
+    "lint": "oxlint --fix .",
     "format": "biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run format"
   },

@@ -1,7 +1,6 @@
 import { Context, watch } from 'runed';
 import type { ReadableBoxedValues, WritableBoxedValues } from 'svelte-toolbelt';
 import type { OptionsType, ZxcvbnResult } from '@zxcvbn-ts/core';
-import { ZxcvbnFactory } from '@zxcvbn-ts/core';
 
 type ZxcvbnRunner = (password: string) => ZxcvbnResult;
 

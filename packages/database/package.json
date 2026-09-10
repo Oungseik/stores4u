@@ -9,7 +9,7 @@
     "with-env": "dotenv -e ../../.env --",
     "build": "tsdown --no-dts",
     "typecheck": "tsc --noEmit",
-    "lint": "biome lint --write .",
+    "lint": "oxlint --fix .",
     "format": "biome format --write .",
     "check": "bun run typecheck && bun run lint && bun run format",
     "test": "bun --bun vitest --run",

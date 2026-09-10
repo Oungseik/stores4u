@@ -22,6 +22,7 @@ Owns: presentational and primitive components (button, card, sidebar, data-table
 ## Verification
 
 - `bun run typecheck` (root Turbo task)
+- `bun run lint` (root Turbo task, `oxlint --fix .`)
 
 ## Child DOX Index
 

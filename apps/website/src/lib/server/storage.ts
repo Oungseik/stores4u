@@ -71,7 +71,7 @@ export async function getObject(key: string): Promise<Buffer> {
     return await readFile(objectPath(key));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      throw new Error(`Stored object not found: ${key}`);
+      throw new Error(`Stored object not found: ${key}`, { cause: error });
     }
     throw error;
   }

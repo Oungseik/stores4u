@@ -7,7 +7,8 @@
     "build": "vite build",
     "prepare": "svelte-kit sync || echo ''",
     "shadcn": "bunx shadcn-svelte@latest add",
-    "typecheck": "svelte-kit sync && svelte-check --tsgo-experimental-api --tsconfig ./tsconfig.json"
+    "typecheck": "svelte-kit sync && svelte-check --tsgo-experimental-api --tsconfig ./tsconfig.json",
+    "lint": "oxlint --fix ."
   },
   "exports": {
     "./ai-elements/*": "./src/lib/components/ai-elements/*/index.js",

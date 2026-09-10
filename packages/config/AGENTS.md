@@ -21,6 +21,7 @@ Owns: `COUNTRIES`, `CURRENCIES`, `LANGUAGES`, `DEFAULT_LANGUAGE`, `TIMEZONES`, `
 ## Verification
 
 - `bun run typecheck` (root turbo → `tsc --noEmit` with stable TypeScript 7)
+- `bun run lint` (root Turbo task, `oxlint --fix .`)
 
 ## Child DOX Index
 

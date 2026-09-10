@@ -11,12 +11,12 @@ import { db } from "$lib/server/db";
 import { logger } from "$lib/server/logger";
 import { rateLimiter } from "$lib/server/rate-limit";
 
-const firstRunAuthPaths = [
+const firstRunAuthPaths = new Set([
   "/api/auth/sign-up/email",
   "/api/auth/sign-in/email",
   "/api/auth/sign-in/social",
   "/api/auth/get-session",
-];
+]);
 
 /**
  * First-run + setup gate. Single source of truth for reachability:
@@ -44,7 +44,7 @@ const setupGate: Handle = async ({ event, resolve }) => {
     }
 
     if (path.startsWith("/api/auth/")) {
-      return firstRunAuthPaths.includes(path) || path.startsWith("/api/auth/callback/")
+      return firstRunAuthPaths.has(path) || path.startsWith("/api/auth/callback/")
         ? resolve(event)
         : redirect(303, localizePath("/setup"));
     }

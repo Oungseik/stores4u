@@ -38,19 +38,21 @@
 				content: JSON.stringify(output, null, 2),
 				language: "json",
 			};
-		} else if (typeof output === "string") {
+		}
+
+		if (typeof output === "string") {
 			return {
 				type: "code",
 				content: output,
 				language: "json",
 			};
-		} else {
-			return {
-				type: "text",
-				content: String(output),
-				language: "text",
-			};
 		}
+
+		return {
+			type: "text",
+			content: String(output),
+			language: "text",
+		};
 	});
 
 	let id = $props.id();

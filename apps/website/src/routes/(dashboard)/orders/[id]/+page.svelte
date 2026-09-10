@@ -95,7 +95,6 @@
     const url = new URL(page.url);
     url.searchParams.delete("print");
     // Same localized URL, not navigation; only consume the one-shot print flag.
-    // eslint-disable-next-line svelte/no-navigation-without-resolve
     replaceState(url, page.state);
   });
 

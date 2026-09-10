@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": ["biome.json", ".oxlintrc.json"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

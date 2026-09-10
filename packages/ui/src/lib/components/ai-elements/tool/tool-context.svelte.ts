@@ -39,7 +39,7 @@ export class ToolClass {
     // Watch for state changes and automatically handle tool opening/closing
     watch(
       () => this.state,
-      (currentState, previousState) => {
+      (currentState, _previousState) => {
         // Auto-open when tool starts processing
         if (currentState === "input-available" && !this.isOpen) {
           this.isOpen = true;
@@ -47,7 +47,7 @@ export class ToolClass {
 
         // Auto-close when tool completes with error (optional behavior)
         // Uncomment if you want this behavior:
-        // if (currentState === 'output-error' && previousState !== 'output-error') {
+        // if (currentState === 'output-error' && _previousState !== 'output-error') {
         //   setTimeout(() => {
         //     this.isOpen = false;
         //   }, 3000);

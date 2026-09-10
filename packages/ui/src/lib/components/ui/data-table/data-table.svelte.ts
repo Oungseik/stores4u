@@ -58,7 +58,7 @@ export function createSvelteTable<TData extends RowData>(options: TableOptions<T
 				state: mergeObjects(state, options.state || {}),
 
 				onStateChange: (updater: Updater<TableState>) => {
-					if (updater instanceof Function) state = updater(state);
+					if (typeof updater === "function") state = updater(state);
 					else state = mergeObjects(state, updater);
 
 					options.onStateChange?.(updater);
@@ -114,7 +114,6 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
 		},
 
 		ownKeys(): (string | symbol)[] {
-			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const all = new Set<string | symbol>();
 			for (const s of sources) {
 				const obj = resolve(s);

@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.13",
+    "oxlint": "^1.82.0",
     "turbo": "^2.10.12",
     "vitest": "^4.1.11"
   },

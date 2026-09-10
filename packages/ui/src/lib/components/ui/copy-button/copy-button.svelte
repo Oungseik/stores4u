@@ -69,7 +69,7 @@
 	class={cn('flex items-center gap-2', className)}
 	type="button"
 	name="copy"
-	{...merged as /* eslint-disable-line @typescript-eslint/no-explicit-any */ any}
+	{...merged as any}
 >
 	{#if clipboard.status === 'success'}
 		<div in:scale={{ duration: animationDuration, start: 0.85 }}>

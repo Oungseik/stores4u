@@ -100,17 +100,17 @@
   const pinnedNotifications = $derived(
     notifications
       .filter((n) => n.isPinned)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
+      .toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
   );
   const todayNotifications = $derived(
     notifications
       .filter((n) => !n.isPinned && isToday(n.createdAt))
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
+      .toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
   );
   const earlierNotifications = $derived(
     notifications
       .filter((n) => !n.isPinned && !isToday(n.createdAt))
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
+      .toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
   );
 
   function isToday(date: Date): boolean {

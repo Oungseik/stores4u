@@ -36,6 +36,7 @@
 				?.onConfirm()
 				.then(() => {
 					this.open = false;
+					return;
 				})
 				.finally(() => {
 					this.loading = false;
