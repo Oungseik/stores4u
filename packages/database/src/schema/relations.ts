@@ -1,5 +1,5 @@
 import { defineRelations } from "drizzle-orm";
-import { account, invite, session, shop, twoFactor, user } from "./auth";
+import { account, invite, session, shop, twoFactor, user, verification } from "./auth";
 import { customer } from "./customer";
 import { inventoryMovement } from "./inventory";
 import { order, orderItem } from "./order";
@@ -23,6 +23,7 @@ export const schema = {
   session,
   account,
   twoFactor,
+  verification,
   invite,
   shop,
   shopInfo,

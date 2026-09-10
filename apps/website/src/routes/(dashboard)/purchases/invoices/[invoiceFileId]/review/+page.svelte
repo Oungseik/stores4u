@@ -511,11 +511,7 @@
             initialSupplierData={extractedData?.supplier}
           />
 
-          <ItemsCard
-            bind:items={invoiceData.items}
-            {products}
-            currency={shop.currency}
-          />
+          <ItemsCard bind:items={invoiceData.items} {products} currency={shop.currency} />
 
           <InvoiceDetailsCard
             bind:invoiceNumber={invoiceData.invoiceNumber}

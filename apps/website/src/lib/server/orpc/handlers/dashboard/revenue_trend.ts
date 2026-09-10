@@ -25,7 +25,6 @@ function tzDateKey(d: Date, tz: string): string {
 }
 
 export const dashboardRevenueTrendHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

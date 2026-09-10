@@ -9,7 +9,6 @@ const input = z.object({
 });
 
 export const listSuppliersHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

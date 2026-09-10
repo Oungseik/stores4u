@@ -18,7 +18,6 @@ import { storePeriodStarts } from "$lib/server/timezone";
 const input = z.object({});
 
 export const dashboardStatsHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

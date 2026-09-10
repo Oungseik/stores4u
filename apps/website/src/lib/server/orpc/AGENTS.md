@@ -18,6 +18,7 @@ Owns: `base.ts`, `router.ts`, `handlers/`, and colocated `*.test.ts` files.
 - Turso/libSQL transactions are async: await `db.transaction(...)` and every query in its callback; do not use Bun SQLite `.run()`, `.get()`, `.all()`, or `.sync()`.
 - Stock-writing inputs use positive whole-unit quantities across checkout, manual adjustments, and purchase invoices. Checkout rejects discounts above subtotal plus rounded VAT so persisted order totals cannot be negative.
 - `protectedShopMiddleware` rejects missing sessions and non-dashboard roles before resolving the single shop.
+- The `/rpc/[...rest]` transport is POST-only: procedures declare no `.route` HTTP metadata, and `INPUT_VALIDATION_FAILED` is mapped to HTTP 422 by the handler's `errorStatusMap`, not by `.errors()` definitions.
 
 ## Work Guidance
 

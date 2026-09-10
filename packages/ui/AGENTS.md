@@ -17,6 +17,7 @@ Owns: presentational and primitive components (button, card, sidebar, data-table
 ## Work Guidance
 
 - Add shadcn-svelte components via the root scripts (`shadcn`, `shadcn-extras`).
+- Typechecking needs the `@typescript/native` npm alias of stable TypeScript 7 (native API for `svelte-check --tsgo-experimental-api`) alongside classic `typescript@6`; do not switch back to `@typescript/native-preview`.
 
 ## Verification
 

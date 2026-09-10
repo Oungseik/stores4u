@@ -71,7 +71,9 @@ Default section order:
 - Work through the correctness and feature backlog in root `SYSTEM_REVIEW.md` one item at a time, keeping its checkboxes and acceptance notes current.
 - Turbo runs in strict environment mode; add every app build-time variable used by `apps/website` to root `turbo.json` `globalEnv`. Purchase-invoice OCR requires `MISTRAL_API_KEY` there so root `.env` reaches `apps/website`.
 - Biome treats unused imports as lint errors repo-wide (`correctness.noUnusedImports: "error"`).
+- Prerelease dependencies stay exact-pinned and are upgraded deliberately, never widened to ranges: `drizzle-orm` / `drizzle-kit` `1.0.0-rc.4`, `@orpc/*` `2.0.0-beta.35`, `vaul-svelte` `1.0.0-next.7`.
 - Vitest is the sole test framework repo-wide. Root `bun run test` runs website and database projects under Bun; do not import `bun:test` or add another runner.
+- TypeScript 7 (stable) is the type-checking compiler: `packages/config` and `packages/database` run `tsc --noEmit`; `apps/website` and `packages/ui` run `svelte-check --tsgo-experimental-api` backed by the `@typescript/native` npm alias to stable `typescript@7`, while their classic `typescript` devDependency stays 6.x because svelte-check, svelte-kit, and typescript-eslint boot against the classic API. Do not reinstall `@typescript/native-preview`.
 - Nix uses the dendritic pattern: root `flake.nix` wires `flake-parts` + `import-tree`, while feature modules live under `nix/`, with no external flake inputs beyond `nixpkgs`, `flake-parts`, and `import-tree`.
 
 ## Closeout

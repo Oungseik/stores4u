@@ -15,7 +15,6 @@ const input = z.object({
 });
 
 export const listMovementsHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
   .handler(async ({ input }) => {

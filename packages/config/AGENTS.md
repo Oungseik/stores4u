@@ -20,7 +20,7 @@ Owns: `COUNTRIES`, `CURRENCIES`, `LANGUAGES`, `DEFAULT_LANGUAGE`, `TIMEZONES`, `
 
 ## Verification
 
-- `bun run typecheck` (root turbo → `tsgo --noEmit` here via `@typescript/native-preview`)
+- `bun run typecheck` (root turbo → `tsc --noEmit` with stable TypeScript 7)
 
 ## Child DOX Index
 

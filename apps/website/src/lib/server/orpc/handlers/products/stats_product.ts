@@ -7,7 +7,6 @@ const input = z.object({
 });
 
 export const statsProductHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
   .handler(async ({ input }) => {

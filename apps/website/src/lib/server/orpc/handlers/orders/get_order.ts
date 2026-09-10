@@ -8,7 +8,6 @@ const input = z.object({
 });
 
 export const getOrderHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

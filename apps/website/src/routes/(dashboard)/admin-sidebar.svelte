@@ -1,7 +1,7 @@
 <script lang="ts">
   import { localizePath } from "$lib/localize-path";
   import * as msg from "$lib/paraglide/messages";
-  import type { IconProps } from "@lucide/svelte";
+  import type { LucideIcon } from "@lucide/svelte";
   import ArrowLeftRightIcon from "@lucide/svelte/icons/arrow-left-right";
   import Building2Icon from "@lucide/svelte/icons/building-2";
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
@@ -24,14 +24,14 @@
   import { slide } from "svelte/transition";
   import * as Sidebar from "@repo/ui/sidebar";
   import { useSidebar } from "@repo/ui/sidebar";
-  import type { Component, ComponentProps } from "svelte";
+  import type { ComponentProps } from "svelte";
 
   import { authClient } from "$lib/auth_client";
 
   interface NavItem {
     title: string;
     href: string;
-    icon: Component<IconProps>;
+    icon: LucideIcon;
   }
 
   interface Props extends ComponentProps<typeof Sidebar.Root> {

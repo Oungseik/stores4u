@@ -23,7 +23,6 @@ function getStartOfMonth(date: Date): Date {
 }
 
 export const statsOrdersHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

@@ -256,11 +256,7 @@
       <div class="flex flex-col gap-6 xl:col-start-1 xl:col-end-2 xl:row-start-1">
         <SupplierCard {suppliers} bind:selectedSupplier bind:isExistingSupplier />
 
-        <ItemsCard
-          bind:items={invoiceData.items}
-          {products}
-          currency={shop.currency}
-        />
+        <ItemsCard bind:items={invoiceData.items} {products} currency={shop.currency} />
 
         <InvoiceDetailsCard
           bind:invoiceNumber={invoiceData.invoiceNumber}

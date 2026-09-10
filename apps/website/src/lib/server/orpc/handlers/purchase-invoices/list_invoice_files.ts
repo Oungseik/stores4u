@@ -10,7 +10,6 @@ const input = z.object({
 });
 
 export const listInvoiceFilesHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

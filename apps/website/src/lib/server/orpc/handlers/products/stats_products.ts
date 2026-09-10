@@ -5,7 +5,6 @@ import { authMiddleware, os, protectedShopMiddleware } from "$lib/server/orpc/ba
 const input = z.object({});
 
 export const statsProductsHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(authMiddleware)
   .use(protectedShopMiddleware)

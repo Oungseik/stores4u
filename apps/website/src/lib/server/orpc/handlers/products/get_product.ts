@@ -14,7 +14,6 @@ const input = z
   });
 
 export const getProductHandler = os
-  .route({ method: "GET" })
   .input(input)
   .use(protectedShopMiddleware)
   .handler(async ({ input }) => {
